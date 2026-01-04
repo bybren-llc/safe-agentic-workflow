@@ -3,7 +3,7 @@
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.1.0-green.svg)](whitepaper/README.md)
+[![Version](https://img.shields.io/badge/version-2.2.0-green.svg)](whitepaper/README.md)
 [![Production Validated](https://img.shields.io/badge/5+%20months-production%20validated-brightgreen.svg)](whitepaper/data/REAL-PRODUCTION-DATA-SYNTHESIS.md)
 [![Skills](https://img.shields.io/badge/skills-17%20model--invoked-purple.svg)](.claude/skills/)
 [![Commands](https://img.shields.io/badge/commands-23%20workflows-orange.svg)](.claude/commands/)
@@ -125,7 +125,7 @@ See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md).
 
 ### Production Results (v1.0 Harness)
 
-> **Note**: These metrics are from the **v1.0 harness** deployed on the WTFB-app project (5+ months production use). This repository is now at **v2.1** (vNext Workflow Contract), which refines governance based on lessons learned.
+> **Note**: These metrics are from the **v1.0 harness** deployed on the WTFB-app project (5+ months production use). This repository is now at **v2.2** (Skills Enhancement), which adds comprehensive skill documentation and authoring guide.
 
 | Metric           | Value              | Source     |
 | ---------------- | ------------------ | ---------- |

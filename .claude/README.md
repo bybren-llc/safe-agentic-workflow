@@ -243,16 +243,43 @@ Scripts in `.claude/hooks/` that are actively wired via `hooks-config.json`:
 
 Skills are model-invoked expertise packs that Claude loads automatically when relevant context is detected.
 
-**Available Skills:**
+### Skills Index (17 Skills)
 
-| Skill               | Status | Purpose                                        |
-| ------------------- | ------ | ---------------------------------------------- |
-| `wtfb-workflow`     | ✅     | SAFe commit format, branch naming, PR workflow |
-| `pattern-discovery` | ✅     | Search docs/patterns before creating new code  |
-| `rls-patterns`      | ✅     | RLS context helpers, forbid direct Prisma      |
-| `frontend-patterns` | ✅     | Clerk auth, shadcn/Radix, Next.js App Router   |
+| Skill | Purpose | Related Skills |
+|-------|---------|----------------|
+| [safe-workflow](skills/safe-workflow/) | Branch naming, commit format, PR workflow | release-patterns, git-advanced |
+| [release-patterns](skills/release-patterns/) | PR creation, CI/CD validation | safe-workflow, deployment-sop |
+| [pattern-discovery](skills/pattern-discovery/) | Search patterns before implementing | api-patterns, frontend-patterns |
+| [agent-coordination](skills/agent-coordination/) | Agent assignment, blocker escalation | orchestration-patterns, linear-sop |
+| [rls-patterns](skills/rls-patterns/) | Row Level Security for database ops | api-patterns, security-audit |
+| [spec-creation](skills/spec-creation/) | Specs with acceptance criteria | pattern-discovery, testing-patterns |
+| [orchestration-patterns](skills/orchestration-patterns/) | Multi-step task orchestration | agent-coordination, linear-sop |
+| [testing-patterns](skills/testing-patterns/) | Jest and Playwright patterns | api-patterns, spec-creation |
+| [security-audit](skills/security-audit/) | RLS validation, vulnerability scanning | rls-patterns, api-patterns |
+| [linear-sop](skills/linear-sop/) | Linear ticket management | orchestration-patterns |
+| [migration-patterns](skills/migration-patterns/) | Database migrations with RLS | rls-patterns |
+| [frontend-patterns](skills/frontend-patterns/) | Next.js, Clerk, shadcn/ui | api-patterns, testing-patterns |
+| [api-patterns](skills/api-patterns/) | API routes with Zod validation | rls-patterns, testing-patterns |
+| [git-advanced](skills/git-advanced/) | Rebase, bisect, cherry-pick | safe-workflow |
+| [stripe-patterns](skills/stripe-patterns/) | Payment integration, webhooks | api-patterns, security-audit |
+| [deployment-sop](skills/deployment-sop/) | Deployment workflows, smoke tests | release-patterns |
+| [confluence-docs](skills/confluence-docs/) | ADRs, runbooks, architecture docs | spec-creation |
 
-Skills live in `.claude/skills/{skill-name}/SKILL.md`.
+### Skill Structure
+
+Each skill folder contains:
+- `SKILL.md` - Main skill definition (Claude loads this)
+- `README.md` - Quick reference and metadata
+
+Skills live in `.claude/skills/{skill-name}/`.
+
+### Creating New Skills
+
+See the **[Skill Authoring Guide](../docs/guides/SKILL_AUTHORING_GUIDE.md)** for:
+- Official Anthropic resources
+- Community checklists (jezweb/claude-skills)
+- Our harness quality standards
+- Step-by-step skill creation
 
 ### Listing Available Skills
 
@@ -346,5 +373,5 @@ These configurations are part of the project and should be:
 
 ---
 
-**Last Updated**: 2025-12-23
+**Last Updated**: 2026-01-04
 **Maintained by**: WTFB Development Team + ARCHitect-in-the-IDE (Auggie)

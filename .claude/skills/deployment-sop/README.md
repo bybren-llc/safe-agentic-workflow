@@ -1,0 +1,43 @@
+# Deployment SOP
+
+![Status](https://img.shields.io/badge/status-production-green)
+![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+
+> Deployment workflows, pre-deploy validation, and smoke testing patterns.
+
+## Quick Start
+
+This skill activates automatically when you:
+- Deploy to staging or production
+- Run pre-deploy validation
+- Execute post-deploy smoke tests
+- Coordinate release activities
+
+## What This Skill Does
+
+Routes to existing deployment SOPs and provides checklists for safe, validated deployments. Links to authoritative sources for semantic release automation and staging/UAT processes.
+
+## Trigger Keywords
+
+| Primary | Secondary |
+|---------|-----------|
+| deploy | staging |
+| production | smoke test |
+| release | pre-deploy |
+| UAT | validation |
+
+## Related Skills
+
+- [release-patterns](../release-patterns/) - PR and CI/CD patterns
+- [security-audit](../security-audit/) - Pre-deploy security checks
+
+## Maintenance
+
+| Field | Value |
+|-------|-------|
+| Last Updated | 2026-01-04 |
+| Harness Version | v2.2.0 |
+
+---
+
+*Full implementation details in [SKILL.md](SKILL.md)*
