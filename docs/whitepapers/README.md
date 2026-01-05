@@ -45,6 +45,20 @@ Adoption guide for teams wanting to implement this harness:
 - Key insights to preserve
 - File locations quick reference
 
+### 4. Iteration Patterns Comparative Analysis
+
+**File**: `ITERATION-PATTERNS-COMPARATIVE-ANALYSIS.md`
+
+Comparative analysis of self-referential loops vs SAFe multi-agent orchestration:
+
+- Ralph Wiggum (Anthropic's autonomous loop plugin) analysis
+- SAFe Harness distributed multi-agent architecture
+- Side-by-side comparison with ASCII diagrams
+- Trust model analysis (self-trust vs distributed verification)
+- Failure mode analysis and circuit breakers
+- Integration recommendation (don't integrate - redundant)
+- Validation of SAFe approach superiority for enterprise work
+
 ## Quick Start
 
 1. **New to the harness?** Start with the Agent Perspective document to understand the philosophy
