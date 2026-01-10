@@ -73,9 +73,9 @@ jobs:
           fi
 
       - name: Check for Linear ticket reference
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          PR_BODY="${{ github.event.pull_request.body }}"
-
           if echo "$PR_BODY" | grep -qE "{{TICKET_PREFIX}}-[0-9]+"; then
             echo "✅ Linear ticket reference found in PR body"
           else
