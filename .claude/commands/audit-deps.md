@@ -1,5 +1,6 @@
 ---
 description: Run comprehensive dependency audit
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 > **📋 TEMPLATE**: This command is a template. See "Customization Guide" below to adapt for your infrastructure.

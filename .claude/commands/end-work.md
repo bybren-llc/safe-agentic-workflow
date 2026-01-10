@@ -1,5 +1,6 @@
 ---
 description: Complete work session with final checklist
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 You are completing a work session. Execute final checklist before context switch or session end.

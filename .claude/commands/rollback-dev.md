@@ -1,6 +1,7 @@
 ---
 description: Rollback {DEV_MACHINE} dev environment to previous Docker image
 argument-hint: [commit-sha]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 > **📋 TEMPLATE**: This command is a template. See "Customization Guide" below to adapt for your infrastructure.

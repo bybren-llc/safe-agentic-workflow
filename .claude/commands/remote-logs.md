@@ -1,6 +1,7 @@
 ---
 description: View remote dev container logs
 argument-hint: [--follow] [--tail N]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 View logs from the remote development environment containers.

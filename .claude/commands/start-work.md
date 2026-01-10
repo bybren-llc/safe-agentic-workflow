@@ -1,6 +1,7 @@
 ---
 description: Start work on a new Linear ticket with proper workflow
 argument-hint: [WOR-number]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
 ---
 
 You are starting work on a new Linear ticket.
