@@ -1,6 +1,7 @@
 ---
 description: Search for code patterns across codebase
 argument-hint: <pattern> [file-type]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 Search codebase for patterns using optimized tools. Useful for refactoring, finding usage, or understanding patterns.

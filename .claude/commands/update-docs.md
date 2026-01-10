@@ -1,5 +1,6 @@
 ---
 description: Check and update relevant documentation for current work
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 Review current work and identify documentation that needs updating

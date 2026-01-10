@@ -1,5 +1,6 @@
 ---
 description: Deploy latest Docker image to local Docker environment
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 Deploy the latest Docker image from GitHub Container Registry to your LOCAL machine's Docker.

@@ -1,5 +1,6 @@
 ---
 description: Conduct retrospective analysis of work session
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 You are conducting a retrospective.

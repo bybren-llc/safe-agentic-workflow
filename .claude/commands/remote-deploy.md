@@ -1,5 +1,6 @@
 ---
 description: Deploy latest Docker image to remote staging environment
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 # Remote Deploy Command

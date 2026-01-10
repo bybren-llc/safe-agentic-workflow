@@ -1,6 +1,7 @@
 ---
 description: View {DEV_MACHINE} dev container logs
 argument-hint: [--follow] [--tail N]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 > **📋 TEMPLATE**: This command is a template. See "Customization Guide" below to adapt for your infrastructure.

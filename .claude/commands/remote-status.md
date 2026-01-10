@@ -1,5 +1,6 @@
 ---
 description: Check if remote Docker environment needs updating
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 # Remote Status Command

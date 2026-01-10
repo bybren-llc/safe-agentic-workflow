@@ -1,5 +1,6 @@
 ---
 description: Sync current work with Linear ticket status
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
 ---
 
 Synchronize current branch work with Linear ticket, ensuring ticket reflects actual progress.

@@ -1,5 +1,6 @@
 ---
 description: Quick status check of current workflow state
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 Perform a quick workflow health check against @CONTRIBUTING.md requirements.

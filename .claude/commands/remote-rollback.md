@@ -1,6 +1,7 @@
 ---
 description: Rollback remote dev environment to previous Docker image
 argument-hint: [commit-sha]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 Rollback the remote development environment to a previous Docker image version.
