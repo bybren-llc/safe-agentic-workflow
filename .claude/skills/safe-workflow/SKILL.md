@@ -7,7 +7,11 @@ description: SAFe development workflow guidance including branch naming conventi
 
 > **📋 TEMPLATE**: This skill uses `{TICKET_PREFIX}` as a placeholder. Replace with your project's ticket prefix (e.g., `WOR`, `PROJ`, `FEAT`).
 
-## Trigger Conditions
+## Purpose
+
+Enforce SAFe-compliant git workflow with standardized branch naming, commit message format, and rebase-first merge strategy. Ensures linear history and full traceability to Linear tickets.
+
+## When This Skill Applies
 
 Invoke this skill when:
 
