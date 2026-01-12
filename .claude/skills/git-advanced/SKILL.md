@@ -1,289 +1,254 @@
 ---
 name: git-advanced
-description: Advanced git operations including rebase, bisect, cherry-pick, and conflict resolution. Use when rebasing branches, debugging with bisect, cherry-picking commits, or resolving complex merge conflicts.
+description: Advanced Git operations for teams using rebase-first workflow with linear history. Includes quality gates, handoff generation, and safe merge patterns.
 ---
 
-# Git Advanced Skill
+# Git Advanced Patterns
 
 ## Purpose
+Guide safe Git operations with rebase-first workflow, quality gates, and automated handoff generation.
 
-Provide guidance for advanced git operations with safety considerations. This project uses a **rebase-first workflow** with linear history—understand these patterns to avoid breaking the codebase.
+## Forbidden Operations
 
-## When This Skill Applies
+| Operation | Why | Safe Alternative |
+|-----------|-----|------------------|
+| `git push --force` to main | Destroys shared history | Never force push main |
+| `git push --force` to dev | Team disruption | `git push --force-with-lease` |
+| Merge commits on feature branches | Non-linear history | Rebase instead |
+| Skip pre-commit hooks | Quality bypass | Fix the issues |
+| Rewrite pushed history | Breaks collaborators | Only before first push |
 
-Invoke this skill when:
+## Quality Gates (MANDATORY)
 
-- Rebasing feature branches onto dev
-- Using git bisect to find bugs
-- Cherry-picking commits between branches
-- Resolving complex merge conflicts
-- Recovering from git mistakes
-
-## Stop-the-Line Conditions
-
-### FORBIDDEN Operations
+Before ANY commit/merge, run:
 
 ```bash
-# FORBIDDEN: Force push to protected branches
-git push --force origin dev    # ❌ NEVER
-git push --force origin master # ❌ NEVER
-
-# FORBIDDEN: Merge commits on dev branch
-git merge feature-branch       # ❌ Use rebase-and-merge PR strategy
-
-# FORBIDDEN: Skip pre-commit hooks
-git commit --no-verify         # ❌ Hooks exist for a reason
-
-# FORBIDDEN: Rewriting shared history
-git rebase -i HEAD~5 && git push --force  # ❌ If already pushed
+# All checks must pass
+bun run lint && bun run typecheck && bun run test
 ```
 
-### SAFE Operations
+## The gitFlow Workflow
+
+Complete workflow for finishing work and merging to main:
+
+### Step 1: Pre-Flight Checks
 
 ```bash
-# SAFE: Force-with-lease on your feature branch
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature  # ✅ Safe
+# Ensure on feature branch
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" = "main" ]; then
+  echo "ERROR: Cannot run gitFlow on main branch"
+  exit 1
+fi
 
-# SAFE: Interactive rebase before first push
-git rebase -i origin/dev   # ✅ Squash/clean local commits
-
-# SAFE: Force push after conflict resolution
-git rebase origin/dev && git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+# Check for uncommitted changes
+git status
 ```
 
-## Rebase Workflow (Standard)
-
-### Before Creating PR
+### Step 2: Run Quality Gates
 
 ```bash
-# 1. Fetch latest changes
-git fetch origin dev
+echo "Running quality gates..."
 
-# 2. Rebase onto latest dev
-git rebase origin/dev
+if ! bun run lint; then
+  echo "Lint failed. Fix errors and try again."
+  exit 1
+fi
 
-# 3. If conflicts, resolve them
-git status                   # See conflicted files
-# ... edit files to resolve ...
-git add <resolved-files>
-git rebase --continue
+if ! bun run typecheck; then
+  echo "Type check failed. Fix errors and try again."
+  exit 1
+fi
 
-# 4. Push with force-with-lease
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+if ! bun run test; then
+  echo "Tests failed. Fix tests and try again."
+  exit 1
+fi
+
+echo "All quality gates passed"
 ```
 
-### During PR Review (After Feedback)
+### Step 3: Commit Remaining Changes
 
 ```bash
-# 1. Make requested changes
-git add . && git commit -m "fix: address PR feedback [{TICKET_PREFIX}-XXX]"
-
-# 2. Fetch and rebase again
-git fetch origin dev
-git rebase origin/dev
-
-# 3. Push update
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+git add .
+git commit -m "feat: your commit message [ConTS-XXX]"
 ```
 
-## Git Bisect (Finding Bugs)
-
-### When to Use
-
-Use bisect when you know a bug was introduced at some point but don't know which commit.
-
-### Bisect Workflow
+### Step 4: Rebase and Merge
 
 ```bash
-# 1. Start bisect
+# Fetch latest main
+git fetch origin main
+
+# Rebase onto main
+git rebase origin/main
+
+# If conflicts, resolve them:
+# 1. Edit conflicting files
+# 2. git add <resolved-files>
+# 3. git rebase --continue
+
+# Switch to main and merge
+git checkout main
+git pull origin main
+git merge --ff-only $CURRENT_BRANCH
+
+# Push main
+git push origin main
+
+# Clean up feature branch
+git branch -d $CURRENT_BRANCH
+git push origin --delete $CURRENT_BRANCH
+```
+
+### Step 5: Generate Handoff Document
+
+```bash
+HANDOFF_FILE="handoffs/handoff-$(date +%Y%m%d-%H%M).md"
+
+cat > "$HANDOFF_FILE" << EOF
+# Handoff Document - $(date +%Y-%m-%d %H:%M)
+
+## Work Completed
+
+**Branch**: $CURRENT_BRANCH
+**Merged to**: main
+**Date**: $(date +%Y-%m-%d)
+
+## Changes Summary
+
+$(git log --oneline -5)
+
+## Files Modified
+
+$(git diff --name-only HEAD~5..HEAD)
+
+## Testing Status
+
+- [x] Lint: PASSED
+- [x] Type checks: PASSED
+- [x] Unit tests: PASSED
+- [ ] E2E tests: [Manual verification needed]
+
+## Next Steps for Incoming Agent
+
+1. Review this handoff document
+2. Run /planBranch [next-feature-name] to start new work
+3. Ensure all quality gates pass before proceeding
+
+---
+
+Ready for: /clear -> Paste this handoff -> /planBranch
+EOF
+```
+
+## Rebase Workflow (Daily)
+
+Keep your feature branch up to date:
+
+```bash
+# Fetch latest
+git fetch origin main
+
+# Rebase your work onto main
+git rebase origin/main
+
+# If conflicts:
+# 1. Resolve conflicts in files
+# 2. git add <resolved-files>
+# 3. git rebase --continue
+
+# Push your updated branch
+git push --force-with-lease origin feature/your-branch
+```
+
+## Cherry-Pick Pattern
+
+For selective commit extraction:
+
+```bash
+# Single commit
+git cherry-pick <commit-sha>
+
+# Range of commits
+git cherry-pick <start-sha>^..<end-sha>
+
+# If conflicts, resolve and continue:
+git cherry-pick --continue
+```
+
+## Git Bisect for Bug Hunting
+
+```bash
+# Start bisect
 git bisect start
+git bisect bad HEAD
+git bisect good <last-known-good-commit>
 
-# 2. Mark current state (has bug)
-git bisect bad
-
-# 3. Mark a known good commit
-git bisect good <commit-sha>
-# e.g., git bisect good abc1234
-
-# 4. Git checks out middle commit - test it
-yarn test:unit  # or manual test
-
-# 5. Tell git if this commit is good or bad
+# Git will checkout commits for testing
+# After testing each:
 git bisect good  # or
 git bisect bad
 
-# 6. Repeat until found
-# Git will tell you the first bad commit
-
-# 7. End bisect
+# When done, get the bad commit
+# Then reset
 git bisect reset
 ```
 
-### Automated Bisect
+## Pre-Push Checklist
 
-```bash
-# Run a test script automatically
-git bisect start HEAD abc1234
-git bisect run yarn test:specific-test
-```
+Before pushing any branch:
 
-## Cherry-Pick (Selective Commits)
-
-### When to Use
-
-- Backporting a fix to an older branch
-- Pulling a specific commit from one branch to another
-- Selective feature extraction
-
-### Cherry-Pick Workflow
-
-```bash
-# 1. Find the commit SHA
-git log --oneline branch-name | head -20
-
-# 2. Cherry-pick to current branch
-git cherry-pick <commit-sha>
-
-# 3. If conflicts, resolve them
-git status
-# ... resolve conflicts ...
-git add <resolved-files>
-git cherry-pick --continue
-
-# 4. Push the result
-git push origin current-branch
-```
-
-### Cherry-Pick Multiple Commits
-
-```bash
-# Range of commits (oldest..newest, exclusive of oldest)
-git cherry-pick abc123^..def456
-
-# Specific commits
-git cherry-pick abc123 def456 ghi789
-```
-
-## Conflict Resolution
-
-### Common Conflict Scenarios
-
-| Scenario                 | Resolution Strategy             |
-| ------------------------ | ------------------------------- |
-| Same line edited         | Choose one version or combine   |
-| File deleted vs modified | Decide: keep modified or delete |
-| Rename conflicts         | Decide which name to use        |
-| Binary file conflicts    | Choose one version explicitly   |
-
-### Conflict Resolution Steps
-
-```bash
-# 1. See what's conflicted
-git status
-
-# 2. Open conflicted file, look for markers
-<<<<<<< HEAD
-your changes
-=======
-their changes
->>>>>>> branch-name
-
-# 3. Edit file to resolve (remove markers, keep correct code)
-
-# 4. Mark as resolved
-git add <resolved-file>
-
-# 5. Continue rebase/merge
-git rebase --continue
-# or
-git merge --continue
-```
-
-### Conflict Prevention
-
-```bash
-# Rebase frequently to avoid large conflicts
-git fetch origin dev
-git rebase origin/dev  # Do this daily during long features
-
-# Check for potential conflicts before rebase
-git diff origin/dev...HEAD --stat
-```
-
-## Recovery Commands
-
-### Abort Operations
-
-```bash
-# Abort rebase
-git rebase --abort
-
-# Abort merge
-git merge --abort
-
-# Abort cherry-pick
-git cherry-pick --abort
-```
-
-### Undo Last Commit
-
-```bash
-# Keep changes staged
-git reset --soft HEAD~1
-
-# Keep changes unstaged
-git reset HEAD~1
-
-# Discard changes (DANGEROUS)
-git reset --hard HEAD~1
-```
-
-### Recover Lost Commits
-
-```bash
-# Find lost commits in reflog
-git reflog
-
-# Restore to a specific state
-git reset --hard HEAD@{n}
-
-# Cherry-pick a lost commit
-git cherry-pick <sha-from-reflog>
-```
-
-## Safety Guidelines
-
-### When to Ask Before Force Push
-
-**ALWAYS ask first if:**
-
-- You've pushed commits that others might have pulled
-- You're working on a shared branch
-- You're not 100% sure what will happen
-- The branch has been open for > 1 week
-
-### Safe Force Push Pattern
-
-```bash
-# 1. Verify you're on correct branch
-git branch
-
-# 2. Verify what will be pushed
-git log origin/{TICKET_PREFIX}-XXX-feature..HEAD --oneline
-
-# 3. Use force-with-lease (protects against overwriting others' work)
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
-```
-
-### Pre-Push Checklist
-
-- [ ] Running `yarn ci:validate` passes
-- [ ] On correct branch (not dev or master)
-- [ ] Commits have proper message format
+- [ ] All tests pass (`bun run test`)
+- [ ] Type check passes (`bun run typecheck`)
+- [ ] Lint passes (`bun run lint`)
+- [ ] Correct branch selected
+- [ ] Commit messages follow convention
 - [ ] No sensitive data in commits
 
-## Related Resources
+## Commit Message Format
 
-- **CONTRIBUTING.md**: Branch naming and commit format
-- **safe-workflow skill**: Complete workflow patterns
-- **release-patterns skill**: PR and merge patterns
+```
+type(scope): description [ConTS-XXX]
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation
+- refactor: Code change (no feature/fix)
+- test: Adding tests
+- chore: Maintenance
+
+Examples:
+- feat(convex): add user authentication [ConTS-123]
+- fix(auth): resolve token refresh race condition [ConTS-456]
+- docs(readme): update setup instructions
+```
+
+## Recovery Tools
+
+### Undo Last Commit (Not Pushed)
+```bash
+git reset --soft HEAD~1
+```
+
+### Find Lost Commits
+```bash
+git reflog
+git checkout <lost-commit-sha>
+```
+
+### Abort Rebase in Progress
+```bash
+git rebase --abort
+```
+
+## Safe Alternatives Summary
+
+| Risky | Safe |
+|-------|------|
+| `git push -f` | `git push --force-with-lease` |
+| `git reset --hard` | `git stash` first |
+| `git checkout .` | Check status first |
+| Delete branch | Merge first |

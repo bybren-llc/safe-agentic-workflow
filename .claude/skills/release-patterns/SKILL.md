@@ -14,7 +14,7 @@ Ensure consistent PR creation, CI/CD validation, and release coordination follow
 Invoke this skill when:
 
 - Creating pull requests
-- Running pre-PR validation (`yarn ci:validate`)
+- Running pre-PR validation (`bun lint && bun typecheck && bun test`)
 - Checking CI/CD status
 - Coordinating merge timing
 - Verifying rebase status
@@ -25,62 +25,63 @@ Invoke this skill when:
 
 ```bash
 # FORBIDDEN: Missing ticket reference
-gh pr create --title "feat: add feature"  # Missing [{TICKET_PREFIX}-XXX]
+gh pr create --title "feat: add feature"  # Missing [ConTS-XXX]
 
 # FORBIDDEN: Using squash/merge commits
 gh pr merge --squash  # Breaks linear history
 gh pr merge --merge   # Creates merge commit
 
 # FORBIDDEN: Skipping CI validation
-git push origin feature  # Without yarn ci:validate first
+git push origin feature  # Without bun lint && bun test first
 
 # FORBIDDEN: Pushing without rebase
-git push origin feature  # When branch is behind dev
+git push origin feature  # When branch is behind main
 ```
 
 ### CORRECT Patterns
 
 ```bash
 # CORRECT: Ticket reference in title
-gh pr create --title "feat(scope): description [{TICKET_PREFIX}-XXX]"
+gh pr create --title "feat(scope): description [ConTS-XXX]"
 
 # CORRECT: Rebase merge only
 gh pr merge --rebase --delete-branch
 
 # CORRECT: CI validation before push
-yarn ci:validate && git push --force-with-lease
+bun lint && bun typecheck && bun test && git push --force-with-lease
 
 # CORRECT: Always rebase first
-git fetch origin && git rebase origin/dev
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-description
+git fetch origin && git rebase origin/main
+git push --force-with-lease origin ConTS-XXX-description
 ```
 
 ## Pre-PR Checklist (MANDATORY)
 
 Before creating any PR:
 
-- [ ] Branch name: `{TICKET_PREFIX}-{number}-{description}`
-- [ ] Commits follow: `type(scope): description [{TICKET_PREFIX}-XXX]`
-- [ ] Rebased on latest dev: `git fetch origin && git rebase origin/dev`
-- [ ] CI passes locally: `yarn ci:validate`
+- [ ] Branch name: `ConTS-{number}-{description}` or `feature/{description}`
+- [ ] Commits follow: `type(scope): description [ConTS-XXX]`
+- [ ] Rebased on latest main: `git fetch origin && git rebase origin/main`
+- [ ] CI passes locally: `bun lint && bun typecheck && bun test`
 - [ ] Linear history: No merge commits (`git log --oneline --graph -10`)
 
 ## CI/CD Validation Command
 
 ```bash
 # MANDATORY before any PR
-yarn ci:validate && echo "READY FOR PR" || echo "FIX ISSUES FIRST"
+bun lint && bun typecheck && bun test && echo "READY FOR PR" || echo "FIX ISSUES FIRST"
 ```
 
 ## PR Creation Template
 
 ````bash
-gh pr create --title "feat(scope): description [{TICKET_PREFIX}-XXX]" --body "$(cat <<'EOF'
+gh pr create --title "feat(scope): description [ConTS-XXX]" --body "$(cat <<'EOF'
 ## Summary
 
-Implements [feature/fix] as specified in Linear ticket {TICKET_PREFIX}-XXX.
+Implements [feature/fix] as specified in Beads issue ConTS-XXX.
 
-**Linear Ticket**: https://linear.app/{LINEAR_WORKSPACE}/issue/{TICKET_PREFIX}-XXX
+**Beads Issue**: `bd show ConTS-XXX`
+**Linear Evidence** (if applicable): https://linear.app/{LINEAR_WORKSPACE}/issue/ConTS-XXX
 
 ## Changes Made
 
@@ -90,17 +91,17 @@ Implements [feature/fix] as specified in Linear ticket {TICKET_PREFIX}-XXX.
 ## Testing
 
 ```bash
-yarn ci:validate
+bun lint && bun typecheck && bun test
 # All checks passed
 ````
 
 ## Pre-merge Checklist
 
-- [x] Rebased on latest dev
+- [x] Rebased on latest main
 - [x] CI passes
-- [x] Linear ticket referenced
+- [x] Beads issue referenced
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
 
@@ -125,12 +126,12 @@ Before merging any PR, invoke QAS for independent review:
 
 ```text
 Task tool: QAS subagent
-Prompt: "Review PR #XXX for {TICKET_PREFIX}-YYY. Validate commit format, CI status, patterns."
+Prompt: "Review PR #XXX for ConTS-YYY. Validate commit format, CI status, patterns."
 ```
 
 ## Authoritative References
 
-- **PR Template**: `.github/pull_request_template.md`
-- **Workflow Guide**: `CONTRIBUTING.md` (Pull Request Process section)
-- **CI/CD Pipeline**: `docs/CI-CD-Pipeline-Guide.md`
-- **Agent Workflow SOP**: `docs/sop/AGENT_WORKFLOW_SOP.md` (3-stage review chain)
+- **PR Template**: `.github/PR-BEAD-001-DESCRIPTION.md`
+- **Workflow Guide**: `CLAUDE.md` (Git Workflow & Branch Management section)
+- **CI/CD Pipeline**: `.github/workflows/`
+- **RPI Workflow**: `CLAUDE.md` (RPI Workflow Integration section)

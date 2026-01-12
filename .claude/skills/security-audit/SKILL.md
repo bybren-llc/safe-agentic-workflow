@@ -1,21 +1,22 @@
 ---
 name: security-audit
-description: RLS validation, security audits, OWASP compliance, and vulnerability scanning. Use when validating RLS policies, auditing API routes, or scanning for security issues.
+description: Convex RBAC validation, security audits, OWASP compliance, and vulnerability scanning. Use when validating auth helpers, auditing API routes, multi-tenant isolation, or scanning for security issues.
 ---
 
 # Security Audit Skill
 
 ## Purpose
 
-Guide security validation with RLS enforcement, OWASP compliance, and vulnerability detection following security-first architecture.
+Guide security validation with Convex RBAC enforcement, multi-tenant isolation, OWASP compliance, and vulnerability detection following security-first architecture.
 
 ## When This Skill Applies
 
 Invoke this skill when:
 
-- Validating RLS policies
-- Auditing API routes for auth
-- Vulnerability scanning
+- Validating Convex auth helper usage (requireAuth, requireOrganization, requirePermission)
+- Auditing multi-tenant data isolation (organizationId scoping)
+- Reviewing client-side query gating patterns
+- Verifying webhook signature validation
 - Pre-deployment security review
 - Checking for exposed credentials
 - Reviewing database access patterns
@@ -25,146 +26,348 @@ Invoke this skill when:
 ### FORBIDDEN Patterns
 
 ```typescript
-// FORBIDDEN: Direct Prisma calls (bypass RLS)
-const users = await prisma.user.findMany();
-// Must use: withUserContext, withAdminContext, or withSystemContext
+// FORBIDDEN: Missing auth helper in Convex queries/mutations
+export const listCompanies = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("companies").collect();
+    // Missing requireAuth/requireOrganization - returns ALL data!
+  }
+});
 
-// FORBIDDEN: Missing authentication on protected routes
-export async function GET(req: Request) {
-  // No auth check before accessing user data
-  return getUserData();
-}
+// FORBIDDEN: No organization scoping (multi-tenant leak)
+export const list = query({
+  handler: async (ctx) => {
+    await requireAuth(ctx);
+    return await ctx.db.query("deals").collect();
+    // Returns deals from ALL organizations!
+  }
+});
 
-// FORBIDDEN: Exposed credentials
+// FORBIDDEN: Client-side query without auth gating
+const { isAuthenticated } = useConvexAuth();
+const user = useQuery(api.users.getCurrentUser);
+// Query executes before auth is established - causes "Not authenticated" errors
+
+// FORBIDDEN: Exposed credentials in code
 const API_KEY = "sk_live_abc123"; // Hardcoded secret
+const WEBHOOK_SECRET = "whsec_xyz789"; // Hardcoded webhook secret
 
-// FORBIDDEN: SQL injection vulnerability
-const query = `SELECT * FROM users WHERE id = ${userId}`; // Interpolated
+// FORBIDDEN: No webhook signature verification
+export const handleWebhook = httpAction(async (ctx, request) => {
+  const payload = await request.json();
+  // Process webhook without verifying signature - security risk!
+});
+
+// FORBIDDEN: Direct database access in internal mutations without org scoping
+export const createItem = internalMutation({
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("items", args);
+    // No organizationId - breaks multi-tenancy!
+  }
+});
 ```
 
 ### CORRECT Patterns
 
 ```typescript
-// CORRECT: RLS context wrapper
-const users = await withUserContext(prisma, userId, async (client) => {
-  return client.user.findMany();
+// CORRECT: Auth helper with organization scoping
+export const listCompanies = query({
+  handler: async (ctx) => {
+    const { organization } = await requireOrganization(ctx);
+
+    return await ctx.db
+      .query("companies")
+      .filter(q => q.eq(q.field("organizationId"), organization._id))
+      .collect();
+  }
 });
 
-// CORRECT: Auth check before data access
-export async function GET(req: Request) {
-  const { userId } = await auth();
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+// CORRECT: Permission-protected mutation
+export const deleteUser = mutation({
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, "users:delete");
+    const { organization } = await requireOrganization(ctx);
+
+    // Verify user belongs to same organization
+    const user = await ctx.db.get(args.userId);
+    if (!user || user.organizationId !== organization._id) {
+      throw new Error("User not found");
+    }
+
+    await ctx.db.delete(args.userId);
   }
-  return getUserData(userId);
-}
+});
+
+// CORRECT: Client-side query gating
+const { isAuthenticated } = useConvexAuth();
+const user = useQuery(
+  api.users.getCurrentUser,
+  isAuthenticated ? {} : "skip"
+);
 
 // CORRECT: Environment variables for secrets
 const API_KEY = process.env.STRIPE_SECRET_KEY;
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
-// CORRECT: Parameterized queries
-const user = await prisma.$queryRaw`SELECT * FROM users WHERE id = ${userId}`;
+// CORRECT: Webhook signature verification
+export const handleWebhook = httpAction(async (ctx, request) => {
+  const signature = request.headers.get("x-webhook-signature");
+  const payload = await request.text();
+
+  if (!verifySignature(payload, signature, process.env.WEBHOOK_SECRET)) {
+    return new Response("Invalid signature", { status: 401 });
+  }
+
+  // Process verified webhook...
+});
+
+// CORRECT: Internal mutation with explicit org scoping
+export const createItem = internalMutation({
+  args: {
+    organizationId: v.id("organizations"),
+    userId: v.id("users"),
+    // ...other args
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("items", {
+      ...args,
+      organizationId: args.organizationId,
+      createdBy: args.userId,
+    });
+  }
+});
 ```
 
 ## Security Audit Checklist
 
-### 1. RLS Validation
+### 1. Convex Auth Helper Validation
 
-- [ ] All database operations use context wrappers
-- [ ] No direct Prisma calls in route handlers
-- [ ] User isolation verified (user A cannot see user B's data)
-- [ ] Admin operations properly scoped
-
-```bash
-# Find potential RLS bypasses
-grep -r "prisma\." --include="*.ts" app/ lib/ | grep -v "withUserContext\|withAdminContext\|withSystemContext"
-```
-
-### 2. Authentication Checks
-
-- [ ] All protected routes verify authentication
-- [ ] Clerk auth() called before data access
-- [ ] Proper 401/403 responses for unauthorized
+- [ ] All queries/mutations use requireAuth, requireOrganization, or requirePermission
+- [ ] No direct database operations without auth context
+- [ ] Destructive operations use requirePermission with appropriate permission string
+- [ ] Actions verify auth before calling internal mutations
 
 ```bash
-# Find routes missing auth checks
-grep -r "export async function" --include="route.ts" app/ | head -20
-# Manually verify each has auth check
+# Find queries/mutations missing auth helpers
+grep -r "export const .* = query" packages/backend/convex/ --include="*.ts" | \
+  xargs -I {} grep -L "requireAuth\|requireOrganization\|requirePermission" {}
+
+# Find all auth helper usage
+grep -rn "requireAuth\|requireOrganization\|requirePermission" packages/backend/convex/ --include="*.ts"
 ```
 
-### 3. Credential Scanning
+### 2. Multi-Tenant Isolation
+
+- [ ] All entity tables have organizationId field in schema
+- [ ] All queries filter by organizationId from requireOrganization
+- [ ] User cannot access data from other organizations
+- [ ] Internal mutations receive organizationId as explicit parameter
+
+```bash
+# Find queries that might miss organization scoping
+grep -rn "ctx.db.query" packages/backend/convex/ --include="*.ts" | \
+  grep -v "organizationId\|by_organization"
+
+# Verify schema has organizationId on multi-tenant tables
+grep -n "organizationId" packages/backend/convex/schema.ts
+```
+
+### 3. Client-Side Query Gating
+
+- [ ] All authenticated queries use isAuthenticated ? args : "skip" pattern
+- [ ] useConvexAuth hook is called before any query execution
+- [ ] Loading states handle the undefined query result properly
+
+```bash
+# Find potential ungated queries
+grep -rn "useQuery(api\." apps/*/src --include="*.tsx" | \
+  grep -v "isAuthenticated\|skip"
+
+# Find correct gating patterns
+grep -rn "isAuthenticated.*skip" apps/*/src --include="*.tsx"
+```
+
+### 4. Webhook Security
+
+- [ ] All webhook handlers verify signature before processing
+- [ ] Webhook secrets stored in environment variables
+- [ ] No webhook handlers process unsigned requests in production
+- [ ] WorkOS webhooks verify WorkOS-Signature header
+- [ ] Polar/Stripe webhooks verify respective signatures
+
+```bash
+# Find webhook handlers
+grep -rn "httpAction.*request" packages/backend/convex/ --include="*.ts"
+
+# Check for signature verification
+grep -rn "signature\|Signature" packages/backend/convex/ --include="*.ts"
+```
+
+### 5. Credential Scanning
 
 - [ ] No hardcoded secrets in code
-- [ ] No API keys in client-side code
+- [ ] No API keys in client-side code (except public keys)
 - [ ] Environment variables used correctly
+- [ ] Convex env vars set via bunx convex env set
 
 ```bash
 # Scan for potential secrets
-grep -rE "(sk_live|pk_live|password|secret|key)" --include="*.ts" --include="*.tsx" | grep -v "process.env\|.env"
+grep -rE "(sk_live|pk_live|password|secret|api_key|apiKey)" --include="*.ts" --include="*.tsx" | \
+  grep -v "process.env\|.env"
+
+# Check for Convex env vars
+cd packages/backend && bunx convex env list
 ```
 
-### 4. Dependency Vulnerabilities
+### 6. Input Validation
+
+- [ ] User input validated with Convex v validators or Zod schemas
+- [ ] No raw string interpolation in queries
+- [ ] File upload restrictions in place
+- [ ] Pagination limits enforced (max 100 items typically)
+
+```bash
+# Find mutations without args validation
+grep -rn "export const .* = mutation" packages/backend/convex/ --include="*.ts" | \
+  xargs -I {} grep -L "args:" {}
+```
+
+### 7. Dependency Vulnerabilities
 
 ```bash
 # Run security audit
+bun audit
 npm audit
-yarn audit
 
 # Check for high/critical vulnerabilities
 npm audit --audit-level=high
 ```
 
-### 5. Input Validation
+## OWASP Top 10 Checklist (Convex-Adapted)
 
-- [ ] User input validated with Zod schemas
-- [ ] No raw query interpolation
-- [ ] File upload restrictions in place
-
-## OWASP Top 10 Checklist
-
-| Risk                 | Check                            | Status |
-| -------------------- | -------------------------------- | ------ |
-| A01 Broken Access    | RLS enforced, auth on all routes | ☐      |
-| A02 Crypto Failures  | Secrets in env vars only         | ☐      |
-| A03 Injection        | Parameterized queries, Zod       | ☐      |
-| A04 Insecure Design  | Auth-first pattern followed      | ☐      |
-| A05 Misconfiguration | Prod env properly secured        | ☐      |
-| A06 Vulnerable Deps  | npm audit clean                  | ☐      |
-| A07 Auth Failures    | Clerk integration correct        | ☐      |
-| A08 Data Integrity   | RLS prevents tampering           | ☐      |
-| A09 Logging Failures | Security events logged           | ☐      |
-| A10 SSRF             | External URLs validated          | ☐      |
+| Risk                 | Check                                          | Status |
+| -------------------- | ---------------------------------------------- | ------ |
+| A01 Broken Access    | Auth helpers on all routes, org scoping        | [ ]    |
+| A02 Crypto Failures  | Secrets in env vars only, no client exposure   | [ ]    |
+| A03 Injection        | Convex validators, no raw interpolation        | [ ]    |
+| A04 Insecure Design  | Auth-first pattern, query gating               | [ ]    |
+| A05 Misconfiguration | Prod env properly secured, debug flags off     | [ ]    |
+| A06 Vulnerable Deps  | bun audit clean                                | [ ]    |
+| A07 Auth Failures    | WorkOS integration correct, sessions secure    | [ ]    |
+| A08 Data Integrity   | Org scoping prevents cross-tenant access       | [ ]    |
+| A09 Logging Failures | Security events logged, webhook events tracked | [ ]    |
+| A10 SSRF             | External URLs validated, no user-controlled    | [ ]    |
 
 ## Security Validation Commands
 
 ```bash
 # Complete security check
-npm audit && yarn lint && echo "Security checks passed"
+cd packages/backend && \
+  bunx convex dev --once && \
+  bun lint && \
+  bun audit && \
+  echo "Security checks passed"
 
-# RLS bypass detection
-grep -r "prisma\." --include="*.ts" app/ lib/ | wc -l
-# Compare with context wrapper count
+# Auth helper coverage check
+echo "=== Queries/Mutations ===" && \
+grep -c "export const .* = query\|mutation" packages/backend/convex/*.ts && \
+echo "=== With Auth Helpers ===" && \
+grep -c "requireAuth\|requireOrganization\|requirePermission" packages/backend/convex/*.ts
+
+# Multi-tenant isolation check
+echo "=== Tables with organizationId ===" && \
+grep -c "organizationId" packages/backend/convex/schema.ts
 
 # Secret detection
-git secrets --scan  # If git-secrets installed
-grep -rE "sk_|pk_|password=" . --include="*.ts"
+git secrets --scan 2>/dev/null || \
+  grep -rE "sk_|pk_|password=|secret=" . --include="*.ts" | grep -v node_modules
+```
+
+## Auth Helper Reference
+
+### 1. requireAuth(ctx)
+
+**Use for**: Any authenticated operation
+
+```typescript
+import { requireAuth } from "@v1/backend/convex/lib/authHelpers";
+
+export const myQuery = query({
+  handler: async (ctx) => {
+    const identity = await requireAuth(ctx);
+    // identity.subject = WorkOS user ID
+    // identity.email = User email
+  }
+});
+```
+
+### 2. requireOrganization(ctx)
+
+**Use for**: Multi-tenant operations (most common)
+
+```typescript
+import { requireOrganization } from "@v1/backend/convex/lib/authHelpers";
+
+export const list = query({
+  handler: async (ctx) => {
+    const { identity, user, membership, organization } = await requireOrganization(ctx);
+
+    return await ctx.db
+      .query("items")
+      .filter(q => q.eq(q.field("organizationId"), organization._id))
+      .collect();
+  }
+});
+```
+
+### 3. requirePermission(ctx, permission)
+
+**Use for**: RBAC-protected operations
+
+```typescript
+import { requirePermission } from "@v1/backend/convex/lib/authHelpers";
+
+// Permission format: "resource:action"
+// Examples: "users:read", "users:write", "users:delete", "billing:manage"
+
+export const deleteUser = mutation({
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, "users:delete");
+    // User has permission - proceed
+  }
+});
+```
+
+### Role Hierarchy
+
+```
+owner: All permissions (wildcard *)
+  |
+admin: users:*, org:*, billing:*
+  |
+member: tasks:rw, projects:rw, labels:rw, users:read
+  |
+viewer: Read-only access
 ```
 
 ## Pre-Deployment Security Review
 
 Before ANY production deployment:
 
-- [ ] npm audit shows no high/critical issues
-- [ ] RLS policies validated
-- [ ] No new direct Prisma calls
+- [ ] All queries use appropriate auth helpers
+- [ ] Multi-tenant isolation verified (test with 2+ orgs)
+- [ ] Client-side query gating in place
+- [ ] No hardcoded secrets in codebase
+- [ ] Webhook signatures verified in production mode
 - [ ] Environment variables documented
-- [ ] Backup taken before migration
-- [ ] Rollback plan documented
+- [ ] bun audit shows no high/critical issues
+- [ ] CORS properly configured for production domains
+- [ ] Debug flags disabled in production
 
 ## Security Audit Report Template
 
 ```markdown
-## Security Audit Report - {TICKET_PREFIX}-XXX
+## Security Audit Report - [TICKET-XXX]
 
 ### Summary
 
@@ -179,11 +382,29 @@ Before ANY production deployment:
 | HIGH     | ...   | ...      | FIXED  |
 | MEDIUM   | ...   | ...      | OPEN   |
 
-### RLS Validation
+### Auth Helper Coverage
 
-- [x] All tables have RLS enabled
-- [x] User isolation verified
-- [x] Admin policies scoped correctly
+- [x] All public queries use requireAuth/requireOrganization
+- [x] Permission-protected mutations use requirePermission
+- [x] Internal mutations receive org context as parameters
+
+### Multi-Tenant Isolation
+
+- [x] All multi-tenant tables have organizationId
+- [x] All queries filter by organization
+- [x] Cross-tenant access tested and blocked
+
+### Client-Side Security
+
+- [x] All queries use isAuthenticated gating
+- [x] No sensitive data in client-side code
+- [x] Public env vars properly prefixed (NEXT_PUBLIC_)
+
+### Webhook Security
+
+- [x] WorkOS webhook signature verified
+- [x] Polar/Stripe webhook signatures verified
+- [x] No unsigned webhook processing in production
 
 ### Recommendations
 
@@ -198,7 +419,10 @@ Before ANY production deployment:
 
 ## Authoritative References
 
-- **Security Architecture**: `docs/guides/SECURITY_FIRST_ARCHITECTURE.md`
-- **RLS Implementation**: `docs/database/RLS_IMPLEMENTATION_GUIDE.md`
-- **RLS Policies**: `docs/database/RLS_POLICY_CATALOG.md`
-- **OWASP Top 10**: <https://owasp.org/Top10/>
+- **Auth Helpers**: packages/backend/convex/lib/authHelpers.ts
+- **Backend Guide**: packages/backend/CLAUDE.md
+- **App Auth Patterns**: apps/app/CLAUDE.md
+- **Webhook Handlers**: packages/backend/convex/webhooks.ts
+- **WorkOS Webhooks**: packages/backend/convex/workosWebhooks.ts
+- **Schema Definition**: packages/backend/convex/schema.ts
+- **OWASP Top 10**: https://owasp.org/Top10/

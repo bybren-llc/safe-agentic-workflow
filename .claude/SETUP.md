@@ -1,8 +1,8 @@
-# Claude Code Harness Setup Guide
+# Claude Code Harness Setup Guide (ConTStack)
 
 ## Quick Start (15 Minutes)
 
-This guide helps you install the SAFe Claude Code harness in a new project.
+This guide helps you install the SAFe Claude Code harness in the ConTStack project.
 
 ---
 
@@ -11,6 +11,35 @@ This guide helps you install the SAFe Claude Code harness in a new project.
 - Claude Code CLI installed (`claude --version`)
 - Git repository initialized
 - Node.js project with `package.json`
+- Bun package manager installed (`bun --version`)
+
+---
+
+## ConTStack Technology Stack
+
+| Layer | Technology | Notes |
+|-------|------------|-------|
+| **Database** | Convex | Real-time sync, serverless |
+| **Authentication** | WorkOS AuthKit | Enterprise SSO ready |
+| **Payments** | Polar | Subscription management |
+| **Issue Tracking** | Linear | Sprint/ticket management |
+| **Agent Tasks** | Beads | Agent task management CLI |
+| **Frontend** | Next.js 14 | App Router, React 18 |
+| **Styling** | TailwindCSS + Shadcn UI | Component library |
+
+---
+
+## Port Mappings
+
+ConTStack uses the following port assignments for local development:
+
+| Port | App | Description |
+|------|-----|-------------|
+| 3000 | web | Marketing site |
+| 3003 | app | Main SaaS application |
+| 3005 | e2e-test | E2E test runner |
+| 3006 | crm | CRM application |
+| 3007 | bubble-api | BubbleLab API service |
 
 ---
 
@@ -44,7 +73,7 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "git branch --show-current 2>/dev/null | grep -q '^WOR-[0-9]' || echo '⚠️ REMINDER: Branch should follow WOR-{number}-{description} format.'",
+            "command": "git branch --show-current 2>/dev/null | grep -q '^ConTS-[0-9]' || echo '  REMINDER: Branch should follow ConTS-{number}-{description} format.'",
             "description": "Remind about branch naming convention"
           }
         ]
@@ -56,7 +85,7 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "echo '📝 REMINDER: Commit message must follow SAFe format: type(scope): description [WOR-XXX]'",
+            "command": "echo '  REMINDER: Commit message must follow SAFe format: type(scope): description [ConTS-XXX]'",
             "description": "Remind about commit message format"
           }
         ]
@@ -66,8 +95,8 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "BRANCH=$(git branch --show-current); if [ \"$BRANCH\" = 'dev' ] || [ \"$BRANCH\" = 'master' ]; then echo '❌ BLOCKER: Cannot push directly to '$BRANCH'. Create a feature branch first.'; exit 1; fi",
-            "description": "Block direct push to dev or master"
+            "command": "BRANCH=$(git branch --show-current); if [ \"$BRANCH\" = 'main' ] || [ \"$BRANCH\" = 'master' ]; then echo '  BLOCKER: Cannot push directly to '$BRANCH'. Create a feature branch first.'; exit 1; fi",
+            "description": "Block direct push to main or master"
           }
         ]
       }
@@ -78,7 +107,7 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "echo '🚀 Session Started\\n📖 Key commands: /start-work, /pre-pr, /end-work\\n📚 Full list: see .claude/README.md'",
+            "command": "echo '  Session Started\\n  Key commands: /start-work, /pre-pr, /end-work\\n  Full list: see .claude/README.md'",
             "description": "Session start reminder"
           }
         ]
@@ -88,21 +117,21 @@ Create or update your project's `.claude/settings.local.json`:
 }
 ```
 
-**Note**: Customize the ticket prefix (`WOR-`) and branch names (`dev`/`master`) for your project.
+**Note**: ConTStack uses `ConTS-` as the ticket prefix and protects `main`/`master` branches.
 
 ---
 
 ## Step 3: Customize for Your Project
 
-### Replace Ticket Prefix
+### Ticket Prefix (ConTStack Standard)
 
-Search and replace in all copied files:
+ConTStack uses `ConTS-` as the ticket prefix for all branches and commits:
 
-| Find             | Replace With                       |
-| ---------------- | ---------------------------------- |
-| `WOR-`           | Your ticket prefix (e.g., `PROJ-`) |
-| `{PROJECT_NAME}` | Your project name                  |
-| `dev` branch     | Your main development branch       |
+| Pattern | Example |
+|---------|---------|
+| Branch | `ConTS-123-add-user-dashboard` |
+| Commit | `feat(auth): add SSO login [ConTS-123]` |
+| PR Title | `[ConTS-123] Add user dashboard` |
 
 ### Update Linear Workspace
 
@@ -115,6 +144,24 @@ If using Linear MCP tools, update workspace references in:
 ---
 
 ## Step 4: Validate Installation
+
+### Run Validation Commands
+
+ConTStack uses Bun for all package management:
+
+```bash
+# Lint the codebase
+bun run lint
+
+# Type check
+bun run typecheck
+
+# Run tests
+bun run test
+
+# Run E2E tests (Docker Playwright)
+bun test:e2e:docker:comprehensive
+```
 
 ### Check Skills Load
 
@@ -133,7 +180,7 @@ Expected: List of 17 skills with descriptions.
 Run:
 
 ```
-/start-work TEST-123
+/start-work ConTS-123
 ```
 
 Expected: Claude should guide you through starting work on a ticket.
@@ -143,10 +190,10 @@ Expected: Claude should guide you through starting work on a ticket.
 Create a test commit:
 
 ```bash
-git checkout -b TEST-123-test-branch
+git checkout -b ConTS-123-test-branch
 echo "test" > test.txt
 git add test.txt
-git commit -m "test: validate hooks [TEST-123]"
+git commit -m "test: validate hooks [ConTS-123]"
 ```
 
 Expected: See reminder about SAFe commit format before commit executes.
@@ -186,8 +233,9 @@ After setup, your `.claude/` directory should look like:
 ├── skills/             # 17 model-invoked skills
 │   ├── safe-workflow/SKILL.md
 │   ├── pattern-discovery/SKILL.md
-│   ├── rls-patterns/SKILL.md
-│   └── ... (14 more)
+│   ├── rls-patterns/SKILL.md      # Covers Convex auth helpers
+│   ├── payment-patterns/SKILL.md  # Polar integration (was stripe-patterns)
+│   └── ... (13 more)
 ├── agents/             # 11 SAFe agent profiles
 │   ├── bsa.md
 │   ├── tdm.md
@@ -204,25 +252,85 @@ After setup, your `.claude/` directory should look like:
 
 ---
 
+## ConTStack-Specific Skills Reference
+
+### Adapted Skills
+
+| Original Skill | ConTStack Skill | Purpose |
+|----------------|-----------------|---------|
+| `stripe-patterns` | `payment-patterns` | Polar subscription integration |
+| `rls-patterns` | `rls-patterns` | Convex auth helpers & multi-tenant patterns |
+| `clerk-patterns` | (removed) | WorkOS AuthKit - see apps/app/CLAUDE.md |
+
+### Convex-Specific Patterns
+
+The `rls-patterns` skill in ConTStack covers:
+
+- `requireAuth(ctx)` - Ensure user is authenticated
+- `requireOrganization(ctx)` - Get org-scoped context
+- `requirePermission(ctx, "resource:action")` - RBAC permission check
+- Multi-tenant data isolation patterns
+- Query gating with `useConvexAuth()`
+
+### Beads Integration
+
+ConTStack uses Beads for agent task management:
+
+```bash
+# Find ready work
+bd ready --json
+
+# Create issue during work
+bd create "Description" -t [bug|task|feature|epic] -p [0-4] -l [labels]
+
+# Update status
+bd update [issue-id] --status in_progress
+
+# Complete work
+bd close [issue-id] --reason "Completion summary"
+```
+
+---
+
 ## Next Steps
 
 1. **Read AGENTS.md** - Understand when to use which agent
 2. **Read the Whitepaper** - Understand the three-layer architecture
-3. **Try /start-work** - Begin your first ticket with the harness
-4. **Check TROUBLESHOOTING.md** - If anything doesn't work
+3. **Read CLAUDE.md** - ConTStack-specific patterns and conventions
+4. **Try /start-work** - Begin your first ticket with the harness
+5. **Check TROUBLESHOOTING.md** - If anything doesn't work
 
 ---
 
 ## Quick Command Reference
 
-| Command                           | Purpose                       |
-| --------------------------------- | ----------------------------- |
-| `/start-work {TICKET_PREFIX}-123` | Begin work on a ticket        |
-| `/check-workflow`                 | Check current workflow status |
-| `/pre-pr`                         | Run validation before PR      |
-| `/end-work`                       | Complete work session         |
-| `/local-sync`                     | Sync after git pull           |
-| `/remote-status`                  | Check remote Docker status    |
+| Command | Purpose |
+|---------|---------|
+| `/start-work ConTS-123` | Begin work on a ticket |
+| `/check-workflow` | Check current workflow status |
+| `/pre-pr` | Run validation before PR |
+| `/end-work` | Complete work session |
+| `/local-sync` | Sync after git pull |
+| `/remote-status` | Check remote Docker status |
+
+---
+
+## Validation Commands Quick Reference
+
+```bash
+# Full validation suite (run before PR)
+bun run lint && bun run typecheck && bun run test
+
+# Individual commands
+bun run lint          # ESLint + Prettier
+bun run typecheck     # TypeScript strict mode
+bun run test          # Vitest unit tests
+bun run build         # Turbo build all packages
+
+# E2E testing
+bun test:e2e:docker:comprehensive    # Full E2E suite
+bun test:e2e:docker:validate         # Validate Docker setup
+```
 
 ---
 
@@ -231,8 +339,10 @@ After setup, your `.claude/` directory should look like:
 - **Issues**: Check `TROUBLESHOOTING.md` first
 - **Documentation**: See `docs/whitepapers/` for architecture details
 - **Workflow**: See `CONTRIBUTING.md` for complete workflow guide
+- **ConTStack Specifics**: See root `CLAUDE.md` for project patterns
 
 ---
 
-**Version**: 1.0
-**Last Updated**: 2025-12-20
+**Version**: 1.0-contstack
+**Last Updated**: 2025-01-11
+**Adapted From**: WTFB Claude Code Harness v1.0

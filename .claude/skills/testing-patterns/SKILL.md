@@ -1,225 +1,284 @@
 ---
 name: testing-patterns
-description: Testing patterns for Jest and Playwright. Use when writing tests, setting up test fixtures, or validating RLS enforcement. Routes to existing test conventions and provides evidence templates.
+description: Testing patterns using Vitest for unit tests, Docker Playwright for E2E, Chrome DevTools MCP for debugging, and convex-test for backend testing.
 ---
 
-# Testing Patterns Skill
+# Testing Patterns
 
 ## Purpose
+Ensure comprehensive testing using the ConTStack testing stack: Vitest, Docker Playwright, Chrome DevTools MCP, and convex-test.
 
-Guide consistent and effective testing. Routes to existing test patterns and provides evidence templates for Linear.
+## Testing Stack
 
-## When This Skill Applies
+| Layer | Tool | Purpose |
+|-------|------|---------|
+| Unit Tests | Vitest | Component and utility testing |
+| Backend Tests | convex-test | Convex function testing |
+| E2E Tests | Docker Playwright | Full user flow testing |
+| Debug/Inspect | Chrome DevTools MCP | Browser debugging and inspection |
 
-Invoke this skill when:
+## When to Use Each
 
-- Writing new unit tests
-- Creating integration tests
-- Setting up test fixtures with RLS
-- Running test suites
-- Packaging test evidence for Linear
+### Vitest (Unit Tests)
+- Testing React components in isolation
+- Testing utility functions
+- Testing hooks
+- Testing data transformations
 
-## Test Directory Structure
+### convex-test (Backend Tests)
+- Testing Convex queries and mutations
+- Testing authorization logic
+- Testing business logic
 
-```
-__tests__/
-├── unit/              # Fast, isolated tests
-│   ├── components/    # React component tests
-│   ├── lib/           # Library function tests
-│   ├── services/      # Service layer tests
-│   └── user/          # User helper tests
-├── integration/       # API and database tests
-├── database/          # Database helper tests
-├── e2e/               # End-to-end tests (Playwright)
-├── payments/          # Payment flow tests
-└── setup.ts           # Global test setup
-```
+### Docker Playwright (E2E)
+- Full user authentication flows
+- Complete feature workflows
+- Cross-browser testing
+- Visual regression testing
 
-## Configuration Files
+### Chrome DevTools MCP (Debugging)
+- **PREFERRED** for investigating runtime issues
+- Inspecting network requests
+- Debugging authentication flows
+- Examining DOM state
+- Console error investigation
 
-- **Jest Config**: `jest.config.js`
-- **Test Setup**: `__tests__/setup.ts`
-- **Playwright Config**: `playwright.config.ts`
+## Chrome DevTools MCP Usage
 
-## RLS-Aware Testing
+The Chrome DevTools MCP is a powerful debugging tool available to agents:
 
-### Setting Up Test Context
+### When to Use
+- E2E test failures that need investigation
+- Authentication flow debugging
+- Network request inspection
+- Console error analysis
+- DOM state verification
 
-Always use RLS context helpers in tests:
+### Capabilities
+- Navigate to pages
+- Execute JavaScript in browser context
+- Capture screenshots
+- Inspect network requests
+- Read console logs
+- Examine cookies and localStorage
+
+### Example Investigation Flow
+1. Launch browser via MCP
+2. Navigate to failing page
+3. Check console for errors
+4. Inspect network requests
+5. Verify DOM state
+6. Capture screenshots for evidence
+
+## Unit Testing (Vitest)
+
+### Component Test Pattern
 
 ```typescript
-import { withUserContext, withSystemContext } from "@/lib/rls-context";
-import { prisma } from "@/lib/prisma";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { MyComponent } from "./MyComponent";
 
-describe("User payments", () => {
-  const testUserId = "test-user-123";
-
-  beforeEach(async () => {
-    // Create test user with RLS context
-    await withSystemContext(prisma, "test", async (client) => {
-      await client.user.create({
-        data: {
-          user_id: testUserId,
-          email: `test-${Date.now()}@example.com`,
-          first_name: "Test",
-          last_name: "User",
-        },
-      });
-    });
+describe("MyComponent", () => {
+  it("renders correctly", () => {
+    render(<MyComponent title="Test" />);
+    expect(screen.getByText("Test")).toBeInTheDocument();
   });
-
-  it("should only see own payments", async () => {
-    const payments = await withUserContext(
-      prisma,
-      testUserId,
-      async (client) => {
-        return client.payments.findMany();
-      },
-    );
-    // RLS ensures only this user's payments returned
-    expect(payments.every((p) => p.user_id === testUserId)).toBe(true);
+  
+  it("handles click events", async () => {
+    const onClick = vi.fn();
+    render(<MyComponent onClick={onClick} />);
+    
+    await userEvent.click(screen.getByRole("button"));
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });
 ```
 
-### Test Isolation
-
-Use unique identifiers to prevent test pollution:
+### Hook Test Pattern
 
 ```typescript
-const uniqueEmail = `test-${Date.now()}@example.com`;
-const uniqueUserId = `user-${crypto.randomUUID()}`;
+import { renderHook, act } from "@testing-library/react";
+import { useCounter } from "./useCounter";
+
+describe("useCounter", () => {
+  it("increments count", () => {
+    const { result } = renderHook(() => useCounter());
+    
+    act(() => {
+      result.current.increment();
+    });
+    
+    expect(result.current.count).toBe(1);
+  });
+});
+```
+
+## Backend Testing (convex-test)
+
+### Query Test Pattern
+
+```typescript
+import { convexTest } from "convex-test";
+import { expect, test } from "vitest";
+import { api } from "./_generated/api";
+import schema from "./schema";
+
+test("getRecords returns organization-scoped data", async () => {
+  const t = convexTest(schema);
+  
+  // Setup auth context
+  const userId = await t.run(async (ctx) => {
+    return await ctx.db.insert("users", { 
+      email: "test@example.com",
+      organizationId: "org_123"
+    });
+  });
+  
+  // Create test data
+  await t.run(async (ctx) => {
+    await ctx.db.insert("records", {
+      organizationId: "org_123",
+      title: "Test Record"
+    });
+    await ctx.db.insert("records", {
+      organizationId: "org_other", // Different org
+      title: "Other Record"
+    });
+  });
+  
+  // Test query returns only org_123 records
+  const records = await t.query(api.records.getRecords, {});
+  expect(records).toHaveLength(1);
+  expect(records[0].title).toBe("Test Record");
+});
+```
+
+### Mutation Test Pattern
+
+```typescript
+test("createRecord adds organizationId", async () => {
+  const t = convexTest(schema);
+  
+  const recordId = await t.mutation(api.records.create, {
+    title: "New Record",
+    content: "Test content"
+  });
+  
+  const record = await t.run(async (ctx) => {
+    return await ctx.db.get(recordId);
+  });
+  
+  expect(record.organizationId).toBe("org_123");
+  expect(record.createdAt).toBeDefined();
+});
+```
+
+## E2E Testing (Docker Playwright)
+
+### Setup
+
+```bash
+# Run E2E tests in Docker
+bun run test:e2e:docker:comprehensive
+
+# Validate Docker setup
+bun run test:e2e:docker:validate
+```
+
+### Test Pattern
+
+```typescript
+import { test, expect } from "@playwright/test";
+
+test.describe("Authentication Flow", () => {
+  test("user can sign in and access dashboard", async ({ page }) => {
+    await page.goto("/");
+    
+    // Click sign in
+    await page.click('text="Sign In"');
+    
+    // Complete auth flow
+    await page.fill('[name="email"]', "test@example.com");
+    await page.click('button[type="submit"]');
+    
+    // Verify redirect to dashboard
+    await expect(page).toHaveURL(/.*dashboard/);
+    await expect(page.locator("h1")).toContainText("Dashboard");
+  });
+});
+```
+
+### Docker Configuration
+
+```yaml
+# docker-compose.e2e.yml
+services:
+  app:
+    ports:
+      - "3005:3005"
+    environment:
+      - E2E_BASE_URL=http://localhost:3005
+      - WORKOS_REDIRECT_URI=http://localhost:3005/callback
 ```
 
 ## Test Commands
 
 ```bash
-# Run all unit tests
-yarn test:unit
+# Unit tests
+bun run test
 
-# Run integration tests
-yarn test:integration
+# Watch mode
+bun run test:watch
 
-# Run specific test file
-yarn jest __tests__/unit/components/my-component.test.tsx
+# Coverage
+bun run test:coverage
 
-# Run tests matching pattern
-yarn jest --testNamePattern="should handle"
+# E2E tests (Docker)
+bun run test:e2e:docker:comprehensive
 
-# Run with coverage
-yarn test:unit --coverage
-
-# Run E2E tests
-yarn test:e2e
+# E2E validation
+bun run test:e2e:docker:validate
 ```
 
-## Common Patterns
+## Test File Locations
 
-### Component Testing
+| Type | Location | Naming |
+|------|----------|--------|
+| Unit tests | `*.test.ts` adjacent to source | `Component.test.tsx` |
+| Backend tests | `packages/backend/convex/**/*.test.ts` | `feature.test.ts` |
+| E2E tests | `tests/e2e/*.spec.ts` | `feature.spec.ts` |
 
-```typescript
-import { render, screen, fireEvent } from "@testing-library/react";
-import { MyComponent } from "@/components/my-component";
+## Mocking Patterns
 
-describe("MyComponent", () => {
-  it("renders correctly", () => {
-    render(<MyComponent />);
-    expect(screen.getByRole("button")).toBeInTheDocument();
-  });
-
-  it("handles click events", async () => {
-    const onClickMock = jest.fn();
-    render(<MyComponent onClick={onClickMock} />);
-
-    fireEvent.click(screen.getByRole("button"));
-    expect(onClickMock).toHaveBeenCalledTimes(1);
-  });
-});
-```
-
-### API Route Testing
+### Mock External APIs
 
 ```typescript
-import { GET } from "@/app/api/my-route/route";
-import { NextRequest } from "next/server";
+import { vi } from "vitest";
 
-describe("GET /api/my-route", () => {
-  it("returns 200 with data", async () => {
-    const request = new NextRequest("http://localhost:3000/api/my-route");
-    const response = await GET(request);
-
-    expect(response.status).toBe(200);
-    const data = await response.json();
-    expect(data).toHaveProperty("success", true);
-  });
-});
-```
-
-### Mocking Prisma
-
-```typescript
-jest.mock("@/lib/prisma", () => ({
-  prisma: {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-    },
-  },
+vi.mock("../lib/external-api", () => ({
+  fetchData: vi.fn().mockResolvedValue({ data: "mocked" }),
 }));
 ```
 
-## Evidence Template for Linear
+### Mock Convex Hooks
 
-When completing test work, attach this evidence block:
-
-```markdown
-**Test Execution Evidence**
-
-**Test Suite**: [unit/integration/e2e]
-**Files Changed**: [list files]
-
-**Test Results:**
-
-- Total Tests: [X]
-- Passed: [X]
-- Failed: [0]
-- Skipped: [X]
-
-**Coverage** (if applicable):
-
-- Statements: X%
-- Branches: X%
-- Functions: X%
-- Lines: X%
-
-**Commands Run:**
-
-\`\`\`bash
-yarn test:unit --coverage
-\`\`\`
-
-**Output:**
-[Paste relevant test output]
+```typescript
+vi.mock("convex/react", () => ({
+  useConvexAuth: () => ({ isAuthenticated: true, isLoading: false }),
+  useQuery: vi.fn(),
+  useMutation: vi.fn(),
+}));
 ```
 
-## Pre-Push Validation
+## Evidence Checklist
 
-Always run before pushing:
+Before completing any feature:
 
-```bash
-yarn ci:validate
-```
-
-This runs:
-
-- Type checking
-- ESLint
-- Unit tests
-- Format check
-
-## Authoritative References
-
-- **Jest Config**: `jest.config.js`
-- **Test Setup**: `__tests__/setup.ts`
-- **RLS Context**: `lib/rls-context.ts`
-- **CI Validation**: `package.json` scripts
+- [ ] Unit tests for new components
+- [ ] Backend tests for new Convex functions
+- [ ] E2E test for critical user flows
+- [ ] All tests passing
+- [ ] Coverage not decreased
+- [ ] Chrome DevTools used to verify any complex interactions

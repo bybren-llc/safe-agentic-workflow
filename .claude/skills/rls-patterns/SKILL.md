@@ -1,217 +1,214 @@
 ---
 name: rls-patterns
-description: Row Level Security patterns for database operations. Use when writing Prisma/database code, creating API routes that access data, or implementing webhooks. Enforces withUserContext, withAdminContext, or withSystemContext helpers. NEVER use direct prisma calls.
+description: Enforce authorization for all Convex database operations using auth helpers. Prevents unauthorized data access through three context helpers.
 ---
 
-# RLS Patterns Skill
+# Convex Authorization Patterns
 
 ## Purpose
+Enforce authorization for ALL database operations. No query or mutation should access data without proper authentication and authorization checks.
 
-Enforce Row Level Security (RLS) patterns for all database operations. This skill ensures data isolation and prevents cross-user data access at the database level.
+## When to Use
+- Writing any Convex query or mutation
+- Accessing user data
+- Performing CRUD operations
+- Creating new database functions
 
-## When This Skill Applies
+## The Three Auth Helpers
 
-Invoke this skill when:
-
-- Writing any Prisma database query
-- Creating or modifying API routes that access the database
-- Implementing webhook handlers that write to the database
-- Working with user data, payments, subscriptions, or enrollments
-- Accessing admin-only tables (disputes, webhook_events)
-
-## Critical Rules
-
-### NEVER Do This
+### 1. requireAuth(ctx)
+For basic authenticated operations. Returns the current user.
 
 ```typescript
-// ❌ FORBIDDEN - Direct Prisma calls bypass RLS
-const user = await prisma.user.findUnique({ where: { user_id } });
+import { requireAuth } from "./lib/authorization";
 
-// ❌ FORBIDDEN - No context set
-const payments = await prisma.payments.findMany();
-```
-
-**ESLint will block direct Prisma calls.** See `eslint.config.mjs` for enforcement rules.
-
-### ALWAYS Do This
-
-```typescript
-import {
-  withUserContext,
-  withAdminContext,
-  withSystemContext,
-} from "@/lib/rls-context";
-
-// ✅ CORRECT - User context for user operations
-const user = await withUserContext(prisma, userId, async (client) => {
-  return client.user.findUnique({ where: { user_id: userId } });
-});
-
-// ✅ CORRECT - Admin context for admin operations
-const webhooks = await withAdminContext(prisma, userId, async (client) => {
-  return client.webhook_events.findMany();
-});
-
-// ✅ CORRECT - System context for webhooks/background tasks
-const event = await withSystemContext(prisma, "webhook", async (client) => {
-  return client.webhook_events.create({ data: eventData });
+export const getCurrentUser = query({
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
+    return user;
+  },
 });
 ```
 
-## Context Helper Reference
-
-### `withUserContext(prisma, userId, callback)`
-
-**Use for**: All user-facing operations
-
-- User profile access
-- Payment history
-- Subscription management
-- Course enrollments
+### 2. requireOrganization(ctx)
+**MOST COMMON** - For multi-tenant operations. Returns user with organization context.
 
 ```typescript
-const payments = await withUserContext(prisma, userId, async (client) => {
-  return client.payments.findMany({ where: { user_id: userId } });
+import { requireOrganization } from "./lib/authorization";
+
+export const getOrgRecords = query({
+  handler: async (ctx) => {
+    const { userId, organizationId } = await requireOrganization(ctx);
+    
+    // ALWAYS scope by organizationId
+    return await ctx.db
+      .query("records")
+      .withIndex("by_organization", q => q.eq("organizationId", organizationId))
+      .collect();
+  },
 });
 ```
 
-### `withAdminContext(prisma, userId, callback)`
-
-**Use for**: Admin-only operations (requires admin role in `user_roles` table)
-
-- Viewing all webhook events
-- Managing disputes
-- Accessing payment failures
+### 3. requirePermission(ctx, permission)
+For RBAC-protected operations. Checks specific permissions.
 
 ```typescript
-const disputes = await withAdminContext(prisma, adminUserId, async (client) => {
-  return client.disputes.findMany();
+import { requirePermission } from "./lib/authorization";
+
+export const deleteRecord = mutation({
+  args: { id: v.id("records") },
+  handler: async (ctx, args) => {
+    // Check admin permission
+    await requirePermission(ctx, "records:delete");
+    
+    await ctx.db.delete(args.id);
+  },
 });
 ```
 
-### `withSystemContext(prisma, contextType, callback)`
+## FORBIDDEN: Direct Database Access
 
-**Use for**: Webhooks and background jobs
-
-- Stripe webhook handlers
-- Clerk webhook handlers
-- Background job processing
+**NEVER** access the database without auth helpers:
 
 ```typescript
-// Stripe webhook handler
-await withSystemContext(prisma, "webhook", async (client) => {
-  await client.payments.create({ data: paymentData });
+// WRONG - No auth check
+export const getRecords = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("records").collect(); // FORBIDDEN!
+  },
+});
+
+// WRONG - Missing organization scoping
+export const getRecords = query({
+  handler: async (ctx) => {
+    const user = await requireAuth(ctx);
+    return await ctx.db.query("records").collect(); // Still wrong!
+  },
+});
+
+// CORRECT - Auth + organization scoping
+export const getRecords = query({
+  handler: async (ctx) => {
+    const { organizationId } = await requireOrganization(ctx);
+    return await ctx.db
+      .query("records")
+      .withIndex("by_organization", q => q.eq("organizationId", organizationId))
+      .collect();
+  },
 });
 ```
 
-## Admin Pages: Force Dynamic Rendering
+## Multi-Tenant Isolation (CRITICAL)
 
-**CRITICAL**: Admin pages using RLS queries MUST force runtime rendering:
-
-```typescript
-// app/admin/some-page/page.tsx
-import { withAdminContext } from "@/lib/rls-context";
-import { prisma } from "@/lib/prisma";
-
-// REQUIRED - RLS context unavailable at build time
-export const dynamic = "force-dynamic";
-
-async function getAdminData() {
-  return await withAdminContext(prisma, userId, async (client) => {
-    return client.someTable.findMany();
-  });
-}
-```
-
-Without `export const dynamic = 'force-dynamic'`, Next.js will try to pre-render at build time, causing "permission denied" errors.
-
-## Protected Tables
-
-### User Data Tables (User Isolation)
-
-| Table               | Policy Type    | Access                 |
-| ------------------- | -------------- | ---------------------- |
-| `user`              | User isolation | Own data only          |
-| `payments`          | User isolation | Own payments only      |
-| `subscriptions`     | User isolation | Own subscriptions only |
-| `invoices`          | User isolation | Own invoices only      |
-| `course_enrollment` | User isolation | Own enrollments only   |
-
-### Admin/System Tables (Role-Based)
-
-| Table                 | Policy Type  | Access                   |
-| --------------------- | ------------ | ------------------------ |
-| `webhook_events`      | Admin+System | Admins and webhooks only |
-| `disputes`            | Admin only   | Admins only              |
-| `payment_failures`    | Admin only   | Admins only              |
-| `trial_notifications` | Admin+System | Admins and system only   |
-
-## Testing Requirements
-
-Always test with `{PROJECT}_app_user` role (not `{PROJECT}_user` superuser):
-
-```bash
-# Basic RLS functionality test
-node scripts/test-rls-phase3-simple.js
-
-# Comprehensive security validation
-cat scripts/rls-phase4-final-validation.sql | \
-  docker exec -i {PROJECT_NAME}-postgres-1 psql -U {PROJECT}_app_user -d {PROJECT}_dev
-```
-
-## Common Patterns
-
-### API Route with User Context
+Every query involving user data MUST scope by organization:
 
 ```typescript
-// app/api/user/payments/route.ts
-import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth";
-import { withUserContext } from "@/lib/rls-context";
-import { prisma } from "@/lib/prisma";
+// Table schema MUST include organizationId
+records: defineTable({
+  organizationId: v.id("organizations"),  // REQUIRED
+  createdBy: v.id("users"),
+  title: v.string(),
+  // ...
+})
+  .index("by_organization", ["organizationId"])  // REQUIRED
+  .index("by_creator", ["organizationId", "createdBy"]),
 
-export async function GET() {
-  const { userId } = await requireAuth();
+// Query MUST use organization index
+const records = await ctx.db
+  .query("records")
+  .withIndex("by_organization", q => q.eq("organizationId", orgId))
+  .collect();
+```
 
-  const payments = await withUserContext(prisma, userId, async (client) => {
-    return client.payments.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: "desc" },
+## Internal Mutations (System Operations)
+
+For scheduled jobs, webhooks, and internal operations:
+
+```typescript
+import { internalMutation } from "./_generated/server";
+
+export const processWebhook = internalMutation({
+  args: { eventId: v.string(), data: v.any() },
+  handler: async (ctx, args) => {
+    // No user context - this is a system operation
+    // Still scope by organization from webhook data
+    const { organizationId } = args.data.metadata;
+    
+    await ctx.db.insert("events", {
+      organizationId,
+      eventId: args.eventId,
+      processedAt: Date.now(),
     });
-  });
-
-  return NextResponse.json(payments);
-}
+  },
+});
 ```
 
-### Webhook Handler with System Context
+## Client-Side Query Gating
+
+**CRITICAL**: Gate authenticated queries on the client:
 
 ```typescript
-// app/api/webhooks/stripe/route.ts
-import { withSystemContext } from "@/lib/rls-context";
-import { prisma } from "@/lib/prisma";
+// WRONG - Query runs before auth is ready
+const records = useQuery(api.records.getRecords);
 
-export async function POST(req: Request) {
-  // Verify webhook signature first...
-
-  await withSystemContext(prisma, "webhook", async (client) => {
-    await client.webhook_events.create({
-      data: {
-        event_type: event.type,
-        payload: event.data,
-        processed_at: new Date(),
-      },
-    });
-  });
-
-  return new Response("OK", { status: 200 });
-}
+// CORRECT - Query waits for auth
+const { isAuthenticated } = useConvexAuth();
+const records = useQuery(
+  api.records.getRecords,
+  isAuthenticated ? {} : "skip"
+);
 ```
 
-## Authoritative References
+## Permission Levels
 
-- **Implementation Guide**: `docs/database/RLS_IMPLEMENTATION_GUIDE.md`
-- **Policy Catalog**: `docs/database/RLS_POLICY_CATALOG.md`
-- **Migration SOP**: `docs/database/RLS_DATABASE_MIGRATION_SOP.md`
-- **ESLint Rules**: `eslint.config.mjs` (direct Prisma call enforcement)
-- **RLS Context**: `lib/rls-context.ts`
+Standard RBAC permissions:
+
+| Permission | Description |
+|------------|-------------|
+| `resource:read` | View resource |
+| `resource:write` | Create/update resource |
+| `resource:delete` | Delete resource |
+| `admin:*` | Full admin access |
+
+## Validation Checklist
+
+Before completing any backend work:
+
+- [ ] All queries use appropriate auth helper
+- [ ] All multi-tenant queries scope by organizationId
+- [ ] Organization index exists on table
+- [ ] RBAC permissions checked where needed
+- [ ] Client-side queries gated with isAuthenticated
+- [ ] Internal mutations properly scoped
+
+## Error Handling
+
+```typescript
+import { ConvexError } from "convex/values";
+
+export const secureOperation = mutation({
+  handler: async (ctx, args) => {
+    const user = await requireOrganization(ctx);
+    
+    const record = await ctx.db.get(args.id);
+    if (!record) {
+      throw new ConvexError({ code: "NOT_FOUND", message: "Record not found" });
+    }
+    
+    // Verify ownership
+    if (record.organizationId !== user.organizationId) {
+      throw new ConvexError({ code: "FORBIDDEN", message: "Access denied" });
+    }
+    
+    // Proceed with operation
+  },
+});
+```
+
+## Canonical Locations
+
+| Component | Path |
+|-----------|------|
+| Auth helpers | `packages/backend/convex/lib/authorization.ts` |
+| Schema | `packages/backend/convex/schema.ts` |
+| Auth types | `packages/backend/convex/lib/authTypes.ts` |

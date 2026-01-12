@@ -1,0 +1,208 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BRANCH=$(git branch --show-current 2>/dev/null); if [ \"$BRANCH\" = 'main' ] || [ \"$BRANCH\" = 'master' ]; then echo 'WARNING: You are on protected branch '$BRANCH'. Create a feature branch first: git checkout -b feature/ConTS-XXX-description'; fi",
+            "description": "Warn when on protected branch"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(rm -rf /|git push.*--force.*main|git push.*--force.*master|DROP TABLE|DELETE FROM.*WHERE 1=1)'; then echo 'BLOCKED: Dangerous command detected' && echo \"Command: $CLAUDE_TOOL_INPUT\" && echo 'This command is blocked by safety hooks. Request explicit human approval if absolutely necessary.' && exit 2; fi",
+            "description": "Block dangerous commands"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash.*git\\s+commit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'REMINDER: Commit message format: type(scope): description [ConTS-XXX]' && echo 'Types: feat, fix, docs, refactor, test, chore'",
+            "description": "Remind about ConTStack commit message format"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash.*git\\s+push",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BRANCH=$(git branch --show-current); if [ \"$BRANCH\" = 'main' ] || [ \"$BRANCH\" = 'master' ]; then echo 'BLOCKED: Cannot push directly to '$BRANCH'. Create a feature branch first: git checkout -b feature/ConTS-XXX-description' && exit 1; fi",
+            "description": "Block direct push to protected branches"
+          },
+          {
+            "type": "command",
+            "command": "if git status --porcelain | grep -q .; then echo 'BLOCKED: Uncommitted changes detected. Commit all changes before pushing.' && exit 1; fi",
+            "description": "Block push with uncommitted changes"
+          },
+          {
+            "type": "command",
+            "command": "git fetch origin -q 2>/dev/null && if git log HEAD..origin/main --oneline 2>/dev/null | grep -q .; then echo 'WARNING: Branch is behind origin/main. Consider rebasing: git rebase origin/main'; fi || true",
+            "description": "Warn if branch is behind main"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash.*gh\\s+pr\\s+create",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'REMINDER: Run pre-commit checks before creating PR:' && echo '  bun run lint && bun run typecheck && bun test'",
+            "description": "Remind about pre-PR validation"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '(\\.env$|\\.env\\.local|\\.env\\.test)'; then echo 'WARNING: Editing environment file:' && echo \"$CLAUDE_FILE_PATHS\" && echo 'CRITICAL: Ensure no secrets are committed to git.'; fi",
+            "description": "Warn when editing environment files"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '(packages/backend/convex/schema\\.ts)'; then echo 'WARNING: Editing Convex schema file' && echo 'Schema changes can be breaking. Verify migration compatibility.'; fi",
+            "description": "Warn when editing Convex schema"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE '(\\.mcp\\.json)'; then echo 'WARNING: Editing MCP configuration' && echo 'Changes may affect tool integrations for all agents.'; fi",
+            "description": "Warn when editing MCP config"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE_PATH=\"$CLAUDE_FILE_PATHS\"; if [ -n \"$FILE_PATH\" ] && echo \"$FILE_PATH\" | grep -qE '\\.(ts|tsx|js|jsx)$'; then bun run lint --fix 2>/dev/null || echo 'Lint auto-fix completed'; fi",
+            "description": "Auto-format TypeScript/JavaScript files after edit"
+          },
+          {
+            "type": "command",
+            "command": "FILE_PATH=\"$CLAUDE_FILE_PATHS\"; if [ -n \"$FILE_PATH\" ] && echo \"$FILE_PATH\" | grep -qE '\\.(md)$'; then npx prettier --write \"$FILE_PATH\" 2>/dev/null && echo 'Markdown formatted' || true; fi",
+            "description": "Auto-format Markdown files after edit"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATHS\" | grep -qE 'CLAUDE\\.md|CONTRIBUTING\\.md|README\\.md'; then echo 'NOTE: High-impact documentation file modified. Consider updating related docs in this PR.'; fi",
+            "description": "Remind about documentation updates for important files"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'ConTStack Development Session Started' && echo '' && echo 'Branch Protection: main, master (protected)' && echo 'Commit Format: type(scope): description [ConTS-XXX]' && echo 'Quality Gates: bun run lint && bun run typecheck && bun test' && echo '' && echo 'Key Commands:' && echo '  /status    - Check RPI workflow status' && echo '  /research  - Research codebase' && echo '  /plan      - Create implementation plan' && echo '  /implement - Execute plan' && echo '  /handoff   - End session protocol' && echo '' && BRANCH=$(git branch --show-current 2>/dev/null); if [ \"$BRANCH\" = 'main' ] || [ \"$BRANCH\" = 'master' ]; then echo 'ACTION REQUIRED: Create feature branch before making changes'; echo '  git checkout -b feature/ConTS-XXX-description'; fi",
+            "description": "ConTStack session start with branch check"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if git status --porcelain | grep -q .; then echo 'WARNING: Session ending with uncommitted changes.' && echo 'Uncommitted files:' && git status --porcelain && echo '' && echo 'Use /handoff to complete session properly.'; else echo 'Clean session end - no uncommitted changes'; fi",
+            "description": "Check for uncommitted work at session end"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read thoughts/**",
+      "Write thoughts/**",
+      "Read .claude/**",
+      "Execute bd *",
+      "Execute npm test",
+      "Execute npm run *",
+      "Execute bun test",
+      "Execute bun run *",
+      "Execute git status",
+      "Execute git add",
+      "Execute git commit",
+      "Execute git push",
+      "Execute git pull",
+      "Execute git fetch",
+      "Execute git checkout",
+      "Execute git branch",
+      "Execute git rebase",
+      "Execute git merge",
+      "Execute git log",
+      "Execute git diff",
+      "Execute gh pr *",
+      "Execute gh issue *",
+      "Bash(bd create:*)",
+      "Bash(bd dep add:*)",
+      "Bash(bd list:*)",
+      "Bash(bd ready:*)",
+      "Bash(bd show:*)",
+      "Bash(bd update:*)",
+      "Bash(bd close:*)",
+      "Bash(git checkout:*)",
+      "Bash(bun run build)",
+      "Bash(bun run lint:*)",
+      "Bash(bun run typecheck:*)",
+      "Bash(bunx tsc:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker ps:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsx scripts/*)"
+    ],
+    "deny": [
+      "Execute rm -rf *",
+      "Execute del /f /s *",
+      "Execute git push --force *",
+      "Bash(rm -rf /)",
+      "Bash(git push --force:main)",
+      "Bash(git push --force:master)"
+    ]
+  },
+  "context": {
+    "auto_include": ["CLAUDE.md", "AGENTS.md"]
+  },
+  "branch_protection": {
+    "protected_branches": ["main", "master"],
+    "branch_naming_pattern": "^(feature|fix|docs|refactor|test|chore)/ConTS-[0-9]+-[a-z0-9-]+$",
+    "branch_naming_examples": [
+      "feature/ConTS-001-add-user-auth",
+      "fix/ConTS-042-resolve-login-bug",
+      "docs/ConTS-015-update-readme"
+    ]
+  },
+  "commit_message": {
+    "format": "type(scope): description [ConTS-XXX]",
+    "types": ["feat", "fix", "docs", "refactor", "test", "chore"],
+    "examples": [
+      "feat(auth): add WorkOS SSO integration [ConTS-001]",
+      "fix(crm): resolve contact search pagination [ConTS-042]",
+      "docs(readme): update installation instructions [ConTS-015]",
+      "refactor(backend): optimize Convex query patterns [ConTS-023]"
+    ]
+  }
+}
