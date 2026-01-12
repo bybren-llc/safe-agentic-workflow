@@ -7,7 +7,11 @@ description: SAFe development workflow guidance including branch naming conventi
 
 > **ConTStack Configuration**: This skill is configured for ConTStack with ticket prefix `ConTS-`.
 
-## Trigger Conditions
+## Purpose
+
+Enforce SAFe-compliant git workflow with standardized branch naming, commit message format, and rebase-first merge strategy. Ensures linear history and full traceability to Linear tickets.
+
+## When This Skill Applies
 
 Invoke this skill when:
 
