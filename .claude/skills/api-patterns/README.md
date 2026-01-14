@@ -5,6 +5,16 @@
 
 > API route implementation patterns with RLS, Zod validation, and error handling.
 
+## License
+
+**License:** MIT (see [/LICENSE](/LICENSE))
+**Copyright:** © 2026 J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) / [Bybren LLC](https://github.com/bybren-llc)
+**Attribution:** Required per [/NOTICE](/NOTICE)
+
+## Intellectual Property
+
+The skill system architecture and WTFB harness methodology are intellectual property of Bybren LLC.
+
 ## Quick Start
 
 This skill activates automatically when you:
