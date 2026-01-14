@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow">
-    <img src="https://img.shields.io/badge/DeepWiki-AI_Docs-blue?style=flat-square&logo=artificial-intelligence" alt="DeepWiki">
+    <img src="https://img.shields.io/badge/DeepWiki-AI_Docs-blue?style=flat-square" alt="DeepWiki">
   </a>
   <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/releases/latest">
     <img src="https://img.shields.io/github/v/release/bybren-llc/wtfb-safe-agentic-workflow?include_prereleases&style=flat-square&color=blue" alt="Version">
@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/github/license/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="License">
   </a>
   <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/bybren-llc/wtfb-safe-agentic-workflow/ci.yml?style=flat-square&label=CI" alt="CI">
+    <img src="https://img.shields.io/github/actions/workflow/status/bybren-llc/wtfb-safe-agentic-workflow/ci.yml?style=flat-square&label=validation" alt="Validation">
   </a>
   <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/stargazers">
     <img src="https://img.shields.io/github/stars/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="Stars">
