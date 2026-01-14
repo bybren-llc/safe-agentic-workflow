@@ -1,0 +1,134 @@
+description = "View remote dev container logs"
+
+prompt = """
+# Remote Logs Command
+
+View logs from the remote development environment containers.
+
+**Arguments**: {{args}}
+
+## Workflow
+
+### 1. Determine Log Mode
+
+**If argument contains `--follow` or `-f`**:
+- Stream logs in real-time
+- Useful for monitoring deployments
+- Press Ctrl+C to exit
+
+**If argument contains `--tail N`**:
+- Show last N lines
+- Default to 100 if not specified
+
+**If no arguments**:
+- Show last 100 lines (default)
+
+### 2. Execute Log Command
+
+Get logs from all services:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && ./scripts/dev-docker.sh logs --tail 100"
+```
+
+For specific service:
+
+```bash
+# App logs
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {APP_CONTAINER} --tail 100"
+
+# PostgreSQL logs
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {DB_CONTAINER} --tail 100"
+
+# Redis logs
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {REDIS_CONTAINER} --tail 100"
+```
+
+### 3. Filter and Highlight
+
+Parse logs for common patterns:
+
+**Error Detection**:
+- `ERROR`, `Error`, `error`
+- `FATAL`, `Fatal`
+- `Exception`, `exception`
+- Stack traces
+
+**Warning Detection**:
+- `WARN`, `Warning`, `warning`
+- `deprecated`
+
+**Success Markers**:
+- `started`, `listening`, `ready`
+- `connected`, `successful`
+
+Highlight critical issues in output.
+
+### 4. Log Analysis
+
+Provide quick analysis:
+
+```text
+Remote Dev Logs Analysis
+
+{APP_CONTAINER} (Next.js):
+  Status:    Running
+  Errors:    0
+  Warnings:  2
+  Last Line: Ready on http://localhost:3000
+
+{DB_CONTAINER}:
+  Status:    Running
+  Errors:    0
+  Last Line: database system is ready
+
+{REDIS_CONTAINER}:
+  Status:    Running
+  Errors:    0
+  Last Line: Ready to accept connections
+
+Overall Health: Healthy
+```
+
+### 5. Interactive Follow Mode
+
+If `--follow` requested, start streaming:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && ./scripts/dev-docker.sh logs --follow"
+```
+
+### 6. Log Search
+
+Search for specific term:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {APP_CONTAINER} 2>&1 | grep -i 'search-term'"
+```
+
+## Usage Examples
+
+```bash
+/remote:logs              # Show last 100 lines from all containers
+/remote:logs --follow     # Streams logs continuously
+/remote:logs --tail 500   # Shows last 500 lines
+```
+
+## Error Handling
+
+### SSH Connection Fails
+- Check network connectivity
+- Verify SSH key exists
+- Provide manual SSH command
+
+### Container Not Found
+- Check services are running: `/remote:health`
+- Start services: `/remote:deploy`
+
+## Related Commands
+
+- `/remote:health` - Check service health
+- `/remote:status` - Check deployment status
+- `/remote:deploy` - Deploy latest version
+- `/remote:rollback` - Rollback if errors found
+"""

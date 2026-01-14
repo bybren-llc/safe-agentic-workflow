@@ -1,0 +1,108 @@
+description = "Check if remote Docker environment needs updating"
+
+prompt = """
+# Remote Status Command
+
+Compare the Docker image running on your remote host with the latest image in the registry.
+
+## Deployment Modes
+
+| Mode            | Container Name      | Port   | Use Case                                    |
+| --------------- | ------------------- | ------ | ------------------------------------------- |
+| **Development** | `{PROJECT}-dev`     | `3000` | Hot-reload, source-mounted, local dev tools |
+| **Staging**     | `{PROJECT}-staging` | `3001` | Production-like, self-contained, stable     |
+
+## Workflow
+
+### 1. Get Running Container Info
+
+Check running container on remote host via SSH:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker ps --filter name={PROJECT} --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'"
+```
+
+Extract commit SHA from running container:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker inspect {CONTAINER_NAME} | grep 'org.opencontainers.image.revision'"
+```
+
+### 2. Get Latest Registry Image Info
+
+Check latest commit on your main branch:
+
+```bash
+!{git fetch origin main && git log origin/main -1 --format='%H %s'}
+```
+
+Check latest GitHub Actions build status:
+
+```bash
+!{gh run list --workflow="Build and Push Docker Image" --limit 3 2>/dev/null || echo "Check CI manually"}
+```
+
+### 3. Compare and Report Status
+
+**If commit SHAs match**:
+- Remote host is up-to-date
+- Report current version info
+- Show uptime
+- No action needed
+
+**If commit SHAs differ**:
+- Update available
+- Show current vs latest commits
+- Check if CI build is complete
+- If build in progress: show estimated completion
+- If build complete: provide deployment command
+
+### 4. Output Format
+
+Display comprehensive status:
+
+```text
+Docker Image Status Check
+
+Remote Environment (Running):
+Container: {CONTAINER_NAME}
+Status:    Up 7 hours (healthy)
+Commit:    e9722d4 - previous commit message
+
+Container Registry (Latest):
+Commit:    3a49b85 - latest commit message
+Build:     Complete (31 seconds ago)
+Status:    Ready to deploy
+
+Result: UPDATE AVAILABLE
+
+To deploy update: /remote:deploy
+```
+
+### 5. Actionable Guidance
+
+Based on status, provide appropriate next steps:
+
+**Up-to-date**: "No action needed"
+
+**Update available + build complete**:
+- "Ready to deploy"
+- Provide `/remote:deploy` command
+
+**Update available + build in progress**:
+- "Build in progress (estimated X minutes remaining)"
+- Provide link to CI run
+
+**Build failed**:
+- "Latest build failed"
+- Link to CI failure
+
+## Customization
+
+Replace these placeholders for your infrastructure:
+- `{SSH_KEY_PATH}`: Path to SSH private key
+- `{REMOTE_USER}`: Username on remote host
+- `{REMOTE_HOST}`: Remote server hostname/IP
+- `{PROJECT}`: Your project name
+- `{CONTAINER_NAME}`: Docker container name
+"""

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://geminicli.com/schemas/settings.json",
+  "context": {
+    "includePatterns": [
+      "**/*.md",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.json",
+      "**/*.yaml",
+      "**/*.yml",
+      "**/*.toml",
+      "**/*.sql",
+      "**/*.prisma"
+    ],
+    "excludePatterns": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      "coverage/**",
+      "*.log",
+      ".env*"
+    ]
+  },
+  "tools": {
+    "sandbox": {
+      "enabled": true
+    }
+  },
+  "model": {
+    "default": "gemini-2.0-flash-exp"
+  }
+}

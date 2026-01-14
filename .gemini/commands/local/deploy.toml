@@ -1,0 +1,122 @@
+description = "Deploy latest Docker image to local Docker environment"
+
+prompt = """
+# Local Deploy Command
+
+Deploy the latest Docker image from container registry to your LOCAL machine's Docker.
+
+## Usage
+
+```bash
+/local:deploy              # Deploy using dev mode (source-mounted, hot-reload)
+/local:deploy --staging    # Deploy using staging mode (self-contained, production-like)
+/local:deploy --rebuild    # Trigger CI build first, then deploy
+```
+
+## Deployment Modes
+
+| Mode            | Use Case                                        |
+| --------------- | ----------------------------------------------- |
+| **Development** | Active development with hot-reload              |
+| **Staging**     | Production-like, self-contained, stable testing |
+
+## Workflow
+
+### 1. Pre-Deployment Status Check
+
+Get current running status:
+
+```bash
+!{docker ps --filter name={PROJECT_NAME} --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null || echo "No containers found"}
+```
+
+Get current commit SHA:
+
+```bash
+!{docker inspect {PROJECT_NAME}-app 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'"' -f4 || echo "No revision found"}
+```
+
+Get latest commit from main branch:
+
+```bash
+!{git log origin/main -1 --format='%h %s'}
+```
+
+### 2. Trigger Build (Conditional)
+
+If --rebuild flag is present:
+
+```bash
+gh workflow run "Build and Push Docker Image" --ref main
+```
+
+Wait for workflow to complete (poll every 30 seconds).
+
+### 3. Deploy Based on Mode
+
+**Staging Mode** (`--staging`):
+
+```bash
+./scripts/dev-docker.sh deploy
+```
+
+**Development Mode** (default):
+
+```bash
+./scripts/dev-docker.sh pull
+./scripts/dev-docker.sh restart
+```
+
+### 4. Verify Deployment
+
+Check services started successfully:
+
+```bash
+!{docker ps --filter name={PROJECT_NAME} --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null}
+```
+
+Verify health endpoint:
+
+```bash
+!{curl -s http://localhost:3000/api/health 2>/dev/null | head -5 || echo "Health check pending"}
+```
+
+### 5. Post-Deployment Monitoring
+
+Check logs for startup issues:
+
+```bash
+!{docker logs {PROJECT_NAME}-app --tail 20 2>&1 | tail -10}
+```
+
+Look for:
+- "Server started" messages
+- Database connection success
+- No error stack traces
+
+## Error Handling
+
+### Image Pull Fails
+- Registry authentication expired
+- Network connectivity issues
+- Disk space full
+
+### Port Conflicts
+```bash
+sudo lsof -i :3000
+```
+
+### Services Fail to Start
+1. Check error logs
+2. Verify database is running
+3. Check environment variables
+
+## Success Criteria
+
+- Image pulled successfully (or built if --rebuild)
+- Old containers stopped cleanly
+- New containers started
+- All services healthy
+- Health endpoint responding
+- New commit SHA confirmed
+"""

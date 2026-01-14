@@ -1,0 +1,124 @@
+description = "Full local development sync after git pull"
+
+prompt = """
+# Local Sync Command
+
+Perform complete local development environment sync after pulling from main branch. This ensures dependencies, database, and validation are all up-to-date.
+
+## Workflow
+
+### 1. Git Branch Cleanup (Best Practice)
+
+Check current branch and switch to main if needed:
+
+```bash
+!{git branch --show-current}
+```
+
+If on feature branch:
+- Check for uncommitted changes
+- If clean, switch to main: `git checkout main`
+- If dirty, offer to stash: `git stash && git checkout main`
+
+### 2. Git Pull
+
+Pull latest changes from origin/main:
+
+```bash
+!{git pull origin main}
+```
+
+If pull fails due to uncommitted changes:
+- Stash changes: `git stash`
+- Pull again
+- Reapply stash: `git stash pop`
+
+### 3. Branch Cleanup (Git Best Practice)
+
+After pulling latest main, clean up merged branches:
+
+```bash
+!{git branch --merged main | grep -v "^\*" | grep -v "main" | grep -v "master"}
+```
+
+Offer to delete merged feature branches.
+
+Prune remote tracking branches:
+
+```bash
+!{git fetch --prune origin}
+```
+
+### 4. Smart Change Detection
+
+Detect what changed to determine necessary steps:
+
+```bash
+!{git diff HEAD@{1} HEAD -- package.json yarn.lock 2>/dev/null | head -5}
+```
+
+**Decision Logic**:
+- If deps changed → Run yarn install
+- If schema changed → Run Prisma operations
+- If both empty → Fast path: Jump to Docker check
+
+### 5. Install Dependencies (Conditional)
+
+Only run if package.json or yarn.lock changed:
+
+```bash
+!{yarn install 2>&1 || echo "Install completed"}
+```
+
+### 6. Prisma Client Update (Conditional)
+
+Only run if schema or migrations changed:
+
+```bash
+!{npx prisma generate 2>&1 || echo "Prisma generate completed"}
+```
+
+Check for pending migrations:
+
+```bash
+!{npx prisma migrate status 2>&1 || echo "Migration status checked"}
+```
+
+### 7. Validation (Optional)
+
+Ask user: "Run full validation (yarn ci:validate)?"
+
+If user chooses Yes:
+
+```bash
+!{yarn ci:validate 2>&1 || echo "Validation completed"}
+```
+
+### 8. Docker Services Check
+
+Verify Docker services are running:
+
+```bash
+!{docker ps --filter name={PROJECT_NAME} --format 'table {{.Names}}\t{{.Status}}\t{{.State}}' 2>/dev/null || echo "Docker check completed"}
+```
+
+If services not running, suggest starting them.
+
+## Status Report
+
+Generate comprehensive sync report showing:
+- Git sync status (branch, commits pulled)
+- Dependencies status
+- Database status
+- Docker services status
+- Overall health
+
+## Success Criteria
+
+- Git pull successful
+- Dependencies installed (if changed)
+- Prisma client generated (if schema changed)
+- No pending migrations (or applied if schema changed)
+- Docker services running
+- Clear status report provided
+"""
