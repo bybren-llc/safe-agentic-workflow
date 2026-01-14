@@ -1,4 +1,4 @@
-# Claude Code Harness for Multi-Agent Team Workflows
+# AI Agent Harness for Multi-Agent Team Workflows
 
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
@@ -32,6 +32,16 @@
   </a>
 </p>
 
+<p align="center">
+  <strong>Supported AI Providers</strong><br>
+  <a href=".claude/">
+    <img src="https://img.shields.io/badge/Claude_Code-Anthropic-orange?style=flat-square&logo=anthropic" alt="Claude Code">
+  </a>
+  <a href=".gemini/">
+    <img src="https://img.shields.io/badge/Gemini_CLI-Google-blue?style=flat-square&logo=google" alt="Gemini CLI">
+  </a>
+</p>
+
 > **AI Agents:** For comprehensive documentation, visit [DeepWiki](https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow)
 >
 > **LLM Context**: Get the entire repository as LLM-ready context using [GitIngest](https://gitingest.com/) with your fork.
@@ -40,14 +50,16 @@
 
 ## What This Is
 
-A **production-tested Claude Code harness** for teams that want structured AI workflows.
+A **production-tested AI agent harness** for teams that want structured AI workflows.
+
+**Multi-provider support**: Works with both **Claude Code** (Anthropic) and **Gemini CLI** (Google).
 
 **Built on SAFe methodology** (Scaled Agile Framework), adapted for AI agent teams.
 Works for any team with repeatable processes: Software, Marketing, Research, Legal, Operations.
 
 Includes:
 
-- **17 Model-Invoked Skills** - Domain expertise Claude loads automatically
+- **17 Model-Invoked Skills** - Domain expertise that loads automatically
 - **23 Slash Commands** - Workflow automation for common tasks
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
@@ -58,6 +70,8 @@ Includes:
 ---
 
 ## Quick Start (30 seconds)
+
+### Claude Code (Anthropic)
 
 ```bash
 # Copy harness to your project
@@ -70,7 +84,23 @@ edit .claude/SETUP.md  # Replace {TICKET_PREFIX}, {PROJECT_NAME}
 /start-work TICKET-123
 ```
 
-**That's it.** Claude now has your team's workflow patterns built in.
+### Gemini CLI (Google)
+
+```bash
+# Copy harness to your project
+cp -r .gemini/ /your-project/.gemini/
+
+# Install Gemini CLI (if needed)
+npm install -g @google/gemini-cli
+
+# Authenticate
+export GEMINI_API_KEY="your-api-key"
+
+# Start working
+/workflow:start-work TICKET-123
+```
+
+**That's it.** Your AI assistant now has your team's workflow patterns built in.
 
 ---
 
@@ -163,16 +193,91 @@ See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md).
 
 ### Adoption Requirements
 
-- Claude Code CLI installed
+- Claude Code CLI or Gemini CLI installed
 - Git repository
 - Team buy-in for structured workflows
 
 ### Known Limitations
 
 - Single-team validation only
-- Claude Code specific (may need adaptation for other tools)
+- Gemini CLI support is new (Claude Code has 5+ months production use)
 
 [Implementation Guide](whitepaper/section-9-implementation-guide.md)
+
+</details>
+
+---
+
+## Gemini CLI Integration
+
+<details>
+<summary><strong>Why Gemini CLI?</strong> - Unique capabilities and when to use it</summary>
+
+### Gemini CLI Unique Features
+
+Gemini CLI offers capabilities that complement Claude Code:
+
+| Feature | Gemini CLI | Claude Code |
+|---------|------------|-------------|
+| **Shell Injection** | `!{command}` - Execute shell, inject output into prompt | Via Bash tool only |
+| **File Injection** | `@{file}` - Inject file contents into prompts | Via Read tool only |
+| **Built-in Sandbox** | Google Cloud sandboxing | MCP sandboxing |
+| **Model Options** | Gemini 2.0 Flash, Gemini Pro | Claude Opus, Sonnet, Haiku |
+| **Command Format** | TOML | YAML + Markdown |
+| **Namespaced Commands** | `/workflow:start-work` | `/start-work` |
+
+### When to Use Gemini CLI
+
+**Choose Gemini CLI when you need:**
+- Shell command output directly in prompts (`!{git log --oneline -5}`)
+- File contents injected into context (`@{package.json}`)
+- Google Cloud integration
+- Gemini model family access
+
+**Choose Claude Code when you need:**
+- MCP server integrations (Linear, Confluence, etc.)
+- Pre-commit hooks for automated validation
+- Agent subprocesses with tool restrictions
+- Claude model family access
+
+### Gemini CLI Quick Reference
+
+```bash
+# Installation
+npm install -g @google/gemini-cli
+
+# Authentication (choose one)
+export GEMINI_API_KEY="your-api-key"
+# or
+gcloud auth application-default login
+
+# Start Gemini CLI
+gemini
+
+# List available commands
+/help
+
+# List available skills
+/skills
+```
+
+### Command Syntax Differences
+
+| Action | Claude Code | Gemini CLI |
+|--------|-------------|------------|
+| Start work | `/start-work WOR-123` | `/workflow:start-work WOR-123` |
+| Pre-PR check | `/pre-pr` | `/workflow:pre-pr` |
+| Local sync | `/local-sync` | `/local:sync` |
+| Remote deploy | `/remote-deploy` | `/remote:deploy` |
+| Search patterns | `/search-pattern "pattern"` | `/search-pattern "pattern"` |
+
+### Gemini CLI Documentation
+
+- **Official Docs**: [geminicli.com](https://geminicli.com)
+- **Installation**: [geminicli.com/docs/get-started/installation/](https://geminicli.com/docs/get-started/installation/)
+- **Authentication**: [geminicli.com/docs/get-started/authentication/](https://geminicli.com/docs/get-started/authentication/)
+- **Custom Commands**: [geminicli.com/docs/cli/custom-commands/](https://geminicli.com/docs/cli/custom-commands/)
+- **Skills**: [geminicli.com/docs/cli/skills/](https://geminicli.com/docs/cli/skills/)
 
 </details>
 
@@ -1086,12 +1191,13 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 
 ## Important Caveats
 
-**Version 2.0** - Production-tested but with known limitations:
+**Version 2.3** - Production-tested but with known limitations:
 
-- **Production validated**: 5+ months, 169 issues, 2,193 commits
+- **Production validated**: 5+ months, 169 issues, 2,193 commits (Claude Code)
+- **Multi-provider**: Supports Claude Code and Gemini CLI
 - **Generalized**: Placeholders for project-specific values
 - **Single-team validation**: Multi-team scalability not yet proven
-- **Claude Code specific**: May require adaptation for other tools
+- **Gemini CLI new**: Gemini integration is new (January 2026), not yet production-tested
 - **Domain examples**: Non-SWE adaptations are theoretical (documented, not validated)
 
 See [Limitations](whitepaper/section-7-limitations-honest-assessment.md) for honest assessment.
@@ -1106,6 +1212,13 @@ See [Limitations](whitepaper/section-7-limitations-honest-assessment.md) for hon
 ├── skills/              # 17 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
 └── SETUP.md             # Installation and customization guide
+
+.gemini/                 # Gemini CLI harness configuration
+├── commands/            # 18 TOML commands (namespaced: /workflow:*, /local:*, /remote:*)
+├── skills/              # 17 model-invoked skills (same as Claude)
+├── settings.json        # Context and model configuration
+├── GEMINI.md            # System instructions
+└── README.md            # Gemini-specific setup guide
 
 whitepaper/              # Complete whitepaper (12 sections)
 ├── data/                # Supporting data and metrics
@@ -1188,6 +1301,6 @@ See [NOTICE](NOTICE) for details.
 </p>
 
 <p align="center">
-  <strong>Version</strong>: 2.2.0 (January 2026)<br>
-  <strong>Status</strong>: Production-validated, academically honest, publication-ready
+  <strong>Version</strong>: 2.3.0 (January 2026)<br>
+  <strong>Status</strong>: Production-validated, multi-provider (Claude Code + Gemini CLI)
 </p>
