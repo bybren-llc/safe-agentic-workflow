@@ -66,7 +66,7 @@ Expected: `PONG`
 Check for recent errors in logs:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {CONTAINER_NAME} --since 5m 2>&1 | grep -i 'error\|fatal\|exception' | tail -10"
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker logs {CONTAINER_NAME} --since 5m 2>&1 | grep -iE 'error|fatal|exception' | tail -10"
 ```
 
 ### 7. Version Information

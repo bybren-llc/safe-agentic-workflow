@@ -10,7 +10,7 @@ Search codebase for patterns using optimized tools. Useful for refactoring, find
 ## Usage
 
 ```bash
-/search-pattern "prisma\." ts     # Find direct Prisma usage in TypeScript
+/search-pattern "prisma\\." ts     # Find direct Prisma usage in TypeScript
 /search-pattern "withUserContext" # Find RLS context usage
 /search-pattern "import.*icons"   # Find icon imports
 ```
@@ -50,7 +50,7 @@ Group by:
 
 ### Find Direct Database Access
 ```bash
-/search-pattern "prisma\.(user|payment|subscription)"
+/search-pattern "prisma\\.(user|payment|subscription)"
 ```
 Identifies: Direct Prisma calls that should use RLS context helpers
 
@@ -74,13 +74,13 @@ Identifies: Code marked for removal
 
 ### Find Error Handling
 ```bash
-/search-pattern "try\s*\{|catch\s*\("
+/search-pattern "try\\s*\\{|catch\\s*\\("
 ```
 Identifies: Error handling patterns
 
 ### Find Environment Variables
 ```bash
-/search-pattern "process\.env\."
+/search-pattern "process\\.env\\."
 ```
 Identifies: All environment variable usage
 
@@ -92,7 +92,7 @@ Identifies: All API endpoints
 
 ### Find Test Files
 ```bash
-/search-pattern "describe\(|it\(|test\("
+/search-pattern "describe\\(|it\\(|test\\("
 ```
 Identifies: Test coverage
 
