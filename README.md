@@ -225,6 +225,9 @@ Gemini CLI offers capabilities that complement Claude Code:
 | **Model Options** | Gemini 2.0 Flash, Gemini Pro | Claude Opus, Sonnet, Haiku |
 | **Command Format** | TOML | YAML + Markdown |
 | **Namespaced Commands** | `/workflow:start-work` | `/start-work` |
+| **Hooks** | `settings.json` hooks section | `hooks-config.json` |
+| **MCP Servers** | `settings.json` mcpServers | `settings.local.json` |
+| **Hook Migration** | `gemini hooks migrate --from-claude` | N/A |
 
 ### When to Use Gemini CLI
 
@@ -233,12 +236,12 @@ Gemini CLI offers capabilities that complement Claude Code:
 - File contents injected into context (`@{package.json}`)
 - Google Cloud integration
 - Gemini model family access
+- Built-in Claude Code hooks migration
 
 **Choose Claude Code when you need:**
-- MCP server integrations (Linear, Confluence, etc.)
-- Pre-commit hooks for automated validation
 - Agent subprocesses with tool restrictions
 - Claude model family access
+- Production-tested workflow (5+ months validated)
 
 ### Gemini CLI Quick Reference
 
