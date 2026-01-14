@@ -38,7 +38,7 @@ If pull fails due to uncommitted changes:
 After pulling latest main, clean up merged branches:
 
 ```bash
-!{git branch --merged main | grep -v "^\*" | grep -v "main" | grep -v "master"}
+!{git branch --merged main | grep -v "^\\*" | grep -v "main" | grep -v "master"}
 ```
 
 Offer to delete merged feature branches.

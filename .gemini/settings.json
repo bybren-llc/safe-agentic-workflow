@@ -30,27 +30,15 @@
     }
   },
   "tools": {
-    "sandbox": {
-      "enabled": true
-    },
-    "shell": {
-      "enableInteractiveShell": true
-    },
-    "useRipgrep": true,
-    "enableToolOutputTruncation": true
+    "sandbox": true,
+    "useRipgrep": true
   },
   "model": {
-    "default": "gemini-2.0-flash-exp"
+    "name": "gemini-2.0-flash-exp"
   },
   "ui": {
     "showLineNumbers": true,
-    "useFullWidth": true,
-    "incrementalRendering": true
+    "useFullWidth": true
   },
-  "hooks": {
-    "enabled": false,
-    "notifications": true
-  },
-  "mcpServers": {
-  }
+  "mcpServers": {}
 }
