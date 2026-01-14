@@ -1,0 +1,98 @@
+description = "Extract structured data from PDF documents"
+
+prompt = """
+# Extract PDF Command
+
+Extract structured data from PDF documents using Gemini's multimodal document understanding.
+
+**Target**: {{args}}
+
+## Capabilities
+
+- Text extraction with formatting preservation
+- Table detection and CSV/JSON export
+- Form field extraction
+- Invoice/receipt data parsing
+- Multi-page document processing
+
+## Workflow
+
+### 1. Identify PDF File
+
+```bash
+!{ls -la {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Read and Analyze PDF
+
+Read the PDF file and analyze its structure:
+- Identify document type (invoice, form, report, contract, etc.)
+- Detect tables, forms, and structured content
+- Extract text with section awareness
+
+### 3. Extract Structured Data
+
+Based on document type:
+
+**For Invoices/Receipts:**
+```json
+{
+  "vendor": "Company Name",
+  "invoice_number": "INV-12345",
+  "date": "2025-01-14",
+  "items": [
+    {"description": "Item 1", "quantity": 2, "price": 99.99}
+  ],
+  "subtotal": 199.98,
+  "tax": 16.00,
+  "total": 215.98
+}
+```
+
+**For Tables:**
+```csv
+Column1,Column2,Column3
+Value1,Value2,Value3
+```
+
+**For Forms:**
+```json
+{
+  "field_name": "field_value",
+  "checkbox_field": true
+}
+```
+
+### 4. Output Options
+
+Specify output format:
+- `--json` - Structured JSON output
+- `--csv` - Table data as CSV
+- `--markdown` - Formatted markdown
+- `--text` - Plain text extraction
+
+## Usage Examples
+
+```bash
+/media:extract-pdf ./invoice.pdf
+/media:extract-pdf ~/Documents/contract.pdf --json
+/media:extract-pdf ./forms/application.pdf --csv
+```
+
+## Batch Processing
+
+For multiple PDFs:
+
+```bash
+/media:extract-pdf ./invoices/
+```
+
+Will process all PDFs in directory and generate combined output.
+
+## Notes
+
+- Gemini supports PDFs up to 100MB (Gemini 3)
+- Complex layouts may require multiple passes
+- Handwritten text: OCR quality varies
+- Scanned documents: Ensure good image quality
+"""

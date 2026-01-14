@@ -1,0 +1,71 @@
+description = "Analyze and describe images in a directory"
+
+prompt = """
+# Analyze Images Command
+
+Analyze images in the specified directory using Gemini's multimodal vision capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+PNG, JPG, JPEG, GIF, WEBP, SVG, BMP
+
+## Workflow
+
+### 1. Discover Images
+
+Find all images in the target directory:
+
+```bash
+!{find {{args}} -type f \\( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.gif" -o -iname "*.webp" -o -iname "*.svg" -o -iname "*.bmp" \\) 2>/dev/null | head -20}
+```
+
+### 2. Analyze Each Image
+
+For each image found:
+1. Read the image file using multimodal input
+2. Describe the visual content
+3. Identify key elements (objects, text, colors, composition)
+4. Suggest appropriate filename based on content
+
+### 3. Generate Report
+
+Create a markdown report with:
+
+```markdown
+## Image Analysis Report
+
+### image1.png
+- **Description**: [Visual description]
+- **Key Elements**: [Objects, text, colors identified]
+- **Suggested Name**: [content-based-name.png]
+- **Dimensions**: [if available]
+
+### image2.jpg
+...
+```
+
+## Output Options
+
+Based on user request, can also:
+- Rename files based on content
+- Organize into category folders
+- Extract text from images (OCR)
+- Generate alt-text for accessibility
+- Create thumbnails descriptions
+
+## Usage Examples
+
+```bash
+/media:analyze-images ./screenshots
+/media:analyze-images ~/Downloads/images
+/media:analyze-images ./assets/icons
+```
+
+## Notes
+
+- Gemini CLI multimodal: Images are base64-encoded for model consumption
+- Large directories: Process in batches of 10-20 images
+- Privacy: Image contents are sent to Gemini API for analysis
+"""

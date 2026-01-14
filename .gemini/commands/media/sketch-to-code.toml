@@ -1,0 +1,118 @@
+description = "Generate code from UI sketches, wireframes, or mockups"
+
+prompt = """
+# Sketch to Code Command
+
+Transform hand-drawn sketches, wireframes, or UI mockups into functional code using Gemini's multimodal vision.
+
+**Input**: {{args}}
+
+## Supported Input Types
+
+- Hand-drawn sketches (paper, whiteboard photos)
+- Digital wireframes
+- UI mockups (Figma screenshots, etc.)
+- Flowcharts and diagrams
+- Architecture diagrams
+
+## Workflow
+
+### 1. Analyze the Visual Input
+
+Read and understand the sketch/mockup:
+
+```bash
+!{ls -la {{args}} 2>/dev/null || echo "File not found"}
+```
+
+Identify:
+- UI components (buttons, inputs, cards, navigation)
+- Layout structure (grid, flex, sections)
+- Visual hierarchy
+- Interactive elements
+- Data flow (if flowchart)
+
+### 2. Determine Output Framework
+
+Ask user or detect from project context:
+- **React** (with hooks, TypeScript optional)
+- **Next.js** (App Router)
+- **Vue** (Composition API)
+- **HTML/CSS** (vanilla)
+- **Tailwind CSS** (styling)
+- **shadcn/ui** (component library)
+
+Check project for existing framework:
+
+```bash
+!{cat package.json 2>/dev/null | grep -E '"react"|"next"|"vue"' | head -3 || echo "No package.json found"}
+```
+
+### 3. Generate Code
+
+Based on sketch analysis, generate:
+
+**Component Structure:**
+```
+ComponentName/
+├── index.tsx        # Main component
+├── styles.css       # Styles (if not Tailwind)
+└── types.ts         # TypeScript interfaces
+```
+
+**Code Output:**
+- Semantic HTML structure
+- Responsive layout (mobile-first)
+- Accessibility attributes (ARIA)
+- Placeholder content matching sketch
+- Interactive states (hover, focus, active)
+
+### 4. Output Location
+
+Save generated code to appropriate location:
+
+```bash
+!{ls -d src/components 2>/dev/null || ls -d components 2>/dev/null || echo "./"}
+```
+
+## Usage Examples
+
+```bash
+# From hand-drawn sketch
+/media:sketch-to-code ./whiteboard-photo.jpg
+
+# From Figma screenshot
+/media:sketch-to-code ~/Downloads/figma-export.png
+
+# From wireframe with framework hint
+/media:sketch-to-code ./wireframe.png --react --tailwind
+
+# From architecture diagram
+/media:sketch-to-code ./system-diagram.png --mermaid
+```
+
+## Output Formats
+
+- `--react` - React functional component
+- `--nextjs` - Next.js page/component
+- `--vue` - Vue 3 composition component
+- `--html` - Vanilla HTML/CSS
+- `--tailwind` - Use Tailwind CSS classes
+- `--shadcn` - Use shadcn/ui components
+- `--mermaid` - Convert diagram to Mermaid syntax
+
+## Tips for Best Results
+
+1. **Clear sketches**: High contrast, legible labels
+2. **Annotate**: Add notes for interactive behavior
+3. **Show states**: Include hover/active states if important
+4. **Name elements**: Label buttons, sections, inputs
+5. **Indicate data**: Show sample data for lists/tables
+
+## Notes
+
+- Complex UIs may need iterative refinement
+- Generated code is a starting point, not production-ready
+- Review accessibility and responsiveness
+- Add proper error handling and validation
+"""
