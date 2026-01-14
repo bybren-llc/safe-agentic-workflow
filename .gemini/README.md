@@ -216,16 +216,21 @@ Add to your `settings.json`:
 }
 ```
 
-### Available Hook Events
+### Hook Events
 
 | Event | Trigger Point | Use Cases |
 |-------|---------------|-----------|
 | `SessionStart` | Session begins | Initialize resources, load context |
 | `SessionEnd` | Session ends | Clean up, save state |
 | `BeforeAgent` | After prompt, before planning | Add context, validate input |
-| `AfterAgent` | Agent loop completes | Review output |
+| `AfterAgent` | Agent loop completes | Review output, force continuation |
+| `BeforeModel` | Before LLM request | Modify prompts, add instructions |
+| `AfterModel` | After LLM response | Filter responses, log interactions |
+| `BeforeToolSelection` | Before tool filtering | Restrict available tools |
 | `BeforeTool` | Before tool execution | Validate arguments, block operations |
 | `AfterTool` | After tool execution | Process results, run tests |
+| `PreCompress` | Before context compression | Save state, notify user |
+| `Notification` | Permission events occur | Auto-approve decisions |
 
 ### Migrating from Claude Code
 
@@ -256,16 +261,21 @@ Add MCP servers to `settings.json`:
 ```json
 {
   "mcpServers": {
-    "linear": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/linear-mcp"],
+    "my-server": {
+      "command": "python",
+      "args": ["mcp_server.py", "--port", "8080"],
       "env": {
-        "LINEAR_API_KEY": "$LINEAR_API_KEY"
-      }
+        "API_KEY": "$MY_API_KEY"
+      },
+      "cwd": "./servers",
+      "timeout": 30000,
+      "trust": false
     }
   }
 }
 ```
+
+Supports stdio, SSE, and HTTP transports. See docs for transport options.
 
 ### MCP Server Commands
 
