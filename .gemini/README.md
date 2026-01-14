@@ -123,6 +123,55 @@ gemini /help
 - `audit-deps` - Dependency audit
 - `search-pattern <pattern>` - Search codebase
 
+**Media** (`/media:*`) - Multimodal Commands:
+- `analyze-images <dir>` - Analyze and describe images using vision
+- `extract-pdf <file>` - Extract structured data from PDFs
+- `sketch-to-code <image>` - Generate code from UI sketches/wireframes
+- `organize-files <dir>` - Organize files based on content analysis
+
+## Multimodal Capabilities
+
+Gemini CLI supports multimodal input for images, audio, and documents.
+
+### Supported Formats
+
+| Category | Formats | Max Size |
+|----------|---------|----------|
+| **Images** | PNG, JPG, GIF, WEBP, SVG, BMP | 100MB (Gemini 3) |
+| **Audio** | MP3, WAV, AIFF, AAC, OGG, FLAC | 100MB (Gemini 3) |
+| **Documents** | PDF | 100MB (Gemini 3) |
+
+### Using Multimodal in Commands
+
+Inject files into prompts with `@{path}`:
+
+```toml
+prompt = """
+Analyze this image:
+@{./screenshot.png}
+
+Describe what you see.
+"""
+```
+
+### Example Use Cases
+
+```bash
+# Analyze images in a folder
+/media:analyze-images ./screenshots
+
+# Extract invoice data to CSV
+/media:extract-pdf ./invoice.pdf
+
+# Generate React component from sketch
+/media:sketch-to-code ./wireframe.png
+
+# Organize messy downloads folder
+/media:organize-files ~/Downloads
+```
+
+See [Gemini CLI Authoring Guide](../docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md) for creating custom multimodal commands.
+
 ## Configuration
 
 ### settings.json

@@ -1,0 +1,146 @@
+description = "Organize and rename files based on content analysis"
+
+prompt = """
+# Organize Files Command
+
+Intelligently organize files using Gemini's multimodal analysis to understand content, not just extensions.
+
+**Target Directory**: {{args}}
+
+## Capabilities
+
+- Analyze file contents (images, PDFs, documents)
+- Rename based on actual content
+- Organize into semantic folders
+- Add EXIF dates to image filenames
+- Detect duplicates by content similarity
+
+## Workflow
+
+### 1. Scan Directory
+
+```bash
+!{find {{args}} -type f -not -path "*/.*" 2>/dev/null | head -50}
+```
+
+Get file statistics:
+
+```bash
+!{find {{args}} -type f -not -path "*/.*" 2>/dev/null | wc -l}
+```
+
+### 2. Analyze File Types
+
+Categorize files by type:
+
+| Category | Extensions | Analysis Method |
+|----------|------------|-----------------|
+| Images | png, jpg, gif, webp | Visual content analysis |
+| Documents | pdf, doc, docx | Text extraction |
+| Audio | mp3, wav, aac | Metadata/transcription |
+| Code | js, ts, py, etc. | Purpose detection |
+| Data | json, csv, xml | Schema analysis |
+
+### 3. Content-Based Organization
+
+**For Images:**
+- Screenshots → `screenshots/`
+- Photos (with faces) → `photos/people/`
+- Product images → `photos/products/`
+- Diagrams → `diagrams/`
+- Icons → `icons/`
+
+**For Documents:**
+- Invoices → `documents/invoices/`
+- Contracts → `documents/contracts/`
+- Reports → `documents/reports/`
+- Receipts → `documents/receipts/`
+
+**For Code:**
+- Components → by framework/purpose
+- Tests → `tests/`
+- Utilities → `utils/`
+
+### 4. Smart Renaming
+
+Apply naming conventions:
+
+**Images with EXIF:**
+```
+IMG_1234.jpg → 2025-01-14_vacation_beach_sunset.jpg
+```
+
+**Documents:**
+```
+Document1.pdf → 2025-01-14_invoice_acme_corp_1234.pdf
+```
+
+**Screenshots:**
+```
+Screenshot 2025-01-14.png → screenshot_vscode_debug_panel.png
+```
+
+### 5. Generate Organization Plan
+
+Before making changes, show plan:
+
+```markdown
+## File Organization Plan
+
+### Will Create Folders:
+- photos/
+- documents/invoices/
+- screenshots/
+
+### Will Rename:
+| Original | New Name | Reason |
+|----------|----------|--------|
+| IMG_1234.jpg | 2025-01-14_beach.jpg | EXIF date + content |
+| doc.pdf | invoice_acme_123.pdf | Invoice detected |
+
+### Will Move:
+| File | From | To |
+|------|------|-----|
+| screenshot.png | ./ | screenshots/ |
+
+Proceed? (y/n)
+```
+
+## Usage Examples
+
+```bash
+# Organize downloads folder
+/media:organize-files ~/Downloads
+
+# Organize with dry-run (plan only)
+/media:organize-files ./messy-folder --dry-run
+
+# Organize images only
+/media:organize-files ./photos --images-only
+
+# Organize with date prefix
+/media:organize-files ./documents --date-prefix
+```
+
+## Options
+
+- `--dry-run` - Show plan without making changes
+- `--images-only` - Only process image files
+- `--documents-only` - Only process documents
+- `--date-prefix` - Add date prefix to all files
+- `--no-subfolders` - Rename only, don't create folders
+- `--interactive` - Confirm each action
+
+## Safety Features
+
+1. **Dry-run first**: Always shows plan before execution
+2. **Backup suggestion**: Recommends backup before bulk operations
+3. **Undo script**: Generates script to reverse changes
+4. **Skip system files**: Ignores hidden/system files
+
+## Notes
+
+- Large directories: Process in batches
+- Duplicate detection: Based on content hash + visual similarity
+- Preserve originals: Option to copy instead of move
+"""
