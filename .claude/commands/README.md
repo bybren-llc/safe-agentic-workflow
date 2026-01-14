@@ -10,9 +10,11 @@ These slash commands are part of the **Words To Film By™** multi-agent harness
 
 ## Intellectual Property
 
-The command architecture and workflow methodology are intellectual property of Bybren LLC.
+The command architecture and workflow methodology are the intellectual property of J. Scott Graham and Bybren LLC.
 
-## Commands Included
+## Commands Included (23 total)
+
+### Workflow Commands
 
 | Command | Purpose |
 |---------|---------|
@@ -20,20 +22,47 @@ The command architecture and workflow methodology are intellectual property of B
 | `/pre-pr` | Run validation before PR |
 | `/end-work` | Complete work session |
 | `/check-workflow` | Check workflow status |
-| `/remote-deploy` | Deploy to remote staging |
-| `/remote-status` | Check remote Docker status |
-| `/remote-health` | Remote health dashboard |
-| `/remote-logs` | View remote container logs |
-| `/remote-rollback` | Rollback remote deployment |
-| `/local-sync` | Sync after git pull |
-| `/local-deploy` | Deploy locally |
-| `/quick-fix` | Fast-track small fixes |
 | `/update-docs` | Update documentation |
 | `/retro` | Session retrospective |
 | `/sync-linear` | Sync with Linear ticket |
+| `/quick-fix` | Fast-track small fixes |
+
+### Local Operations
+
+| Command | Purpose |
+|---------|---------|
+| `/local-sync` | Sync after git pull |
+| `/local-deploy` | Deploy locally |
+
+### Remote Operations
+
+| Command | Purpose |
+|---------|---------|
+| `/remote-status` | Check remote Docker status |
+| `/remote-deploy` | Deploy to remote staging |
+| `/remote-health` | Remote health dashboard |
+| `/remote-logs` | View remote container logs |
+| `/remote-rollback` | Rollback remote deployment |
+
+### Other Commands
+
+| Command | Purpose |
+|---------|---------|
 | `/test-pr-docker` | Test PR Docker workflow |
 | `/audit-deps` | Dependency audit |
 | `/search-pattern` | Search code patterns |
+
+### Deprecated Aliases
+
+These commands are thin wrappers pointing to canonical `/remote-*` commands.
+
+| Command | Alias For | Note |
+|---------|-----------|------|
+| `/check-docker-status` | `/remote-status` | Deprecated |
+| `/deploy-dev` | `/remote-deploy` | Deprecated |
+| `/dev-health` | `/remote-health` | Deprecated |
+| `/dev-logs` | `/remote-logs` | Deprecated |
+| `/rollback-dev` | `/remote-rollback` | Deprecated |
 
 ## YAML Frontmatter
 

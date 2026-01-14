@@ -13,7 +13,7 @@
 
 ## Intellectual Property
 
-The skill system architecture and WTFB harness methodology are intellectual property of Bybren LLC.
+The skill system architecture and WTFB harness methodology are the intellectual property of J. Scott Graham and Bybren LLC.
 
 SAFe® is a registered trademark of Scaled Agile, Inc.
 
