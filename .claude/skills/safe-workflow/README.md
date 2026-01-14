@@ -5,6 +5,18 @@
 
 > SAFe development workflow guidance including branch naming conventions, commit message format, rebase-first workflow, and CI validation.
 
+## License
+
+**License:** MIT (see [/LICENSE](/LICENSE))
+**Copyright:** © 2026 J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) / [Bybren LLC](https://github.com/bybren-llc)
+**Attribution:** Required per [/NOTICE](/NOTICE)
+
+## Intellectual Property
+
+The skill system architecture and WTFB harness methodology are intellectual property of Bybren LLC.
+
+SAFe® is a registered trademark of Scaled Agile, Inc.
+
 ## Quick Start
 
 This skill activates automatically when you:
