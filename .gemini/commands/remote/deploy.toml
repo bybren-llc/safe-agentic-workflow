@@ -1,0 +1,88 @@
+description = "Deploy latest Docker image to remote staging environment"
+
+prompt = """
+# Remote Deploy Command
+
+Deploy the latest Docker image to your remote staging environment.
+
+## Quick Deploy Command
+
+Execute single deploy command on remote host:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DEPLOY_SCRIPT}"
+```
+
+Example with real values:
+```bash
+ssh -i ~/.ssh/id_ed25519_staging user@staging.example.com "cd ~/app && ./scripts/deploy.sh"
+```
+
+This command should handle:
+1. Pull latest image from container registry
+2. Start staging compose (no source mounts)
+3. Wait for health check
+4. Report status with container revision
+
+Expected output on success:
+
+```text
+Deploying to staging environment...
+Pulling latest image...
+Starting staging services...
+Waiting for health check...
+Deploy complete!
+Status: Up 5 seconds (health: starting)
+Revision: abc1234
+URL: http://localhost:{STAGING_PORT}
+```
+
+Expected duration: 2-5 minutes
+
+## Verify Deployment
+
+After deployment, verify with:
+
+```bash
+# Health check
+curl -s http://{REMOTE_HOST}:{STAGING_PORT}/api/health | jq
+
+# Container status
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker ps --filter name={CONTAINER_NAME}"
+```
+
+## Success Criteria
+
+- Container running (healthy)
+- Health endpoint returns 200
+- Image revision matches latest commit
+
+## Error Handling
+
+### Pull Failed
+- Registry auth expired - run `docker login {REGISTRY}`
+- Disk space full - run `df -h` on remote host
+
+### Health Check Failed
+- Check logs for startup errors
+- Verify database connection
+- Run `/remote:rollback` to restore previous working state
+
+## Customization
+
+Replace these placeholders for your infrastructure:
+- `{SSH_KEY_PATH}`: Path to SSH private key
+- `{REMOTE_USER}`: Username on remote host
+- `{REMOTE_HOST}`: Remote server hostname/IP
+- `{PROJECT_PATH}`: Project directory on remote
+- `{DEPLOY_SCRIPT}`: Your deployment script
+- `{STAGING_PORT}`: Port your staging app runs on
+- `{CONTAINER_NAME}`: Docker container name
+
+## Related Commands
+
+- `/remote:health` - Full health dashboard
+- `/remote:logs` - View container logs
+- `/remote:rollback` - Rollback to previous image
+- `/remote:status` - Check if update needed
+"""

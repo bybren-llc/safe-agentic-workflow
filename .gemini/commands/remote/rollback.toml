@@ -1,0 +1,147 @@
+description = "Rollback remote dev environment to previous Docker image"
+
+prompt = """
+# Remote Rollback Command
+
+Rollback the remote development environment to a previous Docker image version.
+
+**Commit SHA (optional)**: {{args}}
+
+## Workflow
+
+### 1. Assess Current Situation
+
+Get current problematic version:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker inspect {APP_CONTAINER} | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4"
+```
+
+Check current status:
+
+```bash
+curl -s http://{REMOTE_HOST}:{DEV_PORT}/api/health 2>/dev/null || echo "Health check failed"
+```
+
+Document the issue for Linear ticket creation later.
+
+### 2. List Available Rollback Targets
+
+Show recent images on remote host:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker images {REGISTRY}/{IMAGE_NAME} --format 'table {{.Tag}}\t{{.ID}}\t{{.CreatedAt}}'"
+```
+
+Cross-reference with git commits to show messages:
+
+```bash
+!{git log origin/main -10 --oneline}
+```
+
+### 3. Select Rollback Target
+
+**If argument provided** (commit SHA like `e9722d4`):
+- Use specified commit as rollback target
+- Verify image exists with that SHA tag
+
+**If no argument provided**:
+- Display last 5 available images with commit messages
+- Recommend previous stable version (before current)
+- Ask user to confirm selection
+
+### 4. Pull Rollback Image
+
+Pull the specific version from registry:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker pull {REGISTRY}/{IMAGE_NAME}:{TAG_PREFIX}-{target-sha}"
+```
+
+### 5. Update Configuration
+
+Create backup of current config:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && cp {COMPOSE_FILE} {COMPOSE_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+```
+
+Update docker-compose file to use specific image tag.
+
+### 6. Restart Services
+
+Restart with rollback image:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DOCKER_SCRIPT} restart"
+```
+
+Monitor startup:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DOCKER_SCRIPT} logs --tail 50"
+```
+
+### 7. Verify Rollback Success
+
+Check services started:
+
+```bash
+ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker ps --filter name={CONTAINER_PREFIX}"
+```
+
+Verify health endpoint:
+
+```bash
+curl -s http://{REMOTE_HOST}:{DEV_PORT}/api/health | jq
+```
+
+### 8. Post-Rollback Actions
+
+**If rollback successful**:
+- Keep rollback configuration in place
+- Create Linear ticket documenting the issue with broken version
+- Include error logs and health check failures
+- Notify team about rollback
+
+**If rollback still has issues**:
+- Try rolling back to an even older version
+- Check if issue is environmental (database, Redis, etc.)
+- Escalate to team for investigation
+
+### 9. Rollback Report
+
+Provide comprehensive rollback summary:
+
+```text
+Remote Dev Environment Rollback
+
+Problem Detected:
+Version:  3a49b85 - feat(ci): add Slack notifications
+Issue:    Health check failing / Services crashing
+
+Rollback Target:
+Selected: e9722d4 - previous stable commit
+Reason:   Last known stable version
+
+Rollback Complete - Environment Restored
+
+Next steps:
+• Create Linear ticket for broken version
+• Include error logs and symptoms
+• Investigate root cause before redeploying
+
+To return to latest (when fixed):
+  /remote:deploy
+```
+
+## Success Criteria
+
+- Rollback target selected
+- Config backed up
+- Rollback image pulled/available
+- Config updated to specific version
+- Services restarted successfully
+- Health check passes
+- Correct commit SHA running
+"""
