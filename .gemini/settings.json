@@ -23,14 +23,34 @@
       "coverage/**",
       "*.log",
       ".env*"
-    ]
+    ],
+    "fileFiltering": {
+      "respectGitIgnore": true,
+      "respectGeminiIgnore": true
+    }
   },
   "tools": {
     "sandbox": {
       "enabled": true
-    }
+    },
+    "shell": {
+      "enableInteractiveShell": true
+    },
+    "useRipgrep": true,
+    "enableToolOutputTruncation": true
   },
   "model": {
     "default": "gemini-2.0-flash-exp"
+  },
+  "ui": {
+    "showLineNumbers": true,
+    "useFullWidth": true,
+    "incrementalRendering": true
+  },
+  "hooks": {
+    "enabled": false,
+    "notifications": true
+  },
+  "mcpServers": {
   }
 }

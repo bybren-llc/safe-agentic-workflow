@@ -186,6 +186,97 @@ Use @{file} for file injection.
 """
 ```
 
+## Built-in Tools
+
+Gemini CLI includes built-in tools (no configuration required):
+
+| Tool Category | Capabilities |
+|---------------|--------------|
+| **File operations** | Read, write, search, edit, list directories |
+| **Shell execution** | Run arbitrary commands |
+| **Web interaction** | Fetch URLs, web search |
+| **Memory** | AI memory system for context persistence |
+
+These are accessed automatically through commands using `!{command}` and `@{file}` syntax.
+
+See [Gemini CLI Tools API](https://geminicli.com/docs/core/tools-api/) for architecture details.
+
+## Hooks
+
+Gemini CLI supports hooks for intercepting and customizing behavior at key lifecycle points.
+
+### Enabling Hooks
+
+Add to your `settings.json`:
+
+```json
+{
+  "tools": { "enableHooks": true },
+  "hooks": { "enabled": true }
+}
+```
+
+### Available Hook Events
+
+| Event | Trigger Point | Use Cases |
+|-------|---------------|-----------|
+| `SessionStart` | Session begins | Initialize resources, load context |
+| `SessionEnd` | Session ends | Clean up, save state |
+| `BeforeAgent` | After prompt, before planning | Add context, validate input |
+| `AfterAgent` | Agent loop completes | Review output |
+| `BeforeTool` | Before tool execution | Validate arguments, block operations |
+| `AfterTool` | After tool execution | Process results, run tests |
+
+### Migrating from Claude Code
+
+Gemini CLI can migrate Claude Code hooks:
+
+```bash
+gemini hooks migrate --from-claude
+```
+
+### Hook Management
+
+```bash
+/hooks panel           # View all registered hooks
+/hooks enable-all      # Enable all hooks
+/hooks disable-all     # Disable all hooks
+```
+
+See [Gemini CLI Hooks Documentation](https://geminicli.com/docs/hooks/) for complete details.
+
+## MCP Servers
+
+Gemini CLI supports Model Context Protocol (MCP) servers for external integrations.
+
+### Configuration
+
+Add MCP servers to `settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/linear-mcp"],
+      "env": {
+        "LINEAR_API_KEY": "$LINEAR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+### MCP Server Commands
+
+```bash
+gemini mcp add <name> <command>   # Add server
+gemini mcp list                   # View servers
+gemini mcp remove <name>          # Remove server
+```
+
+See [Gemini CLI MCP Documentation](https://geminicli.com/docs/tools/mcp-server/) for details.
+
 ## Relationship to Claude Code
 
 This `.gemini/` directory works alongside `.claude/` for teams using both tools:
@@ -195,7 +286,8 @@ This `.gemini/` directory works alongside `.claude/` for teams using both tools:
 | Skills | `.claude/skills/SKILL.md` | `.gemini/skills/SKILL.md` |
 | Commands | `.claude/commands/*.md` (YAML) | `.gemini/commands/*.toml` (TOML) |
 | Agents | `.claude/agents/` | Skills (no discrete agents) |
-| Hooks | `hooks-config.json` | Not supported |
+| Hooks | `.claude/hooks-config.json` | `settings.json` hooks section |
+| MCP Servers | `settings.local.json` | `settings.json` mcpServers |
 | System Instructions | `CLAUDE.md` | `GEMINI.md` |
 
 Both tools can coexist in the same repository.
