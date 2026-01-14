@@ -2,12 +2,38 @@
 
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.0-green.svg)](whitepaper/README.md)
-[![Production Validated](https://img.shields.io/badge/5+%20months-production%20validated-brightgreen.svg)](whitepaper/data/REAL-PRODUCTION-DATA-SYNTHESIS.md)
-[![Skills](https://img.shields.io/badge/skills-17%20model--invoked-purple.svg)](.claude/skills/)
-[![Commands](https://img.shields.io/badge/commands-23%20workflows-orange.svg)](.claude/commands/)
+<p align="center">
+  <a href="https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow">
+    <img src="https://img.shields.io/badge/DeepWiki-AI_Docs-blue?style=flat-square&logo=artificial-intelligence" alt="DeepWiki">
+  </a>
+  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/releases/latest">
+    <img src="https://img.shields.io/github/v/release/bybren-llc/wtfb-safe-agentic-workflow?include_prereleases&style=flat-square&color=blue" alt="Version">
+  </a>
+  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="License">
+  </a>
+  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/bybren-llc/wtfb-safe-agentic-workflow/ci.yml?style=flat-square&label=CI" alt="CI">
+  </a>
+  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/stargazers">
+    <img src="https://img.shields.io/github/stars/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="Stars">
+  </a>
+</p>
 
+<p align="center">
+  <a href="whitepaper/data/REAL-PRODUCTION-DATA-SYNTHESIS.md">
+    <img src="https://img.shields.io/badge/5+%20months-production%20validated-brightgreen?style=flat-square" alt="Production Validated">
+  </a>
+  <a href=".claude/skills/">
+    <img src="https://img.shields.io/badge/skills-17%20model--invoked-purple?style=flat-square" alt="Skills">
+  </a>
+  <a href=".claude/commands/">
+    <img src="https://img.shields.io/badge/commands-23%20workflows-orange?style=flat-square" alt="Commands">
+  </a>
+</p>
+
+> **AI Agents:** For comprehensive documentation, visit [DeepWiki](https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow)
+>
 > **LLM Context**: Get the entire repository as LLM-ready context using [GitIngest](https://gitingest.com/) with your fork.
 
 ---
@@ -1135,16 +1161,33 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-## Contact
+## Attribution
 
-- **Website**: [WordsToFilmBy.com](https://WordsToFilmBy.com)
-- **Email**: [scott@wordstofilmby.com](mailto:scott@wordstofilmby.com)
-- **Author**: J. Scott Graham (cheddarfox)
-- **Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/cheddarfox/auggies-architect-handbook)
+This project is the **Words To Film By™** multi-agent harness, adapted for SAFe development workflows.
+
+**Creator**: J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) - [jscottgraham.us](https://jscottgraham.us)
+**Organization**: [Bybren LLC](https://github.com/bybren-llc)
+**Enterprise**: [Words To Film By™](https://wordstofilmby.com)
+
+If you use this harness in your own projects, you must include attribution.
+See [NOTICE](NOTICE) for details.
+
+**Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/cheddarfox/auggies-architect-handbook)
 
 ---
 
-**Version**: 2.1.0 (December 2025) - vNext Workflow Contract (WOR-497/499)
-**Status**: Production-validated, academically honest, publication-ready
+<p align="center">
+  <strong>Words To Film By™</strong><br>
+  <a href="https://wordstofilmby.com">Website</a> •
+  <a href="mailto:scott@wordstofilmby.com">Contact</a> •
+  <a href="https://github.com/sponsors/bybren-llc">Sponsor</a>
+</p>
 
-**This repository contains the whitepaper, complete working template, AND a battle-tested Claude Code harness for implementing the methodology!**
+<p align="center">
+  <em>"Your AI team, ready to work."</em>
+</p>
+
+<p align="center">
+  <strong>Version</strong>: 2.2.0 (January 2026)<br>
+  <strong>Status</strong>: Production-validated, academically honest, publication-ready
+</p>
