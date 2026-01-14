@@ -10,13 +10,13 @@ These agents are part of the **Words To Film By™** multi-agent harness.
 
 ## Intellectual Property
 
-The agent architecture, team structure, and multi-agent methodology are intellectual property of Bybren LLC.
+The agent architecture, team structure, and multi-agent methodology are the intellectual property of J. Scott Graham and Bybren LLC.
 
 ## Agents Included
 
 | Agent | Role |
 |-------|------|
-| TDM | Technical Delivery Manager - Orchestration |
+| TDM | Technical Delivery Manager - Blocker resolution, evidence tracking |
 | BSA | Business Systems Analyst - Requirements |
 | System Architect | Pattern validation, ADRs |
 | FE Developer | Frontend implementation |
