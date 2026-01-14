@@ -336,6 +336,74 @@ gemini mcp remove <name>          # Remove server
 
 See [Gemini CLI MCP Documentation](https://geminicli.com/docs/tools/mcp-server/) for details.
 
+## Google Services Integration
+
+Gemini CLI provides native integration with Google services through OAuth authentication.
+
+### Available Services
+
+| Service | Capabilities |
+|---------|-------------|
+| **Google Drive** | List files, read/write documents, search, share |
+| **Google Docs** | Create, edit, format documents |
+| **Google Sheets** | Read/write spreadsheets, formulas, charts |
+| **Google Calendar** | Create events, check availability, manage invites |
+| **Gmail** | Read, search, compose, send emails |
+| **Google Tasks** | Create, list, complete tasks |
+| **YouTube** | Search videos, get transcripts, analyze content |
+| **Google Maps** | Geocoding, directions, place information |
+
+### Enabling Google Services
+
+1. **Authenticate with Google Cloud**
+   ```bash
+   gcloud auth application-default login
+   ```
+
+2. **Enable required APIs** in Google Cloud Console
+   - Drive API
+   - Docs API
+   - Sheets API
+   - Calendar API
+   - Gmail API
+
+3. **Configure in settings.json** (optional scopes)
+   ```json
+   {
+     "google": {
+       "scopes": [
+         "https://www.googleapis.com/auth/drive.readonly",
+         "https://www.googleapis.com/auth/calendar.events"
+       ]
+     }
+   }
+   ```
+
+### Example Use Cases
+
+```bash
+# Summarize recent Drive files
+"Summarize the last 5 documents in my Drive"
+
+# Create calendar event
+"Schedule a meeting with the team for Friday at 2pm"
+
+# Search Gmail
+"Find emails from last week about the API deployment"
+
+# Read spreadsheet data
+"Show me the Q4 revenue data from the Finance spreadsheet"
+```
+
+### Security Considerations
+
+- Google services require explicit user consent
+- Credentials are stored securely using Google Cloud's credential management
+- Scope permissions follow principle of least privilege
+- No data is stored by Gemini CLI beyond the session
+
+See [Google Cloud Authentication](https://cloud.google.com/docs/authentication) for setup details.
+
 ## Relationship to Claude Code
 
 This `.gemini/` directory works alongside `.claude/` for teams using both tools:
