@@ -6,16 +6,19 @@ This directory contains the configuration for [Gemini CLI](https://geminicli.com
 
 1. **Install Gemini CLI**
    ```bash
-   # See https://geminicli.com/docs/cli/installation/
-   npm install -g @anthropic-ai/gemini-cli
-   # or
-   brew install gemini-cli
+   # See https://geminicli.com/docs/get-started/installation/
+   npm install -g @google/gemini-cli
    ```
 
 2. **Authenticate**
    ```bash
-   gemini auth login
+   # Option 1: API Key (recommended for quick start)
+   export GEMINI_API_KEY="your-api-key"
+
+   # Option 2: Google Cloud ADC (for GCP users)
+   gcloud auth application-default login
    ```
+   See https://geminicli.com/docs/get-started/authentication/ for details.
 
 3. **Run Gemini in your project**
    ```bash
