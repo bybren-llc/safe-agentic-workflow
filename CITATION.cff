@@ -1,15 +1,15 @@
 cff-version: 1.2.0
 message: "If you use this methodology, please cite it as below."
 authors:
-  - family-names: "{{AUTHOR_LAST_NAME}}"
-    given-names: "{{AUTHOR_FIRST_NAME}}"
-    alias: "{{AUTHOR_HANDLE}}"
-    email: "{{AUTHOR_EMAIL}}"
-  - name: "{{PROJECT_SHORT}} Development Team"
+  - family-names: "Graham"
+    given-names: "J. Scott"
+    alias: "cheddarfox"
+    email: "scott@wordstofilmby.com"
+  - name: "WTFB Development Team"
 title: "Claude Code Harness for Multi-Agent Team Workflows"
 version: 2.0.0
 date-released: 2025-12-22
-url: "https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}"
+url: "https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow"
 keywords:
   - multi-agent
   - SAFe
@@ -20,7 +20,7 @@ keywords:
   - task orchestration
   - evidence-based development
 license: MIT
-repository-code: "https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}"
+repository-code: "https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow"
 type: software
 abstract: >-
   A production-tested Claude Code harness for teams that want structured AI

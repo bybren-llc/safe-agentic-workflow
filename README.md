@@ -1241,24 +1241,24 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Attribution
 
-This project is the **{{PROJECT_NAME}}™** multi-agent harness, adapted for SAFe development workflows.
+This project is the **Words To Film By™** multi-agent harness, adapted for SAFe development workflows.
 
-**Creator**: {{AUTHOR_NAME}} ([@{{AUTHOR_HANDLE}}](https://github.com/{{AUTHOR_HANDLE}})) - [{{AUTHOR_WEBSITE}}](https://{{AUTHOR_WEBSITE}})
-**Organization**: [{{COMPANY_NAME}}](https://github.com/{{GITHUB_ORG}})
-**Enterprise**: [{{PROJECT_NAME}}™](https://{{PROJECT_DOMAIN}})
+**Creator**: J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) - [jscottgraham.us](https://jscottgraham.us)
+**Organization**: [Bybren LLC](https://github.com/bybren-llc)
+**Enterprise**: [Words To Film By™](https://wordstofilmby.com)
 
 If you use this harness in your own projects, you must include attribution.
 See [NOTICE](NOTICE) for details.
 
-**Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/{{AUTHOR_HANDLE}}/auggies-architect-handbook)
+**Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/cheddarfox/auggies-architect-handbook)
 
 ---
 
 <p align="center">
-  <strong>{{PROJECT_NAME}}™</strong><br>
-  <a href="https://{{PROJECT_DOMAIN}}">Website</a> •
-  <a href="mailto:{{AUTHOR_EMAIL}}">Contact</a> •
-  <a href="https://github.com/sponsors/{{GITHUB_ORG}}">Sponsor</a>
+  <strong>Words To Film By™</strong><br>
+  <a href="https://wordstofilmby.com">Website</a> •
+  <a href="mailto:scott@wordstofilmby.com">Contact</a> •
+  <a href="https://github.com/sponsors/bybren-llc">Sponsor</a>
 </p>
 
 <p align="center">

@@ -1,19 +1,19 @@
-{{PROJECT_NAME}}™ Multi-Agent Harness
-Copyright (c) 2026 {{AUTHOR_NAME}} (@{{AUTHOR_HANDLE}}) / {{COMPANY_NAME}}
+Words To Film By™ Multi-Agent Harness
+Copyright (c) 2026 J. Scott Graham (@cheddarfox) / Bybren LLC
 
-This product includes the {{PROJECT_SHORT}}™ multi-agent harness methodology.
+This product includes the WTFB™ multi-agent harness methodology.
 
 ATTRIBUTION REQUIREMENT:
 If you use this harness in your own projects, you MUST include the following
 attribution in a prominent location (e.g., README, documentation, or UI):
 
-    Built with {{PROJECT_NAME}}™ harness by {{AUTHOR_NAME}} (@{{AUTHOR_HANDLE}}) / {{COMPANY_NAME}}
-    https://{{PROJECT_DOMAIN}} | https://github.com/{{GITHUB_ORG}}
+    Built with Words To Film By™ harness by J. Scott Graham (@cheddarfox) / Bybren LLC
+    https://wordstofilmby.com | https://github.com/bybren-llc
 
-The {{PROJECT_SHORT}}™ methodology, agent team structure, and skill system are the
-intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
+The WTFB™ methodology, agent team structure, and skill system are the
+intellectual property of J. Scott Graham and Bybren LLC.
 
-For licensing inquiries: {{AUTHOR_EMAIL}}
-Website: https://{{PROJECT_DOMAIN}}
-Creator: https://{{AUTHOR_WEBSITE}}
-GitHub: https://github.com/{{AUTHOR_HANDLE}} | https://github.com/{{GITHUB_ORG}}
+For licensing inquiries: scott@wordstofilmby.com
+Website: https://wordstofilmby.com
+Creator: https://jscottgraham.us
+GitHub: https://github.com/cheddarfox | https://github.com/bybren-llc
