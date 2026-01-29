@@ -1244,7 +1244,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 This project is the **Words To Film By™** multi-agent harness, adapted for SAFe development workflows.
 
 **Creator**: J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) - [jscottgraham.us](https://jscottgraham.us)
-**Organization**: [Bybren LLC](https://github.com/bybren-llc)
+**Organization**: [ByBren, LLC](https://github.com/bybren-llc)
 **Enterprise**: [Words To Film By™](https://wordstofilmby.com)
 
 If you use this harness in your own projects, you must include attribution.
