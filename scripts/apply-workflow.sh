@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # apply-workflow.sh
-# This script integrates the WTFB SAFe-Agentic-Workflow template into your project.
+# This script integrates the {{PROJECT_SHORT}} SAFe-Agentic-Workflow template into your project.
 
 set -e
 
@@ -16,7 +16,7 @@ log_warn() { echo -e "\033[0;33mWARN:\033[0m $1"; }
 log_error() { echo -e "\033[0;31mERROR:\033[0m $1"; exit 1; }
 
 # --- Main Script ---
-log_info "Starting WTFB SAFe-Agentic-Workflow integration..."
+log_info "Starting {{PROJECT_SHORT}} SAFe-Agentic-Workflow integration..."
 
 # 1. Get User Input
 
@@ -167,7 +167,7 @@ if ! grep -q "^$AGENT_CONFIG_DIR/" "$TARGET_DIR/.gitignore" 2>/dev/null; then
   echo -e "\n# AI Agent Configuration\n$AGENT_CONFIG_DIR/" >> "$TARGET_DIR/.gitignore"
 fi
 
-log_success "WTFB SAFe-Agentic-Workflow integration complete!"
+log_success "{{PROJECT_SHORT}} SAFe-Agentic-Workflow integration complete!"
 log_info "Next steps:"
 log_info "1. Review the new files in your project."
 log_info "2. If you chose Augment, read $AGENT_CONFIG_DIR/README.md for manual setup."

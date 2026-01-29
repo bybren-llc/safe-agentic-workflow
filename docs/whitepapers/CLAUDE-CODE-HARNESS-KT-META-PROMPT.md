@@ -1,17 +1,17 @@
-# Knowledge Transfer Meta-Prompt: Harness Modernization WOR-444
+# Knowledge Transfer Meta-Prompt: Harness Modernization {{TICKET_PREFIX}}-444
 
-## For the ARCHitect of wtfb-safe-agentic-workflow
+## For the ARCHitect of {{PROJECT_REPO}}
 
-**Purpose**: Enable extraction and generalization of WTFB harness improvements for the public repository
-**Source Epic**: WOR-444 (Harness & Skills Modernization)
-**Related Tickets**: WOR-454 (SOP Integration), WOR-455, WOR-456
+**Purpose**: Enable extraction and generalization of {{PROJECT_SHORT}} harness improvements for the public repository
+**Source Epic**: {{TICKET_PREFIX}}-444 (Harness & Skills Modernization)
+**Related Tickets**: {{TICKET_PREFIX}}-454 (SOP Integration), {{TICKET_PREFIX}}-455, {{TICKET_PREFIX}}-456
 **Date**: 2025-12-20
 
 ---
 
 ## Executive Summary: What Changed
 
-The WTFB team completed a comprehensive harness modernization that:
+The {{PROJECT_SHORT}} team completed a comprehensive harness modernization that:
 
 1. **Upgraded all SAFe agents to Opus 4.5** with explicit model selection
 2. **Formalized the Skills layer** as model-invoked expertise (Layer 3)
@@ -33,7 +33,7 @@ on already-solved problems.
 ### 1. Main Whitepaper (The "What" and "How")
 
 ```text
-docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md
+docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md
 ```
 
 Contains:
@@ -95,7 +95,7 @@ Location: .claude/settings.json
 
 **Generalization Notes**:
 
-- Replace `WOR-XXX` pattern with `{TICKET_PREFIX}-XXX`
+- Replace `{{TICKET_PREFIX}}-XXX` pattern with `{TICKET_PREFIX}-XXX`
 - Replace branch names `dev`/`master` with configurable values
 - Keep hook structure; parameterize project-specific values
 
@@ -297,17 +297,17 @@ Location: docs/sop/, docs/workflow/, docs/ci-cd/, docs/database/
 
 ## Generalization Guide
 
-### What's WTFB-Specific (Must Replace)
+### What's {{PROJECT_SHORT}}-Specific (Must Replace)
 
-| Component        | WTFB Value                    | Replace With                       |
+| Component        | {{PROJECT_SHORT}} Value                    | Replace With                       |
 | ---------------- | ----------------------------- | ---------------------------------- |
-| Ticket prefix    | `WOR-`                        | `{TICKET_PREFIX}-` or parameterize |
-| Branch pattern   | `WOR-{number}-{desc}`         | `{PREFIX}-{number}-{desc}`         |
-| Team name        | `WTFB`                        | `{PROJECT_NAME}`                   |
+| Ticket prefix    | `{{TICKET_PREFIX}}-`                        | `{TICKET_PREFIX}-` or parameterize |
+| Branch pattern   | `{{TICKET_PREFIX}}-{number}-{desc}`         | `{PREFIX}-{number}-{desc}`         |
+| Team name        | `{{PROJECT_SHORT}}`                        | `{PROJECT_NAME}`                   |
 | Slack channels   | `#github-feed`                | `{SLACK_CHANNEL}`                  |
-| Linear workspace | WTFB workspace                | Generic Linear setup               |
-| Docker registry  | `ghcr.io/bybren-llc/wtfb-app` | `{REGISTRY}/{PROJECT}`             |
-| Database         | `wtfb_dev`, `wtfb_user`       | `{PROJECT}_dev`, `{PROJECT}_user`  |
+| Linear workspace | {{PROJECT_SHORT}} workspace                | Generic Linear setup               |
+| Docker registry  | `{{CONTAINER_REGISTRY}}/{{LINEAR_WORKSPACE}}-app` | `{REGISTRY}/{PROJECT}`             |
+| Database         | `{{DB_NAME}}`, `{{DB_USER}}`       | `{PROJECT}_dev`, `{PROJECT}_user`  |
 
 ### What's Generalizable (Copy As-Is)
 
@@ -332,7 +332,7 @@ Branch naming: `{TICKET_PREFIX}-{number}-{description}`
 
 <!-- In project implementations, replace with actual values -->
 
-Branch naming: `WOR-{number}-{description}`
+Branch naming: `{{TICKET_PREFIX}}-{number}-{description}`
 ```
 
 ---
@@ -357,7 +357,7 @@ Branch naming: `WOR-{number}-{description}`
 
 ### Phase 3: SOP Integration
 
-1. **Create SOP templates** based on WTFB SOPs
+1. **Create SOP templates** based on {{PROJECT_SHORT}} SOPs
 2. **Add Section 4** to whitepaper (Operational SOPs Reference)
 3. **Link SOPs to agent profiles** (mandatory reading)
 4. **Update AGENTS.md equivalent** with SOP references
@@ -427,19 +427,19 @@ These insights from the agent perspective addendum should be reflected in the pu
 
 For additional context, these artifacts document the implementation:
 
-### Commits on WOR-454 Branch
+### Commits on {{TICKET_PREFIX}}-454 Branch
 
 ```text
-fa4e942 docs(harness): integrate SOPs into whitepaper and AGENTS.md [WOR-454]
-c1f19b7 docs(harness): add SAFe Role Expansion Vision to Phase 3 roadmap [WOR-454]
-4d68d72 feat(harness): upgrade SAFe agents to Opus 4.5, add skills integration [WOR-454]
-9b3beec docs(harness): update whitepaper with Phase 0-2 completion [WOR-454]
+fa4e942 docs(harness): integrate SOPs into whitepaper and AGENTS.md [{{TICKET_PREFIX}}-454]
+c1f19b7 docs(harness): add SAFe Role Expansion Vision to Phase 3 roadmap [{{TICKET_PREFIX}}-454]
+4d68d72 feat(harness): upgrade SAFe agents to Opus 4.5, add skills integration [{{TICKET_PREFIX}}-454]
+9b3beec docs(harness): update whitepaper with Phase 0-2 completion [{{TICKET_PREFIX}}-454]
 ```
 
 ### Key Files Changed
 
 - `AGENTS.md` - Role fixes, skills section, SOP links
-- `docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md` - Main whitepaper
+- `docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md` - Main whitepaper
 - `docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md` - Agent perspective
 
 ### PR (if merged)
@@ -451,7 +451,7 @@ Check PR #324 or subsequent PRs for full diff and review discussion.
 ## Quick Reference: File Locations
 
 ```text
-WTFB Repository Structure (Source)
+{{PROJECT_SHORT}} Repository Structure (Source)
 ├── .claude/
 │   ├── settings.json          # Hooks configuration
 │   ├── commands/              # 24 slash commands
@@ -461,7 +461,7 @@ WTFB Repository Structure (Source)
 ├── CONTRIBUTING.md            # Workflow documentation
 ├── docs/
 │   ├── whitepapers/
-│   │   ├── CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md
+│   │   ├── CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md
 │   │   ├── CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md
 │   │   └── CLAUDE-CODE-HARNESS-KT-META-PROMPT.md  # This file
 │   ├── patterns/              # Pattern library
@@ -486,7 +486,7 @@ This meta-prompt is designed to be self-contained. The ARCHitect should be able 
 4. Generalize using the provided patterns
 5. Implement in the public repository
 
-The public repo is "a practical and artistic expression" of WTFB's work.
+The public repo is "a practical and artistic expression" of {{PROJECT_SHORT}}'s work.
 We lead; the public repo follows with generalized versions that any SAFe/Agentic team can adopt.
 
 **The goal is not documentation for documentation's sake. The goal is executable
@@ -498,4 +498,4 @@ institutional knowledge that helps teams ship great product.**
 whitepaper and should be updated when significant harness changes occur.
 
 Submit improvements via PR to this repository or the
-[wtfb-safe-agentic-workflow](https://github.com/bybren-llc/wtfb-safe-agentic-workflow) repository.
+[{{PROJECT_REPO}}](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}) repository.

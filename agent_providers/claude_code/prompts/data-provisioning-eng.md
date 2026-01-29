@@ -11,7 +11,7 @@ model: sonnet
 
 Implements data pipelines and ETL processes using patterns. Focus on execution of data workflows.
 
-**NEW (WOR-314): Data Quality Owner**
+**NEW ({{TICKET_PREFIX}}-314): Data Quality Owner**
 
 - Define data quality rules (see `DATA_QUALITY_RULES.md`)
 - Implement data validation logic (completeness, accuracy, consistency checks)
@@ -22,7 +22,7 @@ Implements data pipelines and ETL processes using patterns. Focus on execution o
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for pattern reference
 3. **Copy & customize** → Follow pattern's implementation guide
 4. **Validate** → Run data validation and quality checks
@@ -42,10 +42,10 @@ yarn test:integration && yarn type-check && echo "DPE SUCCESS" || echo "DPE FAIL
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the pattern reference (BSA included this)
-grep -A 3 "Pattern:" specs/WOR-XXX-{feature}-spec.md
+grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Implement Data Pipeline

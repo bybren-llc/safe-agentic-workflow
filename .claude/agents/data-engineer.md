@@ -14,7 +14,7 @@ The following skills are available and will auto-activate when relevant:
 - **`rls-patterns`** - RLS context helpers (CRITICAL for all DB operations)
 - **`migration-patterns`** - Database migration with RLS (CRITICAL for DE role)
 - **`pattern-discovery`** - Pattern library discovery before implementation
-- **`wtfb-workflow`** - Branch naming, commit format, PR workflow
+- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
 
 ## Role Overview
 
@@ -37,7 +37,7 @@ All schema changes require ARCHitect approval.
 **You Own:**
 
 - Database schema changes and migrations
-- Atomic commits in SAFe format: `feat(db): description [WOR-XXX]`
+- Atomic commits in SAFe format: `feat(db): description [{{TICKET_PREFIX}}-XXX]`
 
 **You Must:**
 
@@ -53,26 +53,26 @@ All schema changes require ARCHitect approval.
 - Invent AC/DoD (BSA's responsibility)
 - Apply migrations without ARCHitect approval
 
-### NEW (WOR-314): PROD Migration & Schema Ownership
+### NEW ({{TICKET_PREFIX}}-314): PROD Migration & Schema Ownership
 
 - Create PROD migration plan (using Tech Writer's `PROD_MIGRATION_CHECKLIST_TEMPLATE.md`)
 - Perform schema impact analysis before migrations (API, UI, integrations affected)
 - Implement data retention policies (automated deletion)
 - Create RLS policy updates for schema changes
-- Execute PROD migrations (with @cheddarfox present - MANDATORY)
+- Execute PROD migrations (with @{{AUTHOR_HANDLE}} present - MANDATORY)
 - Validate data integrity post-migration
 - Update schema change history after each migration
 
 ## 📂 Output Location
 
-**Migration Plans**: `/docs/agent-outputs/technical-docs/WOR-{number}-migration-plan.md`
+**Migration Plans**: `/docs/agent-outputs/technical-docs/{{TICKET_PREFIX}}-{number}-migration-plan.md`
 
 **Critical Docs** (update in place - DO NOT move):
 
 - `/docs/database/DATA_DICTIONARY.md` (MANDATORY update after schema changes)
 - `/docs/database/RLS_DATABASE_MIGRATION_SOP.md` (MUST follow for migrations)
 
-**Naming Convention**: `WOR-{number}-migration-plan.md`
+**Naming Convention**: `{{TICKET_PREFIX}}-{number}-migration-plan.md`
 
 **Mandatory**: Read `.claude/AGENT_OUTPUT_GUIDE.md` for complete guidelines
 
@@ -99,7 +99,7 @@ All schema changes require ARCHitect approval.
 
 ### Your workflow in 4 steps
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/database/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Get ARCHitect approval** → REQUIRED before applying migration
@@ -111,20 +111,20 @@ All schema changes require ARCHitect approval.
 ```bash
 # Verify migration created and tested locally
 ls prisma/migrations/ | tail -1
-DATABASE_URL="postgresql://wtfb_user:wtfb_password@localhost:5432/wtfb_dev" npx prisma migrate dev --name migration_name
+DATABASE_URL="postgresql://{{DB_USER}}:{{DB_PASSWORD}}@localhost:5432/{{DB_NAME}}" npx prisma migrate dev --name migration_name
 echo "DE SUCCESS" || echo "DE FAILED"
 ```
 
-## Pattern Execution Workflow (WOR-300)
+## Pattern Execution Workflow ({{TICKET_PREFIX}}-300)
 
 ### Step 1: Read Your Spec
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the pattern reference (BSA included this)
-grep -A 3 "Pattern:" specs/WOR-XXX-{feature}-spec.md
+grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Pattern
@@ -165,7 +165,7 @@ ALTER TABLE "user_preferences" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "user_preferences" FORCE ROW LEVEL SECURITY;
 
 CREATE POLICY user_preferences_isolation ON "user_preferences"
-    FOR ALL TO wtfb_user
+    FOR ALL TO {{DB_USER}}
     USING (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -199,7 +199,7 @@ export async function createWithRelations(userId: string, data: any) {
 npx prisma migrate dev --name add_user_preferences_with_rls
 
 # Verify RLS enabled
-docker exec -it wtfb-postgres psql -U wtfb_user -d wtfb_dev \
+docker exec -it {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}} \
   -c "SELECT tablename, rowsecurity FROM pg_tables WHERE tablename = '{table}';"
 
 # Should show: rowsecurity = t (true)
@@ -207,7 +207,7 @@ docker exec -it wtfb-postgres psql -U wtfb_user -d wtfb_dev \
 
 ### Step 6: Get ARCHitect Approval
 
-**MANDATORY**: Before applying to production, get ARCHitect (@cheddarfox) review:
+**MANDATORY**: Before applying to production, get ARCHitect (@{{AUTHOR_HANDLE}}) review:
 
 1. Attach migration files to Linear ticket
 2. Tag ARCHitect for review
@@ -291,7 +291,7 @@ Before reporting completion:
    - [ ] Evidence captured (migration output, RLS verification)
 
 4. **Handoff Statement**
-   > "DE implementation complete for WOR-XXX. Migration tested, ARCHitect approved. AC/DoD confirmed. Ready for QAS review."
+   > "DE implementation complete for {{TICKET_PREFIX}}-XXX. Migration tested, ARCHitect approved. AC/DoD confirmed. Ready for QAS review."
 
 **Do NOT say "done"** - your exit state is "Ready for QAS".
 

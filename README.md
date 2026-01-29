@@ -3,33 +3,14 @@
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
 <p align="center">
-  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="License">
-  </a>
-  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/releases/latest">
-    <img src="https://img.shields.io/github/v/release/bybren-llc/wtfb-safe-agentic-workflow?include_prereleases&style=flat-square&color=blue" alt="Version">
-  </a>
-  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/bybren-llc/wtfb-safe-agentic-workflow/ci.yml?style=flat-square&label=validation" alt="Validation">
-  </a>
-  <a href="https://github.com/bybren-llc/wtfb-safe-agentic-workflow/stargazers">
-    <img src="https://img.shields.io/github/stars/bybren-llc/wtfb-safe-agentic-workflow?style=flat-square" alt="Stars">
-  </a>
-  <a href="https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow">
-    <img src="https://img.shields.io/badge/DeepWiki-AI_Docs-blue?style=flat-square" alt="DeepWiki">
-  </a>
-</p>
-
-<p align="center">
-  <a href="whitepaper/data/REAL-PRODUCTION-DATA-SYNTHESIS.md">
-    <img src="https://img.shields.io/badge/5+%20months-production%20validated-brightgreen?style=flat-square" alt="Production Validated">
-  </a>
+  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
   <a href=".claude/skills/">
     <img src="https://img.shields.io/badge/skills-17%20model--invoked-purple?style=flat-square" alt="Skills">
   </a>
   <a href=".claude/commands/">
     <img src="https://img.shields.io/badge/commands-23%20workflows-orange?style=flat-square" alt="Commands">
   </a>
+  <img src="https://img.shields.io/badge/template-ready-brightgreen?style=flat-square" alt="Template Ready">
 </p>
 
 <p align="center">
@@ -42,9 +23,9 @@
   </a>
 </p>
 
-> **AI Agents:** For comprehensive documentation, visit [DeepWiki](https://deepwiki.com/bybren-llc/wtfb-safe-agentic-workflow)
->
-> **LLM Context**: Get the entire repository as LLM-ready context using [GitIngest](https://gitingest.com/) with your fork.
+> **Template Repository** - Click "Use this template" above to create your own AI agent harness.
+> After cloning, run `bash scripts/setup-template.sh` to customize for your project.
+> See [TEMPLATE_SETUP.md](TEMPLATE_SETUP.md) for details.
 
 ---
 
@@ -181,7 +162,7 @@ See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md).
 
 ### Production Results (v1.0 Harness)
 
-> **Note**: These metrics are from the **v1.0 harness** deployed on the WTFB-app project (5+ months production use). This repository is now at **v2.2** (Skills Enhancement), which adds comprehensive skill documentation and authoring guide.
+> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.2** (Skills Enhancement), which adds comprehensive skill documentation and authoring guide.
 
 | Metric           | Value              | Source     |
 | ---------------- | ------------------ | ---------- |
@@ -268,7 +249,7 @@ gemini
 
 | Action | Claude Code | Gemini CLI |
 |--------|-------------|------------|
-| Start work | `/start-work WOR-123` | `/workflow:start-work WOR-123` |
+| Start work | `/start-work {{TICKET_PREFIX}}-123` | `/workflow:start-work {{TICKET_PREFIX}}-123` |
 | Pre-PR check | `/pre-pr` | `/workflow:pre-pr` |
 | Local sync | `/local-sync` | `/local:sync` |
 | Remote deploy | `/remote-deploy` | `/remote:deploy` |
@@ -489,7 +470,7 @@ All work requires verifiable evidence. No "trust me, it works."
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-### Role Collapsing (WOR-499)
+### Role Collapsing ({{TICKET_PREFIX}}-499)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -698,7 +679,7 @@ Note: Quality gates are immutable. QAS and SecEng cannot be collapsed.
   │             │         │             │       │             │
   │ "BE/FE/DE   │         │ "QAS valid- │       │ "PR #XXX    │
   │ impl done   │         │ ation done  │       │ ready for   │
-  │ for WOR-X.  │         │ for WOR-X.  │       │ HITL review.│
+  │ for {{TICKET_PREFIX}}-X.  │         │ for {{TICKET_PREFIX}}-X.  │       │ HITL review.│
   │ All valid-  │         │ All PASSED. │       │ CI green,   │
   │ ation pass. │         │ Approved    │       │ reviews     │
   │ AC/DoD      │         │ for RTE."   │       │ complete."  │
@@ -717,7 +698,7 @@ Note: Quality gates are immutable. QAS and SecEng cannot be collapsed.
 
                               ┌─────────────────┐
                               │  TICKET ARRIVES │
-                              │  (Linear WOR-X) │
+                              │  (Linear {{TICKET_PREFIX}}-X) │
                               └────────┬────────┘
                                        │
                                        ▼
@@ -897,7 +878,7 @@ Legend:
 │                                                                             │
 │  HANDOFF TEMPLATE:                                                          │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  "[BE/FE/DE] implementation complete for WOR-XXX.                   │   │
+│  │  "[BE/FE/DE] implementation complete for {{TICKET_PREFIX}}-XXX.                   │   │
 │  │   All validation passing. AC/DoD confirmed.                         │   │
 │  │   Ready for QAS review."                                            │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
@@ -944,7 +925,7 @@ Legend:
 │                                                                             │
 │  HANDOFF TEMPLATE:                                                          │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  "QAS validation complete for WOR-XXX.                              │   │
+│  │  "QAS validation complete for {{TICKET_PREFIX}}-XXX.                              │   │
 │  │   All criteria PASSED. Evidence posted to Linear.                   │   │
 │  │   Approved for RTE."                                                │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
@@ -986,7 +967,7 @@ Legend:
 │                                                                             │
 │  HANDOFF TEMPLATE:                                                          │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  "PR #XXX for WOR-YYY is Ready for HITL Review.                     │   │
+│  │  "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review.                     │   │
 │  │   All CI green, reviews complete, evidence attached.                │   │
 │  │   Awaiting final merge approval from Scott."                        │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
@@ -1030,7 +1011,7 @@ Legend:
 │                                                                             │
 │  HANDOFF TEMPLATE:                                                          │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  "Stage 1 review complete for PR #XXX (WOR-YYY).                    │   │
+│  │  "Stage 1 review complete for PR #XXX ({{TICKET_PREFIX}}-YYY).                    │   │
 │  │   Pattern compliance verified, RLS enforced.                        │   │
 │  │   Approved for ARCHitect-in-CLI review (Stage 2)."                  │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
@@ -1076,7 +1057,7 @@ accountable team members with clear boundaries, not autonomous actors.
 | Exit States     | Informal "done"        | Explicit states per role                     | Clear chain of custody                        |
 | Evidence        | Scattered              | **Linear as system of record**               | Auditable, traceable delivery                 |
 | PR Review       | Undefined stages       | **3-stage process**                          | Layered review with clear ownership           |
-| Role Collapsing | Not defined            | **WOR-499**: RTE collapsible, QAS/SecEng not | Flexibility with safety                       |
+| Role Collapsing | Not defined            | **{{TICKET_PREFIX}}-499**: RTE collapsible, QAS/SecEng not | Flexibility with safety                       |
 
 ### Detailed File Changes
 
@@ -1122,11 +1103,11 @@ accountable team members with clear boundaries, not autonomous actors.
 | 1.0 | 2025-12-23 | Claude Code (Opus 4.5) | Initial vNext contract (Phases 1-2) |
 | 1.1 | 2025-12-23 | Claude Code (Opus 4.5) | Phase 3 docs + errata |
 | 1.2 | 2025-12-23 | Claude Code (Opus 4.5) | Alignment fixes (TDM role, QAS write policy) |
-| 1.3 | 2025-12-23 | Claude Code (Opus 4.5) | WOR-499: Role collapsing policy |
+| 1.3 | 2025-12-23 | Claude Code (Opus 4.5) | {{TICKET_PREFIX}}-499: Role collapsing policy |
 
 ### Source Document
 
-Full knowledge transfer document: [WOR-497-vnext-workflow-contract-kt.md](https://github.com/ByBren-LLC/WTFB-app/blob/main/docs/agent-outputs/technical-docs/WOR-497-vnext-workflow-contract-kt.md)
+Full knowledge transfer document: [{{TICKET_PREFIX}}-497-vnext-workflow-contract-kt.md](https://github.com/{{GITHUB_ORG}}/{{PROJECT_SHORT}}-app/blob/main/docs/agent-outputs/technical-docs/{{TICKET_PREFIX}}-497-vnext-workflow-contract-kt.md)
 
 </details>
 
@@ -1251,9 +1232,9 @@ Download: [CITATION.bib](CITATION.bib) | [CITATION.cff](CITATION.cff)
 ### APA 7th Edition
 
 ```text
-Graham, J. S., & WTFB Development Team. (2025). Evidence-based multi-agent
+{{AUTHOR_LAST_NAME}}, {{AUTHOR_INITIALS}}, & {{PROJECT_SHORT}} Development Team. (2025). Evidence-based multi-agent
 development: A SAFe framework implementation with Claude Code [White paper].
-https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow
+https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}
 ```
 
 ---
@@ -1279,24 +1260,24 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Attribution
 
-This project is the **Words To Film By™** multi-agent harness, adapted for SAFe development workflows.
+This project is the **{{PROJECT_NAME}}™** multi-agent harness, adapted for SAFe development workflows.
 
-**Creator**: J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) - [jscottgraham.us](https://jscottgraham.us)
-**Organization**: [Bybren LLC](https://github.com/bybren-llc)
-**Enterprise**: [Words To Film By™](https://wordstofilmby.com)
+**Creator**: {{AUTHOR_NAME}} ([@{{AUTHOR_HANDLE}}](https://github.com/{{AUTHOR_HANDLE}})) - [{{AUTHOR_WEBSITE}}](https://{{AUTHOR_WEBSITE}})
+**Organization**: [{{COMPANY_NAME}}](https://github.com/{{GITHUB_ORG}})
+**Enterprise**: [{{PROJECT_NAME}}™](https://{{PROJECT_DOMAIN}})
 
 If you use this harness in your own projects, you must include attribution.
 See [NOTICE](NOTICE) for details.
 
-**Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/cheddarfox/auggies-architect-handbook)
+**Historical Context**: Evolved from [Auggie's Architect Handbook](https://github.com/{{AUTHOR_HANDLE}}/auggies-architect-handbook)
 
 ---
 
 <p align="center">
-  <strong>Words To Film By™</strong><br>
-  <a href="https://wordstofilmby.com">Website</a> •
-  <a href="mailto:scott@wordstofilmby.com">Contact</a> •
-  <a href="https://github.com/sponsors/bybren-llc">Sponsor</a>
+  <strong>{{PROJECT_NAME}}™</strong><br>
+  <a href="https://{{PROJECT_DOMAIN}}">Website</a> •
+  <a href="mailto:scott@{{PROJECT_DOMAIN}}">Contact</a> •
+  <a href="https://github.com/sponsors/{{GITHUB_ORG}}">Sponsor</a>
 </p>
 
 <p align="center">

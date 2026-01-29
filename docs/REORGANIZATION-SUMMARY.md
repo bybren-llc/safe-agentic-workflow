@@ -1,4 +1,4 @@
-> **📚 EXAMPLE**: This document is preserved as a learning example from the WTFB project. It demonstrates the pattern for creating an executive summary for a repository reorganization plan. When adopting this workflow, create your own version tailored to your project.
+> **📚 EXAMPLE**: This document is preserved as a learning example from the {{PROJECT_SHORT}} project. It demonstrates the pattern for creating an executive summary for a repository reorganization plan. When adopting this workflow, create your own version tailored to your project.
 
 ---
 
@@ -243,7 +243,7 @@ git diff
 @bsa What is your role?
 
 # 5. Commit
-git commit -m "docs: reorganize root directory documentation [WOR-XXX]
+git commit -m "docs: reorganize root directory documentation [{{TICKET_PREFIX}}-XXX]
 
 Move documentation files from root to organized subdirectories:
 - Database docs → docs/database/

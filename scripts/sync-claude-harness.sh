@@ -29,7 +29,7 @@ BACKUP_DIR="$CLAUDE_DIR/.harness-backup"
 TMP_DIR="/tmp/claude-harness-sync-$$"
 
 # Upstream configuration (defaults, can be overridden via config)
-UPSTREAM_REPO="bybren-llc/wtfb-safe-agentic-workflow"
+UPSTREAM_REPO="{{GITHUB_ORG}}/{{PROJECT_REPO}}"
 UPSTREAM_BRANCH="main"
 UPSTREAM_PATH=".claude"
 
@@ -156,7 +156,7 @@ trap cleanup EXIT
 # Load configuration from .harness-sync.json
 load_config() {
     if [ -f "$SYNC_CONFIG" ]; then
-        UPSTREAM_REPO=$(json_get "$SYNC_CONFIG" "upstream_repo" "bybren-llc/wtfb-safe-agentic-workflow")
+        UPSTREAM_REPO=$(json_get "$SYNC_CONFIG" "upstream_repo" "{{GITHUB_ORG}}/{{PROJECT_REPO}}")
         UPSTREAM_BRANCH=$(json_get "$SYNC_CONFIG" "upstream_branch" "main")
     fi
 }
@@ -651,8 +651,8 @@ do_init() {
   "last_synced_at": null,
   "sync_history": [],
   "project_customizations": {
-    "ticket_prefix": "WOR-",
-    "project_name": "WTFB",
+    "ticket_prefix": "{{TICKET_PREFIX}}-",
+    "project_name": "{{PROJECT_SHORT}}",
     "main_branch": "dev"
   }
 }

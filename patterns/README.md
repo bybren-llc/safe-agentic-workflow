@@ -15,7 +15,7 @@ See [`../patterns_library/`](../patterns_library/) for:
 
 Additional patterns documented in the whitepaper will be added here:
 
-- Case study patterns (WOR-321, WOR-323)
+- Case study patterns ({{TICKET_PREFIX}}-321, {{TICKET_PREFIX}}-323)
 - Meta-circular validation patterns
 - Evidence-based delivery patterns
 

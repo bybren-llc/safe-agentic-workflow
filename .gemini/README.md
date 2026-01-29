@@ -423,4 +423,4 @@ Both tools can coexist in the same repository.
 
 MIT License - See [LICENSE](../LICENSE) for details.
 
-Copyright (c) 2024-2025 J. Scott Graham / Bybren LLC
+Copyright (c) 2024-2025 {{AUTHOR_NAME}} / {{COMPANY_NAME}}

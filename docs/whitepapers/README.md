@@ -6,7 +6,7 @@ This directory contains the complete documentation for the Claude Code harness a
 
 ### 1. Claude Code Harness Modernization (Main Whitepaper)
 
-**File**: `CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md`
+**File**: `CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md`
 
 The complete technical documentation of the three-layer harness architecture:
 
@@ -74,6 +74,6 @@ Comparative analysis of self-referential loops vs SAFe multi-agent orchestration
 
 ## Origin
 
-These whitepapers document the harness developed during production use on the WTFB project and generalized for adoption by other SAFe/Agentic teams.
+These whitepapers document the harness developed during production use on the {{PROJECT_SHORT}} project and generalized for adoption by other SAFe/Agentic teams.
 
 The harness was adopted into this repository in December 2025 as part of the harness-adoption initiative.

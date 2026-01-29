@@ -1,4 +1,4 @@
-# Augment Instructions for WTFB SAFe-Agentic-Workflow
+# Augment Instructions for {{PROJECT_SHORT}} SAFe-Agentic-Workflow
 
 ## Core Principles
 

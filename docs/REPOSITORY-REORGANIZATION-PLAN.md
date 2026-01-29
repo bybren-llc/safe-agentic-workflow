@@ -1,4 +1,4 @@
-> **📚 EXAMPLE**: This document is preserved as a learning example from the WTFB project. It demonstrates the pattern for planning a comprehensive repository reorganization with detailed implementation steps. When adopting this workflow, create your own version tailored to your project.
+> **📚 EXAMPLE**: This document is preserved as a learning example from the {{PROJECT_SHORT}} project. It demonstrates the pattern for planning a comprehensive repository reorganization with detailed implementation steps. When adopting this workflow, create your own version tailored to your project.
 
 ---
 
@@ -76,12 +76,12 @@
 │   │   ├── README.md           (Index of CI/CD docs)
 │   │   └── CI-CD-Pipeline-Guide.md (Moved from root)
 │   │
-│   ├── onboarding/             ✅ KEEP AS IS (recently created for WOR-326)
+│   ├── onboarding/             ✅ KEEP AS IS (recently created for {{TICKET_PREFIX}}-326)
 │   │   ├── AGENT-SETUP-GUIDE.md
 │   │   ├── DAY-1-CHECKLIST.md
 │   │   ├── META-PROMPTS-FOR-USERS.md
 │   │   ├── USER-JOURNEY-VALIDATION-REPORT.md
-│   │   └── WOR-326-COMPLETION-SUMMARY.md
+│   │   └── {{TICKET_PREFIX}}-326-COMPLETION-SUMMARY.md
 │   │
 │   ├── sop/                    ✅ KEEP AS IS (existing SOPs)
 │   ├── team/                   ✅ KEEP AS IS (team docs)
@@ -157,7 +157,7 @@ Each new directory needs a README.md index:
 
 - References to `AGENTS.md` - No change (stays in root)
 
-**docs/onboarding/WOR-326-COMPLETION-SUMMARY.md**:
+**docs/onboarding/{{TICKET_PREFIX}}-326-COMPLETION-SUMMARY.md**:
 
 - References to `CONTRIBUTING.md` (stays in root - no change)
 - References to `DATA_DICTIONARY.md` → `docs/database/DATA_DICTIONARY.md`
@@ -295,7 +295,7 @@ git mv apply-workflow.sh scripts/
 
 # Phase 5: Commit
 git add -A
-git commit -m "docs: reorganize root directory documentation [WOR-XXX]
+git commit -m "docs: reorganize root directory documentation [{{TICKET_PREFIX}}-XXX]
 
 Move documentation files from root to organized subdirectories:
 - Database docs → docs/database/
@@ -380,4 +380,4 @@ All documentation organized by category with README.md indexes."
 
 **Estimated Time**: 2-3 hours (move files + update references + test)
 
-**Recommended Ticket**: Create new Linear ticket (e.g., WOR-327) for this reorganization work
+**Recommended Ticket**: Create new Linear ticket (e.g., {{TICKET_PREFIX}}-327) for this reorganization work

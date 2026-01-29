@@ -1,12 +1,12 @@
 # Claude Code Configuration
 
-This directory contains the WTFB Claude Code harness: hooks, slash commands, and (coming soon) skills for workflow automation.
+This directory contains the {{PROJECT_SHORT}} Claude Code harness: hooks, slash commands, and (coming soon) skills for workflow automation.
 
 ## Harness Architecture
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────┐
-│                      WTFB Claude Code Harness                         │
+│                      {{PROJECT_SHORT}} Claude Code Harness                         │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                       │
 │  HOOKS (Guardrails)              SLASH COMMANDS (User-Invoked)        │
@@ -15,7 +15,7 @@ This directory contains the WTFB Claude Code harness: hooks, slash commands, and
 │  └─ Auto-format on edit          └─ /pre-pr                           │
 │                                                                       │
 │  SKILLS (Model-Invoked) ✅ Available                                  │
-│  ├─ wtfb-workflow      (SAFe commit/PR patterns)                      │
+│  ├─ {{LINEAR_WORKSPACE}}-workflow      (SAFe commit/PR patterns)                      │
 │  ├─ pattern-discovery  (search docs/patterns first)                   │
 │  ├─ rls-patterns       (database security helpers)                    │
 │  └─ frontend-patterns  (Clerk, shadcn, Next.js App Router)            │
@@ -34,11 +34,11 @@ This directory contains the WTFB Claude Code harness: hooks, slash commands, and
 This harness is designed to help every teammate (human + AI) uphold:
 
 - **SAFe Pillars**: Alignment, Built-in Quality, Program Execution, Transparency
-- **WTFB Round Table**: humans + AI agents are peers; Stop-the-Line authority is encouraged
+- **{{PROJECT_SHORT}} Round Table**: humans + AI agents are peers; Stop-the-Line authority is encouraged
 
 Canonical reference: `.cursor/rules/06-team-culture.mdc`
 
-## Role Execution Modes (WOR-499)
+## Role Execution Modes ({{TICKET_PREFIX}}-499)
 
 ### Collapsed vs Separated Roles
 
@@ -131,11 +131,11 @@ These commands are thin wrappers pointing to canonical `/remote-*` commands. **U
 
 | Command                | Alias For          | Note                   |
 | ---------------------- | ------------------ | ---------------------- |
-| `/check-docker-status` | `/remote-status`   | Deprecated per WOR-445 |
-| `/deploy-dev`          | `/remote-deploy`   | Deprecated per WOR-445 |
-| `/dev-health`          | `/remote-health`   | Deprecated per WOR-445 |
-| `/dev-logs`            | `/remote-logs`     | Deprecated per WOR-445 |
-| `/rollback-dev`        | `/remote-rollback` | Deprecated per WOR-445 |
+| `/check-docker-status` | `/remote-status`   | Deprecated per {{TICKET_PREFIX}}-445 |
+| `/deploy-dev`          | `/remote-deploy`   | Deprecated per {{TICKET_PREFIX}}-445 |
+| `/dev-health`          | `/remote-health`   | Deprecated per {{TICKET_PREFIX}}-445 |
+| `/dev-logs`            | `/remote-logs`     | Deprecated per {{TICKET_PREFIX}}-445 |
+| `/rollback-dev`        | `/remote-rollback` | Deprecated per {{TICKET_PREFIX}}-445 |
 
 ### Other Commands
 
@@ -145,14 +145,14 @@ These commands are thin wrappers pointing to canonical `/remote-*` commands. **U
 | `/audit-deps`     | Run comprehensive dependency audit | `/audit-deps`         |
 | `/search-pattern` | Search for code patterns           | `/search-pattern`     |
 
-## Dual-Mode Deployment (WOR-445 Terminology Contract)
+## Dual-Mode Deployment ({{TICKET_PREFIX}}-445 Terminology Contract)
 
 Pop OS supports two deployment modes. **Use canonical terminology:**
 
 | Mode        | Container Name     | Port | Use Case                     |
 | ----------- | ------------------ | ---- | ---------------------------- |
-| **Dev**     | `wtfb-dev-app`     | 3000 | Daily development (STANDARD) |
-| **Staging** | `wtfb-staging-app` | 3001 | Release validation/UAT       |
+| **Dev**     | `{{DEV_CONTAINER}}`     | 3000 | Daily development (STANDARD) |
+| **Staging** | `{{STAGING_CONTAINER}}` | 3001 | Release validation/UAT       |
 
 **Important:**
 
@@ -171,7 +171,7 @@ See: `docs/agent-outputs/workflow-analysis/HARNESS_AND_SKILLS_AUDIT_2025-12-18.m
 /start-work 347
 
 # 2. Make changes, commit work...
-# git add . && git commit -m "feat(scope): description [WOR-347]"
+# git add . && git commit -m "feat(scope): description [{{TICKET_PREFIX}}-347]"
 
 # 3. Check status periodically
 /check-workflow
@@ -183,9 +183,9 @@ See: `docs/agent-outputs/workflow-analysis/HARNESS_AND_SKILLS_AUDIT_2025-12-18.m
 /pre-pr
 
 # 6. Create PR (if validation passes)
-# git push --force-with-lease origin WOR-347-branch
+# git push --force-with-lease origin {{TICKET_PREFIX}}-347-branch
 # # Use the PR template as your PR body baseline:
-# # gh pr create --title "feat(scope): description [WOR-347]" --body "$(cat .github/pull_request_template.md)"
+# # gh pr create --title "feat(scope): description [{{TICKET_PREFIX}}-347]" --body "$(cat .github/pull_request_template.md)"
 # gh pr create ...
 
 # 7. End session cleanly
@@ -210,7 +210,7 @@ Configuration is in `hooks-config.json`.
 
 | Trigger               | Behavior                                                                      |
 | --------------------- | ----------------------------------------------------------------------------- |
-| On prompt submit      | Reminds about `WOR-{number}` branch naming convention                         |
+| On prompt submit      | Reminds about `{{TICKET_PREFIX}}-{number}` branch naming convention                         |
 | Before `git commit`   | Reminds about SAFe commit format                                              |
 | Before `git push`     | ❌ **BLOCKS** if on dev/master; ❌ **BLOCKS** if uncommitted; warns if behind |
 | Before `gh pr create` | Reminds to run `/pre-pr` validation first                                     |
@@ -374,4 +374,4 @@ These configurations are part of the project and should be:
 ---
 
 **Last Updated**: 2026-01-04
-**Maintained by**: WTFB Development Team + ARCHitect-in-the-IDE (Auggie)
+**Maintained by**: {{PROJECT_SHORT}} Development Team + ARCHitect-in-the-IDE (Auggie)

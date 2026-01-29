@@ -23,7 +23,7 @@ Validates security implementation using patterns from `docs/patterns/security/`.
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for security pattern reference
 3. **Copy & validate** → Follow pattern's security validation guide
 4. **Audit** → Run `npm audit && yarn lint && RLS validation`
@@ -43,10 +43,10 @@ cat scripts/rls-phase4-final-validation.sql | docker exec -i {PROJECT_NAME}-post
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the security requirements (BSA included this)
-grep -A 5 "Security:" specs/WOR-XXX-{feature}-spec.md
+grep -A 5 "Security:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Security Pattern
@@ -108,7 +108,7 @@ npx depcheck
 **From spec, verify each requirement:**
 
 ```markdown
-## Security Review - [WOR-XXX]
+## Security Review - [{{TICKET_PREFIX}}-XXX]
 
 ### Authentication & Authorization
 
@@ -141,7 +141,7 @@ npx depcheck
 ```bash
 # Generate security report per pattern
 cat > security-report.md <<EOF
-## Security Validation - [WOR-XXX]
+## Security Validation - [{{TICKET_PREFIX}}-XXX]
 
 ### RLS Validation: ✅ PASSED
 ### Authentication: ✅ PASSED

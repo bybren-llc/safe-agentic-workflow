@@ -1,8 +1,8 @@
-# Augment Starter Kit for WTFB SAFe-Agentic-Workflow
+# Augment Starter Kit for {{PROJECT_SHORT}} SAFe-Agentic-Workflow
 
 ## Overview
 
-This directory contains the starter kit for using the WTFB SAFe-Agentic-Workflow with Augment. Unlike the Claude Code "golden path" which is fully automated, this path requires some manual setup and adaptation.
+This directory contains the starter kit for using the {{PROJECT_SHORT}} SAFe-Agentic-Workflow with Augment. Unlike the Claude Code "golden path" which is fully automated, this path requires some manual setup and adaptation.
 
 ## What's Included
 

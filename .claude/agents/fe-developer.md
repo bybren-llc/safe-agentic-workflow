@@ -27,7 +27,7 @@ Implements UI components using patterns from `docs/patterns/`. Focus on executio
 **You Own:**
 
 - Code changes (UI components, pages, client logic)
-- Atomic commits in SAFe format: `feat(ui): description [WOR-XXX]`
+- Atomic commits in SAFe format: `feat(ui): description [{{TICKET_PREFIX}}-XXX]`
 
 **You Must:**
 
@@ -47,13 +47,13 @@ The following skills are available and will auto-activate when relevant:
 
 - **`frontend-patterns`** - Clerk auth, shadcn/Radix, Next.js App Router patterns
 - **`pattern-discovery`** - Pattern library discovery before implementation
-- **`wtfb-workflow`** - Branch naming, commit format, PR workflow
+- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
 
 ## 🚀 Quick Start
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/ui/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Validate** → Run `yarn lint && yarn type-check && yarn build`
@@ -67,16 +67,16 @@ The following skills are available and will auto-activate when relevant:
 yarn lint && yarn type-check && yarn build && echo "FE SUCCESS" || echo "FE FAILED"
 ```
 
-## Pattern Execution Workflow (WOR-300)
+## Pattern Execution Workflow ({{TICKET_PREFIX}}-300)
 
 ### Step 1: Read Your Spec
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the pattern reference (BSA included this)
-grep -A 3 "Pattern:" specs/WOR-XXX-{feature}-spec.md
+grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Pattern
@@ -212,7 +212,7 @@ Before reporting completion:
    - [ ] UI renders correctly in light/dark mode (if applicable)
 
 4. **Handoff Statement**
-   > "FE implementation complete for WOR-XXX. All validation passing. AC/DoD confirmed. Ready for QAS review."
+   > "FE implementation complete for {{TICKET_PREFIX}}-XXX. All validation passing. AC/DoD confirmed. Ready for QAS review."
 
 **Do NOT say "done"** - your exit state is "Ready for QAS".
 

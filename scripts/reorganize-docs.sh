@@ -337,7 +337,7 @@ echo "  1. Review changes: git status"
 echo "  2. Test agent invocations: @bsa What is your role?"
 echo "  3. Verify README.md links work"
 echo "  4. Run verification checklist (docs/REPOSITORY-REORGANIZATION-PLAN.md)"
-echo "  5. Commit: git commit -m 'docs: reorganize root directory documentation [WOR-XXX]'"
+echo "  5. Commit: git commit -m 'docs: reorganize root directory documentation [{{TICKET_PREFIX}}-XXX]'"
 echo ""
 
 echo -e "${GREEN}✅ Done!${NC}"

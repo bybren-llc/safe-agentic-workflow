@@ -12,13 +12,13 @@ Synchronize current branch work with Linear ticket, ensuring ticket reflects act
 Extract WOR number from branch:
 
 ```bash
-git branch --show-current | grep -oE 'WOR-[0-9]+'
+git branch --show-current | grep -oE '{{TICKET_PREFIX}}-[0-9]+'
 ```
 
 Fetch ticket details:
 
 ```text
-mcp__linear-mcp__get_issue {WOR-number}
+mcp__linear-mcp__get_issue {{{TICKET_PREFIX}}-number}
 ```
 
 ### 2. Analyze Work Done

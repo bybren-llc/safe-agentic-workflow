@@ -10,7 +10,7 @@
 
 **Workflow SOPs:**
 
-- [Agent Workflow SOP v1.4](./docs/sop/AGENT_WORKFLOW_SOP.md) - vNext contract, Exit States, Role Collapsing (WOR-497/499)
+- [Agent Workflow SOP v1.4](./docs/sop/AGENT_WORKFLOW_SOP.md) - vNext contract, Exit States, Role Collapsing ({{TICKET_PREFIX}}-497/499)
 - [Agent Configuration SOP](./docs/sop/AGENT_CONFIGURATION_SOP.md) - Tool restrictions, model selection
 - [ARCHitect-in-CLI Role](./docs/workflow/ARCHITECT_IN_CLI_ROLE.md) - Primary orchestrator definition
 
@@ -24,9 +24,9 @@
 
 **Project Standards:**
 
-- [Harness Whitepaper](./docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md) - Complete harness architecture
+- [Harness Whitepaper](./docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md) - Complete harness architecture
 - [Agent Perspective](./docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md) - Why the harness works
-- [SAFe Methodology](https://github.com/bybren-llc/wtfb-safe-agentic-workflow) - This repository
+- [SAFe Methodology](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}) - This repository
 
 ## When to Use Which Agent
 
@@ -252,7 +252,7 @@ Each agent has explicit exit states that define handoff points:
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-### Role Collapsing (WOR-499)
+### Role Collapsing ({{TICKET_PREFIX}}-499)
 
 - **RTE**: Collapsible (PR creation, CI shepherding can be done by implementer)
 - **QAS**: NOT collapsible (independence gate - spawn subagent for verification)

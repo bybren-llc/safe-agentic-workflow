@@ -448,7 +448,7 @@ yarn ci:validate && echo "CI SUCCESS"
 - **docs/sop/AGENT_WORKFLOW_SOP.md**: Workflow and orchestration guide
 - **docs/patterns/README.md**: Pattern library index
 - **CONTRIBUTING.md**: Git workflow and PR process
-- **Confluence Cheat Sheet**: https://cheddarfox.atlassian.net/wiki/spaces/WA/pages/366411778
+- **Confluence Cheat Sheet**: https://{{AUTHOR_HANDLE}}.atlassian.net/wiki/spaces/WA/pages/366411778
 
 ---
 
@@ -471,4 +471,4 @@ yarn ci:validate && echo "CI SUCCESS"
 **Questions?**
 
 - GitHub Discussions: {{GITHUB_REPO_URL}}/discussions
-- Email: scott@wordstofilmby.com
+- Email: scott@{{PROJECT_DOMAIN}}

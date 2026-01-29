@@ -487,5 +487,5 @@ https://linear.app/your-team/issue/{{TICKET_PREFIX}}-1"
 **Questions?**
 
 - GitHub Discussions: {{GITHUB_REPO_URL}}/discussions
-- Email: scott@wordstofilmby.com
+- Email: scott@{{PROJECT_DOMAIN}}
 - Documentation: See `docs/onboarding/` for more guides

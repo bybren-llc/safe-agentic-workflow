@@ -1,6 +1,6 @@
-# WTFB SAFe-Agentic-Workflow Template
+# {{PROJECT_SHORT}} SAFe-Agentic-Workflow Template
 
-This repository provides a comprehensive template for establishing a sophisticated human-AI collaborative development workflow, inspired by the Words To Film By (WTFB) project. It embodies principles of Evidence-Based Delivery, Pattern-Driven Development, and a Spec-Driven Workflow, all structured around a SAFe Agile Release Train (ART) model.
+This repository provides a comprehensive template for establishing a sophisticated human-AI collaborative development workflow, inspired by the {{PROJECT_NAME}} ({{PROJECT_SHORT}}) project. It embodies principles of Evidence-Based Delivery, Pattern-Driven Development, and a Spec-Driven Workflow, all structured around a SAFe Agile Release Train (ART) model.
 
 ## 🚀 Quick Start
 
@@ -16,10 +16,10 @@ To integrate this workflow into your new or existing project, follow these steps
 
    ```bash
    # First, clone this template repository to a temporary location
-   git clone https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow.git /tmp/wtfb-workflow-template
+   git clone https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}.git /tmp/{{LINEAR_WORKSPACE}}-workflow-template
 
    # Then, run the script from your project's root
-   bash /tmp/wtfb-workflow-template/apply-workflow.sh
+   bash /tmp/{{LINEAR_WORKSPACE}}-workflow-template/apply-workflow.sh
    ```
 
 3. **Follow the interactive prompts.** The script will ask you to choose your AI agent provider (Claude Code or Augment) and provide project-specific details (e.g., ticket prefix, primary development branch).
@@ -107,8 +107,8 @@ We welcome contributions! This template is designed to be adapted and improved b
    - [Pattern Discovery Protocol](./patterns_library/README.md) - How to find and reuse patterns
 
 2. **Report Issues**:
-   - Found a bug? [Open an issue](https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow/issues)
-   - Have a feature request? [Start a discussion](https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow/discussions)
+   - Found a bug? [Open an issue](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}/issues)
+   - Have a feature request? [Start a discussion](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}/discussions)
 
 3. **Submit Pull Requests**:
    - Follow the [CONTRIBUTING.md](./project_workflow/CONTRIBUTING.md) workflow

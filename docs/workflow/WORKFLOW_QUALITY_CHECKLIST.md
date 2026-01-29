@@ -174,9 +174,9 @@ Check if ANY of the following apply:
 
 ---
 
-## WOR-321 Retrospective Check
+## {{TICKET_PREFIX}}-321 Retrospective Check
 
-**Purpose**: Prevent WOR-321-type gaps in future work
+**Purpose**: Prevent {{TICKET_PREFIX}}-321-type gaps in future work
 
 ### Gap Prevention Questions
 
@@ -212,13 +212,13 @@ Check if ANY of the following apply:
 
 ### Self-Check Question
 
-**"Would WOR-321 gap happen with this workflow?"**
+**"Would {{TICKET_PREFIX}}-321 gap happen with this workflow?"**
 
 - [ ] **NO** → Proceed with confidence
 - [ ] **YES** → Fix before PR
-- [ ] **UNSURE** → Review WOR-321 report, invoke System Architect
+- [ ] **UNSURE** → Review {{TICKET_PREFIX}}-321 report, invoke System Architect
 
-### WOR-321 Gap Indicators
+### {{TICKET_PREFIX}}-321 Gap Indicators
 
 **⚠️ WARNING SIGNS** (If ANY apply, review workflow):
 
@@ -276,7 +276,7 @@ Check if ANY of the following apply:
 
 **Completed by**: [ARCHitect-in-CLI]  
 **Date**: [YYYY-MM-DD]  
-**Linear Ticket**: WOR-XXX
+**Linear Ticket**: {{TICKET_PREFIX}}-XXX
 
 **System Architect Approval**: [YES/NO/N/A]  
 **Approval Reference**: [Link to Linear comment or ADR]
@@ -296,7 +296,7 @@ Check if ANY of the following apply:
 - ✅ System Architect review: N/A
 - ✅ Ready for PR
 
-**Example**: WOR-321 documentation files (runbooks, best practices)
+**Example**: {{TICKET_PREFIX}}-321 documentation files (runbooks, best practices)
 
 ### Pattern 2: Simple Code Changes
 
@@ -325,7 +325,7 @@ Check if ANY of the following apply:
 
 ## Failure Patterns (Avoid These)
 
-### Anti-Pattern 1: WOR-321 Gap
+### Anti-Pattern 1: {{TICKET_PREFIX}}-321 Gap
 
 **What Happened**:
 
@@ -380,12 +380,12 @@ Check if ANY of the following apply:
 ### v1.0 (2025-10-06)
 
 - Initial workflow quality checklist
-- WOR-321 retrospective check
+- {{TICKET_PREFIX}}-321 retrospective check
 - System Architect review gates
 - Gap prevention questions
 
 ---
 
-**This checklist prevents architectural governance gaps like WOR-321**
+**This checklist prevents architectural governance gaps like {{TICKET_PREFIX}}-321**
 
 **Remember**: Quality is not negotiable. Take time to do it right the first time.

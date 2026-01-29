@@ -169,7 +169,7 @@ https://developers.facebook.com/tools/debug/
 **Generic Open Graph Checker**:
 
 ```
-https://www.opengraph.xyz/url/https%3A%2F%2Fgithub.com%2FByBren-LLC%2F{PROJECT_NAME}-Agentic-Workflow
+https://www.opengraph.xyz/url/https%3A%2F%2Fgithub.com%2F{{GITHUB_ORG}}%2F{PROJECT_NAME}-Agentic-Workflow
 ```
 
 ### Clear Cache
@@ -351,7 +351,7 @@ Set your repository's website field to your primary documentation or landing pag
 
 **Options**:
 
-- `https://wordstofilmby.com` (your main site)
+- `https://{{PROJECT_DOMAIN}}` (your main site)
 - `https://{{GITHUB_ORG}}.github.io/{{GITHUB_REPO}}/` (if you create GitHub Pages)
 - A dedicated landing page on your domain
 

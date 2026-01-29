@@ -11,7 +11,7 @@ model: sonnet
 
 Validates security implementation using patterns from `docs/patterns/security/`. Focus on RLS enforcement, vulnerability scanning, and security audits.
 
-**NEW (WOR-314): RLS & Compliance Owner**
+**NEW ({{TICKET_PREFIX}}-314): RLS & Compliance Owner**
 
 - Validate RLS policies for new tables (see `../../docs/database/RLS_POLICY_CATALOG.md`)
 - Audit data access patterns (user isolation verification)
@@ -23,7 +23,7 @@ Validates security implementation using patterns from `docs/patterns/security/`.
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for security pattern reference
 3. **Copy & validate** → Follow pattern's security validation guide
 4. **Audit** → Run `npm audit && yarn lint && RLS validation`
@@ -34,7 +34,7 @@ Validates security implementation using patterns from `docs/patterns/security/`.
 
 ```bash
 # Full security validation
-cat scripts/rls-phase4-final-validation.sql | docker exec -i wtfb-team-postgres-1 psql -U wtfb_app_user -d wtfb_dev && npm audit --audit-level=high && yarn lint && echo "SECURITY SUCCESS" || echo "SECURITY FAILED"
+cat scripts/rls-phase4-final-validation.sql | docker exec -i {{LINEAR_WORKSPACE}}-team-postgres-1 psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}} && npm audit --audit-level=high && yarn lint && echo "SECURITY SUCCESS" || echo "SECURITY FAILED"
 ```
 
 ## Pattern Execution Workflow
@@ -43,10 +43,10 @@ cat scripts/rls-phase4-final-validation.sql | docker exec -i wtfb-team-postgres-
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the security requirements (BSA included this)
-grep -A 5 "Security:" specs/WOR-XXX-{feature}-spec.md
+grep -A 5 "Security:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Security Pattern
@@ -68,7 +68,7 @@ ls docs/patterns/security/
 
 ```bash
 # Automated RLS check
-cat scripts/rls-phase4-final-validation.sql | docker exec -i wtfb-team-postgres-1 psql -U wtfb_app_user -d wtfb_dev
+cat scripts/rls-phase4-final-validation.sql | docker exec -i {{LINEAR_WORKSPACE}}-team-postgres-1 psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}}
 
 # Expected output:
 # ✓ User isolation enforced
@@ -108,7 +108,7 @@ npx depcheck
 **From spec, verify each requirement:**
 
 ```markdown
-## Security Review - [WOR-XXX]
+## Security Review - [{{TICKET_PREFIX}}-XXX]
 
 ### Authentication & Authorization
 
@@ -141,7 +141,7 @@ npx depcheck
 ```bash
 # Generate security report per pattern
 cat > security-report.md <<EOF
-## Security Validation - [WOR-XXX]
+## Security Validation - [{{TICKET_PREFIX}}-XXX]
 
 ### RLS Validation: ✅ PASSED
 ### Authentication: ✅ PASSED

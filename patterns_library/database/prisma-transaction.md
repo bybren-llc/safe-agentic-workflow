@@ -388,7 +388,7 @@ yarn type-check
 yarn test:integration
 
 # Database consistency check
-psql -U wtfb_user -d wtfb_dev \
+psql -U {{DB_USER}} -d {{DB_NAME}} \
   -c "SELECT * FROM {table} WHERE user_id = 'test_user';"
 ```
 

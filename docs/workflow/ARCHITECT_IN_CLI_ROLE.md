@@ -2,7 +2,7 @@
 
 **Purpose**: Define the role, responsibilities, and workflow patterns for ARCHitect-in-CLI (Main Claude Code Instance)
 
-**Version**: 1.4 (vNext Workflow Contract - WOR-497/499)
+**Version**: 1.4 (vNext Workflow Contract - {{TICKET_PREFIX}}-497/499)
 **Last Updated**: 2025-12-23
 
 ---
@@ -52,7 +52,7 @@
 
 ## When to Invoke System Architect
 
-**CRITICAL UPDATE (v1.1)**: Based on WOR-321 gap discovery, System Architect review is **MANDATORY** for complex code.
+**CRITICAL UPDATE (v1.1)**: Based on {{TICKET_PREFIX}}-321 gap discovery, System Architect review is **MANDATORY** for complex code.
 
 ### Decision Tree
 
@@ -103,8 +103,8 @@ Created code/automation during investigation?
 ```typescript
 Task({
   subagent_type: "system-architect",
-  description: "Review WOR-XXX automation scripts",
-  prompt: `Architectural review required for WOR-XXX deliverables.
+  description: "Review {{TICKET_PREFIX}}-XXX automation scripts",
+  prompt: `Architectural review required for {{TICKET_PREFIX}}-XXX deliverables.
 
 Files to Review:
 - scripts/deploy-migration-prod.sh (710 lines bash)
@@ -126,11 +126,11 @@ Provide:
 Context:
 [Brief description of what automation does, why needed, production impact]
 
-Reference: WOR-XXX investigation findings`,
+Reference: {{TICKET_PREFIX}}-XXX investigation findings`,
 });
 ```
 
-### Example: WOR-321 Gap
+### Example: {{TICKET_PREFIX}}-321 Gap
 
 **What Happened**: ARCHitect-in-CLI did NOT invoke System Architect for:
 
@@ -199,7 +199,7 @@ ARCHitect-in-CLI
 
 **Example**: Deployment scripts, CI/CD workflows, infrastructure automation
 
-**WOR-321 Gap** (What NOT to do):
+**{{TICKET_PREFIX}}-321 Gap** (What NOT to do):
 
 ```
 ARCHitect-in-CLI
@@ -271,7 +271,7 @@ Task({ subagent_type: "rte", ... })
 - Security → Security Engineer (NOT QAS)
 - Architectural review → System Architect (NOT skipped)
 
-**WOR-321 Lesson**: Correct specialist selection, but MISSING System Architect review
+**{{TICKET_PREFIX}}-321 Lesson**: Correct specialist selection, but MISSING System Architect review
 
 ### 3. Deliverable Validation
 
@@ -317,7 +317,7 @@ Task({ subagent_type: "rte", ... })
 
 ---
 
-## WOR-321 Retrospective
+## {{TICKET_PREFIX}}-321 Retrospective
 
 ### What Went Right ✅
 
@@ -403,7 +403,7 @@ PR created ← Only after approval
 
 ---
 
-## Role Collapsing Authority (WOR-499)
+## Role Collapsing Authority ({{TICKET_PREFIX}}-499)
 
 ARCHitect-in-CLI has authority to collapse certain roles for efficiency while maintaining mandatory independence gates.
 
@@ -484,7 +484,7 @@ Even with collapsed roles, exit states must be respected:
 
 ### v1.4 (2025-12-23)
 
-- **Added**: Role Collapsing Authority section (WOR-499)
+- **Added**: Role Collapsing Authority section ({{TICKET_PREFIX}}-499)
 - **Added**: Collapsible roles (RTE) vs Independence Gates (QAS, SecEng)
 - **Added**: Decision tree for role collapsing
 - **Added**: Exit states in collapsed workflows
@@ -499,9 +499,9 @@ Even with collapsed roles, exit states must be respected:
 ### v1.1 (2025-10-06)
 
 - **Added**: "When to Invoke System Architect" section
-- **Added**: WOR-321 retrospective and gap analysis
+- **Added**: {{TICKET_PREFIX}}-321 retrospective and gap analysis
 - **Added**: Pattern 3 (Complex Automation with MANDATORY review)
-- **Rationale**: Prevent WOR-321-type gaps (unreviewed complex code)
+- **Rationale**: Prevent {{TICKET_PREFIX}}-321-type gaps (unreviewed complex code)
 
 ### v1.0 (2025-10-05)
 
@@ -511,4 +511,4 @@ Even with collapsed roles, exit states must be respected:
 
 ---
 
-**Reference**: WOR-497/499 vNext Workflow Contract
+**Reference**: {{TICKET_PREFIX}}-497/499 vNext Workflow Contract

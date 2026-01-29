@@ -24,7 +24,7 @@ model: opus
 The following skills are available and will auto-activate when relevant:
 
 - **`pattern-discovery`** - Pattern library discovery before testing
-- **`wtfb-workflow`** - Branch naming, commit format, PR workflow
+- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
 
 ## Role Overview
 
@@ -71,7 +71,7 @@ Validates acceptance criteria and ensures quality standards are met.
 ```text
 # Post evidence to Linear ticket
 Use mcp__linear-mcp__create_comment with:
-- issueId: WOR-{number}
+- issueId: {{TICKET_PREFIX}}-{number}
 - body: QA validation report with:
   - Validation results (PASS/FAIL per criterion)
   - Evidence links (command output, screenshots)
@@ -80,9 +80,9 @@ Use mcp__linear-mcp__create_comment with:
 
 ## 📂 Output Location
 
-**QA Reports**: `/docs/agent-outputs/qa-validations/WOR-{number}-qa-validation.md`
+**QA Reports**: `/docs/agent-outputs/qa-validations/{{TICKET_PREFIX}}-{number}-qa-validation.md`
 
-**Naming Convention**: `WOR-{number}-qa-validation.md`
+**Naming Convention**: `{{TICKET_PREFIX}}-{number}-qa-validation.md`
 
 **Backwards Compatible**: Can also write to `/docs/quality-reports/` if needed
 
@@ -109,7 +109,7 @@ Use mcp__linear-mcp__create_comment with:
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find test pattern** → Check spec for testing strategy, read from `docs/patterns/testing/`
 3. **Copy & customize** → Follow pattern's test implementation guide
 4. **Validate** → Run `yarn test:unit && yarn test:integration && yarn test:e2e`
@@ -123,19 +123,19 @@ Use mcp__linear-mcp__create_comment with:
 yarn test:unit && yarn test:integration && yarn test:e2e && echo "QAS SUCCESS" || echo "QAS FAILED"
 ```
 
-## Pattern Execution Workflow (WOR-300)
+## Pattern Execution Workflow ({{TICKET_PREFIX}}-300)
 
 ### Step 1: Read Your Spec
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the testing strategy (BSA defined this)
-grep -A 10 "Testing Strategy" specs/WOR-XXX-{feature}-spec.md
+grep -A 10 "Testing Strategy" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find pattern references
-grep -A 3 "Pattern:" specs/WOR-XXX-{feature}-spec.md
+grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Test Pattern
@@ -308,15 +308,15 @@ Before approving work:
    - [ ] Evidence captured and verified
 
 3. **Linear Evidence Posted**
-   - [ ] QA report created at `/docs/agent-outputs/qa-validations/WOR-{number}-qa-validation.md`
+   - [ ] QA report created at `/docs/agent-outputs/qa-validations/{{TICKET_PREFIX}}-{number}-qa-validation.md`
    - [ ] Final verdict posted to Linear comments via `mcp__linear-mcp__create_comment`
 
 4. **Handoff Statement**
-   > "QAS validation complete for WOR-XXX. All criteria PASSED. Evidence posted to Linear. Approved for RTE."
+   > "QAS validation complete for {{TICKET_PREFIX}}-XXX. All criteria PASSED. Evidence posted to Linear. Approved for RTE."
 
 **Or if BLOCKED:**
 
-> "QAS validation BLOCKED for WOR-XXX. Issues: [list]. Returning to [implementer/role] for fixes."
+> "QAS validation BLOCKED for {{TICKET_PREFIX}}-XXX. Issues: [list]. Returning to [implementer/role] for fixes."
 
 ## Routing Authority
 

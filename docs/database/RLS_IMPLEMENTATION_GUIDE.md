@@ -23,8 +23,8 @@ This guide documents the complete Row Level Security (RLS) implementation for th
 
 ### 1. Database Users
 
-- **`wtfb_user`**: Superuser for migrations and admin operations
-- **`wtfb_app_user`**: Application user with RLS enforcement (recommended for production)
+- **`{{DB_USER}}`**: Superuser for migrations and admin operations
+- **`{{LINEAR_WORKSPACE}}_app_user`**: Application user with RLS enforcement (recommended for production)
 
 ### 2. Protected Tables
 
@@ -70,7 +70,7 @@ SET app.context_type = 'user_request';
 -- Users can only access their own data
 CREATE POLICY user_isolation ON "table_name"
   FOR ALL
-  TO wtfb_app_user
+  TO {{LINEAR_WORKSPACE}}_app_user
   USING (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -80,7 +80,7 @@ CREATE POLICY user_isolation ON "table_name"
 -- Only verified admins can access admin data
 CREATE POLICY admin_only ON "admin_table"
   FOR ALL
-  TO wtfb_app_user
+  TO {{LINEAR_WORKSPACE}}_app_user
   USING (
     EXISTS (
       SELECT 1 FROM user_roles
@@ -96,7 +96,7 @@ CREATE POLICY admin_only ON "admin_table"
 -- System processes and admins can access system tables
 CREATE POLICY system_admin ON "system_table"
   FOR ALL
-  TO wtfb_app_user
+  TO {{LINEAR_WORKSPACE}}_app_user
   USING (
     EXISTS (
       SELECT 1 FROM user_roles

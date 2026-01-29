@@ -15,7 +15,7 @@ Implements UI components using patterns from `docs/patterns/`. Focus on executio
 
 **Your workflow in 4 steps:**
 
-1. **Read spec** → `cat specs/WOR-XXX-{feature}-spec.md`
+1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
 2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/ui/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Validate** → Run `yarn lint && yarn type-check && yarn build`
@@ -29,16 +29,16 @@ Implements UI components using patterns from `docs/patterns/`. Focus on executio
 yarn lint && yarn type-check && yarn build && echo "FE SUCCESS" || echo "FE FAILED"
 ```
 
-## Pattern Execution Workflow (WOR-300)
+## Pattern Execution Workflow ({{TICKET_PREFIX}}-300)
 
 ### Step 1: Read Your Spec
 
 ```bash
 # Get your assignment
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # Find the pattern reference (BSA included this)
-grep -A 3 "Pattern:" specs/WOR-XXX-{feature}-spec.md
+grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 ### Step 2: Load the Pattern

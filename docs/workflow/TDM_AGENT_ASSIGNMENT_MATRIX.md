@@ -2,7 +2,7 @@
 
 **Purpose**: Guide for assigning work to specialized agents in the SAFe ART team
 
-**Version**: 1.4 (vNext Workflow Contract - WOR-497/499)
+**Version**: 1.4 (vNext Workflow Contract - {{TICKET_PREFIX}}-497/499)
 **Last Updated**: 2025-12-23
 
 ---
@@ -56,7 +56,7 @@
 #### Quality Assurance Specialist (QAS) - GATE OWNER
 
 - **Primary Responsibilities**: Execute testing strategy, validate acceptance criteria, **GATE authority**
-- **Role Type**: **Independence Gate** - NOT collapsible (WOR-499)
+- **Role Type**: **Independence Gate** - NOT collapsible ({{TICKET_PREFIX}}-499)
 - **Tools**: Read, Bash, Playwright, Jest, **Linear MCP** (`mcp__linear-mcp__create_comment`, `mcp__linear-mcp__update_issue`)
 - **When to Assign**: Test execution, acceptance criteria validation, **blocking quality gate**
 - **Exit State**: `"Approved for RTE"`
@@ -66,7 +66,7 @@
 #### Security Engineer - INDEPENDENCE GATE
 
 - **Primary Responsibilities**: Security validation, RLS enforcement, vulnerability assessment
-- **Role Type**: **Independence Gate** - NOT collapsible (WOR-499)
+- **Role Type**: **Independence Gate** - NOT collapsible ({{TICKET_PREFIX}}-499)
 - **Tools**: Read, Bash, RLS validation scripts
 - **When to Assign**: Security reviews, RLS validation, vulnerability scans
 - **Success Validation**: Security audit passed, RLS enforced
@@ -81,7 +81,7 @@
 #### Release Train Engineer (RTE) - PR SHEPHERD
 
 - **Primary Responsibilities**: PR creation, CI/CD validation, release coordination
-- **Role Type**: **Collapsible** - can be collapsed into implementer (WOR-499)
+- **Role Type**: **Collapsible** - can be collapsed into implementer ({{TICKET_PREFIX}}-499)
 - **Prerequisite**: QAS approval (`"Approved for RTE"`)
 - **Tools**: Git, GitHub CLI, CI tools
 - **When to Assign**: PR creation, release coordination, CI/CD setup
@@ -93,17 +93,17 @@
 
 ## System Architect Review Triggers (MANDATORY)
 
-**Critical Update (v1.1)**: Based on WOR-321 gap discovery, System Architect review is **MANDATORY** before PR creation for the following:
+**Critical Update (v1.1)**: Based on {{TICKET_PREFIX}}-321 gap discovery, System Architect review is **MANDATORY** before PR creation for the following:
 
 ### Infrastructure & Automation
 
 - [ ] **Bash scripts >100 lines**
   - Example: Deployment scripts, automation tools, setup scripts
-  - WOR-321 Gap: 710-line `deploy-migration-prod.sh` delivered without review
+  - {{TICKET_PREFIX}}-321 Gap: 710-line `deploy-migration-prod.sh` delivered without review
 
 - [ ] **CI/CD workflow creation or modification**
   - Example: GitHub Actions workflows, pipeline changes
-  - WOR-321 Gap: 641-line `migration-validation.yml` delivered without review
+  - {{TICKET_PREFIX}}-321 Gap: 641-line `migration-validation.yml` delivered without review
 
 - [ ] **Infrastructure-as-code**
   - Example: Terraform, CloudFormation, Docker Compose
@@ -143,7 +143,7 @@
 
 - [ ] **Validation/verification scripts >200 lines**
   - Example: Pre-commit hooks, data validation
-  - WOR-321 Gap: 3 TypeScript scripts delivered without review
+  - {{TICKET_PREFIX}}-321 Gap: 3 TypeScript scripts delivered without review
 
 - [ ] **Custom build tools**
   - Example: Build scripts, code generation
@@ -161,7 +161,7 @@
 
 **Rule of Thumb**: If deliverable includes ANY executable code that could impact production, invoke System Architect.
 
-**Example Gap (WOR-321)**:
+**Example Gap ({{TICKET_PREFIX}}-321)**:
 
 - Created: 710-line deployment script + 641-line CI/CD workflow + 3 TypeScript scripts
 - System Architect Review: ❌ NOT invoked
@@ -260,13 +260,13 @@ HITL → MERGED
 BSA (Spec) → Data Engineer (Migration) → Security Engineer (RLS) → System Architect (Review) → RTE (PR)
 ```
 
-### Pattern 3: Complex Automation (WOR-321 Pattern)
+### Pattern 3: Complex Automation ({{TICKET_PREFIX}}-321 Pattern)
 
 ```
 Investigation → Data Engineer (Scripts) → System Architect (Review) → RTE (CI/CD) → System Architect (Final Review) → PR
 ```
 
-**Note**: Pattern 3 is the CORRECT workflow. WOR-321 skipped both System Architect reviews.
+**Note**: Pattern 3 is the CORRECT workflow. {{TICKET_PREFIX}}-321 skipped both System Architect reviews.
 
 ### Pattern 4: UI Feature
 
@@ -274,7 +274,7 @@ Investigation → Data Engineer (Scripts) → System Architect (Review) → RTE 
 BSA (Spec) → FE Developer (Component) → QAS (E2E Tests) → RTE (PR)
 ```
 
-### Pattern 5: Collapsed RTE Workflow (WOR-499)
+### Pattern 5: Collapsed RTE Workflow ({{TICKET_PREFIX}}-499)
 
 ```
 BSA (Spec)
@@ -364,8 +364,8 @@ Note: QAS gate is ALWAYS present, never collapsed
 
 ### v1.4 (2025-12-23)
 
-- **Added**: vNext Workflow Contract (WOR-497)
-- **Added**: Role Collapsing Guidelines (WOR-499)
+- **Added**: vNext Workflow Contract ({{TICKET_PREFIX}}-497)
+- **Added**: Role Collapsing Guidelines ({{TICKET_PREFIX}}-499)
 - **Added**: Exit States for all agent roles
 - **Updated**: QAS to GATE OWNER role with Linear MCP tools
 - **Updated**: RTE to PR SHEPHERD role (no merge)
@@ -382,7 +382,7 @@ Note: QAS gate is ALWAYS present, never collapsed
 ### v1.1 (2025-10-06)
 
 - **Added**: System Architect Review Triggers (MANDATORY)
-- **Rationale**: WOR-321 gap discovery (unreviewed complex automation)
+- **Rationale**: {{TICKET_PREFIX}}-321 gap discovery (unreviewed complex automation)
 - **Impact**: Prevents future governance gaps
 
 ### v1.0 (2025-10-05)
@@ -402,4 +402,4 @@ Note: QAS gate is ALWAYS present, never collapsed
 - `PRE_PR_VALIDATION_CHECKLIST.md` - Quality gates before PR
 - `WORKFLOW_QUALITY_CHECKLIST.md` - ARCHitect-in-CLI self-validation
 
-**Reference**: WOR-497/499 vNext Workflow Contract
+**Reference**: {{TICKET_PREFIX}}-497/499 vNext Workflow Contract

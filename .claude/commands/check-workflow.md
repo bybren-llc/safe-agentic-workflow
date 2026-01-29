@@ -16,7 +16,7 @@ git branch --show-current
 
 Verify:
 
-- Current branch follows `WOR-{number}-{description}` format
+- Current branch follows `{{TICKET_PREFIX}}-{number}-{description}` format
 - No uncommitted changes (or document what's uncommitted)
 - Branch relationship to origin/dev
 
@@ -46,7 +46,7 @@ git log origin/dev..HEAD --oneline
 
 Verify:
 
-- All commits follow SAFe format: `type(scope): description [WOR-XXX]`
+- All commits follow SAFe format: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
 - All commits reference correct Linear ticket
 - Commit messages are descriptive
 

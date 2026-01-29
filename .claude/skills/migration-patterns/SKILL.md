@@ -174,7 +174,7 @@ Before PR:
 
 For production migrations:
 
-- [ ] @cheddarfox must be present (MANDATORY)
+- [ ] @{{AUTHOR_HANDLE}} must be present (MANDATORY)
 - [ ] Backup taken before migration
 - [ ] Rollback plan documented
 - [ ] Post-migration validation steps defined

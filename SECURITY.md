@@ -63,7 +63,7 @@ Please report:
 **For sensitive security issues:**
 
 1. **Do NOT open a public GitHub issue**
-2. Email: security@bybren.com (or your preferred contact)
+2. Email: {{SECURITY_EMAIL}} (or your preferred contact)
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce

@@ -130,7 +130,7 @@ Should show all `.md` files.
 
 3. **Ticket prefix mismatch**
 
-   If command references `WOR-XXX` but your project uses different prefix,
+   If command references `{{TICKET_PREFIX}}-XXX` but your project uses different prefix,
    update the command file.
 
 ---
@@ -166,7 +166,7 @@ Should show all `.md` files.
 
    ```bash
    # Copy command from hooks config and run it
-   git branch --show-current 2>/dev/null | grep -q '^WOR-[0-9]'
+   git branch --show-current 2>/dev/null | grep -q '^{{TICKET_PREFIX}}-[0-9]'
    echo $?  # 0 = matched, 1 = no match
    ```
 

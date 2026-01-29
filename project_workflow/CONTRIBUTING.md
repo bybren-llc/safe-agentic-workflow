@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project follows the WTFB SAFe-Agentic-Workflow, which implements evidence-based delivery with a hybrid team of human and AI agents.
+This project follows the {{PROJECT_SHORT}} SAFe-Agentic-Workflow, which implements evidence-based delivery with a hybrid team of human and AI agents.
 
 ## Core Principles
 

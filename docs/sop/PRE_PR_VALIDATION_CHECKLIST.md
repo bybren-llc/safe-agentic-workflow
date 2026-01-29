@@ -166,9 +166,9 @@
 
 ## Workflow Compliance
 
-- [ ] Branch naming: `WOR-{number}-{description}` or `__TICKET_PREFIX__-{number}-{description}`
+- [ ] Branch naming: `{{TICKET_PREFIX}}-{number}-{description}` or `__TICKET_PREFIX__-{number}-{description}`
 - [ ] Commit messages: SAFe format with ticket reference
-  - Format: `type(scope): description [WOR-XXX]`
+  - Format: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
   - Types: feat, fix, docs, style, refactor, test, chore
 - [ ] Rebase onto latest `dev` or `__PRIMARY_DEV_BRANCH__` (no merge commits)
 - [ ] All automated checks passing
@@ -209,7 +209,7 @@
 
 **Completed by**: [ARCHitect-in-CLI / Agent Name]  
 **Date**: [YYYY-MM-DD]  
-**Linear Ticket**: WOR-XXX
+**Linear Ticket**: {{TICKET_PREFIX}}-XXX
 
 ### System Architect Approval (if required)
 
@@ -233,7 +233,7 @@
 
 ---
 
-## Example: WOR-321 Failure Analysis
+## Example: {{TICKET_PREFIX}}-321 Failure Analysis
 
 **Gap Identified**: System Architect review NOT obtained before PR
 
@@ -273,4 +273,4 @@ If this checklist had been used:
 
 ---
 
-**This checklist prevents architectural governance gaps like WOR-321**
+**This checklist prevents architectural governance gaps like {{TICKET_PREFIX}}-321**

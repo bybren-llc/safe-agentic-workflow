@@ -282,7 +282,7 @@ without burning cognitive cycles on already-solved problems.
 
 ## References
 
-- **Main Whitepaper**: `CLAUDE-CODE-HARNESS-MODERNIZATION-WOR-444.md`
+- **Main Whitepaper**: `CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md`
 - **Quick Reference**: `AGENTS.md`
 - **Workflow Guide**: `CONTRIBUTING.md`
 - **KT Guide**: `CLAUDE-CODE-HARNESS-KT-META-PROMPT.md`

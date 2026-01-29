@@ -28,7 +28,7 @@ If uncommitted changes:
 
 ```bash
 git add .
-git commit -m "type(scope): description [WOR-XXX]"
+git commit -m "type(scope): description [{{TICKET_PREFIX}}-XXX]"
 ```
 
 Verify all work committed:

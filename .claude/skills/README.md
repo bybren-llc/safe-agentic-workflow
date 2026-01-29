@@ -1,16 +1,16 @@
-# WTFB Skills
+# {{PROJECT_SHORT}} Skills
 
-These skills are part of the **Words To Film By™** multi-agent harness.
+These skills are part of the **{{PROJECT_NAME}}™** multi-agent harness.
 
 ## License
 
 **License:** MIT (see [/LICENSE](/LICENSE))
-**Copyright:** © 2026 J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) / [Bybren LLC](https://github.com/bybren-llc)
+**Copyright:** © 2026 {{AUTHOR_NAME}} ([@{{AUTHOR_HANDLE}}](https://github.com/{{AUTHOR_HANDLE}})) / [{{COMPANY_NAME}}](https://github.com/{{GITHUB_ORG}})
 **Attribution:** Required per [/NOTICE](/NOTICE)
 
 ## Intellectual Property
 
-The skill system architecture and WTFB harness methodology are the intellectual property of J. Scott Graham and Bybren LLC.
+The skill system architecture and {{PROJECT_SHORT}} harness methodology are the intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
 
 SAFe® is a registered trademark of Scaled Agile, Inc.
 

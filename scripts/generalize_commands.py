@@ -8,7 +8,7 @@ import os
 import re
 from pathlib import Path
 
-COMMANDS_DIR = Path("/home/cheddarfox/Projects/WTFB-SAFe-Agentic-Workflow/.claude/commands")
+COMMANDS_DIR = Path("/home/{{AUTHOR_HANDLE}}/Projects/{{PROJECT_REPO}}/.claude/commands")
 
 TEMPLATE_NOTICE = """> **📋 TEMPLATE**: This command is a template. See "Customization Guide" below to adapt for your infrastructure.
 """
@@ -57,7 +57,7 @@ def process_deprecated_alias(filepath: Path):
     # Replace patterns
     patterns = {
         "Pop OS": "{DEV_MACHINE}",
-        "WOR-": "{TICKET_PREFIX}-",
+        "{{TICKET_PREFIX}}-": "{TICKET_PREFIX}-",
     }
     content = replace_patterns(content, patterns)
 
@@ -79,8 +79,8 @@ def process_workflow_command(filepath: Path):
     # Add template notice
     content = add_template_notice(content)
 
-    # Replace WOR- with {TICKET_PREFIX}-
-    content = content.replace("WOR-", "{TICKET_PREFIX}-")
+    # Replace {{TICKET_PREFIX}}- with {TICKET_PREFIX}-
+    content = content.replace("{{TICKET_PREFIX}}-", "{TICKET_PREFIX}-")
 
     # Only add customization guide if the file actually uses placeholders
     if "{TICKET_PREFIX}" in content:
@@ -103,15 +103,15 @@ def process_rollback_dev(filepath: Path):
     # Replace all hardcoded values with placeholders
     patterns = {
         "~/.ssh/id_ed25519_pop_os": "{SSH_KEY_PATH}",
-        "cheddarfox@pop-os": "{REMOTE_USER}@{REMOTE_HOST}",
+        "{{AUTHOR_HANDLE}}@pop-os": "{REMOTE_USER}@{REMOTE_HOST}",
         "pop-os:": "{REMOTE_HOST}:",
         "http://pop-os:": "http://{REMOTE_HOST}:",
-        "~/Projects/wtfb-team": "{PROJECT_PATH}",
-        "ghcr.io/bybren-llc/wtfb-app/dev": "{REGISTRY}/{PROJECT_NAME}/dev",
-        "wtfb-dev-app": "{PROJECT}-dev-app",
-        "name=wtfb": "name={PROJECT}",
+        "~/Projects/{{LINEAR_WORKSPACE}}-team": "{PROJECT_PATH}",
+        "{{CONTAINER_REGISTRY}}/{{LINEAR_WORKSPACE}}-app/dev": "{REGISTRY}/{PROJECT_NAME}/dev",
+        "{{DEV_CONTAINER}}": "{PROJECT}-dev-app",
+        "name={{LINEAR_WORKSPACE}}": "name={PROJECT}",
         "Pop OS": "{DEV_MACHINE}",
-        "WOR-": "{TICKET_PREFIX}-",
+        "{{TICKET_PREFIX}}-": "{TICKET_PREFIX}-",
     }
     content = replace_patterns(content, patterns)
 
@@ -119,12 +119,12 @@ def process_rollback_dev(filepath: Path):
     placeholders = [
         ("{TICKET_PREFIX}", "Your Linear ticket prefix", "`WOR`, `PROJ`, `TASK`"),
         ("{SSH_KEY_PATH}", "Path to SSH private key", "`~/.ssh/id_ed25519_staging`"),
-        ("{REMOTE_USER}", "Username on remote host", "`deploy`, `cheddarfox`"),
+        ("{REMOTE_USER}", "Username on remote host", "`deploy`, `{{AUTHOR_HANDLE}}`"),
         ("{REMOTE_HOST}", "Remote host name/IP", "`pop-os`, `staging.example.com`"),
-        ("{PROJECT_PATH}", "Project directory on remote", "`~/Projects/wtfb-team`, `~/app`"),
-        ("{REGISTRY}", "Container registry URL", "`ghcr.io/bybren-llc`"),
-        ("{PROJECT_NAME}", "Project name in registry", "`wtfb-app`, `myapp`"),
-        ("{PROJECT}", "Short project identifier", "`wtfb`, `myapp`"),
+        ("{PROJECT_PATH}", "Project directory on remote", "`~/Projects/{{LINEAR_WORKSPACE}}-team`, `~/app`"),
+        ("{REGISTRY}", "Container registry URL", "`{{CONTAINER_REGISTRY}}`"),
+        ("{PROJECT_NAME}", "Project name in registry", "`{{LINEAR_WORKSPACE}}-app`, `myapp`"),
+        ("{PROJECT}", "Short project identifier", "`{{LINEAR_WORKSPACE}}`, `myapp`"),
         ("{DEV_MACHINE}", "Remote dev machine name", "`Pop OS`, `staging`, `dev-server`"),
     ]
     content = add_customization_guide(content, placeholders)

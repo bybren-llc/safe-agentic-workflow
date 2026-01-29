@@ -8,19 +8,19 @@
 ## License
 
 **License:** MIT (see [/LICENSE](/LICENSE))
-**Copyright:** © 2026 J. Scott Graham ([@cheddarfox](https://github.com/cheddarfox)) / [Bybren LLC](https://github.com/bybren-llc)
+**Copyright:** © 2026 {{AUTHOR_NAME}} ([@{{AUTHOR_HANDLE}}](https://github.com/{{AUTHOR_HANDLE}})) / [{{COMPANY_NAME}}](https://github.com/{{GITHUB_ORG}})
 **Attribution:** Required per [/NOTICE](/NOTICE)
 
 ## Intellectual Property
 
-The skill system architecture and WTFB harness methodology are the intellectual property of J. Scott Graham and Bybren LLC.
+The skill system architecture and {{PROJECT_SHORT}} harness methodology are the intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
 
 SAFe® is a registered trademark of Scaled Agile, Inc.
 
 ## Quick Start
 
 This skill activates automatically when you:
-- Start work on a Linear ticket (e.g., "I'm starting WOR-447")
+- Start work on a Linear ticket (e.g., "I'm starting {{TICKET_PREFIX}}-447")
 - Create a commit or branch
 - Ask about PR workflow or contribution guidelines
 - Reference CONTRIBUTING.md

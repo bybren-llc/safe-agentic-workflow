@@ -2,7 +2,7 @@
 
 ## Overview
 
-The WTFB project uses a SAFe Agile Release Train (ART) agent team powered by Claude Code.
+The {{PROJECT_SHORT}} project uses a SAFe Agile Release Train (ART) agent team powered by Claude Code.
 This guide explains how to work with the 11 specialized AI agents that support development workflows.
 
 ## Quick Start
@@ -71,8 +71,8 @@ This guide explains how to work with the 11 specialized AI agents that support d
 specs/
 ├── planning_template.md          # SAFe planning template
 ├── spec_template.md              # Implementation spec template
-├── wor-228-planning.md           # Planning doc example
-├── spec-wor-135-posthog-analytics-safe.md  # Implementation spec example
+├── {{TICKET_PREFIX_LOWER}}-228-planning.md           # Planning doc example
+├── spec-{{TICKET_PREFIX_LOWER}}-135-posthog-analytics-safe.md  # Implementation spec example
 └── README.md                     # Specs usage guide
 ```text
 
@@ -225,7 +225,7 @@ grep -l "file_path" ~/.claude/todos/*.json
 1. Request ARCHitect approval (MANDATORY)
 2. Create Prisma migration
 3. Add/update RLS policies if needed
-4. Test with `wtfb_app_user` (not superuser)
+4. Test with `{{LINEAR_WORKSPACE}}_app_user` (not superuser)
 5. Validate RLS enforcement
 6. Update DATA_DICTIONARY.md
 
@@ -351,7 +351,7 @@ grep -l "file_path" ~/.claude/todos/*.json
 1. **DE**: Request ARCHitect approval with migration plan
 2. **ARCHitect**: Review and approve (MANDATORY)
 3. **DE**: Create Prisma migration, update RLS policies
-4. **DE**: Test locally with `wtfb_app_user`
+4. **DE**: Test locally with `{{LINEAR_WORKSPACE}}_app_user`
 5. **DPE**: Update test data for new schema
 6. **BE Developer**: Update API routes if needed
 7. **QAS**: Integration tests for migration
@@ -361,7 +361,7 @@ grep -l "file_path" ~/.claude/todos/*.json
 
 ## Escalation Paths
 
-### To ARCHitect (cheddarfox) - MANDATORY
+### To ARCHitect ({{AUTHOR_HANDLE}}) - MANDATORY
 
 - Database schema changes (DE)
 - Core architecture modifications (System Architect)
@@ -398,7 +398,7 @@ Every completed ticket must have:
 ### Example Evidence Attachment
 
 ```markdown
-## Agent Evidence - WOR-123
+## Agent Evidence - {{TICKET_PREFIX}}-123
 
 ### Sessions
 
@@ -532,8 +532,8 @@ Following Simon Willison:
 
 ## Confluence Documentation
 
-- [SAFe ART Agent Team: Evidence-Based Delivery Model](https://cheddarfox.atlassian.net/wiki/spaces/WA/pages/365264898) - Complete agent team structure
-- [Coding Standards & Pattern Discovery](https://cheddarfox.atlassian.net/wiki/spaces/WA/pages/365494275) - Standards and discovery protocol
+- [SAFe ART Agent Team: Evidence-Based Delivery Model](https://{{AUTHOR_HANDLE}}.atlassian.net/wiki/spaces/WA/pages/365264898) - Complete agent team structure
+- [Coding Standards & Pattern Discovery](https://{{AUTHOR_HANDLE}}.atlassian.net/wiki/spaces/WA/pages/365494275) - Standards and discovery protocol
 
 ## Getting Started
 
@@ -574,5 +574,5 @@ Following Simon Willison:
 **Remember**: The agent team exists to accelerate delivery while maintaining quality. Follow your agent workflow, discover patterns first, and deliver evidence-based results.
 
 **Last Updated**: 2025-10-03
-**Maintained by**: WTFB Development Team + ARCHitect-in-the-IDE (Auggie)
+**Maintained by**: {{PROJECT_SHORT}} Development Team + ARCHitect-in-the-IDE (Auggie)
 ````

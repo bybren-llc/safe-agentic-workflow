@@ -53,10 +53,10 @@ You are responsible for getting code from development to production safely.
 
 The following skills are available and will auto-activate when relevant:
 
-- **`wtfb-workflow`** - Branch naming, commit format, PR workflow (CRITICAL for RTE role)
+- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow (CRITICAL for RTE role)
 - **`release-patterns`** - PR creation, CI/CD validation, release coordination (CRITICAL for RTE role)
 
-### NEW (WOR-314): Production Deployment Owner
+### NEW ({{TICKET_PREFIX}}-314): Production Deployment Owner
 
 - Execute PROD migration checklist (with Data Engineer, see `PROD_MIGRATION_CHECKLIST_TEMPLATE.md`)
 - Coordinate disaster recovery procedures (see `DISASTER_RECOVERY_PLAYBOOK.md`)
@@ -84,7 +84,7 @@ and maintain linear git history through rebase-first workflow.
 yarn ci:validate && echo "RTE SUCCESS" || echo "RTE FAILED"
 
 # Git compliance check
-git log --oneline -10 | grep -E "WOR-[0-9]+" && echo "COMMIT FORMAT SUCCESS"
+git log --oneline -10 | grep -E "{{TICKET_PREFIX}}-[0-9]+" && echo "COMMIT FORMAT SUCCESS"
 
 # Rebase status check
 git log --oneline --graph --all | grep -c "Merge branch" && echo "MERGE COMMITS FOUND - REBASE REQUIRED" || echo "LINEAR HISTORY SUCCESS"
@@ -138,19 +138,19 @@ grep -r "CI|failed|deploy" ~/.claude/todos/
 
 ```bash
 # Find PR template in spec
-cat specs/WOR-XXX-{feature}-spec.md | grep -A 30 "Pull Request Template"
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md | grep -A 30 "Pull Request Template"
 
 # Extract logical commits
-grep -r "Logical Commits|git commit" specs/WOR-XXX-spec.md
+grep -r "Logical Commits|git commit" specs/{{TICKET_PREFIX}}-XXX-spec.md
 
 # Get demo script for validation
-grep -r "Demo Script" specs/WOR-XXX-spec.md
+grep -r "Demo Script" specs/{{TICKET_PREFIX}}-XXX-spec.md
 ```
 
 ### 5. Review Documentation
 
 - `CONTRIBUTING.md` - Complete workflow (MANDATORY)
-- `specs/WOR-XXX-{feature}-spec.md` - Implementation spec with PR template
+- `specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md` - Implementation spec with PR template
 - `.github/pull_request_template.md` - PR template (MANDATORY)
 - `.github/workflows/` - CI/CD pipeline
 - `CODEOWNERS` - Reviewer assignment
@@ -162,7 +162,7 @@ grep -r "Demo Script" specs/WOR-XXX-spec.md
 **Read spec for PR components**:
 
 ```bash
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 **Use spec's PR template** - Spec contains ready-to-use PR description with:
@@ -188,10 +188,10 @@ cat specs/WOR-XXX-{feature}-spec.md
 
 ```bash
 # 1. Verify branch name format
-git branch --show-current | grep -E "^WOR-[0-9]+-" && echo "✅ Branch name valid"
+git branch --show-current | grep -E "^{{TICKET_PREFIX}}-[0-9]+-" && echo "✅ Branch name valid"
 
 # 2. Verify commit message format
-git log --oneline -1 | grep -E "^[a-z]+(\([a-z]+\))?: .+ \[WOR-[0-9]+\]" && echo "✅ Commit format valid"
+git log --oneline -1 | grep -E "^[a-z]+(\([a-z]+\))?: .+ \[{{TICKET_PREFIX}}-[0-9]+\]" && echo "✅ Commit format valid"
 
 # 3. Ensure rebased on latest dev
 git fetch origin
@@ -214,8 +214,8 @@ yarn ci:validate
 
 ### Git Compliance
 
-- [ ] Branch name: `WOR-{number}-{description}` ✅
-- [ ] Commits follow SAFe format: `type(scope): description [WOR-XXX]` ✅
+- [ ] Branch name: `{{TICKET_PREFIX}}-{number}-{description}` ✅
+- [ ] Commits follow SAFe format: `type(scope): description [{{TICKET_PREFIX}}-XXX]` ✅
 - [ ] Rebased on latest dev (no merge commits) ✅
 - [ ] Linear history maintained ✅
 
@@ -238,12 +238,12 @@ yarn ci:validate
 
 ```bash
 # Push with force-with-lease (safe force push after rebase)
-git push --force-with-lease origin WOR-{number}-{description}
+git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
 
 # If push fails due to remote changes:
 git fetch origin
 git rebase origin/dev
-git push --force-with-lease origin WOR-{number}-{description}
+git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
 ```
 
 ### 3. Create Pull Request
@@ -252,12 +252,12 @@ git push --force-with-lease origin WOR-{number}-{description}
 
 ```bash
 # Create PR with template
-gh pr create --title "feat(scope): description [WOR-XXX]" --body "$(cat <<'EOF'
+gh pr create --title "feat(scope): description [{{TICKET_PREFIX}}-XXX]" --body "$(cat <<'EOF'
 ## 📋 Summary
 
-Implements [feature/fix] as specified in Linear ticket WOR-XXX.
+Implements [feature/fix] as specified in Linear ticket {{TICKET_PREFIX}}-XXX.
 
-**Linear Ticket**: https://linear.app/wtfb/issue/WOR-XXX
+**Linear Ticket**: https://linear.app/{{LINEAR_WORKSPACE}}/issue/{{TICKET_PREFIX}}-XXX
 
 ## 🎯 Changes Made
 
@@ -346,7 +346,7 @@ EOF
 
 1. Navigate to repository on GitHub
 2. Click "Pull requests" → "New pull request"
-3. Select base: `dev` and compare: `WOR-{number}-{description}`
+3. Select base: `dev` and compare: `{{TICKET_PREFIX}}-{number}-{description}`
 4. Fill out PR template completely (all sections)
 5. Assign reviewers (auto-assigned via CODEOWNERS)
 6. Add labels if needed
@@ -367,7 +367,7 @@ gh run view --log-failed
 
 # 2. Fix issues locally
 # 3. Commit fix with SAFe format
-git commit -m "fix(ci): resolve test failure [WOR-XXX]"
+git commit -m "fix(ci): resolve test failure [{{TICKET_PREFIX}}-XXX]"
 
 # 4. Rebase and force push
 git fetch origin && git rebase origin/dev
@@ -391,14 +391,14 @@ git push --force-with-lease
 
 # Commit with SAFe format
 git add .
-git commit -m "refactor(scope): address PR feedback [WOR-XXX]"
+git commit -m "refactor(scope): address PR feedback [{{TICKET_PREFIX}}-XXX]"
 
 # Rebase on latest dev (in case dev advanced)
 git fetch origin
 git rebase origin/dev
 
 # Force push
-git push --force-with-lease origin WOR-{number}-{description}
+git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
 ```
 
 ### 6. Handoff for HITL Merge
@@ -418,7 +418,7 @@ git push --force-with-lease origin WOR-{number}-{description}
 
 #### Handoff Statement
 
-> "PR #XXX for WOR-YYY is Ready for HITL Review. All CI green, reviews complete, evidence attached. Awaiting final merge approval from Scott."
+> "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review. All CI green, reviews complete, evidence attached. Awaiting final merge approval from Scott."
 
 **Notify Scott** and wait for merge.
 
@@ -430,7 +430,7 @@ git checkout dev
 git pull origin dev
 
 # Verify merge successful
-git log --oneline -5 | grep "WOR-XXX"
+git log --oneline -5 | grep "{{TICKET_PREFIX}}-XXX"
 
 # Update Linear ticket
 # - Move to "Done" swimlane
@@ -450,8 +450,8 @@ git log --oneline -5 | grep "WOR-XXX"
 ### MUST FOLLOW
 
 - **Rebase-first workflow** (NEVER merge commits)
-- SAFe commit format: `type(scope): description [WOR-XXX]`
-- Branch naming: `WOR-{number}-{description}`
+- SAFe commit format: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
+- Branch naming: `{{TICKET_PREFIX}}-{number}-{description}`
 - Complete PR template (all sections)
 - CI validation before pushing
 
@@ -488,9 +488,9 @@ git log --oneline -5 | grep "WOR-XXX"
 ### PR Details
 
 - PR Number: #XXX
-- Title: feat(scope): description [WOR-XXX]
+- Title: feat(scope): description [{{TICKET_PREFIX}}-XXX]
 - Base: dev
-- Compare: WOR-XXX-description
+- Compare: {{TICKET_PREFIX}}-XXX-description
 
 ### Pre-Merge Validation
 
@@ -544,10 +544,10 @@ yarn ci:validate
 
 # 2. Rebase and push
 git fetch origin && git rebase origin/dev
-git push --force-with-lease origin WOR-123-feature
+git push --force-with-lease origin {{TICKET_PREFIX}}-123-feature
 
 # 3. Create PR
-gh pr create --title "feat(feature): implement feature [WOR-123]" --web
+gh pr create --title "feat(feature): implement feature [{{TICKET_PREFIX}}-123]" --web
 
 # 4. Monitor CI
 gh pr checks
@@ -563,14 +563,14 @@ gh pr checks
 # 1. Create hotfix branch from main
 git checkout main
 git pull origin main
-git checkout -b WOR-999-hotfix-critical-bug
+git checkout -b {{TICKET_PREFIX}}-999-hotfix-critical-bug
 
 # 2. Fix and validate
 # ... make changes ...
 yarn ci:validate
 
 # 3. PR to main (emergency)
-gh pr create --base main --title "fix(critical): resolve security issue [WOR-999]"
+gh pr create --base main --title "fix(critical): resolve security issue [{{TICKET_PREFIX}}-999]"
 
 # 4. Handoff to HITL for emergency merge
 # Notify Scott: "Emergency PR ready - blocks production"
@@ -585,19 +585,19 @@ git push origin dev
 ### Pattern 3: Multi-Agent Coordination
 
 ```bash
-# Agent A (FE): WOR-123-ui-component (depends on WOR-124)
-# Agent B (BE): WOR-124-api-endpoint (must merge first)
+# Agent A (FE): {{TICKET_PREFIX}}-123-ui-component (depends on {{TICKET_PREFIX}}-124)
+# Agent B (BE): {{TICKET_PREFIX}}-124-api-endpoint (must merge first)
 
 # RTE coordinates (but does NOT merge):
-# 1. Notify HITL: "WOR-124 ready, blocks WOR-123"
-# Wait for Scott to merge WOR-124 via GitHub
+# 1. Notify HITL: "{{TICKET_PREFIX}}-124 ready, blocks {{TICKET_PREFIX}}-123"
+# Wait for Scott to merge {{TICKET_PREFIX}}-124 via GitHub
 
-# 2. After HITL merges WOR-124, RTE rebases WOR-123
-git checkout WOR-123-ui-component
+# 2. After HITL merges {{TICKET_PREFIX}}-124, RTE rebases {{TICKET_PREFIX}}-123
+git checkout {{TICKET_PREFIX}}-123-ui-component
 git fetch origin && git rebase origin/dev
 git push --force-with-lease
 
-# 3. Notify HITL: "WOR-123 ready after WOR-124 merged"
+# 3. Notify HITL: "{{TICKET_PREFIX}}-123 ready after {{TICKET_PREFIX}}-124 merged"
 # RTE work ends here - Scott handles merge via GitHub
 ```
 
@@ -633,7 +633,7 @@ Before declaring PR ready:
    - [ ] PR link attached
 
 4. **Handoff Statement**
-   > "PR #XXX for WOR-YYY is Ready for HITL Review. CI green, reviews complete, evidence attached."
+   > "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review. CI green, reviews complete, evidence attached."
 
 ---
 

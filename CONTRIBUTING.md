@@ -34,7 +34,7 @@ Welcome to Claude Code Harness for Multi-Agent Team Workflows! This guide covers
 2. **Clone and Setup**:
 
    ```bash
-   git clone https://github.com/ByBren-LLC/{{PROJECT_NAME}}-app.git
+   git clone https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-app.git
    cd {{PROJECT_NAME}}-app
    yarn install
    ```
@@ -312,7 +312,7 @@ Each agent role has explicit exit states that define handoff points in the workf
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-### Role Collapsing (WOR-499)
+### Role Collapsing ({{TICKET_PREFIX}}-499)
 
 - **RTE**: Collapsible (PR creation can be done by implementer)
 - **QAS**: NOT collapsible (independence gate - spawn subagent)
@@ -449,7 +449,7 @@ npx prisma generate
 
 # RLS Security Setup (Important!)
 # The database now uses Row Level Security for data protection
-# Use wtfb_app_user for proper RLS enforcement in development
+# Use {{LINEAR_WORKSPACE}}_app_user for proper RLS enforcement in development
 # See docs/database/RLS_IMPLEMENTATION_GUIDE.md for details
 ```
 
@@ -478,7 +478,7 @@ yarn type-check           # TypeScript validation
 # RLS Security Testing
 node scripts/test-rls-phase3-simple.js  # Basic RLS functionality test
 # Run comprehensive security validation:
-# cat scripts/rls-phase4-final-validation.sql | docker exec -i wtfb-team-postgres-1 psql -U wtfb_app_user -d wtfb_dev
+# cat scripts/rls-phase4-final-validation.sql | docker exec -i {{LINEAR_WORKSPACE}}-team-postgres-1 psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}}
 ```
 
 ## Row Level Security (RLS) Development
@@ -497,14 +497,14 @@ The {{PROJECT_NAME}} application uses **Row Level Security (RLS)** for database-
 **✅ MUST DO when working with database operations:**
 
 - Use `withUserContext()`, `withAdminContext()`, or `withSystemContext()` helpers
-- Test with `wtfb_app_user` role (not `wtfb_user` superuser)
+- Test with `{{LINEAR_WORKSPACE}}_app_user` role (not `{{DB_USER}}` superuser)
 - Validate user data isolation in your tests
 - Check RLS context is properly set before database queries
 
 **❌ NEVER DO:**
 
 - Bypass RLS context setting for user operations
-- Use `wtfb_user` (superuser) for application testing
+- Use `{{DB_USER}}` (superuser) for application testing
 - Trust session variables for role validation
 - Assume users can access data without proper context
 
@@ -515,10 +515,10 @@ The {{PROJECT_NAME}} application uses **Row Level Security (RLS)** for database-
 node scripts/test-rls-phase3-simple.js
 
 # Run comprehensive security validation
-cat scripts/rls-phase4-final-validation.sql | docker exec -i wtfb-team-postgres-1 psql -U wtfb_app_user -d wtfb_dev
+cat scripts/rls-phase4-final-validation.sql | docker exec -i {{LINEAR_WORKSPACE}}-team-postgres-1 psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}}
 
 # Test user isolation manually
-docker exec wtfb-team-postgres-1 psql -U wtfb_app_user -d wtfb_dev -c "
+docker exec {{LINEAR_WORKSPACE}}-team-postgres-1 psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}} -c "
   SET app.current_user_id = 'your_test_user';
   SELECT COUNT(*) FROM user; -- Should see only your test user's data
 "
@@ -618,7 +618,7 @@ git commit -m "fix: resolve CI validation issues [{{TICKET_PREFIX}}-XXX]"
 - **Team Workflow**: `docs/{{PROJECT_NAME}}-Multi-Team-Git-Workflow-Guide.md`
 - **Implementation Checklist**: `docs/ci-cd-implementation-checklist.md`
 - **Payment Test Status**: `__tests__/PAYMENT_TESTS_STATUS.md`
-- **TypeScript Cleanup**: `docs/archive/wor-139-typescript-cleanup-status.md` ({{TICKET_PREFIX}}-139)
+- **TypeScript Cleanup**: `docs/archive/{{TICKET_PREFIX_LOWER}}-139-typescript-cleanup-status.md` ({{TICKET_PREFIX}}-139)
 
 ### Confluence Documentation
 
@@ -629,5 +629,5 @@ git commit -m "fix: resolve CI validation issues [{{TICKET_PREFIX}}-XXX]"
 **This document is maintained by the {{PROJECT_NAME}} development team and reflects our current CI/CD pipeline implementation.**
 
 **Last Updated**: 2025-12-23
-**Version**: 2.1 (vNext Workflow Contract - WOR-497/499)
+**Version**: 2.1 (vNext Workflow Contract - {{TICKET_PREFIX}}-497/499)
 **Maintained by**: {{PROJECT_NAME}} Development Team + ARCHitect-in-the-IDE (Auggie)

@@ -1,57 +1,57 @@
-# WTFB-app Code Owners
+# {{PROJECT_SHORT}}-app Code Owners
 # This file defines who must review PRs for specific parts of the codebase
 
 # Global fallback - ARCHitect-in-the-IDE (single developer setup)
-* @cheddarfox
+* @{{AUTHOR_HANDLE}}
 
 # Core configuration files - require architect review
-/.env.template @cheddarfox
-/config.ts @cheddarfox
-/config/ @cheddarfox
-/next.config.js @cheddarfox
-/tailwind.config.js @cheddarfox
-/tsconfig.json @cheddarfox
+/.env.template @{{AUTHOR_HANDLE}}
+/config.ts @{{AUTHOR_HANDLE}}
+/config/ @{{AUTHOR_HANDLE}}
+/next.config.js @{{AUTHOR_HANDLE}}
+/tailwind.config.js @{{AUTHOR_HANDLE}}
+/tsconfig.json @{{AUTHOR_HANDLE}}
 
 # Package management - require architect review
-/package.json @cheddarfox
-/yarn.lock @cheddarfox
+/package.json @{{AUTHOR_HANDLE}}
+/yarn.lock @{{AUTHOR_HANDLE}}
 
 # Database schema - require architect review
-/prisma/ @cheddarfox
+/prisma/ @{{AUTHOR_HANDLE}}
 
 # Payment integration - require architect review (future: @payments-team)
-/app/api/payments/ @cheddarfox
-/lib/stripe/ @cheddarfox
-/components/payments/ @cheddarfox
+/app/api/payments/ @{{AUTHOR_HANDLE}}
+/lib/stripe/ @{{AUTHOR_HANDLE}}
+/components/payments/ @{{AUTHOR_HANDLE}}
 
 # Authentication - require architect review (future: @auth-team)
-/app/api/auth/ @cheddarfox
-/lib/auth/ @cheddarfox
-/middleware.ts @cheddarfox
+/app/api/auth/ @{{AUTHOR_HANDLE}}
+/lib/auth/ @{{AUTHOR_HANDLE}}
+/middleware.ts @{{AUTHOR_HANDLE}}
 
 # API routes - require architect review (future: @backend-team)
-/app/api/ @cheddarfox
+/app/api/ @{{AUTHOR_HANDLE}}
 
 # UI components - require architect review (future: @frontend-team)
-/components/ @cheddarfox
-/app/(dashboard)/ @cheddarfox
-/app/(auth)/ @cheddarfox
+/components/ @{{AUTHOR_HANDLE}}
+/app/(dashboard)/ @{{AUTHOR_HANDLE}}
+/app/(auth)/ @{{AUTHOR_HANDLE}}
 
 # Utilities and shared code - require architect review
-/lib/ @cheddarfox
-/utils/ @cheddarfox
+/lib/ @{{AUTHOR_HANDLE}}
+/utils/ @{{AUTHOR_HANDLE}}
 
 # CI/CD and deployment - require architect review
-/.github/ @cheddarfox
-/Dockerfile @cheddarfox
-/docker-compose.yml @cheddarfox
+/.github/ @{{AUTHOR_HANDLE}}
+/Dockerfile @{{AUTHOR_HANDLE}}
+/docker-compose.yml @{{AUTHOR_HANDLE}}
 
 # Documentation - require architect review for standards
-/docs/ @cheddarfox
-/specs/ @cheddarfox
-README.md @cheddarfox
+/docs/ @{{AUTHOR_HANDLE}}
+/specs/ @{{AUTHOR_HANDLE}}
+README.md @{{AUTHOR_HANDLE}}
 
 # Testing - require architect review for test infrastructure (future: @qa-team)
-/__tests__/ @cheddarfox
-/playwright.config.ts @cheddarfox
-/jest.config.js @cheddarfox
+/__tests__/ @{{AUTHOR_HANDLE}}
+/playwright.config.ts @{{AUTHOR_HANDLE}}
+/jest.config.js @{{AUTHOR_HANDLE}}

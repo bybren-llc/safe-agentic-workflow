@@ -1,10 +1,10 @@
-# WTFB Pattern Library
+# {{PROJECT_SHORT}} Pattern Library
 
 > **Copy-Paste Ready Code Patterns for Agent-Driven Development**
 
 ## Overview
 
-This pattern library provides battle-tested, production-ready code patterns extracted from the WTFB codebase. Each pattern is:
+This pattern library provides battle-tested, production-ready code patterns extracted from the {{PROJECT_SHORT}} codebase. Each pattern is:
 
 - ✅ **Copy-Paste Ready** - Minimal customization needed
 - ✅ **Security Validated** - RLS enforced, auth required, input validated

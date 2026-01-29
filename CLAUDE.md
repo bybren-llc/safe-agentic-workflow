@@ -14,7 +14,7 @@ This file provides guidance to AI coding assistants (Claude Code, Cursor, Augmen
 
 ### What This Repository Is
 
-This is a **SAFe multi-agent development project** using the WTFB (Words to Film By) Agentic Workflow methodology. The project employs:
+This is a **SAFe multi-agent development project** using the {{PROJECT_SHORT}} (Words to Film By) Agentic Workflow methodology. The project employs:
 
 - **11 specialized AI agents** working collaboratively (see [AGENTS.md](AGENTS.md))
 - **Evidence-based delivery** with Linear ticket integration
@@ -170,8 +170,8 @@ This project uses 11 specialized AI agents (see [AGENTS.md](AGENTS.md) for detai
 ```typescript
 Task({
   subagent_type: "bsa",
-  description: "Create spec for WOR-123",
-  prompt: `Create comprehensive spec for WOR-123 user profile feature.
+  description: "Create spec for {{TICKET_PREFIX}}-123",
+  prompt: `Create comprehensive spec for {{TICKET_PREFIX}}-123 user profile feature.
 
   Requirements:
   - User can view and edit their profile

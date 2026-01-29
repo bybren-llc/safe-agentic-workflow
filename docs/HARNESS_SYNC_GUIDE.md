@@ -1,6 +1,6 @@
 # Claude Harness Sync Guide
 
-This guide explains how to keep your project's `.claude/` harness directory synchronized with the upstream `wtfb-safe-agentic-workflow` repository.
+This guide explains how to keep your project's `.claude/` harness directory synchronized with the upstream `{{PROJECT_REPO}}` repository.
 
 ## Overview
 
@@ -18,7 +18,7 @@ The `sync-claude-harness.sh` script allows projects using this harness to:
 
    ```bash
    curl -o scripts/sync-claude-harness.sh \
-     https://raw.githubusercontent.com/bybren-llc/wtfb-safe-agentic-workflow/main/scripts/sync-claude-harness.sh
+     https://raw.githubusercontent.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}/main/scripts/sync-claude-harness.sh
    chmod +x scripts/sync-claude-harness.sh
    ```
 
@@ -92,7 +92,7 @@ Project-specific files that should never be overwritten can be excluded by creat
     "custom-agent.md"
   ],
   "project_customizations": {
-    "ticket_prefix": "WOR-",
+    "ticket_prefix": "{{TICKET_PREFIX}}-",
     "project_name": "MyProject",
     "main_branch": "dev"
   }
@@ -178,7 +178,7 @@ Add to your CI pipeline to check for updates:
 ## Contributing
 
 Improvements to the sync script should be contributed back to:
-https://github.com/bybren-llc/wtfb-safe-agentic-workflow
+https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}
 
 ## Version History
 

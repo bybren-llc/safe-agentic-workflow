@@ -433,7 +433,7 @@ gh api repos/:owner/:repo/branches/dev/protection \
 ## 📞 Support
 
 **Pipeline Issues**: {{ARCHITECT_GITHUB_HANDLE}} (ARCHitect-in-the-IDE)  
-**Team Coordination**: #wtfb-development
+**Team Coordination**: #{{LINEAR_WORKSPACE}}-development
 **Emergency**: dev-team@{{PROJECT_SLUG}}.com
 
 **Last Updated**: 2025-08-16  

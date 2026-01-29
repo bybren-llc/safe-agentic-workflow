@@ -263,10 +263,10 @@ To adapt this command for your infrastructure, replace these placeholders:
 | ----------------- | --------------------------- | ------------------------------------ |
 | `{TICKET_PREFIX}` | Your Linear ticket prefix   | `WOR`, `PROJ`, `TASK`                |
 | `{SSH_KEY_PATH}`  | Path to SSH private key     | `~/.ssh/id_ed25519_staging`          |
-| `{REMOTE_USER}`   | Username on remote host     | `deploy`, `cheddarfox`               |
+| `{REMOTE_USER}`   | Username on remote host     | `deploy`, `{{AUTHOR_HANDLE}}`               |
 | `{REMOTE_HOST}`   | Remote host name/IP         | `pop-os`, `staging.example.com`      |
 | `{PROJECT_PATH}`  | Project directory on remote | `~/Projects/{PROJECT_NAME}`, `~/app` |
-| `{REGISTRY}`      | Container registry URL      | `ghcr.io/bybren-llc`                 |
+| `{REGISTRY}`      | Container registry URL      | `{{CONTAINER_REGISTRY}}`                 |
 | `{PROJECT_NAME}`  | Project name in registry    | `myapp`, `webapp`                    |
 | `{PROJECT}`       | Short project identifier    | `myapp`, `webapp`                    |
 | `{DEV_MACHINE}`   | Remote dev machine name     | `Pop OS`, `staging`, `dev-server`    |

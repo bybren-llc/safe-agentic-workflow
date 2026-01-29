@@ -1,4 +1,4 @@
-> **📚 EXAMPLE**: This document is preserved as a learning example from the WTFB project. It demonstrates the pattern for documenting significant plan changes with clear rationale and impact analysis. When adopting this workflow, create your own version tailored to your project.
+> **📚 EXAMPLE**: This document is preserved as a learning example from the {{PROJECT_SHORT}} project. It demonstrates the pattern for documenting significant plan changes with clear rationale and impact analysis. When adopting this workflow, create your own version tailored to your project.
 
 ---
 

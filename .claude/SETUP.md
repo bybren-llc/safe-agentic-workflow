@@ -44,7 +44,7 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "git branch --show-current 2>/dev/null | grep -q '^WOR-[0-9]' || echo '⚠️ REMINDER: Branch should follow WOR-{number}-{description} format.'",
+            "command": "git branch --show-current 2>/dev/null | grep -q '^{{TICKET_PREFIX}}-[0-9]' || echo '⚠️ REMINDER: Branch should follow {{TICKET_PREFIX}}-{number}-{description} format.'",
             "description": "Remind about branch naming convention"
           }
         ]
@@ -56,7 +56,7 @@ Create or update your project's `.claude/settings.local.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "echo '📝 REMINDER: Commit message must follow SAFe format: type(scope): description [WOR-XXX]'",
+            "command": "echo '📝 REMINDER: Commit message must follow SAFe format: type(scope): description [{{TICKET_PREFIX}}-XXX]'",
             "description": "Remind about commit message format"
           }
         ]
@@ -88,7 +88,7 @@ Create or update your project's `.claude/settings.local.json`:
 }
 ```
 
-**Note**: Customize the ticket prefix (`WOR-`) and branch names (`dev`/`master`) for your project.
+**Note**: Customize the ticket prefix (`{{TICKET_PREFIX}}-`) and branch names (`dev`/`master`) for your project.
 
 ---
 
@@ -100,7 +100,7 @@ Search and replace in all copied files:
 
 | Find             | Replace With                       |
 | ---------------- | ---------------------------------- |
-| `WOR-`           | Your ticket prefix (e.g., `PROJ-`) |
+| `{{TICKET_PREFIX}}-`           | Your ticket prefix (e.g., `PROJ-`) |
 | `{PROJECT_NAME}` | Your project name                  |
 | `dev` branch     | Your main development branch       |
 

@@ -232,5 +232,5 @@ VARIABLE_NAME=description
 <!--
 Template Version: 1.1
 Based on: SAFe Multi-Agent Development Methodology
-Source: https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow
+Source: https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}
 -->

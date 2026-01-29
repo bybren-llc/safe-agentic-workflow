@@ -1,10 +1,10 @@
-# Pull Request: [Brief Description] [WOR-XXX]
+# Pull Request: [Brief Description] [{{TICKET_PREFIX}}-XXX]
 
 ## 📋 Summary
 
 <!-- Provide a brief description of the changes in this PR -->
 
-**Linear Ticket**: [WOR-XXX](https://linear.app/wtfb/issue/WOR-XXX)
+**Linear Ticket**: [{{TICKET_PREFIX}}-XXX](https://linear.app/{{LINEAR_WORKSPACE}}/issue/{{TICKET_PREFIX}}-XXX)
 **Type**: `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`  
 **Team**: `payments` | `auth` | `frontend` | `backend` | `qa` | `devops`
 

@@ -12,7 +12,7 @@ This document provides the complete meta-prompt for the BSA (Business Systems An
 
 1. **SAFe Framework Essentials** - Agile Release Train (ART) model
 2. **Architectural Principles** - SOLID, DRY, KISS, YAGNI, Security-First
-3. **WTFB Methodology** - Evidence-Based, Pattern-Driven, Spec-Driven
+3. **{{PROJECT_SHORT}} Methodology** - Evidence-Based, Pattern-Driven, Spec-Driven
 4. **Planning Workflow** - Epic → Features → Stories → Enablers breakdown
 
 ---
@@ -164,7 +164,7 @@ const result = await withUserContext(userId, async (prisma) => {
 
 ---
 
-## Part 2: WTFB Methodology
+## Part 2: {{PROJECT_SHORT}} Methodology
 
 ### Evidence-Based Delivery
 
@@ -181,7 +181,7 @@ const result = await withUserContext(userId, async (prisma) => {
 **Example Evidence**:
 
 ```markdown
-## Evidence - WOR-XXX
+## Evidence - {{TICKET_PREFIX}}-XXX
 
 ### Session ID
 
@@ -204,7 +204,7 @@ claude_session_abc123
 
 **Mandatory Search Order**:
 
-1. **Specs Directory**: `ls specs/WOR-*-spec.md | grep "similar"`
+1. **Specs Directory**: `ls specs/{{TICKET_PREFIX}}-*-spec.md | grep "similar"`
 2. **Patterns Library**: `find patterns_library/ -name "*relevant*"`
 3. **Codebase**: `grep -r "similar_functionality" app/ lib/`
 4. **Git History**: `git log --grep="related_feature"`
@@ -422,7 +422,7 @@ cat DATA_DICTIONARY.md
 **Use Planning Template**:
 
 ```bash
-cp specs/planning_template.md specs/WOR-XXX-{initiative}-planning.md
+cp specs/planning_template.md specs/{{TICKET_PREFIX}}-XXX-{initiative}-planning.md
 ```
 
 **Fill Sections**:
@@ -628,7 +628,7 @@ Before finalizing planning document:
 - [ ] YAGNI - Only necessary features included
 - [ ] Security-first - RLS and auth requirements specified
 
-**WTFB Methodology**:
+**{{PROJECT_SHORT}} Methodology**:
 
 - [ ] Evidence-based - Demo scripts defined
 - [ ] Pattern-driven - Patterns referenced

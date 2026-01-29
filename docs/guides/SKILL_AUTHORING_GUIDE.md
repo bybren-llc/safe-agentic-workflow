@@ -409,4 +409,4 @@ If a skill is being replaced or removed:
 
 ---
 
-*This guide is part of the [WTFB SAFe Agentic Workflow](https://github.com/bybren-llc/wtfb-safe-agentic-workflow) harness.*
+*This guide is part of the [{{PROJECT_SHORT}} SAFe Agentic Workflow](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}) harness.*

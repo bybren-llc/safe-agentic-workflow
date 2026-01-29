@@ -1,7 +1,7 @@
 # Workflow Migration Guide: v1.0 → v1.1
 
 **Date**: 2025-10-06
-**Audience**: Development teams working on WTFB-app
+**Audience**: Development teams working on {{PROJECT_SHORT}}-app
 **Purpose**: Help teams understand and adopt workflow v1.1 changes
 
 ---
@@ -48,7 +48,7 @@
 1. Get Linear issue
 2. Create spec
 3. **WAIT FOR TDM PRE-GATE** 👈 NEW
-   - TDM verifies branch naming: WOR-XXX-...
+   - TDM verifies branch naming: {{TICKET_PREFIX}}-XXX-...
    - TDM verifies Linear is "In Progress"
    - TDM verifies CONTRIBUTING.md compliance
 4. Implement (only after gate passes)
@@ -86,8 +86,8 @@ Look at PR description or Linear ticket comments:
 ```bash
 # 1. Branch naming correct?
 git branch --show-current
-# Must be: WOR-{number}-{description}
-# Example: WOR-321-free-tools-bonus
+# Must be: {{TICKET_PREFIX}}-{number}-{description}
+# Example: {{TICKET_PREFIX}}-321-free-tools-bonus
 
 # 2. Synced with latest dev?
 git pull origin dev
@@ -108,7 +108,7 @@ git status
 ```text
 BLOCKER: Pre-implementation gate failed
 - Issue: Branch name is "feature/add-tools" (incorrect)
-- Required: WOR-XXX-free-tools-bonus
+- Required: {{TICKET_PREFIX}}-XXX-free-tools-bonus
 - Action: Rename branch and try again
 
 Do NOT start implementation until gate passes.
@@ -122,7 +122,7 @@ Once pre-gate passes, work is the same as v1.0:
 
 - Read spec created by BSA
 - Implement using patterns
-- Make atomic commits: `type(scope): description [WOR-XXX]`
+- Make atomic commits: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
 - Run `yarn ci:validate` before pushing
 
 **No changes here** - just know you went through the gate first.
@@ -238,7 +238,7 @@ Please address these issues and push changes. I'll re-review automatically.
 
 Verified:
 
-- [x] Branch: WOR-321-free-tools-bonus
+- [x] Branch: {{TICKET_PREFIX}}-321-free-tools-bonus
 - [x] Linear status: In Progress
 - [x] Git sync: Up-to-date with dev
 - [x] CONTRIBUTING.md: Compliant

@@ -36,7 +36,7 @@ yarn lint:md && echo "BSA SUCCESS" || echo "BSA FAILED"
 
 ## Pattern Discovery (MANDATORY)
 
-### 0. Check Pattern Library FIRST (MANDATORY - WOR-300)
+### 0. Check Pattern Library FIRST (MANDATORY - {{TICKET_PREFIX}}-300)
 
 ```bash
 # Check pattern library for existing patterns
@@ -91,7 +91,7 @@ ls specs/ | grep -i "feature_name|similar_topic"
 grep -r "As a.*I want to" specs/
 
 # Check implementation patterns from past specs
-cat specs/WOR-XXX-similar-feature-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-similar-feature-spec.md
 
 # Find acceptance criteria patterns
 grep -r "Acceptance Criteria" specs/
@@ -238,13 +238,13 @@ Create implementation specs when:
 #### Step 1: Copy Spec Template
 
 ```bash
-# Create spec file for WOR-XXX
-cp specs/spec_template.md specs/WOR-XXX-{description}-spec.md
+# Create spec file for {{TICKET_PREFIX}}-XXX
+cp specs/spec_template.md specs/{{TICKET_PREFIX}}-XXX-{description}-spec.md
 ```
 
 #### Step 2: Extract from User Story
 
-**From Linear ticket (WOR-XXX)**:
+**From Linear ticket ({{TICKET_PREFIX}}-XXX)**:
 
 - User story text
 - Acceptance criteria
@@ -255,10 +255,10 @@ cp specs/spec_template.md specs/WOR-XXX-{description}-spec.md
 
 ```bash
 # Find related implementation patterns
-ls specs/WOR-*-spec.md | grep "similar_feature"
+ls specs/{{TICKET_PREFIX}}-*-spec.md | grep "similar_feature"
 
 # Review implementation approach
-cat specs/WOR-XXX-similar-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
 ```
 
 #### Step 3: Complete Spec Sections
@@ -268,7 +268,7 @@ cat specs/WOR-XXX-similar-spec.md
 ```markdown
 ## High-Level Objective
 
-- Implement [feature] as specified in WOR-XXX
+- Implement [feature] as specified in {{TICKET_PREFIX}}-XXX
 - Provide [business value] to [user type]
 ```
 
@@ -376,7 +376,7 @@ cat specs/WOR-XXX-similar-spec.md
 
 #### Step 6: Create Subtasks in Linear
 
-From spec, add subtasks to WOR-XXX:
+From spec, add subtasks to {{TICKET_PREFIX}}-XXX:
 
 ```markdown
 ## Subtasks for Linear
@@ -436,7 +436,7 @@ echo "SUCCESS" || echo "FAILED"
   ```bash
   ls specs/ | grep -i "similar_topic"
   grep -r "As a.*similar_action" specs/
-  cat specs/WOR-XXX-similar-spec.md
+  cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
   ```
 - Search codebase for similar features
 - Review session history for related work

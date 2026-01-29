@@ -387,4 +387,4 @@ Reference: Check AGENTS.md, CONTRIBUTING.md, and CI-CD-Pipeline-Guide.md for con
 
 ---
 
-**Questions?** Open an issue on GitHub or contact scott@wordstofilmby.com
+**Questions?** Open an issue on GitHub or contact scott@{{PROJECT_DOMAIN}}

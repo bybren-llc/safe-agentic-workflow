@@ -15,9 +15,9 @@
 
 **Added**: MANDATORY System Architect review for complex automation/infrastructure code
 
-**Rationale**: WOR-321 gap discovery - 710-line bash script + 641-line CI/CD workflow deployed WITHOUT architectural review
+**Rationale**: {{TICKET_PREFIX}}-321 gap discovery - 710-line bash script + 641-line CI/CD workflow deployed WITHOUT architectural review
 
-#### The Gap (WOR-321)
+#### The Gap ({{TICKET_PREFIX}}-321)
 
 **What Happened**:
 
@@ -71,7 +71,7 @@
 
 #### Workflow Comparison
 
-**Before v1.3.1 (WOR-321 Gap)**:
+**Before v1.3.1 ({{TICKET_PREFIX}}-321 Gap)**:
 
 ```
 ARCHitect-in-CLI
@@ -388,9 +388,9 @@ What type of work?
 
 ## References
 
-- **WOR-321**: Migration Automation Workflow Report (v1.3.1 gap discovery)
+- **{{TICKET_PREFIX}}-321**: Migration Automation Workflow Report (v1.3.1 gap discovery)
 - **Confluence**: SAFe Agentic Workflow Blueprint
-- **WTFB-app**: Reference implementation
+- **{{PROJECT_SHORT}}-app**: Reference implementation
 
 ---
 

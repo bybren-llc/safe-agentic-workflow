@@ -158,16 +158,16 @@ CREATE INDEX user_preferences_user_id_idx ON user_preferences(user_id);
 ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_preferences FORCE ROW LEVEL SECURITY;
 
--- 4. Create RLS policies for wtfb_user (superuser)
+-- 4. Create RLS policies for {{DB_USER}} (superuser)
 CREATE POLICY user_preferences_isolation ON user_preferences
     FOR ALL
-    TO wtfb_user
+    TO {{DB_USER}}
     USING (user_id = current_setting('app.current_user_id', true));
 
--- 5. Create RLS policies for wtfb_app_user (application user)
+-- 5. Create RLS policies for {{LINEAR_WORKSPACE}}_app_user (application user)
 CREATE POLICY user_preferences_app_isolation ON user_preferences
     FOR ALL
-    TO wtfb_app_user
+    TO {{LINEAR_WORKSPACE}}_app_user
     USING (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -188,7 +188,7 @@ Add to `/scripts/rls-maintenance-log.sql`:
 
 ```sql
 -- Test script for new table RLS
--- Run as wtfb_app_user
+-- Run as {{LINEAR_WORKSPACE}}_app_user
 
 -- Set context for test user
 SET app.current_user_id = 'test_user_123';
@@ -279,7 +279,7 @@ SELECT COUNT(*) FROM user_preferences WHERE user_id = 'test_user_123'; -- Must b
 
   ```bash
   # Run RLS validation script
-  psql -U wtfb_app_user -d wtfb_dev < scripts/test-new-table-rls.sql
+  psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}} < scripts/test-new-table-rls.sql
   ```
 
 - [ ] **Documentation Updates** (MANDATORY)
@@ -387,7 +387,7 @@ CREATE TABLE user_settings (
 ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_settings FORCE ROW LEVEL SECURITY;
 CREATE POLICY user_settings_isolation ON user_settings
-    FOR ALL TO wtfb_user
+    FOR ALL TO {{DB_USER}}
     USING (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -529,12 +529,12 @@ ALTER TABLE [table_name] FORCE ROW LEVEL SECURITY;
 
 -- Create policy for superuser
 CREATE POLICY [table_name]_isolation ON [table_name]
-    FOR ALL TO wtfb_user
+    FOR ALL TO {{DB_USER}}
     USING (user_id = current_setting('app.current_user_id', true));
 
 -- Create policy for app user
 CREATE POLICY [table_name]_app_isolation ON [table_name]
-    FOR ALL TO wtfb_app_user
+    FOR ALL TO {{LINEAR_WORKSPACE}}_app_user
     USING (user_id = current_setting('app.current_user_id', true));
 
 -- Create index if missing
@@ -546,7 +546,7 @@ EOF
 
 ```bash
 # Quick test for new table RLS
-psql -U wtfb_app_user -d wtfb_dev << 'EOF'
+psql -U {{LINEAR_WORKSPACE}}_app_user -d {{DB_NAME}} << 'EOF'
 SET app.current_user_id = 'test_user';
 SELECT COUNT(*) as visible_records FROM [table_name];
 RESET app.current_user_id;

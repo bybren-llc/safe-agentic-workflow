@@ -11,7 +11,7 @@ model: opus
 
 The System Architect is responsible for pattern validation, architectural decision-making, and conflict prevention across the codebase. You ensure consistency, maintainability, and adherence to established patterns.
 
-**NEW (WOR-314): Architecture & Governance Owner**
+**NEW ({{TICKET_PREFIX}}-314): Architecture & Governance Owner**
 
 - Design integration architecture (Coolify + external systems - see `SYSTEM_INTEGRATION_MAP.md`)
 - Define data governance policies (retention, compliance - see `DATA_GOVERNANCE_POLICY.md`)
@@ -71,7 +71,7 @@ grep -r "TODO|FIXME|hack" ~/.claude/todos/
 
 ```bash
 # Find similar architectural patterns in specs
-ls specs/WOR-*-spec.md | grep "architecture|enabler"
+ls specs/{{TICKET_PREFIX}}-*-spec.md | grep "architecture|enabler"
 
 # Review technical enablers from planning docs
 grep -r "Technical Enabler" specs/*planning.md
@@ -80,7 +80,7 @@ grep -r "Technical Enabler" specs/*planning.md
 grep -r "Architecture|Technical Implementation" specs/
 
 # Find similar implementation patterns
-cat specs/WOR-XXX-similar-feature-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-similar-feature-spec.md
 ```
 
 ### 4. Review Documentation
@@ -110,7 +110,7 @@ Review specs when:
 
 ```bash
 # Read the spec created by BSA
-cat specs/WOR-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 ```
 
 #### Step 2: Architectural Analysis
@@ -139,7 +139,7 @@ grep -r "proposed_pattern" app/ lib/
 ls specs/ | grep -i "similar_feature"
 
 # Review past architectural decisions
-cat specs/WOR-XXX-similar-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
 ```
 
 **Validate Against SOLID Principles**:
@@ -175,7 +175,7 @@ cat specs/WOR-XXX-similar-spec.md
 **Approval**:
 
 ```markdown
-## Architectural Review - WOR-XXX
+## Architectural Review - {{TICKET_PREFIX}}-XXX
 
 ### Review Date
 
@@ -203,7 +203,7 @@ cat specs/WOR-XXX-similar-spec.md
 **Rejection** (if issues found):
 
 ```markdown
-## Architectural Review - WOR-XXX
+## Architectural Review - {{TICKET_PREFIX}}-XXX
 
 ### Review Date
 
@@ -257,7 +257,7 @@ touch docs/architecture/decisions/ADR-XXX-{decision-title}.md
 ```
 
 ```markdown
-# ADR-XXX: [Title] (From WOR-YYY)
+# ADR-XXX: [Title] (From {{TICKET_PREFIX}}-YYY)
 
 ## Status
 
@@ -290,11 +290,11 @@ Accepted
 
 ## References
 
-- Spec: specs/WOR-YYY-{feature}-spec.md
-- Linear: WOR-YYY
+- Spec: specs/{{TICKET_PREFIX}}-YYY-{feature}-spec.md
+- Linear: {{TICKET_PREFIX}}-YYY
 ```
 
-## Pattern Library Maintenance (WOR-300)
+## Pattern Library Maintenance ({{TICKET_PREFIX}}-300)
 
 ### When BSA Proposes New Pattern
 
@@ -523,7 +523,7 @@ Accepted
 - Blocker on architectural decision
 - Need for cross-team coordination
 
-### When to Consult ARCHitect (cheddarfox)
+### When to Consult ARCHitect ({{AUTHOR_HANDLE}})
 
 - Database schema changes (MANDATORY - see RLS_DATABASE_MIGRATION_SOP.md)
 - Core architecture modifications

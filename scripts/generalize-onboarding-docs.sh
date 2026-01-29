@@ -36,21 +36,21 @@ update_file() {
 
   echo "  - Updating: $description"
 
-  # Replace WTFB SAFe with SAFe (but keep SAFe Multi-Agent Development)
-  sed -i 's/WTFB SAFe Multi-Agent Development/SAFe Multi-Agent Development/g' "$file"
-  sed -i 's/WTFB SAFe/SAFe multi-agent/g' "$file"
-  sed -i 's/the WTFB methodology/the SAFe methodology/g' "$file"
+  # Replace {{PROJECT_SHORT}} SAFe with SAFe (but keep SAFe Multi-Agent Development)
+  sed -i 's/{{PROJECT_SHORT}} SAFe Multi-Agent Development/SAFe Multi-Agent Development/g' "$file"
+  sed -i 's/{{PROJECT_SHORT}} SAFe/SAFe multi-agent/g' "$file"
+  sed -i 's/the {{PROJECT_SHORT}} methodology/the SAFe methodology/g' "$file"
 
   # Replace specific GitHub URLs with placeholders
-  sed -i 's|https://github\.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow|{{GITHUB_REPO_URL}}|g' "$file"
-  sed -i 's|https://gitingest\.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow|https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}|g' "$file"
-  sed -i 's|git clone https://github\.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow|git clone {{GITHUB_REPO_URL}}|g' "$file"
-  sed -i 's|cd WTFB-SAFe-Agentic-Workflow|cd {{PROJECT_NAME}}|g' "$file"
-  sed -i 's|https://bybren-llc\.github\.io/WTFB-SAFe-Agentic-Workflow/|https://{{GITHUB_ORG}}.github.io/{{GITHUB_REPO}}/|g' "$file"
+  sed -i 's|https://github\.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}|{{GITHUB_REPO_URL}}|g' "$file"
+  sed -i 's|https://gitingest\.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}|https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}|g' "$file"
+  sed -i 's|git clone https://github\.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}|git clone {{GITHUB_REPO_URL}}|g' "$file"
+  sed -i 's|cd {{PROJECT_REPO}}|cd {{PROJECT_NAME}}|g' "$file"
+  sed -i 's|https://{{GITHUB_ORG}}\.github\.io/{{PROJECT_REPO}}/|https://{{GITHUB_ORG}}.github.io/{{GITHUB_REPO}}/|g' "$file"
 
-  # Replace WOR- ticket prefix with generic placeholder
-  sed -i 's/WOR-\([0-9]\+\)/{{TICKET_PREFIX}}-\1/g' "$file"
-  sed -i 's/WOR-326/{{TICKET_PREFIX}}-326/g' "$file"
+  # Replace {{TICKET_PREFIX}}- ticket prefix with generic placeholder
+  sed -i 's/{{TICKET_PREFIX}}-\([0-9]\+\)/{{TICKET_PREFIX}}-\1/g' "$file"
+  sed -i 's/{{TICKET_PREFIX}}-326/{{TICKET_PREFIX}}-326/g' "$file"
 
   # Replace PROJ-1 examples with {{TICKET_PREFIX}}-1
   sed -i 's/PROJ-1/{{TICKET_PREFIX}}-1/g' "$file"
@@ -75,10 +75,10 @@ echo ""
 echo -e "${GREEN}✓ All files updated successfully!${NC}"
 echo ""
 echo "Changes made:"
-echo "  1. Replaced 'WTFB SAFe' with 'SAFe multi-agent' or 'SAFe'"
+echo "  1. Replaced '{{PROJECT_SHORT}} SAFe' with 'SAFe multi-agent' or 'SAFe'"
 echo "  2. Replaced GitHub URLs with {{GITHUB_REPO_URL}} placeholder"
 echo "  3. Replaced GitIngest URLs with {{GITHUB_ORG}}/{{GITHUB_REPO}} placeholders"
-echo "  4. Replaced 'WOR-' with '{{TICKET_PREFIX}}-' for ticket references"
+echo "  4. Replaced '{{TICKET_PREFIX}}-' with '{{TICKET_PREFIX}}-' for ticket references"
 echo "  5. Generalized clone/cd commands with {{PROJECT_NAME}}"
 echo ""
 echo "Backup files created with .bak extension"

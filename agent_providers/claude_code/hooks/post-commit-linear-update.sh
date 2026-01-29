@@ -8,8 +8,8 @@
 COMMIT_HASH=$(git log -1 --format="%H" 2>/dev/null)
 COMMIT_MSG=$(git log -1 --format="%s" 2>/dev/null)
 
-# Extract Linear ticket from commit message (WOR-XXX format)
-LINEAR_TICKET=$(echo "$COMMIT_MSG" | grep -oE "WOR-[0-9]+" | head -1)
+# Extract Linear ticket from commit message ({{TICKET_PREFIX}}-XXX format)
+LINEAR_TICKET=$(echo "$COMMIT_MSG" | grep -oE "{{TICKET_PREFIX}}-[0-9]+" | head -1)
 
 if [ -z "$LINEAR_TICKET" ]; then
   echo "ℹ️  No Linear ticket found in commit message"

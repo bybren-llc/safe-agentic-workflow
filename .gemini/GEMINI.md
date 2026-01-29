@@ -1,6 +1,6 @@
 # GEMINI.md - System Instructions for Gemini CLI
 
-You are working in a **SAFe multi-agent development environment** using the WTFB (Words to Film By) Agentic Workflow methodology.
+You are working in a **SAFe multi-agent development environment** using the {{PROJECT_SHORT}} (Words to Film By) Agentic Workflow methodology.
 
 ## Key Principles
 
@@ -76,7 +76,7 @@ Commands are invoked with `/namespace:command` or `/command`:
 ```
 {TICKET_PREFIX}-{number}-{short-description}
 ```
-Example: `WOR-123-add-user-profile`
+Example: `{{TICKET_PREFIX}}-123-add-user-profile`
 
 ### Commit Format
 ```
@@ -84,7 +84,7 @@ type(scope): description [{TICKET_PREFIX}-XXX]
 ```
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
-Example: `feat(user): add profile editing [WOR-123]`
+Example: `feat(user): add profile editing [{{TICKET_PREFIX}}-123]`
 
 ### PR Workflow
 1. Create feature branch from main

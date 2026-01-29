@@ -2,7 +2,7 @@
 
 **Purpose**: Define standard workflows for agent invocation and coordination
 
-**Version**: 1.4 (vNext Workflow Contract - WOR-497/499)
+**Version**: 1.4 (vNext Workflow Contract - {{TICKET_PREFIX}}-497/499)
 **Last Updated**: 2025-12-23
 
 ---
@@ -174,7 +174,7 @@ After specialist delivers complex code, invoke System Architect:
 Task({
   subagent_type: "system-architect",
   description: "Review deployment automation",
-  prompt: `Architectural review required for WOR-XXX deliverables.
+  prompt: `Architectural review required for {{TICKET_PREFIX}}-XXX deliverables.
 
 Files to Review:
 - scripts/deploy-migration-prod.sh (710 lines bash)
@@ -196,7 +196,7 @@ Decision Required:
 Context:
 [What automation does, why needed, production impact]
 
-Reference: WOR-XXX investigation findings`,
+Reference: {{TICKET_PREFIX}}-XXX investigation findings`,
 });
 ```
 
@@ -238,7 +238,7 @@ Once System Architect approves:
 3. **Create PR** with System Architect approval noted in description
 4. **Attach evidence** (review approval, test results)
 
-### Example: WOR-321 Gap
+### Example: {{TICKET_PREFIX}}-321 Gap
 
 **Missing Steps**: System Architect review NOT invoked
 
@@ -390,7 +390,7 @@ What type of work?
 
 ---
 
-## vNext Workflow Contract (WOR-497)
+## vNext Workflow Contract ({{TICKET_PREFIX}}-497)
 
 ### Exit States
 
@@ -489,7 +489,7 @@ RTE is the **PR shepherd**, not the gatekeeper. RTE does NOT merge.
 
 ---
 
-## Role Collapsing Guidelines (WOR-499)
+## Role Collapsing Guidelines ({{TICKET_PREFIX}}-499)
 
 ### Collapsible Roles
 
@@ -543,8 +543,8 @@ Note: QAS gate is ALWAYS present, never collapsed
 
 ### v1.4 (2025-12-23)
 
-- **Added**: vNext Workflow Contract (WOR-497)
-- **Added**: Role Collapsing Guidelines (WOR-499)
+- **Added**: vNext Workflow Contract ({{TICKET_PREFIX}}-497)
+- **Added**: Role Collapsing Guidelines ({{TICKET_PREFIX}}-499)
 - **Added**: Exit States for all agent roles
 - **Added**: Stop-the-Line Gate (mandatory AC/DoD check)
 - **Added**: QAS Gate Owner role with iteration authority
@@ -562,7 +562,7 @@ Note: QAS gate is ALWAYS present, never collapsed
 ### v1.1 (2025-10-06)
 
 - **Added**: Method 4 (System Architect Review for Complex Code)
-- **Rationale**: WOR-321 gap discovery (unreviewed complex automation)
+- **Rationale**: {{TICKET_PREFIX}}-321 gap discovery (unreviewed complex automation)
 - **Impact**: Prevents future governance gaps
 
 ### v1.0 (2025-10-05)
@@ -573,4 +573,4 @@ Note: QAS gate is ALWAYS present, never collapsed
 
 ---
 
-**Reference**: WOR-497/499 vNext Workflow Contract
+**Reference**: {{TICKET_PREFIX}}-497/499 vNext Workflow Contract

@@ -4,13 +4,13 @@
 
 **Version**: 1.0
 **Last Updated**: 2025-10-03
-**Owner**: WTFB Development Team
+**Owner**: {{PROJECT_SHORT}} Development Team
 
 ---
 
 ## Overview
 
-This SOP defines how to configure and maintain the 11-agent system for the WTFB application.
+This SOP defines how to configure and maintain the 11-agent system for the {{PROJECT_SHORT}} application.
 All agent configurations use YAML frontmatter to specify tool restrictions and model selection.
 
 ## Agent Configuration Format
@@ -378,4 +378,4 @@ Before committing agent configuration changes:
 
 ---
 
-**Questions?** Contact WTFB Development Team or System Architect
+**Questions?** Contact {{PROJECT_SHORT}} Development Team or System Architect

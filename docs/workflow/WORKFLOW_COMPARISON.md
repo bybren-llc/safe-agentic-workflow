@@ -65,7 +65,7 @@
 | Aspect                  | v1.0            | v1.1                       | Notes   |
 | ----------------------- | --------------- | -------------------------- | ------- |
 | **Gate exists**         | ❌ No           | ✅ **YES**                 | **NEW** |
-| **Branch verification** | ❌ None         | ✅ TDM checks WOR-XXX-...  | **NEW** |
+| **Branch verification** | ❌ None         | ✅ TDM checks {{TICKET_PREFIX}}-XXX-...  | **NEW** |
 | **Linear status**       | ❌ Not verified | ✅ Must be "In Progress"   | **NEW** |
 | **CONTRIBUTING.md**     | ❌ Not enforced | ✅ TDM verifies compliance | **NEW** |
 | **Git sync**            | ❌ Not checked  | ✅ TDM ensures latest dev  | **NEW** |
