@@ -40,11 +40,11 @@
 
 - [ ] **Bash scripts >100 lines** → MANDATORY System Architect review
   - Example: Deployment scripts, automation tools, setup scripts
-  - {TICKET_PREFIX}-XXX Gap: 710-line `deploy-migration-prod.sh` delivered without review
+  - {{TICKET_PREFIX}}-XXX Gap: 710-line `deploy-migration-prod.sh` delivered without review
 
 - [ ] **CI/CD workflow created/modified** → MANDATORY System Architect review
   - Example: GitHub Actions workflows, pipeline changes
-  - {TICKET_PREFIX}-XXX Gap: 641-line `migration-validation.yml` delivered without review
+  - {{TICKET_PREFIX}}-XXX Gap: 641-line `migration-validation.yml` delivered without review
 
 - [ ] **Infrastructure-as-code** → MANDATORY System Architect review
   - Example: Terraform, CloudFormation, Docker Compose
@@ -84,7 +84,7 @@
 
 - [ ] **Validation/verification scripts >200 lines** → MANDATORY System Architect review
   - Example: Pre-commit hooks, data validation
-  - {TICKET_PREFIX}-XXX Gap: 3 TypeScript scripts delivered without review
+  - {{TICKET_PREFIX}}-XXX Gap: 3 TypeScript scripts delivered without review
 
 - [ ] **Custom build tools** → MANDATORY System Architect review
   - Example: Build scripts, code generation

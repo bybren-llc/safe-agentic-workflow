@@ -60,8 +60,8 @@ git branch --merged dev | grep -v "^\*" | grep -v "dev" | grep -v "master"
 **Offer to delete merged feature branch:**
 
 ```bash
-# Example: {TICKET_PREFIX}-381-rename-slash-commands-remote-prefix
-git branch -d {TICKET_PREFIX}-381-rename-slash-commands-remote-prefix
+# Example: {{TICKET_PREFIX}}-381-rename-slash-commands-remote-prefix
+git branch -d {{TICKET_PREFIX}}-381-rename-slash-commands-remote-prefix
 ```
 
 **Prune remote tracking branches:**
@@ -177,7 +177,7 @@ If user chooses No or skips:
 Verify Docker services are running:
 
 ```bash
-docker ps --filter name={PROJECT_NAME} --format 'table {{.Names}}\t{{.Status}}\t{{.State}}'
+docker ps --filter name={{PROJECT_NAME}} --format 'table {{.Names}}\t{{.Status}}\t{{.State}}'
 ```
 
 If services not running:
@@ -198,7 +198,7 @@ Git Sync
 
 Branch:        dev
 Commits:       3 new commits pulled
-Latest:        fd85ba3 - feat(marketing): RenderTrust pages [{TICKET_PREFIX}-379]
+Latest:        fd85ba3 - feat(marketing): RenderTrust pages [{{TICKET_PREFIX}}-379]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Dependencies
@@ -224,12 +224,12 @@ Status:        ⏭️  Skipped (user opted out)
 Suggestion:    Run `yarn ci:validate` manually if needed
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Docker Services ({TICKET_PREFIX}-401: STANDARD Ports)
+Docker Services ({{TICKET_PREFIX}}-401: STANDARD Ports)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-{PROJECT_NAME}-dev-app:        ✅ Up 3 hours (healthy) → port 3000
-{PROJECT_NAME}-dev-postgres:   ✅ Up 3 hours (healthy) → port 5432
-{PROJECT_NAME}-dev-redis:      ✅ Up 3 hours (healthy) → port 6379
+{{PROJECT_NAME}}-dev-app:        ✅ Up 3 hours (healthy) → port 3000
+{{PROJECT_NAME}}-dev-postgres:   ✅ Up 3 hours (healthy) → port 5432
+{{PROJECT_NAME}}-dev-redis:      ✅ Up 3 hours (healthy) → port 6379
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Summary
@@ -336,13 +336,13 @@ Options:
 
 **When to Run**:
 
-- After receiving Slack notification in `#github-feed` ({TICKET_PREFIX}-411)
+- After receiving Slack notification in `#github-feed` ({{TICKET_PREFIX}}-411)
 - After every `git pull origin dev`
 - When switching branches
 - After long periods away from project
 - When seeing unexpected errors
 
-**Slack Notifications ({TICKET_PREFIX}-411)**:
+**Slack Notifications ({{TICKET_PREFIX}}-411)**:
 
 - Normal PRs: Basic merge notification
 - High-Risk PRs: `@channel` mention - sync immediately!
@@ -374,4 +374,4 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder       | Description               | Example               |
 | ----------------- | ------------------------- | --------------------- |
-| `{TICKET_PREFIX}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |
+| `{{TICKET_PREFIX}}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |

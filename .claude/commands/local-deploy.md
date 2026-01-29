@@ -19,9 +19,9 @@ Works on any machine with Docker Desktop or Docker Engine installed.
 
 | Mode                      | Flag        | Container                    | Use Case                                                                     |
 | ------------------------- | ----------- | ---------------------------- | ---------------------------------------------------------------------------- |
-| **Development** (default) | (none)      | `{PROJECT_NAME}-dev-app`     | Active development with hot-reload (STANDARD port 3000)                      |
-| **Staging**               | `--staging` | `{PROJECT_NAME}-staging-app` | Production-like, self-contained, survives git operations (port 3001)         |
-| **Both**                  | `--both`    | Both containers              | Run dev and staging simultaneously ({TICKET_PREFIX}-400/{TICKET_PREFIX}-401) |
+| **Development** (default) | (none)      | `{{PROJECT_NAME}}-dev-app`     | Active development with hot-reload (STANDARD port 3000)                      |
+| **Staging**               | `--staging` | `{{PROJECT_NAME}}-staging-app` | Production-like, self-contained, survives git operations (port 3001)         |
+| **Both**                  | `--both`    | Both containers              | Run dev and staging simultaneously ({{TICKET_PREFIX}}-400/{{TICKET_PREFIX}}-401) |
 
 **When to use each mode:**
 
@@ -56,18 +56,18 @@ Get current running status (check both container types):
 
 ```bash
 # Check for staging container
-docker ps --filter name={PROJECT_NAME}-staging-app --format '{{.Names}}\t{{.Status}}'
+docker ps --filter name={{PROJECT_NAME}}-staging-app --format '{{.Names}}\t{{.Status}}'
 
-# Check for dev container ({TICKET_PREFIX}-400: updated container name)
-docker ps --filter name={PROJECT_NAME}-dev-app --format '{{.Names}}\t{{.Status}}'
+# Check for dev container ({{TICKET_PREFIX}}-400: updated container name)
+docker ps --filter name={{PROJECT_NAME}}-dev-app --format '{{.Names}}\t{{.Status}}'
 ```
 
 Get current commit SHA:
 
 ```bash
-# Try staging first, then dev ({TICKET_PREFIX}-400: updated container names)
-docker inspect {PROJECT_NAME}-staging-app 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'"' -f4 || \
-docker inspect {PROJECT_NAME}-dev-app 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
+# Try staging first, then dev ({{TICKET_PREFIX}}-400: updated container names)
+docker inspect {{PROJECT_NAME}}-staging-app 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'"' -f4 || \
+docker inspect {{PROJECT_NAME}}-dev-app 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
 ```
 
 Get latest commit from dev branch:
@@ -177,11 +177,11 @@ This:
 Check services started successfully:
 
 ```bash
-# For dev mode (STANDARD port 3000, {TICKET_PREFIX}-401)
-docker ps --filter name={PROJECT_NAME}-dev --format 'table {{.Names}}\t{{.Status}}'
+# For dev mode (STANDARD port 3000, {{TICKET_PREFIX}}-401)
+docker ps --filter name={{PROJECT_NAME}}-dev --format 'table {{.Names}}\t{{.Status}}'
 
 # For staging mode (port 3001)
-docker ps --filter name={PROJECT_NAME}-staging --format 'table {{.Names}}\t{{.Status}}'
+docker ps --filter name={{PROJECT_NAME}}-staging --format 'table {{.Names}}\t{{.Status}}'
 ```
 
 Verify health endpoint:
@@ -208,10 +208,10 @@ Confirm new commit SHA:
 
 ```bash
 # Staging
-docker inspect {PROJECT_NAME}-staging-app | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
+docker inspect {{PROJECT_NAME}}-staging-app | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
 
-# Dev ({TICKET_PREFIX}-400: updated container name)
-docker inspect {PROJECT_NAME}-dev-app | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
+# Dev ({{TICKET_PREFIX}}-400: updated container name)
+docker inspect {{PROJECT_NAME}}-dev-app | grep 'org.opencontainers.image.revision' | cut -d'"' -f4
 ```
 
 ### 6. Post-Deployment Monitoring
@@ -219,11 +219,11 @@ docker inspect {PROJECT_NAME}-dev-app | grep 'org.opencontainers.image.revision'
 Check logs for startup issues:
 
 ```bash
-# Staging ({TICKET_PREFIX}-400: use container name)
-docker logs {PROJECT_NAME}-staging-app --tail 50
+# Staging ({{TICKET_PREFIX}}-400: use container name)
+docker logs {{PROJECT_NAME}}-staging-app --tail 50
 
-# Dev ({TICKET_PREFIX}-400: use container name or script)
-docker logs {PROJECT_NAME}-dev-app --tail 50
+# Dev ({{TICKET_PREFIX}}-400: use container name or script)
+docker logs {{PROJECT_NAME}}-dev-app --tail 50
 # Or use script
 ./scripts/dev-docker.sh logs --tail 50
 ```
@@ -251,10 +251,10 @@ Mode: STAGING (self-contained)
 Pre-Deployment
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Current:  e9722d4 - style(docs): apply markdown linting fixes [{TICKET_PREFIX}-347]
+Current:  e9722d4 - style(docs): apply markdown linting fixes [{{TICKET_PREFIX}}-347]
 Status:   Up 7 hours (healthy)
 
-Target:   3a49b85 - feat(ci): add Slack notifications [{TICKET_PREFIX}-350]
+Target:   3a49b85 - feat(ci): add Slack notifications [{{TICKET_PREFIX}}-350]
 Changes:  1 new commit
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -282,7 +282,7 @@ Deployment Progress
 Post-Deployment
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Running:  3a49b85 - feat(ci): add Slack notifications [{TICKET_PREFIX}-350]
+Running:  3a49b85 - feat(ci): add Slack notifications [{{TICKET_PREFIX}}-350]
 Status:   Healthy
 URL:      http://localhost:3000
 Duration: 2m 13s (or 4m 48s with rebuild)
@@ -314,7 +314,7 @@ Next steps:
 ./scripts/dev-docker.sh start         # Start dev containers
 ```
 
-## Running Both Modes Simultaneously ({TICKET_PREFIX}-400/{TICKET_PREFIX}-401)
+## Running Both Modes Simultaneously ({{TICKET_PREFIX}}-400/{{TICKET_PREFIX}}-401)
 
 **Port Allocation**:
 
@@ -334,7 +334,7 @@ Next steps:
 **Verify both running**:
 
 ```bash
-docker ps --filter name={PROJECT_NAME} --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+docker ps --filter name={{PROJECT_NAME}} --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
 **Expected**: 6 containers (3 dev + 3 staging)

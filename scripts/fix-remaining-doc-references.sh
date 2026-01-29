@@ -18,8 +18,6 @@ FILES=(
   "docs/onboarding/{{TICKET_PREFIX}}-326-COMPLETION-SUMMARY.md"
   "docs/team/PLANNING-AGENT-META-PROMPT.md"
   "patterns_library/database/rls-migration.md"
-  "whitepaper/data/REPOSITORY_ARTIFACT_VALIDATION.md"
-  "whitepaper/section-3-background-related-work.md"
 )
 
 # Update each file

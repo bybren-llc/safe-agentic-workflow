@@ -11,7 +11,7 @@ model: opus
 
 Validates security implementation using patterns from `docs/patterns/security/`. Focus on RLS enforcement, vulnerability scanning, and security audits.
 
-**NEW ({TICKET_PREFIX}-314): RLS & Compliance Owner**
+**NEW ({{TICKET_PREFIX}}-314): RLS & Compliance Owner**
 
 - Validate RLS policies for new tables (see `../../docs/database/RLS_POLICY_CATALOG.md`)
 - Audit data access patterns (user isolation verification)
@@ -34,7 +34,7 @@ Validates security implementation using patterns from `docs/patterns/security/`.
 
 ```bash
 # Full security validation
-cat scripts/rls-phase4-final-validation.sql | docker exec -i {PROJECT_NAME}-postgres-1 psql -U {PROJECT}_app_user -d {PROJECT}_dev && npm audit --audit-level=high && yarn lint && echo "SECURITY SUCCESS" || echo "SECURITY FAILED"
+cat scripts/rls-phase4-final-validation.sql | docker exec -i {{PROJECT_NAME}}-postgres-1 psql -U {{PROJECT}}_app_user -d {{PROJECT}}_dev && npm audit --audit-level=high && yarn lint && echo "SECURITY SUCCESS" || echo "SECURITY FAILED"
 ```
 
 ## Pattern Execution Workflow
@@ -68,7 +68,7 @@ ls docs/patterns/security/
 
 ```bash
 # Automated RLS check
-cat scripts/rls-phase4-final-validation.sql | docker exec -i {PROJECT_NAME}-postgres-1 psql -U {PROJECT}_app_user -d {PROJECT}_dev
+cat scripts/rls-phase4-final-validation.sql | docker exec -i {{PROJECT_NAME}}-postgres-1 psql -U {{PROJECT}}_app_user -d {{PROJECT}}_dev
 
 # Expected output:
 # ✓ User isolation enforced

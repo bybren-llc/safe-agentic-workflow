@@ -63,7 +63,7 @@ curl -s https://{domain}/api/health | jq .
 For Linear ticket attachment:
 
 ```markdown
-## Deployment Evidence - {TICKET_PREFIX}-XXX
+## Deployment Evidence - {{TICKET_PREFIX}}-XXX
 
 ### Environment
 

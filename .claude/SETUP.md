@@ -101,7 +101,7 @@ Search and replace in all copied files:
 | Find             | Replace With                       |
 | ---------------- | ---------------------------------- |
 | `{{TICKET_PREFIX}}-`           | Your ticket prefix (e.g., `PROJ-`) |
-| `{PROJECT_NAME}` | Your project name                  |
+| `{{PROJECT_NAME}}` | Your project name                  |
 | `dev` branch     | Your main development branch       |
 
 ### Update Linear Workspace
@@ -217,7 +217,7 @@ After setup, your `.claude/` directory should look like:
 
 | Command                           | Purpose                       |
 | --------------------------------- | ----------------------------- |
-| `/start-work {TICKET_PREFIX}-123` | Begin work on a ticket        |
+| `/start-work {{TICKET_PREFIX}}-123` | Begin work on a ticket        |
 | `/check-workflow`                 | Check current workflow status |
 | `/pre-pr`                         | Run validation before PR      |
 | `/end-work`                       | Complete work session         |

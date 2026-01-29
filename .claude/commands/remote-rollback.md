@@ -18,13 +18,13 @@ Get current problematic version:
 # ┌─────────────────────────────────────────────────────────┐
 # │ CUSTOMIZE: Replace with your SSH and container settings │
 # └─────────────────────────────────────────────────────────┘
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker inspect {APP_CONTAINER_STAGING} 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4 || docker inspect {APP_CONTAINER_DEV} | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker inspect {{APP_CONTAINER_STAGING}} 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4 || docker inspect {{APP_CONTAINER_DEV}} | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4"
 ```
 
 Check current status:
 
 ```bash
-curl -s http://{REMOTE_HOST}:{DEV_PORT}/api/health 2>/dev/null || echo "Health check failed"
+curl -s http://{{REMOTE_HOST}}:{{DEV_PORT}}/api/health 2>/dev/null || echo "Health check failed"
 ```
 
 Document the issue for Linear ticket creation later.
@@ -34,13 +34,13 @@ Document the issue for Linear ticket creation later.
 Show recent images on remote host:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker images {REGISTRY}/{IMAGE_NAME} --format 'table {{.Tag}}\t{{.ID}}\t{{.CreatedAt}}'"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker images {{REGISTRY}}/{{IMAGE_NAME}} --format 'table {{.Tag}}\t{{.ID}}\t{{.CreatedAt}}'"
 ```
 
 Cross-reference with git commits to show messages:
 
 ```bash
-git log origin/{MAIN_BRANCH} -10 --oneline
+git log origin/{{MAIN_BRANCH}} -10 --oneline
 ```
 
 ### 3. Select Rollback Target
@@ -63,7 +63,7 @@ Default behavior: Select image before current (most common rollback scenario)
 Pull the specific version from registry:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker pull {REGISTRY}/{IMAGE_NAME}:{TAG_PREFIX}-{target-sha}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker pull {{REGISTRY}}/{{IMAGE_NAME}}:{{TAG_PREFIX}}-{target-sha}"
 ```
 
 If image not in registry (old version pruned), use local cached image.
@@ -73,20 +73,20 @@ If image not in registry (old version pruned), use local cached image.
 Create backup of current config:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && cp {COMPOSE_FILE} {COMPOSE_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && cp {{COMPOSE_FILE}} {{COMPOSE_FILE}}.backup.$(date +%Y%m%d_%H%M%S)"
 ```
 
 Update docker-compose file to use specific image tag:
 
 ```bash
-# From: image: {REGISTRY}/{IMAGE_NAME}:latest
-# To:   image: {REGISTRY}/{IMAGE_NAME}:{TAG_PREFIX}-{target-sha}
+# From: image: {{REGISTRY}}/{{IMAGE_NAME}}:latest
+# To:   image: {{REGISTRY}}/{{IMAGE_NAME}}:{{TAG_PREFIX}}-{target-sha}
 ```
 
 Use SSH + sed for inline replacement:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && sed -i 's|{REGISTRY}/{IMAGE_NAME}:latest|{REGISTRY}/{IMAGE_NAME}:{TAG_PREFIX}-{target-sha}|g' {COMPOSE_FILE}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && sed -i 's|{{REGISTRY}}/{{IMAGE_NAME}}:latest|{{REGISTRY}}/{{IMAGE_NAME}}:{{TAG_PREFIX}}-{target-sha}|g' {{COMPOSE_FILE}}"
 ```
 
 ### 6. Restart Services
@@ -94,13 +94,13 @@ ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && sed -i '
 Restart with rollback image:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DOCKER_SCRIPT} restart"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && {{DOCKER_SCRIPT}} restart"
 ```
 
 Monitor startup:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DOCKER_SCRIPT} logs --tail 50"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && {{DOCKER_SCRIPT}} logs --tail 50"
 ```
 
 ### 7. Verify Rollback Success
@@ -108,19 +108,19 @@ ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DOCKER_
 Check services started:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker ps --filter name={CONTAINER_PREFIX}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker ps --filter name={{CONTAINER_PREFIX}}"
 ```
 
 Verify health endpoint:
 
 ```bash
-curl -s http://{REMOTE_HOST}:{DEV_PORT}/api/health | jq
+curl -s http://{{REMOTE_HOST}}:{{DEV_PORT}}/api/health | jq
 ```
 
 Confirm correct commit SHA:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker inspect {APP_CONTAINER_STAGING} 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4 || docker inspect {APP_CONTAINER_DEV} | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker inspect {{APP_CONTAINER_STAGING}} 2>/dev/null | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4 || docker inspect {{APP_CONTAINER_DEV}} | grep 'org.opencontainers.image.revision' | cut -d'\"' -f4"
 ```
 
 ### 8. Post-Rollback Actions
@@ -150,7 +150,7 @@ Provide comprehensive rollback summary:
 Problem Detected
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Version:  3a49b85 - feat(ci): add Slack notifications [{TICKET_PREFIX}-350]
+Version:  3a49b85 - feat(ci): add Slack notifications [{{TICKET_PREFIX}}-350]
 Issue:    Health check failing / Services crashing
 Time:     Deployed 5 minutes ago
 
@@ -158,7 +158,7 @@ Time:     Deployed 5 minutes ago
 Rollback Target
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Selected: e9722d4 - style(docs): apply markdown linting fixes [{TICKET_PREFIX}-347]
+Selected: e9722d4 - style(docs): apply markdown linting fixes [{{TICKET_PREFIX}}-347]
 Reason:   Last known stable version
 Age:      7 hours ago
 
@@ -166,9 +166,9 @@ Age:      7 hours ago
 Rollback Progress
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[14:30:00] Backup config... ✅ {COMPOSE_FILE}.backup.20251011_143000
-[14:30:05] Pull rollback image... ✅ {TAG_PREFIX}-e9722d4 (45s)
-[14:30:50] Update config... ✅ Set to {TAG_PREFIX}-e9722d4
+[14:30:00] Backup config... ✅ {{COMPOSE_FILE}}.backup.20251011_143000
+[14:30:05] Pull rollback image... ✅ {{TAG_PREFIX}}-e9722d4 (45s)
+[14:30:50] Update config... ✅ Set to {{TAG_PREFIX}}-e9722d4
 [14:30:55] Restart services... ✅ Complete (28s)
 [14:31:23] Health check... ✅ Passed
 
@@ -176,9 +176,9 @@ Rollback Progress
 Post-Rollback Status
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Running:  e9722d4 - style(docs): apply markdown linting fixes [{TICKET_PREFIX}-347]
+Running:  e9722d4 - style(docs): apply markdown linting fixes [{{TICKET_PREFIX}}-347]
 Status:   ✅ Healthy
-URL:      http://{REMOTE_HOST}:{DEV_PORT}
+URL:      http://{{REMOTE_HOST}}:{{DEV_PORT}}
 Duration: 1m 23s
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -201,7 +201,7 @@ When issue is resolved and new build is ready, restore to latest:
 
 ```bash
 # Restore compose file to use :latest tag
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && sed -i 's|{REGISTRY}/{IMAGE_NAME}:{TAG_PREFIX}-[a-f0-9]*|{REGISTRY}/{IMAGE_NAME}:latest|g' {COMPOSE_FILE}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && sed -i 's|{{REGISTRY}}/{{IMAGE_NAME}}:{{TAG_PREFIX}}-[a-f0-9]*|{{REGISTRY}}/{{IMAGE_NAME}}:latest|g' {{COMPOSE_FILE}}"
 
 # Then deploy normally
 /remote-deploy
@@ -215,7 +215,7 @@ If rollback target image not found:
 
 - Try older version
 - Pull from registry manually
-- Check available tags: `docker images | grep {IMAGE_NAME}`
+- Check available tags: `docker images | grep {{IMAGE_NAME}}`
 
 ### Services Still Failing
 
@@ -262,21 +262,21 @@ Document issue in Linear to prevent recurrence:
 
 | Placeholder               | Description                      | Example                     |
 | ------------------------- | -------------------------------- | --------------------------- |
-| `{SSH_KEY_PATH}`          | Path to SSH private key          | `~/.ssh/id_ed25519_staging` |
-| `{REMOTE_USER}`           | Username on remote host          | `deploy`                    |
-| `{REMOTE_HOST}`           | Remote server hostname/IP        | `staging.example.com`       |
-| `{PROJECT_PATH}`          | Project directory on remote      | `~/app`                     |
-| `{REGISTRY}`              | Container registry URL           | `ghcr.io/myorg/myapp`       |
-| `{IMAGE_NAME}`            | Docker image name                | `myapp`                     |
-| `{TAG_PREFIX}`            | Image tag prefix                 | `dev`, `staging`, `prod`    |
-| `{COMPOSE_FILE}`          | Docker compose filename          | `docker-compose.dev.yml`    |
-| `{DOCKER_SCRIPT}`         | Your deployment script           | `./scripts/dev-docker.sh`   |
-| `{CONTAINER_PREFIX}`      | Container name prefix for filter | `myapp`                     |
-| `{APP_CONTAINER_DEV}`     | Dev app container name           | `myapp-dev`                 |
-| `{APP_CONTAINER_STAGING}` | Staging app container name       | `myapp-staging`             |
-| `{DEV_PORT}`              | Port your dev app runs on        | `3000`                      |
-| `{MAIN_BRANCH}`           | Main git branch name             | `main`                      |
-| `{TICKET_PREFIX}`         | Linear/Jira ticket prefix        | `WOR`, `PROJ`, `FEAT`       |
+| `{{SSH_KEY_PATH}}`          | Path to SSH private key          | `~/.ssh/id_ed25519_staging` |
+| `{{REMOTE_USER}}`           | Username on remote host          | `deploy`                    |
+| `{{REMOTE_HOST}}`           | Remote server hostname/IP        | `staging.example.com`       |
+| `{{PROJECT_PATH}}`          | Project directory on remote      | `~/app`                     |
+| `{{REGISTRY}}`              | Container registry URL           | `ghcr.io/myorg/myapp`       |
+| `{{IMAGE_NAME}}`            | Docker image name                | `myapp`                     |
+| `{{TAG_PREFIX}}`            | Image tag prefix                 | `dev`, `staging`, `prod`    |
+| `{{COMPOSE_FILE}}`          | Docker compose filename          | `docker-compose.dev.yml`    |
+| `{{DOCKER_SCRIPT}}`         | Your deployment script           | `./scripts/dev-docker.sh`   |
+| `{{CONTAINER_PREFIX}}`      | Container name prefix for filter | `myapp`                     |
+| `{{APP_CONTAINER_DEV}}`     | Dev app container name           | `myapp-dev`                 |
+| `{{APP_CONTAINER_STAGING}}` | Staging app container name       | `myapp-staging`             |
+| `{{DEV_PORT}}`              | Port your dev app runs on        | `3000`                      |
+| `{{MAIN_BRANCH}}`           | Main git branch name             | `main`                      |
+| `{{TICKET_PREFIX}}`         | Linear/Jira ticket prefix        | `WOR`, `PROJ`, `FEAT`       |
 
 ### Example Configuration
 

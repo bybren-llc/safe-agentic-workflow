@@ -180,15 +180,12 @@ Each new directory needs a README.md index:
 
 #### Low Priority (Whitepaper and Other Docs)
 
-**whitepaper/section-3-background-related-work.md**:
 
 - Lines 427-429: References to `DATA_DICTIONARY.md`, `RLS_IMPLEMENTATION_GUIDE.md`, `SECURITY_FIRST_ARCHITECTURE.md`
 
-**whitepaper/data/REPOSITORY_ARTIFACT_VALIDATION.md**:
 
 - Lines 64-68: References to `DATA_DICTIONARY.md`, `SECURITY_FIRST_ARCHITECTURE.md`, `RLS_IMPLEMENTATION_GUIDE.md`, `CI-CD-Pipeline-Guide.md`
 
-**whitepaper/README.md**:
 
 - Line 241: Reference to `RLS_IMPLEMENTATION_GUIDE.md`
 
@@ -238,7 +235,6 @@ After reorganization, verify:
 - [ ] Run link checker on README.md
 - [ ] Run link checker on all docs/onboarding/\*.md files
 - [ ] Run link checker on all agent prompts
-- [ ] Run link checker on whitepaper/\*.md files
 
 ### 2. Agent Prompts Still Work
 

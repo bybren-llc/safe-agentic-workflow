@@ -89,5 +89,5 @@ The `pattern-discovery` skill automatically searches this directory when agents 
 
 ---
 
-**Last Updated**: {DATE}
-**Maintained by**: {PROJECT_NAME} Development Team
+**Last Updated**: {{DATE}}
+**Maintained by**: {{PROJECT_NAME}} Development Team

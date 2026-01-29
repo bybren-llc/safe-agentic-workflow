@@ -13,7 +13,7 @@ attribution in a prominent location (e.g., README, documentation, or UI):
 The {{PROJECT_SHORT}}™ methodology, agent team structure, and skill system are the
 intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
 
-For licensing inquiries: scott@{{PROJECT_DOMAIN}}
+For licensing inquiries: {{AUTHOR_EMAIL}}
 Website: https://{{PROJECT_DOMAIN}}
 Creator: https://{{AUTHOR_WEBSITE}}
 GitHub: https://github.com/{{AUTHOR_HANDLE}} | https://github.com/{{GITHUB_ORG}}

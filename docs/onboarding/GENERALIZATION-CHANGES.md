@@ -39,7 +39,7 @@ If you need to make changes manually, here are the specific updates required:
 
 #### 2. Generalize GitHub URLs
 
-**Find:** `https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow`
+**Find:** `https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow`
 **Replace:** `{{GITHUB_REPO_URL}}`
 
 **Locations:**
@@ -51,12 +51,12 @@ If you need to make changes manually, here are the specific updates required:
 
 #### 3. Generalize GitIngest URLs
 
-**Find:** `https://gitingest.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow`
+**Find:** `https://gitingest.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow`
 **Replace:** `https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}`
 
 #### 4. Generalize Project Name
 
-**Find:** `cd {PROJECT_NAME}-Agentic-Workflow`
+**Find:** `cd {{PROJECT_NAME}}-Agentic-Workflow`
 **Replace:** `cd {{PROJECT_NAME}}`
 
 #### 5. Generalize Ticket Prefixes
@@ -86,12 +86,12 @@ If you need to make changes manually, here are the specific updates required:
 - **Purpose**: Your first day with the {{PROJECT_SHORT}} SAFe methodology
 + **Purpose**: Your first day with the SAFe multi-agent methodology
 
-- git clone https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
-- cd {PROJECT_NAME}-Agentic-Workflow
+- git clone https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
+- cd {{PROJECT_NAME}}-Agentic-Workflow
 + git clone {{GITHUB_REPO_URL}}
 + cd {{PROJECT_NAME}}
 
-- Visit: https://gitingest.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- Visit: https://gitingest.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + Visit: https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}
 
 - I want to create a test Linear ticket to validate my {{PROJECT_SHORT}} SAFe setup.
@@ -103,10 +103,10 @@ If you need to make changes manually, here are the specific updates required:
 - **Congratulations!** You've completed Day 1 of the {{PROJECT_SHORT}} SAFe Multi-Agent Development methodology.
 + **Congratulations!** You've completed Day 1 of the SAFe Multi-Agent Development methodology.
 
-- GitHub Discussions: https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow/discussions
+- GitHub Discussions: https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow/discussions
 + GitHub Discussions: See your repository's discussions page
 
-- Email: scott@{{PROJECT_DOMAIN}}
+- Email: {{AUTHOR_EMAIL}}
 + (Remove or replace with your contact)
 ```
 
@@ -116,13 +116,13 @@ If you need to make changes manually, here are the specific updates required:
 - How to configure social sharing for the {{PROJECT_SHORT}} SAFe Multi-Agent Development repository.
 + How to configure social sharing for the SAFe Multi-Agent Development repository.
 
-- 1. Go to: https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- 1. Go to: https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + 1. Go to: {{GITHUB_REPO_URL}}
 
 - **Project Name**: "{{PROJECT_SHORT}} SAFe Multi-Agent Development"
 + **Project Name**: "{{PROJECT_NAME}} SAFe Multi-Agent Development"
 
-- content="https://{{GITHUB_ORG}}.github.io/{PROJECT_NAME}-Agentic-Workflow/"
+- content="https://{{GITHUB_ORG}}.github.io/{{PROJECT_NAME}}-Agentic-Workflow/"
 + content="https://{{GITHUB_ORG}}.github.io/{{GITHUB_REPO}}/"
 ```
 
@@ -135,8 +135,8 @@ If you need to make changes manually, here are the specific updates required:
 - The {{PROJECT_SHORT}} SAFe methodology uses **11 specialized AI agents**
 + The SAFe multi-agent methodology uses **11 specialized AI agents**
 
-- git clone https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
-- cd {PROJECT_NAME}-Agentic-Workflow
+- git clone https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
+- cd {{PROJECT_NAME}}-Agentic-Workflow
 + git clone {{GITHUB_REPO_URL}}
 + cd {{PROJECT_NAME}}
 
@@ -156,13 +156,13 @@ If you need to make changes manually, here are the specific updates required:
 - # Meta-Prompts for {{PROJECT_SHORT}} SAFe Multi-Agent Development
 + # Meta-Prompts for SAFe Multi-Agent Development
 
-- **Repository**: https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- **Repository**: https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + **Repository**: {{GITHUB_REPO_URL}}
 
 - I want to set up the {{PROJECT_SHORT}} SAFe Multi-Agent Development methodology
 + I want to set up the SAFe Multi-Agent Development methodology
 
-- I've cloned the repository from https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- I've cloned the repository from https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + I've cloned the repository from {{GITHUB_REPO_URL}}
 
 - I'm working on a task and need to know which {{PROJECT_SHORT}} SAFe agent to invoke.
@@ -180,29 +180,29 @@ If you need to make changes manually, here are the specific updates required:
 - I've just set up the {{PROJECT_SHORT}} SAFe Multi-Agent Development methodology.
 + I've just set up the SAFe Multi-Agent Development methodology.
 
-- Repository cloned: `git clone https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow`
+- Repository cloned: `git clone https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow`
 + Repository cloned: `git clone {{GITHUB_REPO_URL}}`
 
 - I'm having trouble with the {{PROJECT_SHORT}} SAFe Multi-Agent Development setup.
 + I'm having trouble with the SAFe Multi-Agent Development setup.
 
-- **GitIngest Link**: https://gitingest.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- **GitIngest Link**: https://gitingest.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + **GitIngest Link**: https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}
 ```
 
 ### USER-JOURNEY-VALIDATION-REPORT.md
 
 ```diff
-- ## {PROJECT_NAME}-Agentic-Workflow Repository
+- ## {{PROJECT_NAME}}-Agentic-Workflow Repository
 + ## SAFe-Agentic-Workflow Repository
 
 - **Ticket**: {{TICKET_PREFIX}}-326
 + **Ticket**: {{TICKET_PREFIX}}-326
 
-- **Repository**: https://github.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- **Repository**: https://github.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + **Repository**: {{GITHUB_REPO_URL}}
 
-- **URL**: https://gitingest.com/{{GITHUB_ORG}}/{PROJECT_NAME}-Agentic-Workflow
+- **URL**: https://gitingest.com/{{GITHUB_ORG}}/{{PROJECT_NAME}}-Agentic-Workflow
 + **URL**: https://gitingest.com/{{GITHUB_ORG}}/{{GITHUB_REPO}}
 
 - ### ✅ COMPLETED ({{TICKET_PREFIX}}-326)

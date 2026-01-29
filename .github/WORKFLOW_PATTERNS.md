@@ -55,7 +55,7 @@ jobs:
       - name: Check branch name format
         run: |
           BRANCH="${{ github.head_ref }}"
-          # Enforce pattern: {TICKET_PREFIX}-{number}-{description}
+          # Enforce pattern: {{TICKET_PREFIX}}-{number}-{description}
           if [[ ! "$BRANCH" =~ ^[A-Z]+-[0-9]+-[a-z0-9-]+$ ]]; then
             echo "❌ Branch name must match pattern: PREFIX-123-description"
             exit 1

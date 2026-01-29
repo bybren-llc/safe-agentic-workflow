@@ -60,14 +60,14 @@ ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
 
 -- User policy
 CREATE POLICY user_data_user_select ON user_data
-  FOR SELECT TO {PROJECT}_app_user
+  FOR SELECT TO {{PROJECT}}_app_user
   USING (user_id = current_setting('app.current_user_id', true));
 
 -- Index for RLS performance (MANDATORY)
 CREATE INDEX idx_user_data_user_id ON user_data(user_id);
 
 -- Grant permissions
-GRANT SELECT, INSERT, UPDATE ON user_data TO {PROJECT}_app_user;
+GRANT SELECT, INSERT, UPDATE ON user_data TO {{PROJECT}}_app_user;
 ```
 
 ## Migration Workflow (MANDATORY)
@@ -129,7 +129,7 @@ After successful migration:
 
 ```sql
 CREATE POLICY {table}_user_select ON {table}
-  FOR SELECT TO {PROJECT}_app_user
+  FOR SELECT TO {{PROJECT}}_app_user
   USING (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -137,7 +137,7 @@ CREATE POLICY {table}_user_select ON {table}
 
 ```sql
 CREATE POLICY {table}_user_insert ON {table}
-  FOR INSERT TO {PROJECT}_app_user
+  FOR INSERT TO {{PROJECT}}_app_user
   WITH CHECK (user_id = current_setting('app.current_user_id', true));
 ```
 
@@ -145,7 +145,7 @@ CREATE POLICY {table}_user_insert ON {table}
 
 ```sql
 CREATE POLICY {table}_admin_all ON {table}
-  FOR ALL TO {PROJECT}_app_user
+  FOR ALL TO {{PROJECT}}_app_user
   USING (current_setting('app.user_role', true) = 'admin');
 ```
 
@@ -153,7 +153,7 @@ CREATE POLICY {table}_admin_all ON {table}
 
 ```sql
 CREATE POLICY {table}_system_all ON {table}
-  FOR ALL TO {PROJECT}_app_user
+  FOR ALL TO {{PROJECT}}_app_user
   USING (current_setting('app.context_type', true) = 'system');
 ```
 

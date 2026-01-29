@@ -1,5 +1,5 @@
 ---
-description: Check if {DEV_MACHINE} Docker environment needs updating
+description: Check if {{DEV_MACHINE}} Docker environment needs updating
 allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
@@ -7,7 +7,7 @@ allowed-tools: [Read, Write, Edit, Bash, Grep, Glob]
 
 > **DEPRECATED**: This command is an alias to `/remote-status`. Use `/remote-status` directly.
 
-This command calls `/remote-status` which is the canonical command for checking {DEV_MACHINE} Docker status.
+This command calls `/remote-status` which is the canonical command for checking {{DEV_MACHINE}} Docker status.
 
 ## Usage
 
@@ -17,17 +17,17 @@ This command calls `/remote-status` which is the canonical command for checking 
 
 ## Why Deprecated?
 
-Per {TICKET_PREFIX}-445, we canonicalized around `/remote-*` and `/local-*` naming:
+Per {{TICKET_PREFIX}}-445, we canonicalized around `/remote-*` and `/local-*` naming:
 
-- `/remote-*` = {DEV_MACHINE} operations (staging-first, then dev)
+- `/remote-*` = {{DEV_MACHINE}} operations (staging-first, then dev)
 - `/local-*` = Local machine operations
 
 ## Related Commands
 
-- `/remote-status` - **Canonical** - Check if {DEV_MACHINE} needs update
-- `/remote-deploy` - Deploy latest image to {DEV_MACHINE}
-- `/remote-health` - Health dashboard for {DEV_MACHINE}
-- `/remote-logs` - View {DEV_MACHINE} container logs
+- `/remote-status` - **Canonical** - Check if {{DEV_MACHINE}} needs update
+- `/remote-deploy` - Deploy latest image to {{DEV_MACHINE}}
+- `/remote-health` - Health dashboard for {{DEV_MACHINE}}
+- `/remote-logs` - View {{DEV_MACHINE}} container logs
 
 ## Customization Guide
 
@@ -35,5 +35,5 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder       | Description                  | Example                           |
 | ----------------- | ---------------------------- | --------------------------------- |
-| `{TICKET_PREFIX}` | Your Linear ticket prefix    | `WOR`, `PROJ`, `TASK`             |
-| `{DEV_MACHINE}`   | Your remote dev machine name | `Pop OS`, `staging`, `dev-server` |
+| `{{TICKET_PREFIX}}` | Your Linear ticket prefix    | `WOR`, `PROJ`, `TASK`             |
+| `{{DEV_MACHINE}}`   | Your remote dev machine name | `Pop OS`, `staging`, `dev-server` |

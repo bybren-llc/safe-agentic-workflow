@@ -22,7 +22,7 @@ Execute single deploy command on remote host:
 # │ - PROJECT_PATH: Path to your project on the remote host             │
 # │ - DEPLOY_SCRIPT: Your deployment script path                        │
 # └─────────────────────────────────────────────────────────────────────┘
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "cd {PROJECT_PATH} && {DEPLOY_SCRIPT}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "cd {{PROJECT_PATH}} && {{DEPLOY_SCRIPT}}"
 
 # Example with real values:
 # ssh -i ~/.ssh/id_ed25519_staging user@staging.example.com "cd ~/app && ./scripts/deploy.sh"
@@ -45,7 +45,7 @@ Waiting for health check...
 Deploy complete!
 Status: Up 5 seconds (health: starting)
 Revision: abc1234
-URL: http://localhost:{STAGING_PORT}
+URL: http://localhost:{{STAGING_PORT}}
 ```
 
 Expected duration: 2-5 minutes
@@ -62,7 +62,7 @@ Expected duration: 2-5 minutes
 
 Possible causes:
 
-- Registry auth expired - run `docker login {REGISTRY}`
+- Registry auth expired - run `docker login {{REGISTRY}}`
 - Disk space full - run `df -h` on remote host
 
 ### Health Check Failed
@@ -83,10 +83,10 @@ After deployment, verify with:
 # └─────────────────────────────────────────────────────────────────────┘
 
 # Health check
-curl -s http://{REMOTE_HOST}:{STAGING_PORT}/api/health | jq
+curl -s http://{{REMOTE_HOST}}:{{STAGING_PORT}}/api/health | jq
 
 # Container status
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} "docker ps --filter name={CONTAINER_NAME}"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} "docker ps --filter name={{CONTAINER_NAME}}"
 ```
 
 ## Customization Guide
@@ -95,14 +95,14 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder        | Description                   | Example                     |
 | ------------------ | ----------------------------- | --------------------------- |
-| `{SSH_KEY_PATH}`   | Path to SSH private key       | `~/.ssh/id_ed25519_staging` |
-| `{REMOTE_USER}`    | Username on remote host       | `deploy`                    |
-| `{REMOTE_HOST}`    | Staging server hostname/IP    | `staging.example.com`       |
-| `{PROJECT_PATH}`   | Project directory on remote   | `~/app`                     |
-| `{DEPLOY_SCRIPT}`  | Your deployment script        | `./scripts/deploy.sh`       |
-| `{STAGING_PORT}`   | Port your staging app runs on | `3001`                      |
-| `{CONTAINER_NAME}` | Docker container name         | `myapp-staging`             |
-| `{REGISTRY}`       | Container registry URL        | `ghcr.io/myorg/myapp`       |
+| `{{SSH_KEY_PATH}}`   | Path to SSH private key       | `~/.ssh/id_ed25519_staging` |
+| `{{REMOTE_USER}}`    | Username on remote host       | `deploy`                    |
+| `{{REMOTE_HOST}}`    | Staging server hostname/IP    | `staging.example.com`       |
+| `{{PROJECT_PATH}}`   | Project directory on remote   | `~/app`                     |
+| `{{DEPLOY_SCRIPT}}`  | Your deployment script        | `./scripts/deploy.sh`       |
+| `{{STAGING_PORT}}`   | Port your staging app runs on | `3001`                      |
+| `{{CONTAINER_NAME}}` | Docker container name         | `myapp-staging`             |
+| `{{REGISTRY}}`       | Container registry URL        | `ghcr.io/myorg/myapp`       |
 
 ## Related Commands
 

@@ -15,8 +15,8 @@ Most Docker setups support two deployment modes:
 
 | Mode            | Container Name      | Port   | Use Case                                    |
 | --------------- | ------------------- | ------ | ------------------------------------------- |
-| **Development** | `{PROJECT}-dev`     | `3000` | Hot-reload, source-mounted, local dev tools |
-| **Staging**     | `{PROJECT}-staging` | `3001` | Production-like, self-contained, stable     |
+| **Development** | `{{PROJECT}}-dev`     | `3000` | Hot-reload, source-mounted, local dev tools |
+| **Staging**     | `{{PROJECT}}-staging` | `3001` | Production-like, self-contained, stable     |
 
 **Dev mode uses standard ports** so local tools work by default.
 **Staging mode is recommended** - it's stable and won't break during `git pull`.
@@ -33,26 +33,26 @@ Check running container on remote host:
 # └─────────────────────────────────────────────────────────────────────┘
 
 # Check dev container
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} \
-  "docker ps --filter name={PROJECT}-dev --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} \
+  "docker ps --filter name={{PROJECT}}-dev --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'"
 
 # Check staging container
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} \
-  "docker ps --filter name={PROJECT}-staging --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} \
+  "docker ps --filter name={{PROJECT}}-staging --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'"
 ```
 
 Extract commit SHA from running container:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} \
-  "docker inspect {CONTAINER_NAME} | grep 'org.opencontainers.image.revision'"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} \
+  "docker inspect {{CONTAINER_NAME}} | grep 'org.opencontainers.image.revision'"
 ```
 
 Get image creation time:
 
 ```bash
-ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} \
-  "docker images {REGISTRY}:latest --format '{{.CreatedAt}}'"
+ssh -i {{SSH_KEY_PATH}} {{REMOTE_USER}}@{{REMOTE_HOST}} \
+  "docker images {{REGISTRY}}:latest --format '{{.CreatedAt}}'"
 ```
 
 ### 2. Get Latest Registry Image Info
@@ -60,14 +60,14 @@ ssh -i {SSH_KEY_PATH} {REMOTE_USER}@{REMOTE_HOST} \
 Check latest commit on your main branch:
 
 ```bash
-git fetch origin {MAIN_BRANCH}
-git log origin/{MAIN_BRANCH} -1 --format='%H %s'
+git fetch origin {{MAIN_BRANCH}}
+git log origin/{{MAIN_BRANCH}} -1 --format='%H %s'
 ```
 
 Check latest GitHub Actions build status:
 
 ```bash
-gh run list --workflow={BUILD_WORKFLOW} --limit 3
+gh run list --workflow={{BUILD_WORKFLOW}} --limit 3
 ```
 
 ### 3. Compare and Report Status
@@ -98,9 +98,9 @@ Display comprehensive status:
 Remote Environment (Running)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Container: {CONTAINER_NAME}
+Container: {{CONTAINER_NAME}}
 Status:    ✅ Up 7 hours (healthy)
-Image:     {REGISTRY}:latest
+Image:     {{REGISTRY}}:latest
 Commit:    e9722d4 - style(docs): apply markdown linting fixes
 Created:   2025-10-11 08:20:15
 
@@ -155,7 +155,7 @@ Based on status, provide appropriate next steps:
 If SSH fails:
 
 - Check VPN/network connection
-- Verify SSH key exists at `{SSH_KEY_PATH}`
+- Verify SSH key exists at `{{SSH_KEY_PATH}}`
 - Provide manual SSH command
 
 If container not found:
@@ -169,14 +169,14 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder        | Description                    | Example                     |
 | ------------------ | ------------------------------ | --------------------------- |
-| `{SSH_KEY_PATH}`   | Path to SSH private key        | `~/.ssh/id_ed25519_staging` |
-| `{REMOTE_USER}`    | Username on remote host        | `deploy`                    |
-| `{REMOTE_HOST}`    | Remote server hostname/IP      | `staging.example.com`       |
-| `{PROJECT}`        | Your project name              | `myapp`                     |
-| `{CONTAINER_NAME}` | Docker container name          | `myapp-staging`             |
-| `{REGISTRY}`       | Container registry URL         | `ghcr.io/myorg/myapp`       |
-| `{MAIN_BRANCH}`    | Your main branch name          | `main` or `dev`             |
-| `{BUILD_WORKFLOW}` | CI workflow that builds images | `build-image.yml`           |
+| `{{SSH_KEY_PATH}}`   | Path to SSH private key        | `~/.ssh/id_ed25519_staging` |
+| `{{REMOTE_USER}}`    | Username on remote host        | `deploy`                    |
+| `{{REMOTE_HOST}}`    | Remote server hostname/IP      | `staging.example.com`       |
+| `{{PROJECT}}`        | Your project name              | `myapp`                     |
+| `{{CONTAINER_NAME}}` | Docker container name          | `myapp-staging`             |
+| `{{REGISTRY}}`       | Container registry URL         | `ghcr.io/myorg/myapp`       |
+| `{{MAIN_BRANCH}}`    | Your main branch name          | `main` or `dev`             |
+| `{{BUILD_WORKFLOW}}` | CI workflow that builds images | `build-image.yml`           |
 
 ## Success Criteria
 

@@ -90,7 +90,7 @@ PR/Release → RTE
 ```markdown
 **Blocker Escalation**
 
-**Ticket**: {TICKET_PREFIX}-XXX
+**Ticket**: {{TICKET_PREFIX}}-XXX
 **Blocked Since**: [timestamp]
 **Agent**: [which specialist is blocked]
 
@@ -133,7 +133,7 @@ All work must include evidence in Linear:
 
 **Session ID**: [Claude session ID]
 **Agent**: [which specialist]
-**Ticket**: {TICKET_PREFIX}-XXX
+**Ticket**: {{TICKET_PREFIX}}-XXX
 
 **Work Completed**:
 

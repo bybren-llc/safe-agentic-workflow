@@ -103,7 +103,7 @@ cp specs_templates/planning_template.md specs/{feature}-planning.md
 # Fill with Epic → Features → Stories → Enablers
 
 # User story → Use spec template
-cp specs_templates/spec_template.md specs/{TICKET_PREFIX}-XXX-{feature}-spec.md
+cp specs_templates/spec_template.md specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 # Fill with implementation details
 ```
 
@@ -111,7 +111,7 @@ cp specs_templates/spec_template.md specs/{TICKET_PREFIX}-XXX-{feature}-spec.md
 
 ```bash
 # 1. Read spec for clear goal
-cat specs/{TICKET_PREFIX}-XXX-{feature}-spec.md
+cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 # 2. Extract:
 # - User story (goal)
@@ -287,7 +287,7 @@ See [Agent Workflow SOP v1.4](./docs/sop/AGENT_WORKFLOW_SOP.md) for details.
 
 ## Human-in-the-Loop (HITL) Model
 
-**Product Owner / Product Manager**: {POPM_NAME}
+**Product Owner / Product Manager**: {{POPM_NAME}}
 
 - All work requires evidence in Linear before POPM review
 - Swimlane workflow: Backlog → Ready → In Progress → Testing → Ready for Review → Done
@@ -317,8 +317,8 @@ Use `@agent-name` for simple, single-step tasks:
 @tech-writer Document the user profile API in README
 
 # Coordination
-@tdm Coordinate implementation of {TICKET_PREFIX}-123 user profile feature
-@rte Create PR for {TICKET_PREFIX}-123 and run CI validation
+@tdm Coordinate implementation of {{TICKET_PREFIX}}-123 user profile feature
+@rte Create PR for {{TICKET_PREFIX}}-123 and run CI validation
 ```
 
 ### Task Tool Invocation (Complex Tasks)
@@ -329,8 +329,8 @@ Use `Task()` for complex, multi-step tasks with detailed instructions:
 // BSA: Create comprehensive spec
 Task({
   subagent_type: "bsa",
-  description: "Create spec for {TICKET_PREFIX}-123",
-  prompt: `Create comprehensive spec for {TICKET_PREFIX}-123 user profile feature.
+  description: "Create spec for {{TICKET_PREFIX}}-123",
+  prompt: `Create comprehensive spec for {{TICKET_PREFIX}}-123 user profile feature.
 
 Requirements:
 - User can view and edit their profile
@@ -349,8 +349,8 @@ Please:
 // Backend Developer: Implement with pattern discovery
 Task({
   subagent_type: "be-developer",
-  description: "Implement {TICKET_PREFIX}-123 API",
-  prompt: `Read spec at specs/{TICKET_PREFIX}-123-user-profile-spec.md
+  description: "Implement {{TICKET_PREFIX}}-123 API",
+  prompt: `Read spec at specs/{{TICKET_PREFIX}}-123-user-profile-spec.md
 
 Implement the user profile API endpoints:
 1. GET /api/user/profile - Get current user's profile
@@ -370,8 +370,8 @@ Pattern discovery is MANDATORY before implementation.`,
 // QAS: Execute comprehensive testing
 Task({
   subagent_type: "qas",
-  description: "Test {TICKET_PREFIX}-123 feature",
-  prompt: `Read spec at specs/{TICKET_PREFIX}-123-user-profile-spec.md
+  description: "Test {{TICKET_PREFIX}}-123 feature",
+  prompt: `Read spec at specs/{{TICKET_PREFIX}}-123-user-profile-spec.md
 
 Execute the testing strategy defined by BSA:
 
@@ -398,8 +398,8 @@ Validate all acceptance criteria from the spec.`,
 // TDM: Reactive blocker resolution (NOT orchestration)
 Task({
   subagent_type: "tdm",
-  description: "Resolve blocker for {TICKET_PREFIX}-123",
-  prompt: `A blocker has been reported for {TICKET_PREFIX}-123.
+  description: "Resolve blocker for {{TICKET_PREFIX}}-123",
+  prompt: `A blocker has been reported for {{TICKET_PREFIX}}-123.
 
 TDM Responsibilities (per v1.3 SOP):
 1. Monitor progress - read session archaeology, Linear, PR comments
@@ -426,7 +426,7 @@ ARCHitect-in-CLI is the primary orchestrator.`,
 
 ### Pro Tips
 
-1. **Always reference specs**: `Read spec at specs/{TICKET_PREFIX}-XXX-spec.md`
+1. **Always reference specs**: `Read spec at specs/{{TICKET_PREFIX}}-XXX-spec.md`
 2. **Mandate pattern discovery**: `Pattern discovery is MANDATORY before implementation`
 3. **Check #EXPORT_CRITICAL tags**: `Review #EXPORT_CRITICAL tags in spec first`
 4. **Validate with commands**: Use success validation commands from agent prompts

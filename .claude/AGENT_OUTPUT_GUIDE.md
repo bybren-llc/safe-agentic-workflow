@@ -164,8 +164,8 @@ These paths are hardcoded across 80+ files. **DO NOT MODIFY THESE LOCATIONS**:
 
 ```bash
 # QAS agent writes validation report
-cat > /docs/agent-outputs/qa-validations/{TICKET_PREFIX}-334-qa-validation.md <<EOF
-## QA Validation Report - {TICKET_PREFIX}-334
+cat > /docs/agent-outputs/qa-validations/{{TICKET_PREFIX}}-334-qa-validation.md <<EOF
+## QA Validation Report - {{TICKET_PREFIX}}-334
 
 **Tests Executed**: 5/5 (100% pass)
 **Acceptance Criteria Met**: 6/6 (100%)
@@ -182,8 +182,8 @@ EOF
 
 ```bash
 # BSA agent writes requirements
-cat > /docs/agent-outputs/requirements/{TICKET_PREFIX}-335-requirements.md <<EOF
-## Requirements - {TICKET_PREFIX}-335
+cat > /docs/agent-outputs/requirements/{{TICKET_PREFIX}}-335-requirements.md <<EOF
+## Requirements - {{TICKET_PREFIX}}-335
 
 **User Story**: As a user, I want to...
 
@@ -202,8 +202,8 @@ EOF
 
 ```bash
 # Tech Writer creates migration guide
-cat > /docs/agent-outputs/technical-docs/{TICKET_PREFIX}-336-migration-guide.md <<EOF
-## Migration Guide - {TICKET_PREFIX}-336
+cat > /docs/agent-outputs/technical-docs/{{TICKET_PREFIX}}-336-migration-guide.md <<EOF
+## Migration Guide - {{TICKET_PREFIX}}-336
 
 **What Changed**: Database schema update
 

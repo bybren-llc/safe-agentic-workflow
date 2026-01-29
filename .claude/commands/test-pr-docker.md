@@ -43,7 +43,7 @@ Explain to user:
 - GitHub Actions will build Docker image (~5-10 min)
 - Image will be tagged as `pr-{number}`
 - Build status visible in PR checks
-- Can monitor at: `https://{GITHUB_ORG}/{PROJECT_NAME}/actions`
+- Can monitor at: `https://{{GITHUB_ORG}}/{{PROJECT_NAME}}/actions`
 
 Provide link to PR:
 
@@ -62,15 +62,15 @@ Once build completes, guide user through verification:
 ./scripts/dev-docker.sh pull-pr {PR-number}
 
 # Verify image exists
-docker images | grep {PROJECT_NAME}
+docker images | grep {{PROJECT_NAME}}
 
-# {TICKET_PREFIX}-400: Use {PROJECT}_IMAGE_TAG environment variable instead of editing compose file
+# {{TICKET_PREFIX}}-400: Use {{PROJECT}}_IMAGE_TAG environment variable instead of editing compose file
 # Set the tag before running docker compose:
-export {PROJECT}_IMAGE_TAG=pr-{PR-number}
+export {{PROJECT}}_IMAGE_TAG=pr-{PR-number}
 
 # Or update docker-compose.staging.yml image tag temporarily:
-# Change: image: {REGISTRY}/{PROJECT_NAME}/dev:${{PROJECT}_IMAGE_TAG:-latest}
-# To:     image: {REGISTRY}/{PROJECT_NAME}/dev:pr-{PR-number}
+# Change: image: {{REGISTRY}}/{{PROJECT_NAME}}/dev:${{PROJECT}_IMAGE_TAG:-latest}
+# To:     image: {{REGISTRY}}/{{PROJECT_NAME}}/dev:pr-{PR-number}
 
 # Restart with PR image
 ./scripts/dev-docker.sh restart
@@ -120,4 +120,4 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder       | Description               | Example               |
 | ----------------- | ------------------------- | --------------------- |
-| `{TICKET_PREFIX}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |
+| `{{TICKET_PREFIX}}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |

@@ -131,11 +131,6 @@ echo ""
 
 echo -e "${BLUE}Phase 6: Update Whitepaper Documentation${NC}"
 echo ""
-for file in whitepaper/*.md whitepaper/data/*.md; do
-    if [ -f "$file" ]; then
-        update_file_references "$file"
-    fi
-done
 echo ""
 
 echo -e "${BLUE}Phase 7: Update Other Documentation${NC}"

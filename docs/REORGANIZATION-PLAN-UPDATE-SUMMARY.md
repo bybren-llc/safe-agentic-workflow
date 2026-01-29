@@ -192,7 +192,7 @@ All updates completed and verified:
 
 1. **Review Updated Plan**: Read `docs/REPOSITORY-REORGANIZATION-PLAN.md`
 2. **Verify Scripts**: Check `scripts/reorganize-docs.sh` and `scripts/update-doc-references.sh`
-3. **Create Linear Ticket**: e.g., {TICKET_PREFIX}-XXX
+3. **Create Linear Ticket**: e.g., {{TICKET_PREFIX}}-XXX
 4. **Execute**: Run `./scripts/reorganize-docs.sh`
 5. **Verify**: Follow verification checklist
 6. **Commit**: Use updated commit message template

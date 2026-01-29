@@ -95,7 +95,7 @@ Location: .claude/settings.json
 
 **Generalization Notes**:
 
-- Replace `{{TICKET_PREFIX}}-XXX` pattern with `{TICKET_PREFIX}-XXX`
+- Replace `{{TICKET_PREFIX}}-XXX` pattern with `{{TICKET_PREFIX}}-XXX`
 - Replace branch names `dev`/`master` with configurable values
 - Keep hook structure; parameterize project-specific values
 
@@ -301,13 +301,13 @@ Location: docs/sop/, docs/workflow/, docs/ci-cd/, docs/database/
 
 | Component        | {{PROJECT_SHORT}} Value                    | Replace With                       |
 | ---------------- | ----------------------------- | ---------------------------------- |
-| Ticket prefix    | `{{TICKET_PREFIX}}-`                        | `{TICKET_PREFIX}-` or parameterize |
-| Branch pattern   | `{{TICKET_PREFIX}}-{number}-{desc}`         | `{PREFIX}-{number}-{desc}`         |
-| Team name        | `{{PROJECT_SHORT}}`                        | `{PROJECT_NAME}`                   |
-| Slack channels   | `#github-feed`                | `{SLACK_CHANNEL}`                  |
+| Ticket prefix    | `{{TICKET_PREFIX}}-`                        | `{{TICKET_PREFIX}}-` or parameterize |
+| Branch pattern   | `{{TICKET_PREFIX}}-{number}-{desc}`         | `{{PREFIX}}-{number}-{desc}`         |
+| Team name        | `{{PROJECT_SHORT}}`                        | `{{PROJECT_NAME}}`                   |
+| Slack channels   | `#github-feed`                | `{{SLACK_CHANNEL}}`                  |
 | Linear workspace | {{PROJECT_SHORT}} workspace                | Generic Linear setup               |
-| Docker registry  | `{{CONTAINER_REGISTRY}}/{{LINEAR_WORKSPACE}}-app` | `{REGISTRY}/{PROJECT}`             |
-| Database         | `{{DB_NAME}}`, `{{DB_USER}}`       | `{PROJECT}_dev`, `{PROJECT}_user`  |
+| Docker registry  | `{{CONTAINER_REGISTRY}}/{{LINEAR_WORKSPACE}}-app` | `{{REGISTRY}}/{{PROJECT}}`             |
+| Database         | `{{DB_NAME}}`, `{{DB_USER}}`       | `{{PROJECT}}_dev`, `{{PROJECT}}_user`  |
 
 ### What's Generalizable (Copy As-Is)
 
@@ -328,7 +328,7 @@ For files that need project-specific values, use this pattern:
 ```markdown
 <!-- In the public repo, use placeholders -->
 
-Branch naming: `{TICKET_PREFIX}-{number}-{description}`
+Branch naming: `{{TICKET_PREFIX}}-{number}-{description}`
 
 <!-- In project implementations, replace with actual values -->
 

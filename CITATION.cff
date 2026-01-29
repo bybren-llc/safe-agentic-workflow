@@ -4,7 +4,7 @@ authors:
   - family-names: "{{AUTHOR_LAST_NAME}}"
     given-names: "{{AUTHOR_FIRST_NAME}}"
     alias: "{{AUTHOR_HANDLE}}"
-    email: "scott@{{PROJECT_DOMAIN}}"
+    email: "{{AUTHOR_EMAIL}}"
   - name: "{{PROJECT_SHORT}} Development Team"
 title: "Claude Code Harness for Multi-Agent Team Workflows"
 version: 2.0.0

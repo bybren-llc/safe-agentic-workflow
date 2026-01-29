@@ -19,7 +19,7 @@ Guide spec creation with clear acceptance criteria, pattern references, and test
 ## Spec Template (MANDATORY)
 
 ```markdown
-# SPEC-{TICKET_PREFIX}-{number}: {Feature Name}
+# SPEC-{{TICKET_PREFIX}}-{number}: {Feature Name}
 
 ## Summary
 {One paragraph describing the feature}
@@ -48,9 +48,9 @@ As a [user type], I want [goal] so that [benefit].
 3. Observe {expected behavior}
 
 ## Logical Commits
-1. `feat(scope): implement data model [{TICKET_PREFIX}-{number}]`
-2. `feat(scope): add API endpoint [{TICKET_PREFIX}-{number}]`
-3. `feat(scope): create UI component [{TICKET_PREFIX}-{number}]`
+1. `feat(scope): implement data model [{{TICKET_PREFIX}}-{number}]`
+2. `feat(scope): add API endpoint [{{TICKET_PREFIX}}-{number}]`
+3. `feat(scope): create UI component [{{TICKET_PREFIX}}-{number}]`
 ```
 
 ## Acceptance Criteria Patterns

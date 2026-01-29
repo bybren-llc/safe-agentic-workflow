@@ -36,7 +36,7 @@ yarn lint:md && echo "BSA SUCCESS" || echo "BSA FAILED"
 
 ## Pattern Discovery (MANDATORY)
 
-### 0. Check Pattern Library FIRST (MANDATORY - {TICKET_PREFIX}-300)
+### 0. Check Pattern Library FIRST (MANDATORY - {{TICKET_PREFIX}}-300)
 
 ```bash
 # Check pattern library for existing patterns
@@ -318,7 +318,7 @@ cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
 
 **Architecture**:
 
-- How it fits into existing {PROJECT_NAME} architecture
+- How it fits into existing {{PROJECT_NAME}} architecture
 - Components affected
 - Architectural decisions needed
 - Tech stack considerations (Next.js, PostgreSQL, Prisma, Clerk, Stripe, PostHog)
@@ -326,7 +326,7 @@ cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
 **Dependencies**:
 
 - External dependencies (libraries, services, APIs)
-- Internal dependencies ({PROJECT_NAME} components)
+- Internal dependencies ({{PROJECT_NAME}} components)
 - Version requirements
 
 **Security Considerations**:

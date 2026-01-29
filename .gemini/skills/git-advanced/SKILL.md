@@ -40,13 +40,13 @@ git rebase -i HEAD~5 && git push --force  # If already pushed
 
 ```bash
 # SAFE: Force-with-lease on your feature branch
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature  # Safe
+git push --force-with-lease origin {{TICKET_PREFIX}}-XXX-feature  # Safe
 
 # SAFE: Interactive rebase before first push
 git rebase -i origin/main   # Squash/clean local commits
 
 # SAFE: Force push after conflict resolution
-git rebase origin/main && git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+git rebase origin/main && git push --force-with-lease origin {{TICKET_PREFIX}}-XXX-feature
 ```
 
 ## Rebase Workflow (Standard)
@@ -67,21 +67,21 @@ git add <resolved-files>
 git rebase --continue
 
 # 4. Push with force-with-lease
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+git push --force-with-lease origin {{TICKET_PREFIX}}-XXX-feature
 ```
 
 ### During PR Review (After Feedback)
 
 ```bash
 # 1. Make requested changes
-git add . && git commit -m "fix: address PR feedback [{TICKET_PREFIX}-XXX]"
+git add . && git commit -m "fix: address PR feedback [{{TICKET_PREFIX}}-XXX]"
 
 # 2. Fetch and rebase again
 git fetch origin main
 git rebase origin/main
 
 # 3. Push update
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+git push --force-with-lease origin {{TICKET_PREFIX}}-XXX-feature
 ```
 
 ## Git Bisect (Finding Bugs)
@@ -267,10 +267,10 @@ git cherry-pick <sha-from-reflog>
 git branch
 
 # 2. Verify what will be pushed
-git log origin/{TICKET_PREFIX}-XXX-feature..HEAD --oneline
+git log origin/{{TICKET_PREFIX}}-XXX-feature..HEAD --oneline
 
 # 3. Use force-with-lease (protects against overwriting others' work)
-git push --force-with-lease origin {TICKET_PREFIX}-XXX-feature
+git push --force-with-lease origin {{TICKET_PREFIX}}-XXX-feature
 ```
 
 ### Pre-Push Checklist

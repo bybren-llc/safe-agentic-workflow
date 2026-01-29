@@ -25,10 +25,10 @@ Since Gemini CLI doesn't have native Linear integration, use the Linear web UI o
 
 ```bash
 # Via Linear Web UI
-# Navigate to: https://linear.app/team/{PROJECT_TEAM_NAME}/issue/{TICKET_PREFIX}-XXX
+# Navigate to: https://linear.app/team/{{PROJECT_TEAM_NAME}}/issue/{{TICKET_PREFIX}}-XXX
 
 # Or use Linear CLI if installed
-linear issue view {TICKET_PREFIX}-XXX
+linear issue view {{TICKET_PREFIX}}-XXX
 ```
 
 ### Creating Issues
@@ -36,7 +36,7 @@ linear issue view {TICKET_PREFIX}-XXX
 ```bash
 # Via Linear Web UI: Click "New Issue" or press C
 # Or use Linear CLI:
-linear issue create --title "feat(scope): description" --team {PROJECT_TEAM_NAME}
+linear issue create --title "feat(scope): description" --team {{PROJECT_TEAM_NAME}}
 ```
 
 ### Updating Issues
@@ -44,7 +44,7 @@ linear issue create --title "feat(scope): description" --team {PROJECT_TEAM_NAME
 ```bash
 # Via Linear Web UI: Open issue and update status
 # Or use Linear CLI:
-linear issue update {TICKET_PREFIX}-XXX --state "Done"
+linear issue update {{TICKET_PREFIX}}-XXX --state "Done"
 ```
 
 ### Adding Comments
@@ -52,7 +52,7 @@ linear issue update {TICKET_PREFIX}-XXX --state "Done"
 ```bash
 # Via Linear Web UI: Open issue and add comment
 # Or use Linear CLI:
-linear issue comment {TICKET_PREFIX}-XXX "**Dev Evidence**\n\n..."
+linear issue comment {{TICKET_PREFIX}}-XXX "**Dev Evidence**\n\n..."
 ```
 
 ## Evidence Policy (MUST)
@@ -72,9 +72,9 @@ Every issue requires evidence at each phase:
 ```markdown
 **Dev Evidence**
 
-**PR**: https://github.com/{ORG_NAME}/{REPO_NAME}/pull/XXX
+**PR**: https://github.com/{{ORG_NAME}}/{{REPO_NAME}}/pull/XXX
 **Commit**: [short-hash]
-**Branch**: {TICKET_PREFIX}-XXX-description
+**Branch**: {{TICKET_PREFIX}}-XXX-description
 
 **Implementation:**
 
@@ -116,7 +116,7 @@ If N/A, reason: [e.g., "Dev tooling only - no user-facing changes"]
 ```markdown
 **Done Evidence**
 
-**PR Merged**: https://github.com/{ORG_NAME}/{REPO_NAME}/pull/XXX
+**PR Merged**: https://github.com/{{ORG_NAME}}/{{REPO_NAME}}/pull/XXX
 **Merge Commit**: [hash]
 
 **Final Checklist:**
@@ -170,7 +170,7 @@ Linear uses UUIDs internally. When working with APIs:
 
 ```typescript
 // Issue identifiers (human-readable)
-const issueId = "{TICKET_PREFIX}-459";
+const issueId = "{{TICKET_PREFIX}}-459";
 
 // UUIDs (API operations)
 const uuid = "ef6a5fa0-2b46-417f-8266-dea2d187b10a";
@@ -185,8 +185,8 @@ const uuid = "ef6a5fa0-2b46-417f-8266-dea2d187b10a";
 
 PRs are automatically linked when:
 
-- Branch name contains `{TICKET_PREFIX}-XXX`
-- PR title contains `[{TICKET_PREFIX}-XXX]`
+- Branch name contains `{{TICKET_PREFIX}}-XXX`
+- PR title contains `[{{TICKET_PREFIX}}-XXX]`
 
 ### Create Sub-Issue
 

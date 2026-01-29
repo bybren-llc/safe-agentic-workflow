@@ -74,13 +74,13 @@ Commands are invoked with `/namespace:command` or `/command`:
 
 ### Branch Naming
 ```
-{TICKET_PREFIX}-{number}-{short-description}
+{{TICKET_PREFIX}}-{number}-{short-description}
 ```
 Example: `{{TICKET_PREFIX}}-123-add-user-profile`
 
 ### Commit Format
 ```
-type(scope): description [{TICKET_PREFIX}-XXX]
+type(scope): description [{{TICKET_PREFIX}}-XXX]
 ```
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 

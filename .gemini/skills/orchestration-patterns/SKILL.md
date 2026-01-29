@@ -90,11 +90,11 @@ Codify evidence-based delivery and iterative agent loop for orchestrating comple
 ### QA Review Checklist
 
 ```markdown
-## QA Review - PR #XXX for {TICKET_PREFIX}-YYY
+## QA Review - PR #XXX for {{TICKET_PREFIX}}-YYY
 
 ### Commit Message Validation
 - [ ] Ticket reference in subject line
-- [ ] Proper format: `type(scope): description [{TICKET_PREFIX}-XXX]`
+- [ ] Proper format: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
 
 ### Code Pattern Validation
 - [ ] RLS context helpers used (no direct Prisma)
@@ -116,7 +116,7 @@ Codify evidence-based delivery and iterative agent loop for orchestrating comple
 
 ### QA Output Location
 
-All QA reports go to: `docs/agent-outputs/qa-validations/{TICKET_PREFIX}-{number}-qa-validation.md`
+All QA reports go to: `docs/agent-outputs/qa-validations/{{TICKET_PREFIX}}-{number}-qa-validation.md`
 
 ## Escalation Patterns
 
@@ -142,7 +142,7 @@ All QA reports go to: `docs/agent-outputs/qa-validations/{TICKET_PREFIX}-{number
 
 **Context**:
 
-- Ticket: {TICKET_PREFIX}-XXX
+- Ticket: {{TICKET_PREFIX}}-XXX
 - Session ID: [if available]
 - Time blocked: X hours
 
@@ -197,7 +197,7 @@ At session boundaries:
 ```text
 # Complete workflow for feature implementation:
 
-1. /start-work {TICKET_PREFIX}-XXX
+1. /start-work {{TICKET_PREFIX}}-XXX
    └─ Syncs to main, creates branch, sets context
 
 2. Pattern discovery (skill auto-invokes or use /search-pattern)

@@ -24,5 +24,3 @@ Additional patterns documented in the whitepaper will be added here:
 For now, see:
 
 - [Existing Pattern Library](../patterns_library/README.md) - 11 production patterns
-- [Whitepaper Section 12](../whitepaper/section-12-appendices.md) - Pattern templates
-- [Whitepaper Section 6](../whitepaper/section-6-case-studies.md) - Case study patterns

@@ -169,7 +169,7 @@ https://developers.facebook.com/tools/debug/
 **Generic Open Graph Checker**:
 
 ```
-https://www.opengraph.xyz/url/https%3A%2F%2Fgithub.com%2F{{GITHUB_ORG}}%2F{PROJECT_NAME}-Agentic-Workflow
+https://www.opengraph.xyz/url/https%3A%2F%2Fgithub.com%2F{{GITHUB_ORG}}%2F{{PROJECT_NAME}}-Agentic-Workflow
 ```
 
 ### Clear Cache

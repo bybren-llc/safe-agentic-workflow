@@ -148,7 +148,7 @@ Without `export const dynamic = 'force-dynamic'`, Next.js will try to pre-render
 
 ## Testing Requirements
 
-Always test with `{PROJECT}_app_user` role (not `{PROJECT}_user` superuser):
+Always test with `{{PROJECT}}_app_user` role (not `{{PROJECT}}_user` superuser):
 
 ```bash
 # Basic RLS functionality test
@@ -156,7 +156,7 @@ node scripts/test-rls-phase3-simple.js
 
 # Comprehensive security validation
 cat scripts/rls-phase4-final-validation.sql | \
-  docker exec -i {PROJECT_NAME}-postgres-1 psql -U {PROJECT}_app_user -d {PROJECT}_dev
+  docker exec -i {{PROJECT_NAME}}-postgres-1 psql -U {{PROJECT}}_app_user -d {{PROJECT}}_dev
 ```
 
 ## Common Patterns

@@ -1,10 +1,10 @@
-# Pull Request: [Brief Description] [{TICKET_PREFIX}-XXX]
+# Pull Request: [Brief Description] [{{TICKET_PREFIX}}-XXX]
 
 ## 📋 Summary
 
 <!-- Provide a brief description of the changes in this PR -->
 
-**Linear Ticket**: [{TICKET_PREFIX}-XXX](https://linear.app/{WORKSPACE}/issue/{TICKET_PREFIX}-XXX)
+**Linear Ticket**: [{{TICKET_PREFIX}}-XXX](https://linear.app/{{LINEAR_WORKSPACE}}/issue/{{TICKET_PREFIX}}-XXX)
 **Type**: `feat` | `fix` | `docs` | `style` | `refactor` | `test` | `chore`
 **Team**: `payments` | `auth` | `frontend` | `backend` | `qa` | `devops`
 
@@ -51,7 +51,7 @@ npm test
 
 ### Rebase Status
 
-- [ ] Branch is up-to-date with `{MAIN_BRANCH}`
+- [ ] Branch is up-to-date with `{{MAIN_BRANCH}}`
 - [ ] No merge conflicts
 - [ ] Linear history maintained
 
@@ -150,7 +150,7 @@ VARIABLE_NAME=description
 
 ### SAFe Compliance
 
-- [ ] Commit messages follow SAFe format: `type(scope): description [{TICKET_PREFIX}-XXX]`
+- [ ] Commit messages follow SAFe format: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
 - [ ] Linear ticket linked and updated
 - [ ] Acceptance criteria met
 - [ ] Definition of Done satisfied
@@ -191,7 +191,7 @@ VARIABLE_NAME=description
 
 **Required Reviewers:**
 
-- [ ] @{ARCHITECT_HANDLE} (ARCHitect-in-the-IDE)
+- [ ] @{{ARCHITECT_HANDLE}} (ARCHitect-in-the-IDE)
 - [ ] Team lead: @<!-- team-lead -->
 
 **Optional Reviewers:**

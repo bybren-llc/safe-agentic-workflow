@@ -59,7 +59,7 @@ Includes:
 cp -r .claude/ /your-project/.claude/
 
 # Customize placeholders
-edit .claude/SETUP.md  # Replace {TICKET_PREFIX}, {PROJECT_NAME}
+edit .claude/SETUP.md  # Replace {{TICKET_PREFIX}}, {{PROJECT_NAME}}
 
 # Start working
 /start-work TICKET-123
@@ -143,17 +143,11 @@ This harness implements patterns from 6 Anthropic engineering papers (see [below
 
 ### Key Documents
 
-- [Executive Summary](whitepaper/section-1-executive-summary.md) - 5 min overview
-- [Case Studies](whitepaper/section-6-case-studies.md) - Real production examples
-- [Limitations](whitepaper/section-7-limitations-honest-assessment.md) - Honest assessment
-- [Background & Related Work](whitepaper/section-3-background-related-work.md) - Academic context
 
 ### Meta-Circular Validation
 
 The methodology caught its own fabricated data before publication.
-See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md).
 
-[Complete Whitepaper](whitepaper/README.md) (12 sections)
 
 </details>
 
@@ -183,7 +177,6 @@ See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md).
 - Single-team validation only
 - Gemini CLI support is new (Claude Code has 5+ months production use)
 
-[Implementation Guide](whitepaper/section-9-implementation-guide.md)
 
 </details>
 
@@ -305,7 +298,6 @@ This harness maps SAFe roles to AI agents:
 - **Evidence-based delivery** with Linear integration
 - **Specs-driven workflow** - BSA plans, developers execute
 
-[Complete SAFe Integration](whitepaper/section-5-architecture-implementation.md)
 
 </details>
 
@@ -1184,7 +1176,7 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 - **Gemini CLI new**: Gemini integration is new (January 2026), not yet production-tested
 - **Domain examples**: Non-SWE adaptations are theoretical (documented, not validated)
 
-See [Limitations](whitepaper/section-7-limitations-honest-assessment.md) for honest assessment.
+See project documentation for honest assessment of limitations.
 
 ---
 
@@ -1204,7 +1196,6 @@ See [Limitations](whitepaper/section-7-limitations-honest-assessment.md) for hon
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
 
-whitepaper/              # Complete whitepaper (12 sections)
 ├── data/                # Supporting data and metrics
 └── validation/          # Meta-circular validation evidence
 
@@ -1219,7 +1210,6 @@ docs/                    # Additional documentation
 
 This methodology was **validated by itself**: 7 SAFe agents performed meta-circular validation of the whitepaper and caught critical fabricated data before publication.
 
-See [Validation Summary](whitepaper/validation/VALIDATION-SUMMARY.md) for the complete story.
 
 **The methodology caught its own problems.** That's the proof it works.
 
@@ -1276,7 +1266,7 @@ See [NOTICE](NOTICE) for details.
 <p align="center">
   <strong>{{PROJECT_NAME}}™</strong><br>
   <a href="https://{{PROJECT_DOMAIN}}">Website</a> •
-  <a href="mailto:scott@{{PROJECT_DOMAIN}}">Contact</a> •
+  <a href="mailto:{{AUTHOR_EMAIL}}">Contact</a> •
   <a href="https://github.com/sponsors/{{GITHUB_ORG}}">Sponsor</a>
 </p>
 

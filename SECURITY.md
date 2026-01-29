@@ -24,7 +24,7 @@ When adopting this harness, be aware of:
 
 ### 1. Placeholder Customization
 
-- **Replace ALL placeholders** (`{TICKET_PREFIX}`, `{PROJECT_NAME}`, etc.) before use
+- **Replace ALL placeholders** (`{{TICKET_PREFIX}}`, `{{PROJECT_NAME}}`, etc.) before use
 - **Never commit secrets** in placeholder values
 - Use environment variables for sensitive configuration
 

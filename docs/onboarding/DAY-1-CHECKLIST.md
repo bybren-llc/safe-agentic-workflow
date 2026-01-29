@@ -31,7 +31,6 @@ cat README.md
 
 - [ ] Repository cloned successfully
 - [ ] Can see `.claude/agents/` directory
-- [ ] Can see `whitepaper/` directory
 - [ ] Can see `AGENTS.md` file
 
 ---
@@ -49,7 +48,6 @@ cat README.md
 
 1. Read: `README.md` (5 min)
 2. Read: `AGENTS.md` (10 min)
-3. Read: `whitepaper/section-1-executive-summary.md` (5 min)
 
 **Validation**:
 
@@ -419,7 +417,6 @@ https://linear.app/your-team/issue/{{TICKET_PREFIX}}-1"
 **You're ready to use the methodology!** Here's what to do next:
 
 1. **Read More Documentation**:
-   - [ ] `whitepaper/section-9-implementation-guide.md` - Full implementation guide
    - [ ] `CONTRIBUTING.md` - Complete workflow guide
    - [ ] `docs/ci-cd/CI-CD-Pipeline-Guide.md` - CI/CD integration
 
@@ -487,5 +484,5 @@ https://linear.app/your-team/issue/{{TICKET_PREFIX}}-1"
 **Questions?**
 
 - GitHub Discussions: {{GITHUB_REPO_URL}}/discussions
-- Email: scott@{{PROJECT_DOMAIN}}
+- Email: {{AUTHOR_EMAIL}}
 - Documentation: See `docs/onboarding/` for more guides

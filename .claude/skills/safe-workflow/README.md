@@ -27,7 +27,7 @@ This skill activates automatically when you:
 
 ## What This Skill Does
 
-Enforces SAFe-compliant development workflow with proper branch naming (`{TICKET_PREFIX}-{number}-{description}`), standardized commit messages (type, scope, description), and rebase-first git workflow. Ensures all work is traceable to Linear tickets.
+Enforces SAFe-compliant development workflow with proper branch naming (`{{TICKET_PREFIX}}-{number}-{description}`), standardized commit messages (type, scope, description), and rebase-first git workflow. Ensures all work is traceable to Linear tickets.
 
 ## Trigger Keywords
 

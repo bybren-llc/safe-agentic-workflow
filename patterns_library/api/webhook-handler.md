@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!process.env.{SERVICE}_WEBHOOK_SECRET) {
+    if (!process.env.{{SERVICE}}_WEBHOOK_SECRET) {
       console.error('Webhook secret not configured');
       return NextResponse.json(
         { error: 'Webhook configuration error' },
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const event = {service_sdk}.webhooks.constructEvent(
       body,
       signature,
-      process.env.{SERVICE}_WEBHOOK_SECRET
+      process.env.{{SERVICE}}_WEBHOOK_SECRET
     );
 
     // 3. Process event based on type
@@ -206,7 +206,7 @@ async function handleDeletedEvent(event: {EventType}) {
 
 1. **Replace placeholders**:
    - `{service}` → Service name (e.g., `stripe`, `clerk`)
-   - `{SERVICE}` → Uppercase for env vars (e.g., `STRIPE`, `CLERK`)
+   - `{{SERVICE}}` → Uppercase for env vars (e.g., `STRIPE`, `CLERK`)
    - `{signature-header}` → Header name (e.g., `stripe-signature`)
    - `{service_sdk}` → SDK variable (e.g., `stripe`, `clerkClient`)
    - `{EventType}` → SDK event type

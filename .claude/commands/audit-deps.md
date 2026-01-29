@@ -159,7 +159,7 @@ Document findings in `docs/agent-outputs/technical-docs/dependency-audit-report-
 
 Create Linear tickets for each actionable item:
 
-- {TICKET_PREFIX}-{number}: {description}
+- {{TICKET_PREFIX}}-{number}: {description}
 ```
 
 ### 7. Create Linear Tickets
@@ -202,4 +202,4 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder       | Description               | Example               |
 | ----------------- | ------------------------- | --------------------- |
-| `{TICKET_PREFIX}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |
+| `{{TICKET_PREFIX}}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |

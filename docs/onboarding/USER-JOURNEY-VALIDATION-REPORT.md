@@ -1,6 +1,6 @@
 # User Journey Validation Report
 
-## {PROJECT_NAME}-Agentic-Workflow Repository
+## {{PROJECT_NAME}}-Agentic-Workflow Repository
 
 **Date**: 2025-10-08  
 **Ticket**: {{TICKET_PREFIX}}-326  
@@ -57,10 +57,6 @@
 
 | Step          | Link                                                    | Status    | Notes                                |
 | ------------- | ------------------------------------------------------- | --------- | ------------------------------------ |
-| 1. Read       | `whitepaper/section-1-executive-summary.md`             | ✅ EXISTS | 5 min estimate accurate              |
-| 2. Understand | `whitepaper/section-6-case-studies.md`                  | ✅ EXISTS | 15 min estimate reasonable           |
-| 3. Implement  | `whitepaper/section-9-implementation-guide.md`          | ✅ EXISTS | 30 min estimate (but see gaps below) |
-| 4. Assess     | `whitepaper/section-7-limitations-honest-assessment.md` | ✅ EXISTS | 10 min estimate accurate             |
 
 **Assessment**: ✅ **PASS** - All links valid
 
@@ -75,10 +71,6 @@
 
 | Step                        | Link                                                | Status    | Notes                             |
 | --------------------------- | --------------------------------------------------- | --------- | --------------------------------- |
-| 1. Data Validation          | `whitepaper/data/REAL-PRODUCTION-DATA-SYNTHESIS.md` | ✅ EXISTS | Comprehensive data validation     |
-| 2. Methodology              | `whitepaper/section-3-background-related-work.md`   | ✅ EXISTS | Includes Vibe Engineering section |
-| 3. Meta-Circular Validation | `whitepaper/validation/VALIDATION-SUMMARY.md`       | ✅ EXISTS | Excellent validation story        |
-| 4. Future Research          | `whitepaper/section-10-future-work-community.md`    | ✅ EXISTS | Clear research directions         |
 
 **Assessment**: ✅ **PASS** - All links valid, excellent research documentation
 
@@ -86,10 +78,6 @@
 
 | Step               | Link                                                              | Status    | Notes                             |
 | ------------------ | ----------------------------------------------------------------- | --------- | --------------------------------- |
-| 1. ROI Analysis    | `whitepaper/section-1-executive-summary.md`                       | ✅ EXISTS | Clear ROI metrics                 |
-| 2. Risk Assessment | `whitepaper/section-7-limitations-honest-assessment.md`           | ✅ EXISTS | Honest limitations                |
-| 3. Adoption Guide  | `whitepaper/section-9-implementation-guide.md`                    | ✅ EXISTS | Prerequisites clear               |
-| 4. Cost-Benefit    | `whitepaper/section-1-executive-summary.md#cost-benefit-analysis` | ⚠️ ANCHOR | File exists, anchor not validated |
 
 **Assessment**: ✅ **MOSTLY PASS** - All files exist, anchor link not validated but likely exists
 
@@ -140,7 +128,6 @@ All 12 whitepaper sections validated:
 
 ### Current State
 
-**Location**: `whitepaper/section-9-implementation-guide.md` (lines 54-100)
 
 **What's Good**:
 

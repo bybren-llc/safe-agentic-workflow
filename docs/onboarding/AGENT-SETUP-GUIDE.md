@@ -471,4 +471,4 @@ yarn ci:validate && echo "CI SUCCESS"
 **Questions?**
 
 - GitHub Discussions: {{GITHUB_REPO_URL}}/discussions
-- Email: scott@{{PROJECT_DOMAIN}}
+- Email: {{AUTHOR_EMAIL}}

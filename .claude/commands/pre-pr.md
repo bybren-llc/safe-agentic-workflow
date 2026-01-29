@@ -69,7 +69,7 @@ Check all commits follow SAFe format:
 git log origin/dev..HEAD --oneline
 ```
 
-**Required format**: `type(scope): description [{TICKET_PREFIX}-XXX]`
+**Required format**: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
 
 **BLOCKER**: All commits must reference Linear ticket.
 
@@ -119,4 +119,4 @@ To adapt this command for your infrastructure, replace these placeholders:
 
 | Placeholder       | Description               | Example               |
 | ----------------- | ------------------------- | --------------------- |
-| `{TICKET_PREFIX}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |
+| `{{TICKET_PREFIX}}` | Your Linear ticket prefix | `WOR`, `PROJ`, `TASK` |

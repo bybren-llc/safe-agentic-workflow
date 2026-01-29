@@ -2,7 +2,7 @@
 
 Agent prompt templates coming in v1.1.
 
-See [whitepaper Appendix A](../whitepaper/section-12-appendices.md) for prompt examples.
+See project documentation for prompt examples.
 
 ## What's Coming
 
@@ -17,5 +17,3 @@ Complete agent prompt templates will be added in v1.1.
 
 For now, see:
 
-- [Appendix A: Agent Prompt Examples](../whitepaper/section-12-appendices.md#appendix-a-agent-prompt-examples)
-- [Section 5: Architecture](../whitepaper/section-5-architecture-implementation.md) for agent roles

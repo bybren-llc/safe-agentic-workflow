@@ -271,17 +271,17 @@ yarn ci:validate
 ### Pattern 1: Parallel Development
 
 ```bash
-# Agent 1: FE Developer on {TICKET_PREFIX}-123
-# Agent 2: BE Developer on {TICKET_PREFIX}-124
+# Agent 1: FE Developer on {{TICKET_PREFIX}}-123
+# Agent 2: BE Developer on {{TICKET_PREFIX}}-124
 # Coordinate: API contract before FE implementation
 ```
 
 ### Pattern 2: Sequential Dependencies
 
 ```bash
-# Agent 1: DE creates migration ({TICKET_PREFIX}-125)
-# Agent 2: BE implements API ({TICKET_PREFIX}-126) - depends on {TICKET_PREFIX}-125
-# TDM ensures {TICKET_PREFIX}-125 merged before {TICKET_PREFIX}-126 starts
+# Agent 1: DE creates migration ({{TICKET_PREFIX}}-125)
+# Agent 2: BE implements API ({{TICKET_PREFIX}}-126) - depends on {{TICKET_PREFIX}}-125
+# TDM ensures {{TICKET_PREFIX}}-125 merged before {{TICKET_PREFIX}}-126 starts
 ```
 
 ### Pattern 3: Blocker Resolution

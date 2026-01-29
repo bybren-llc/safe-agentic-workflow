@@ -336,7 +336,7 @@ Can you show me the current harness configuration?
 ## Getting Help
 
 1. **Check this document first**
-2. **Read the Whitepaper** - `docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{TICKET_PREFIX}-444.md`
+2. **Read the Whitepaper** - `docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md`
 3. **Check AGENTS.md** - For agent selection guidance
 4. **Check CONTRIBUTING.md** - For workflow issues
 
