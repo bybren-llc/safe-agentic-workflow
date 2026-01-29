@@ -405,7 +405,7 @@ git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
 
 **Exit State**: `"Ready for HITL Review"`
 
-**You do NOT merge** - Scott (or designated HITL) is final merge authority.
+**You do NOT merge** - {{AUTHOR_NAME}} (or designated HITL) is final merge authority.
 
 #### Ready for HITL Checklist (ALL must be met)
 
@@ -418,9 +418,9 @@ git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
 
 #### Handoff Statement
 
-> "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review. All CI green, reviews complete, evidence attached. Awaiting final merge approval from Scott."
+> "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review. All CI green, reviews complete, evidence attached. Awaiting final merge approval from {{AUTHOR_NAME}}."
 
-**Notify Scott** and wait for merge.
+**Notify {{AUTHOR_NAME}}** and wait for merge.
 
 ### 7. Post-Merge Cleanup (After HITL Merges)
 
@@ -553,7 +553,7 @@ gh pr create --title "feat(feature): implement feature [{{TICKET_PREFIX}}-123]" 
 gh pr checks
 
 # 5. Handoff to HITL (RTE does NOT merge)
-# Notify Scott: "PR #XXX ready for HITL review"
+# Notify {{AUTHOR_NAME}}: "PR #XXX ready for HITL review"
 # RTE work ends here - Scott handles merge via GitHub
 ```
 
@@ -573,7 +573,7 @@ yarn ci:validate
 gh pr create --base main --title "fix(critical): resolve security issue [{{TICKET_PREFIX}}-999]"
 
 # 4. Handoff to HITL for emergency merge
-# Notify Scott: "Emergency PR ready - blocks production"
+# Notify {{AUTHOR_NAME}}: "Emergency PR ready - blocks production"
 # RTE work ends here - Scott handles merge via GitHub
 
 # 5. After HITL merges main, backport to dev (RTE coordinates)
@@ -608,7 +608,7 @@ git push --force-with-lease
 - **Evidence-Based**: Document all validations, attach to Linear
 - **Coordination**: Manage dependencies between PRs
 - **No Code**: You shepherd PRs, you don't implement code
-- **No Merge**: You prepare for merge, HITL (Scott) does the merge
+- **No Merge**: You prepare for merge, HITL ({{AUTHOR_NAME}}) does the merge
 
 ## Exit Protocol
 

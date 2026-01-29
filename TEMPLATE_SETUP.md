@@ -23,8 +23,13 @@ If you prefer manual customization, replace these placeholders across the reposi
 | `{{GITHUB_ORG}}` | GitHub organization or username | `acme-corp` |
 | `{{COMPANY_NAME}}` | Company/org display name | `Acme Corp` |
 | `{{AUTHOR_NAME}}` | Primary author full name | `Jane Smith` |
+| `{{AUTHOR_FIRST_NAME}}` | Author first name | `Jane` |
+| `{{AUTHOR_LAST_NAME}}` | Author last name | `Smith` |
+| `{{AUTHOR_INITIALS}}` | Author initials (derived) | `J. S.` |
 | `{{AUTHOR_HANDLE}}` | Author GitHub handle | `janesmith` |
 | `{{AUTHOR_EMAIL}}` | Author email | `jane@acme.com` |
+| `{{AUTHOR_WEBSITE}}` | Author website URL | `https://janesmith.dev` |
+| `{{ARCHITECT_GITHUB_HANDLE}}` | Lead architect GitHub handle | `lead-dev` |
 | `{{TICKET_PREFIX}}` | Linear/issue tracker prefix (uppercase) | `ACM` |
 | `{{TICKET_PREFIX_LOWER}}` | Ticket prefix lowercase | `acm` |
 | `{{LINEAR_WORKSPACE}}` | Linear workspace slug | `acme` |
@@ -36,6 +41,7 @@ If you prefer manual customization, replace these placeholders across the reposi
 | `{{DEV_CONTAINER}}` | Dev app container name | `app-dev` |
 | `{{STAGING_CONTAINER}}` | Staging app container name | `app-staging` |
 | `{{CONTAINER_REGISTRY}}` | Container registry URL | `ghcr.io/acme-corp` |
+| `{{GITHUB_REPO_URL}}` | Full GitHub repo URL (derived) | `https://github.com/acme-corp/my-saas-app` |
 
 Additional placeholders in `CLAUDE.md` and `CONTRIBUTING.md` (technology stack):
 

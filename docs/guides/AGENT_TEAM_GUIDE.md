@@ -12,7 +12,7 @@ This guide explains how to work with the 11 specialized AI agents that support d
 1. **Understanding the Team**: We have 11 specialized agents, each with specific expertise
 2. **Workflow Integration**: Agents follow the same git workflow and standards as human developers
 3. **Evidence-Based Delivery**: All agent work is tracked in Linear with session evidence
-4. **HITL Model**: Scott (POPM) has final approval on all deliverables
+4. **HITL Model**: {{AUTHOR_NAME}} (POPM) has final approval on all deliverables
 
 ### For AI Agents
 
@@ -368,7 +368,7 @@ grep -l "file_path" ~/.claude/todos/*.json
 - Security model changes (SecEng)
 - CI/CD pipeline issues (RTE)
 
-### To POPM (Scott) - HITL Model
+### To POPM ({{AUTHOR_NAME}}) - HITL Model
 
 - Unclear business requirements (BSA)
 - Conflicting priorities (TDM)

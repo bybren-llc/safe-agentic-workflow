@@ -54,7 +54,7 @@ The vNext workflow defines role separation (Implementation → QAS → RTE → H
 | RTE                       | Coordination/Automation | ✅ Yes          | PR creation, CI shepherding          |
 | QAS                       | Independence Gate       | ❌ No\*         | \*See Self-QA exception below        |
 | SecEng                    | Independence Gate       | ❌ No\*         | Security audit requires independence |
-| HITL                      | Final Authority         | ❌ Never        | Scott merges                         |
+| HITL                      | Final Authority         | ❌ Never        | {{AUTHOR_NAME}} merges                         |
 
 ### Collapsed Roles (In-Flow with HITL)
 

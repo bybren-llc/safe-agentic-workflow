@@ -143,7 +143,7 @@
 | **Reviewer**          | N/A   | **Main Claude (me)**                   | **NEW** |
 | **Focus**             | N/A   | Comprehensive quality + judgment       | **NEW** |
 | **Checks**            | N/A   | Code quality, UX, security, perf, docs | **NEW** |
-| **If approved**       | N/A   | Notify Scott for HITL                  | **NEW** |
+| **If approved**       | N/A   | Notify {{AUTHOR_NAME}} for HITL                  | **NEW** |
 | **If changes needed** | N/A   | TDM coordinates fixes                  | **NEW** |
 | **Estimated time**    | N/A   | ~10-20 minutes                         | **NEW** |
 
@@ -151,13 +151,13 @@
 
 ---
 
-### Stage 9: Scott HITL Review & Merge
+### Stage 9: {{AUTHOR_NAME}} HITL Review & Merge
 
 | Aspect                   | v1.0                  | v1.1                         | Notes            |
 | ------------------------ | --------------------- | ---------------------------- | ---------------- |
 | Scott reviews            | ✅ Yes (first review) | ✅ Yes (final review)        | **ROLE CHANGED** |
 | Scott approves           | ✅ Required           | ✅ Required                  | **UNCHANGED**    |
-| Scott merges             | ✅ Required           | ✅ Required                  | **UNCHANGED**    |
+| {{AUTHOR_NAME}} merges             | ✅ Required           | ✅ Required                  | **UNCHANGED**    |
 | Human gate               | ✅ Critical           | ✅ Critical                  | **UNCHANGED**    |
 | PR quality at this stage | Variable              | **Higher (2 agent reviews)** | **IMPROVED**     |
 | Issues to catch          | Many                  | **Fewer (pre-screened)**     | **IMPROVED**     |

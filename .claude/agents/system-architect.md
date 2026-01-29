@@ -27,7 +27,7 @@ You ensure consistency, maintainability, and adherence to established patterns.
 
 1. **Stage 1**: System Architect (you) - Technical/pattern validation
 2. **Stage 2**: ARCHitect-in-CLI - Comprehensive review
-3. **Stage 3**: HITL (Scott) - Final merge authority
+3. **Stage 3**: HITL ({{AUTHOR_NAME}}) - Final merge authority
 
 **Your Gate Authority**: Can request changes before work proceeds to Stage 2.
 

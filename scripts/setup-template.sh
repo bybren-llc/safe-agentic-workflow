@@ -56,6 +56,7 @@ read -rp "Security contact email (e.g., security@acme.com): " SECURITY_EMAIL
 
 echo ""
 echo "--- Workflow ---"
+read -rp "Architect GitHub handle (e.g., lead-dev): " ARCHITECT_GITHUB_HANDLE
 read -rp "Linear ticket prefix (e.g., ACM): " TICKET_PREFIX
 read -rp "Linear workspace slug (e.g., acme): " LINEAR_WORKSPACE
 read -rp "Main branch name [main]: " MAIN_BRANCH
@@ -132,6 +133,7 @@ declare -a REPLACEMENTS=(
   "{{TICKET_PREFIX}}|${TICKET_PREFIX}"
   "{{LINEAR_WORKSPACE}}|${LINEAR_WORKSPACE}"
   "{{MAIN_BRANCH}}|${MAIN_BRANCH}"
+  "{{ARCHITECT_GITHUB_HANDLE}}|${ARCHITECT_GITHUB_HANDLE}"
   "{{GITHUB_ORG}}|${GITHUB_ORG}"
   "{{DB_USER}}|${DB_USER}"
   "{{DB_NAME}}|${DB_NAME}"

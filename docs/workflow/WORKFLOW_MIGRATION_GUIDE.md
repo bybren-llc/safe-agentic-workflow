@@ -134,7 +134,7 @@ Once pre-gate passes, work is the same as v1.0:
 **Old Flow (v1.0)**:
 
 ```sql
-PR created → Scott reviews → Scott merges
+PR created → Scott reviews → {{AUTHOR_NAME}} merges
 ```text
 
 **New Flow (v1.1)**:

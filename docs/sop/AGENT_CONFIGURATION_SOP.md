@@ -172,7 +172,7 @@ model: sonnet
 - **Why Read/Bash/Grep**: Git/PR management via Bash (git commands, gh CLI)
 - **Why Sonnet**: Efficient release coordination
 - **Role (v1.4)**: PR Shepherd - creates PRs, monitors CI, but does NOT write product code or merge
-- **Boundaries**: Scott (HITL) remains final merge authority. RTE shepherds PRs to "Ready for HITL Review"
+- **Boundaries**: {{AUTHOR_NAME}} (HITL) remains final merge authority. RTE shepherds PRs to "Ready for HITL Review"
 
 ---
 

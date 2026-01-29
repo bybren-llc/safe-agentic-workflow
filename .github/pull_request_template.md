@@ -191,7 +191,7 @@ VARIABLE_NAME=description
 
 **Required Reviewers:**
 
-- [ ] @{{ARCHITECT_HANDLE}} (ARCHitect-in-the-IDE)
+- [ ] @{{ARCHITECT_GITHUB_HANDLE}} (ARCHitect-in-the-IDE)
 - [ ] Team lead: @<!-- team-lead -->
 
 **Optional Reviewers:**

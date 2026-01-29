@@ -141,13 +141,7 @@ export GEMINI_API_KEY="your-api-key"
 
 This harness implements patterns from 6 Anthropic engineering papers (see [below](#implementing-anthropics-research)).
 
-### Key Documents
-
-
-### Meta-Circular Validation
-
-The methodology caught its own fabricated data before publication.
-
+See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 
 </details>
 
@@ -428,7 +422,7 @@ All work requires verifiable evidence. No "trust me, it works."
                     │           3-STAGE PR REVIEW                 │
                     │  Stage 1: System Architect (pattern)        │
                     │  Stage 2: ARCHitect-in-CLI (architecture)   │
-                    │  Stage 3: HITL (Scott) → MERGE              │
+                    │  Stage 3: HITL ({{AUTHOR_NAME}}) → MERGE              │
                     └─────────────────────────────────────────────┘
 ```
 
@@ -458,7 +452,7 @@ All work requires verifiable evidence. No "trust me, it works."
 │ QAS Gate        │ QAS             │ YES - no approval = stop│
 │ Stage 1 Review  │ System Architect│ YES - pattern check     │
 │ Stage 2 Review  │ ARCHitect-CLI   │ YES - architecture check│
-│ HITL Merge      │ Scott           │ YES - final authority   │
+│ HITL Merge      │ {{AUTHOR_NAME}}            │ YES - final authority   │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
@@ -633,7 +627,7 @@ Note: Quality gates are immutable. QAS and SecEng cannot be collapsed.
                     │  └─────────────────┬───────────────────┘    │
                     │                    ▼                        │
                     │  ┌─────────────────────────────────────┐    │
-                    │  │ STAGE 3: HITL (Scott)               │    │
+                    │  │ STAGE 3: HITL ({{AUTHOR_NAME}})               │    │
                     │  │  • Final human review               │    │
                     │  │  • Merge authority                  │    │
                     │  │  → Action: MERGE                    │    │
@@ -831,7 +825,7 @@ Note: Quality gates are immutable. QAS and SecEng cannot be collapsed.
 │ System Architect│  Review   │    ✗      │  Stage 1  │    ✗      │  Review   │  Stage 1 │
 │ ARCHitect-CLI   │  Review   │    ✗      │  Stage 2  │    ✗      │  Review   │  Stage 2 │
 ├─────────────────┼───────────┼───────────┼───────────┼───────────┼───────────┼──────────┤
-│ HITL (Scott)    │  Review   │    ✗      │  Stage 3  │    ✓      │  Final    │  Stage 3 │
+│ HITL ({{AUTHOR_NAME}})    │  Review   │    ✗      │  Stage 3  │    ✓      │  Final    │  Stage 3 │
 └─────────────────┴───────────┴───────────┴───────────┴───────────┴───────────┴──────────┘
 
 Legend:
@@ -961,7 +955,7 @@ Legend:
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │  "PR #XXX for {{TICKET_PREFIX}}-YYY is Ready for HITL Review.                     │   │
 │  │   All CI green, reviews complete, evidence attached.                │   │
-│  │   Awaiting final merge approval from Scott."                        │   │
+│  │   Awaiting final merge approval from {{AUTHOR_NAME}}."                        │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -980,7 +974,7 @@ Legend:
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │  Stage 1: System Architect (you) - Technical/pattern validation     │   │
 │  │  Stage 2: ARCHitect-in-CLI - Comprehensive review                   │   │
-│  │  Stage 3: HITL (Scott) - Final merge authority                      │   │
+│  │  Stage 3: HITL ({{AUTHOR_NAME}}) - Final merge authority                      │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  OWNS:                                     MUST NOT:                        │
@@ -1137,7 +1131,7 @@ Full knowledge transfer document: [{{TICKET_PREFIX}}-497-vnext-workflow-contract
 │ QAS Gate        │ QAS             │ YES - no approval = stop│
 │ Stage 1 Review  │ System Architect│ YES - pattern check     │
 │ Stage 2 Review  │ ARCHitect-CLI   │ YES - architecture check│
-│ HITL Merge      │ Scott           │ YES - final authority   │
+│ HITL Merge      │ {{AUTHOR_NAME}}            │ YES - final authority   │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
@@ -1196,9 +1190,6 @@ See project documentation for honest assessment of limitations.
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
 
-├── data/                # Supporting data and metrics
-└── validation/          # Meta-circular validation evidence
-
 docs/                    # Additional documentation
 ├── whitepapers/         # Harness architecture and philosophy
 └── onboarding/          # Getting started guides
@@ -1208,7 +1199,7 @@ docs/                    # Additional documentation
 
 ## Meta-Note: Self-Validation
 
-This methodology was **validated by itself**: 7 SAFe agents performed meta-circular validation of the whitepaper and caught critical fabricated data before publication.
+This methodology was **validated by itself**: 7 SAFe agents performed meta-circular validation of the harness documentation and caught critical fabricated data before publication.
 
 
 **The methodology caught its own problems.** That's the proof it works.

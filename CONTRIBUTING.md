@@ -308,7 +308,7 @@ Each agent role has explicit exit states that define handoff points in the workf
 │ QAS Gate        │ QAS             │ YES - no approval = stop│
 │ Stage 1 Review  │ System Architect│ YES - pattern check     │
 │ Stage 2 Review  │ ARCHitect-CLI   │ YES - architecture check│
-│ HITL Merge      │ Scott           │ YES - final authority   │
+│ HITL Merge      │ {{AUTHOR_NAME}}            │ YES - final authority   │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
