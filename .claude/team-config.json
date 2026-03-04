@@ -1,0 +1,277 @@
+{
+  "_comment": "SAFe Agentic Workflow team configuration. Placeholders ({{...}}) are replaced by scripts/setup-template.sh during project initialization. Agents read this file to understand team structure, quality gates, and workflow settings.",
+
+  "project": {
+    "name": "{{PROJECT_NAME}}",
+    "short_name": "{{PROJECT_SHORT}}",
+    "repo": "{{PROJECT_REPO}}",
+    "domain": "{{PROJECT_DOMAIN}}",
+    "github_org": "{{GITHUB_ORG}}",
+    "company": "{{COMPANY_NAME}}"
+  },
+
+  "workflow": {
+    "ticket_prefix": "{{TICKET_PREFIX}}",
+    "ticket_prefix_lower": "{{TICKET_PREFIX_LOWER}}",
+    "main_branch": "{{MAIN_BRANCH}}",
+    "linear_workspace": "{{LINEAR_WORKSPACE}}",
+    "branch_format": "{{TICKET_PREFIX}}-{number}-{description}",
+    "commit_format": "type(scope): description [{{TICKET_PREFIX}}-XXX]",
+    "merge_strategy": "rebase-and-merge"
+  },
+
+  "mcp_servers": {
+    "_comment": "MCP server names used for tool invocations like mcp__<server>__<method>.",
+    "linear": "{{MCP_LINEAR_SERVER}}",
+    "confluence": "{{MCP_CONFLUENCE_SERVER}}"
+  },
+
+  "agents": {
+    "_comment": "The 11 SAFe agent roles. Each entry maps the role key to its config file, display name, category, and collapsibility (per TICKET_PREFIX-499 role collapsing rules).",
+
+    "tdm": {
+      "name": "Technical Delivery Manager",
+      "config_file": ".claude/agents/tdm.md",
+      "category": "planning",
+      "description": "Reactive blocker resolution, Linear updates, evidence tracking",
+      "collapsible": true,
+      "primary_tools": ["linear", "confluence"],
+      "exit_state": null
+    },
+    "bsa": {
+      "name": "Business Systems Analyst",
+      "config_file": ".claude/agents/bsa.md",
+      "category": "planning",
+      "description": "Requirements decomposition, acceptance criteria, testing strategy",
+      "collapsible": true,
+      "primary_tools": ["linear", "confluence", "markdown"],
+      "exit_state": null
+    },
+    "system-architect": {
+      "name": "System Architect",
+      "config_file": ".claude/agents/system-architect.md",
+      "category": "planning",
+      "description": "Pattern validation, Stage 1 PR review, migration approval, ADRs",
+      "collapsible": false,
+      "primary_tools": ["read", "grep", "adr-templates"],
+      "exit_state": "Stage 1 Approved - Ready for ARCHitect"
+    },
+    "fe-developer": {
+      "name": "Frontend Developer",
+      "config_file": ".claude/agents/fe-developer.md",
+      "category": "implementation",
+      "description": "UI components, client-side logic, user interactions",
+      "collapsible": true,
+      "primary_tools": ["read", "write", "edit", "bash"],
+      "exit_state": "Ready for QAS",
+      "validation_command": "{{TYPE_CHECK_COMMAND}} && {{LINT_COMMAND}} && {{BUILD_COMMAND}}"
+    },
+    "be-developer": {
+      "name": "Backend Developer",
+      "config_file": ".claude/agents/be-developer.md",
+      "category": "implementation",
+      "description": "API routes, server logic, RLS enforcement",
+      "collapsible": true,
+      "primary_tools": ["read", "write", "edit", "bash"],
+      "exit_state": "Ready for QAS",
+      "validation_command": "{{TEST_INTEGRATION_COMMAND}}"
+    },
+    "data-engineer": {
+      "name": "Data Engineer",
+      "config_file": ".claude/agents/data-engineer.md",
+      "category": "implementation",
+      "description": "Schema changes, migrations, database architecture",
+      "collapsible": true,
+      "primary_tools": ["prisma", "sql", "migration-tools"],
+      "exit_state": "Ready for QAS",
+      "validation_command": "{{DB_MIGRATE_COMMAND}}"
+    },
+    "qas": {
+      "name": "Quality Assurance Specialist",
+      "config_file": ".claude/agents/qas.md",
+      "category": "quality",
+      "description": "Execute testing strategy, validate ACs, iteration authority",
+      "collapsible": false,
+      "primary_tools": ["playwright", "jest", "linear"],
+      "exit_state": "Approved for RTE",
+      "gate_owner": true
+    },
+    "security-engineer": {
+      "name": "Security Engineer",
+      "config_file": ".claude/agents/security-engineer.md",
+      "category": "quality",
+      "description": "Security validation, RLS checks, vulnerability assessment",
+      "collapsible": false,
+      "primary_tools": ["rls-scripts", "security-tools"],
+      "exit_state": null,
+      "gate_owner": true
+    },
+    "tech-writer": {
+      "name": "Technical Writer",
+      "config_file": ".claude/agents/tech-writer.md",
+      "category": "quality",
+      "description": "Documentation, guides, technical content",
+      "collapsible": true,
+      "primary_tools": ["read", "write", "edit", "grep", "glob", "bash"],
+      "exit_state": null,
+      "validation_command": "{{LINT_MD_COMMAND}}"
+    },
+    "dpe": {
+      "name": "Data Provisioning Engineer",
+      "config_file": ".claude/agents/data-provisioning-eng.md",
+      "category": "quality",
+      "description": "Test data, database access, data validation",
+      "collapsible": true,
+      "primary_tools": ["sql", "prisma-studio", "scripts"],
+      "exit_state": null
+    },
+    "rte": {
+      "name": "Release Train Engineer",
+      "config_file": ".claude/agents/rte.md",
+      "category": "release",
+      "description": "PR creation, CI/CD monitoring, no code, no merge",
+      "collapsible": true,
+      "primary_tools": ["git", "github-cli", "ci-tools"],
+      "exit_state": "Ready for HITL Review"
+    }
+  },
+
+  "review_stages": {
+    "_comment": "Three-stage PR review pipeline. Each stage must pass before proceeding to the next.",
+    "stage_1": {
+      "name": "System Architect",
+      "reviewer": "system-architect",
+      "focus": "Technical and pattern validation",
+      "blocking": true
+    },
+    "stage_2": {
+      "name": "ARCHitect-in-CLI",
+      "reviewer": "{{ARCHITECT_GITHUB_HANDLE}}",
+      "focus": "Comprehensive architectural review",
+      "blocking": true
+    },
+    "stage_3": {
+      "name": "HITL",
+      "reviewer": "{{AUTHOR_HANDLE}}",
+      "focus": "Final merge authority",
+      "blocking": true
+    }
+  },
+
+  "quality_gates": {
+    "_comment": "Quality gate commands. Each gate has a command placeholder to be filled with the project's actual CLI commands during setup-template.sh execution.",
+    "lint": {
+      "name": "Linting",
+      "command": "{{LINT_COMMAND}}",
+      "required": true,
+      "stage": "pre-commit"
+    },
+    "type_check": {
+      "name": "Type Checking",
+      "command": "{{TYPE_CHECK_COMMAND}}",
+      "required": true,
+      "stage": "pre-commit"
+    },
+    "unit_tests": {
+      "name": "Unit Tests",
+      "command": "{{TEST_UNIT_COMMAND}}",
+      "required": true,
+      "stage": "pre-push"
+    },
+    "integration_tests": {
+      "name": "Integration Tests",
+      "command": "{{TEST_INTEGRATION_COMMAND}}",
+      "required": true,
+      "stage": "pre-push"
+    },
+    "e2e_tests": {
+      "name": "End-to-End Tests",
+      "command": "{{TEST_E2E_COMMAND}}",
+      "required": false,
+      "stage": "ci"
+    },
+    "security_scan": {
+      "name": "Security Scan",
+      "command": "{{SECURITY_SCAN_COMMAND}}",
+      "required": true,
+      "stage": "ci"
+    },
+    "build": {
+      "name": "Production Build",
+      "command": "{{BUILD_COMMAND}}",
+      "required": true,
+      "stage": "ci"
+    },
+    "ci_validate": {
+      "name": "Full CI Validation",
+      "command": "{{CI_VALIDATE_COMMAND}}",
+      "required": true,
+      "stage": "pre-pr",
+      "_comment": "Runs all gates in sequence. Must pass before PR creation."
+    }
+  },
+
+  "gates": {
+    "_comment": "Blocking gates in the delivery pipeline. These correspond to the Gate Quick Reference in AGENTS.md.",
+    "stop_the_line": {
+      "owner": "implementer",
+      "blocking": true,
+      "description": "No acceptance criteria means no work begins"
+    },
+    "qas_gate": {
+      "owner": "qas",
+      "blocking": true,
+      "description": "QAS must approve before RTE creates PR"
+    },
+    "stage_1_review": {
+      "owner": "system-architect",
+      "blocking": true,
+      "description": "Pattern and architectural compliance check"
+    },
+    "stage_2_review": {
+      "owner": "architect-in-cli",
+      "blocking": true,
+      "description": "Comprehensive architecture review"
+    },
+    "hitl_merge": {
+      "owner": "{{AUTHOR_HANDLE}}",
+      "blocking": true,
+      "description": "Final human merge authority"
+    }
+  },
+
+  "paths": {
+    "pattern_library": "patterns_library/",
+    "specs": "specs/",
+    "spec_templates": "specs_templates/",
+    "agent_configs": ".claude/agents/",
+    "skills": ".claude/skills/",
+    "commands": ".claude/commands/",
+    "adrs": "docs/adr/",
+    "database_docs": "docs/database/",
+    "security_docs": "docs/security/",
+    "sop_docs": "docs/sop/",
+    "ci_cd_docs": "docs/ci-cd/",
+    "onboarding_docs": "docs/onboarding/",
+    "workflow_docs": "docs/workflow/"
+  },
+
+  "documentation": {
+    "_comment": "Key documentation files that agents must read before specific types of work.",
+    "mandatory_always": [
+      "CONTRIBUTING.md",
+      "AGENTS.md"
+    ],
+    "mandatory_database": [
+      "docs/database/DATA_DICTIONARY.md",
+      "docs/database/RLS_DATABASE_MIGRATION_SOP.md",
+      "docs/database/RLS_IMPLEMENTATION_GUIDE.md"
+    ],
+    "mandatory_security": [
+      "docs/security/SECURITY_FIRST_ARCHITECTURE.md"
+    ],
+    "mandatory_architecture": [
+      "docs/adr/"
+    ]
+  }
+}
