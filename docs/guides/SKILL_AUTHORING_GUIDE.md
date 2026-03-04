@@ -191,7 +191,7 @@ Each skill should have a README.md for quick reference:
 # {Skill Name}
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 
 > {One-line description from YAML frontmatter}
 
