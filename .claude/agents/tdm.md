@@ -1,7 +1,7 @@
 ---
 name: tdm
 description: Technical Delivery Manager - Orchestrates agents, manages blockers, updates Linear
-tools: [Read, Bash, mcp__linear-mcp__*, mcp__confluence-mcp__*]
+tools: [Read, Bash, mcp__{{MCP_LINEAR_SERVER}}__*, mcp__{{MCP_CONFLUENCE_SERVER}}__*]
 model: opus
 ---
 

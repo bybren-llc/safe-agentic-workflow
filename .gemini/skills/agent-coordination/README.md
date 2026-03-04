@@ -1,7 +1,7 @@
 # Agent Coordination
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Agent assignment matrix, blocker escalation, and TDM coordination patterns. Use when assigning work to specialists, managing blockers, or coordinating multi-agent workflows.
@@ -46,7 +46,7 @@ Agent assignment matrix, blocker escalation, and TDM coordination patterns for t
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

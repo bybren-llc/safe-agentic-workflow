@@ -1,7 +1,7 @@
 # Agent Coordination
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 
 > Agent assignment matrix, blocker escalation, and TDM coordination patterns.
 
@@ -46,7 +46,7 @@ Guides correct agent assignment based on the 11-agent team structure, manages bl
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-04 |
-| Harness Version | v2.2.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

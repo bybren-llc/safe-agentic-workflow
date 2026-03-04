@@ -1,7 +1,7 @@
 # Security Audit
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > RLS validation, security audits, OWASP compliance, and vulnerability scanning. Use when validating RLS policies, auditing API routes, scanning for security issues, or reviewing code for vulnerabilities.
@@ -46,7 +46,7 @@ RLS validation, security audits, OWASP compliance, and vulnerability scanning pa
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

@@ -1,7 +1,7 @@
 # Deployment SOP
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Deployment workflows, pre-deploy validation, and smoke testing patterns. Use when deploying to staging or production, running smoke tests, or validating deployments.
@@ -46,7 +46,7 @@ Deployment workflows, pre-deploy validation, and smoke testing patterns.
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

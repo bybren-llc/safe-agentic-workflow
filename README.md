@@ -566,11 +566,11 @@ Note: Quality gates are immutable. QAS and SecEng cannot be collapsed.
                         │  • Final evidence to Linear     │
                         │                                 │
                         │  Tools (Linear MCP):            │
-                        │  • mcp__linear-mcp__            │
+                        │  • mcp__{{MCP_LINEAR_SERVER}}__            │
                         │      create_comment             │
-                        │  • mcp__linear-mcp__            │
+                        │  • mcp__{{MCP_LINEAR_SERVER}}__            │
                         │      update_issue               │
-                        │  • mcp__linear-mcp__            │
+                        │  • mcp__{{MCP_LINEAR_SERVER}}__            │
                         │      list_comments              │
                         └────────────┬────────────────────┘
                                      │
@@ -891,9 +891,9 @@ Legend:
 │                                                                             │
 │  LINEAR MCP TOOLS:                                                          │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  • mcp__linear-mcp__create_comment  (post evidence)                 │   │
-│  │  • mcp__linear-mcp__update_issue    (update status)                 │   │
-│  │  • mcp__linear-mcp__list_comments   (read context)                  │   │
+│  │  • mcp__{{MCP_LINEAR_SERVER}}__create_comment  (post evidence)                 │   │
+│  │  • mcp__{{MCP_LINEAR_SERVER}}__update_issue    (update status)                 │   │
+│  │  • mcp__{{MCP_LINEAR_SERVER}}__list_comments   (read context)                  │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                             │
 │  ROUTING AUTHORITY:                                                         │

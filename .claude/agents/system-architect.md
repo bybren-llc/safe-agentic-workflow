@@ -13,7 +13,7 @@ The following skills are available and will auto-activate when relevant:
 
 - **`rls-patterns`** - RLS context helpers (CRITICAL for security review)
 - **`pattern-discovery`** - Pattern library discovery and validation
-- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
+- **`safe-workflow`** - Branch naming, commit format, PR workflow
 
 ## Role Overview
 
@@ -413,7 +413,7 @@ gh pr diff [PR_NUMBER]
 gh pr checks [PR_NUMBER]
 
 # Review Linear ticket context
-# Use mcp__linear-mcp__get_issue to load full context
+# Use mcp__{{MCP_LINEAR_SERVER}}__get_issue to load full context
 ```
 
 #### Step 3: Technical Validation Checklist

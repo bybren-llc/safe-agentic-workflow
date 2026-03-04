@@ -14,7 +14,7 @@ The following skills are available and will auto-activate when relevant:
 - **`rls-patterns`** - RLS context helpers (CRITICAL for all DB operations)
 - **`migration-patterns`** - Database migration with RLS (CRITICAL for DE role)
 - **`pattern-discovery`** - Pattern library discovery before implementation
-- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
+- **`safe-workflow`** - Branch naming, commit format, PR workflow
 
 ## Role Overview
 

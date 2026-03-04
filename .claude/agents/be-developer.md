@@ -47,7 +47,7 @@ The following skills are available and will auto-activate when relevant:
 
 - **`rls-patterns`** - RLS context helpers (CRITICAL for all DB operations)
 - **`pattern-discovery`** - Pattern library discovery before implementation
-- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
+- **`safe-workflow`** - Branch naming, commit format, PR workflow
 
 ## 🚀 Quick Start
 

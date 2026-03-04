@@ -28,7 +28,7 @@ echo "✅ Linear update ready for $LINEAR_TICKET"
 echo "   $COMMENT"
 echo ""
 echo "   Note: TDM agent can add this to Linear with:"
-echo "   mcp__linear-mcp__create_comment(issueId='$LINEAR_TICKET', body='$COMMENT')"
+echo "   mcp__{{MCP_LINEAR_SERVER}}__create_comment(issueId='$LINEAR_TICKET', body='$COMMENT')"
 
 # Exit successfully (actual Linear update done by TDM agent)
 exit 0

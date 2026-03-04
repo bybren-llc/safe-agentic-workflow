@@ -1,7 +1,7 @@
 # Confluence Docs
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Documentation templates for ADRs, runbooks, and architecture docs. Use when creating architectural decision records, operational runbooks, or technical documentation.
@@ -46,7 +46,7 @@ Documentation templates for ADRs, runbooks, and architecture docs.
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

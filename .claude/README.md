@@ -15,7 +15,7 @@ This directory contains the {{PROJECT_SHORT}} Claude Code harness: hooks, slash 
 │  └─ Auto-format on edit          └─ /pre-pr                           │
 │                                                                       │
 │  SKILLS (Model-Invoked) ✅ Available                                  │
-│  ├─ {{LINEAR_WORKSPACE}}-workflow      (SAFe commit/PR patterns)                      │
+│  ├─ safe-workflow      (SAFe commit/PR patterns)                      │
 │  ├─ pattern-discovery  (search docs/patterns first)                   │
 │  ├─ rls-patterns       (database security helpers)                    │
 │  └─ frontend-patterns  (Clerk, shadcn, Next.js App Router)            │

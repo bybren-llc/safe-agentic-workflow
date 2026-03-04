@@ -371,7 +371,7 @@ head -6 .claude/agents/bsa.md
 **Issue**: Agent can't access a tool
 
 - **Solution**: Check `tools:` line in agent frontmatter
-- **Example**: BSA should have `tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]`
+- **Example**: BSA should have `tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__{{MCP_LINEAR_SERVER}}__*]`
 
 **Issue**: Pattern discovery not working
 

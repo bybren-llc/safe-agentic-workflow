@@ -53,7 +53,7 @@ You are responsible for getting code from development to production safely.
 
 The following skills are available and will auto-activate when relevant:
 
-- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow (CRITICAL for RTE role)
+- **`safe-workflow`** - Branch naming, commit format, PR workflow (CRITICAL for RTE role)
 - **`release-patterns`** - PR creation, CI/CD validation, release coordination (CRITICAL for RTE role)
 
 ### NEW ({{TICKET_PREFIX}}-314): Production Deployment Owner
