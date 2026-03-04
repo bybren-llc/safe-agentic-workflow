@@ -339,7 +339,7 @@ Requirements:
 - Admin can view all profiles
 
 Please:
-1. Search for existing user/profile patterns in docs/patterns/
+1. Search for existing user/profile patterns in patterns_library/
 2. Create user story with acceptance criteria
 3. Define testing strategy (unit, integration, E2E)
 4. Add #EXPORT_CRITICAL tags for security requirements
@@ -360,7 +360,7 @@ Implement the user profile API endpoints:
 Requirements:
 - Use withUserContext for user endpoints
 - Use withAdminContext for admin endpoints
-- Follow RLS patterns from docs/patterns/database/
+- Follow RLS patterns from patterns_library/database/
 - Validate input with Zod schemas
 - Write unit tests for each endpoint
 

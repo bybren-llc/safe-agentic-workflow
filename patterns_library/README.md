@@ -44,6 +44,28 @@ This pattern library provides battle-tested, production-ready code patterns extr
 | [API Integration Test](./testing/api-integration-test.md) | Test API routes with RLS   | Endpoint validation  |
 | [E2E User Flow](./testing/e2e-user-flow.md)               | Playwright end-to-end test | User journey testing |
 
+### Security
+
+| Pattern                                                       | File                              | Use Case                 |
+| ------------------------------------------------------------- | --------------------------------- | ------------------------ |
+| [Input Sanitization](./security/input-sanitization.md)        | XSS/injection prevention          | User input handling      |
+| [Rate Limiting](./security/rate-limiting.md)                  | API rate limiting                  | Abuse prevention         |
+| [Secrets Management](./security/secrets-management.md)        | Environment variable management   | Config security          |
+
+### CI/CD
+
+| Pattern                                                       | File                             | Use Case                 |
+| ------------------------------------------------------------- | -------------------------------- | ------------------------ |
+| [GitHub Actions Workflow](./ci/github-actions-workflow.md)     | Standard CI pipeline             | Automated quality gates  |
+| [Deployment Pipeline](./ci/deployment-pipeline.md)             | Staging → production deployment  | Release management       |
+
+### Configuration
+
+| Pattern                                                       | File                             | Use Case                 |
+| ------------------------------------------------------------- | -------------------------------- | ------------------------ |
+| [Environment Config](./config/environment-config.md)           | Typed environment loading        | App configuration        |
+| [Structured Logging](./config/structured-logging.md)           | JSON logging with correlation    | Observability            |
+
 ## How to Use Patterns
 
 ### 1. Find the Right Pattern
@@ -176,6 +198,6 @@ As patterns prove useful:
 
 ---
 
-**Last Updated**: 2025-10-03
-**Pattern Count**: 11
+**Last Updated**: 2026-03
+**Pattern Count**: 18
 **Maintained by**: {{PROJECT_NAME}} Development Team + System Architect

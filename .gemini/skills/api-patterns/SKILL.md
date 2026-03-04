@@ -21,11 +21,11 @@ Route to existing API patterns and provide checklists for safe, validated API ro
 
 | Pattern           | Location                                      | Purpose                     |
 | ----------------- | --------------------------------------------- | --------------------------- |
-| User Context API  | `docs/patterns/api/user-context-api.md`       | User-scoped operations      |
-| Admin Context API | `docs/patterns/api/admin-context-api.md`      | Admin-scoped operations     |
-| Zod Validation    | `docs/patterns/api/zod-validation-api.md`     | Request/response validation |
-| Webhook Handler   | `docs/patterns/api/webhook-handler.md`        | Webhook processing          |
-| Bonus Content     | `docs/patterns/api/bonus-content-delivery.md` | Protected content delivery  |
+| User Context API  | `patterns_library/api/user-context-api.md`       | User-scoped operations      |
+| Admin Context API | `patterns_library/api/admin-context-api.md`      | Admin-scoped operations     |
+| Zod Validation    | `patterns_library/api/zod-validation-api.md`     | Request/response validation |
+| Webhook Handler   | `patterns_library/api/webhook-handler.md`        | Webhook processing          |
+| Bonus Content     | `patterns_library/api/bonus-content-delivery.md` | Protected content delivery  |
 
 ## Stop-the-Line Conditions
 

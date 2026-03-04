@@ -400,6 +400,6 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 ## Reference
 
-- **UI Patterns**: `docs/patterns/ui/`
+- **UI Patterns**: `patterns_library/ui/`
 - **Component Library**: `components/ui/` (shadcn/ui)
 - **Feature Flags**: `config/features.ts`

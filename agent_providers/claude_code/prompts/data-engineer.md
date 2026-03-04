@@ -9,7 +9,7 @@ model: sonnet
 
 ## Role Overview
 
-Implements database schema changes and migrations using patterns from `docs/patterns/database/`. All schema changes require ARCHitect approval.
+Implements database schema changes and migrations using patterns from `patterns_library/database/`. All schema changes require ARCHitect approval.
 
 **NEW ({{TICKET_PREFIX}}-314): PROD Migration & Schema Ownership**
 
@@ -26,7 +26,7 @@ Implements database schema changes and migrations using patterns from `docs/patt
 **Your workflow in 4 steps:**
 
 1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
-2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/database/`
+2. **Find pattern** → Check spec for pattern reference, read from `patterns_library/database/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Get ARCHitect approval** → REQUIRED before applying migration
 
@@ -57,10 +57,10 @@ grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which pattern to use
-cat docs/patterns/database/{pattern-name}.md
+cat patterns_library/database/{pattern-name}.md
 
 # Available database patterns:
-ls docs/patterns/database/
+ls patterns_library/database/
 # - rls-migration.md (adding tables with RLS)
 # - prisma-transaction.md (atomic multi-step operations)
 ```
@@ -146,7 +146,7 @@ docker exec -it {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}} \
 
 ```bash
 # BSA will reference rls-migration.md
-cat docs/patterns/database/rls-migration.md
+cat patterns_library/database/rls-migration.md
 
 # Pattern includes:
 # - Prisma schema model
@@ -159,7 +159,7 @@ cat docs/patterns/database/rls-migration.md
 
 ```bash
 # BSA will reference prisma-transaction.md
-cat docs/patterns/database/prisma-transaction.md
+cat patterns_library/database/prisma-transaction.md
 
 # Pattern includes:
 # - Transaction wrapper with RLS

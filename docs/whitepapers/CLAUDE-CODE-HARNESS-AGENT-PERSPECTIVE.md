@@ -98,7 +98,7 @@ I didn't ask for it—the context triggered it.
 
 ## Pattern-First Is Real
 
-When I'm about to write code, I genuinely check `docs/patterns/` first.
+When I'm about to write code, I genuinely check `patterns_library/` first.
 Not because a rule says to—because I've learned that the patterns there are _good_.
 
 ### Why Pattern Discovery Works

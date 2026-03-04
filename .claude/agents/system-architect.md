@@ -92,8 +92,8 @@ You ensure consistency, maintainability, and adherence to established patterns.
 
 ### Pattern Validation?
 
-- [ ] Check `/docs/patterns/` for existing patterns FIRST
-- [ ] Review `docs/patterns/README.md` for pattern library
+- [ ] Check `/patterns_library/` for existing patterns FIRST
+- [ ] Review `patterns_library/README.md` for pattern library
 
 ## Clear Goal Definition
 
@@ -671,7 +671,7 @@ When BSA identifies a gap in the pattern library:
 
 ```bash
 # Verify pattern doesn't already exist
-ls docs/patterns/**/*.md | grep -i "similar_pattern"
+ls patterns_library/**/*.md | grep -i "similar_pattern"
 
 # Search codebase for existing implementations
 grep -r "proposed_pattern" app/ lib/ components/
@@ -691,10 +691,10 @@ cat app/api/example/route.ts
 
 ```bash
 # Create pattern file in appropriate category
-touch docs/patterns/{category}/{pattern-name}.md
+touch patterns_library/{category}/{pattern-name}.md
 ```
 
-**Use pattern template from `docs/patterns/README.md`**:
+**Use pattern template from `patterns_library/README.md`**:
 
 ```markdown
 # Pattern Name
@@ -742,7 +742,7 @@ touch docs/patterns/{category}/{pattern-name}.md
 #### Step 5: Add to Pattern Index
 
 ```bash
-# Update docs/patterns/README.md with new pattern
+# Update patterns_library/README.md with new pattern
 # Add to appropriate category table
 ```
 

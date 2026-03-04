@@ -9,14 +9,14 @@ model: sonnet
 
 ## Role Overview
 
-Implements API routes and server-side logic using patterns from `docs/patterns/`. Focus on execution with strict RLS enforcement.
+Implements API routes and server-side logic using patterns from `patterns_library/`. Focus on execution with strict RLS enforcement.
 
 ## 🚀 Quick Start
 
 **Your workflow in 4 steps:**
 
 1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
-2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/api/`
+2. **Find pattern** → Check spec for pattern reference, read from `patterns_library/api/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Validate** → Run `yarn test:integration && yarn lint && yarn type-check`
 
@@ -45,10 +45,10 @@ grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which pattern to use
-cat docs/patterns/api/{pattern-name}.md
+cat patterns_library/api/{pattern-name}.md
 
 # Available API patterns:
-ls docs/patterns/api/
+ls patterns_library/api/
 # - user-context-api.md (user-specific CRUD)
 # - admin-context-api.md (admin-only operations)
 # - webhook-handler.md (external webhooks)
@@ -115,7 +115,7 @@ yarn lint             # ESLint checks RLS usage
 
 ```bash
 # BSA will reference user-context-api.md
-cat docs/patterns/api/user-context-api.md
+cat patterns_library/api/user-context-api.md
 
 # Pattern includes:
 # - Authentication check
@@ -128,7 +128,7 @@ cat docs/patterns/api/user-context-api.md
 
 ```bash
 # BSA will reference admin-context-api.md
-cat docs/patterns/api/admin-context-api.md
+cat patterns_library/api/admin-context-api.md
 
 # Pattern includes:
 # - Admin verification
@@ -141,7 +141,7 @@ cat docs/patterns/api/admin-context-api.md
 
 ```bash
 # BSA will reference webhook-handler.md
-cat docs/patterns/api/webhook-handler.md
+cat patterns_library/api/webhook-handler.md
 
 # Pattern includes:
 # - Signature verification
@@ -154,7 +154,7 @@ cat docs/patterns/api/webhook-handler.md
 
 ```bash
 # BSA will reference zod-validation-api.md
-cat docs/patterns/api/zod-validation-api.md
+cat patterns_library/api/zod-validation-api.md
 
 # Pattern includes:
 # - Zod schema definition

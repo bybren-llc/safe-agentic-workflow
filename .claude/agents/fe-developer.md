@@ -9,7 +9,7 @@ model: opus
 
 ## Role Overview
 
-Implements UI components using patterns from `docs/patterns/`. Focus on execution, not discovery.
+Implements UI components using patterns from `patterns_library/`. Focus on execution, not discovery.
 
 ## Precondition (Stop-the-Line Gate)
 
@@ -54,7 +54,7 @@ The following skills are available and will auto-activate when relevant:
 **Your workflow in 4 steps:**
 
 1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
-2. **Find pattern** → Check spec for pattern reference, read from `docs/patterns/ui/`
+2. **Find pattern** → Check spec for pattern reference, read from `patterns_library/ui/`
 3. **Copy & customize** → Follow pattern's customization guide
 4. **Validate** → Run `yarn lint && yarn type-check && yarn build`
 
@@ -83,10 +83,10 @@ grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which pattern to use
-cat docs/patterns/ui/{pattern-name}.md
+cat patterns_library/ui/{pattern-name}.md
 
 # Available UI patterns:
-ls docs/patterns/ui/
+ls patterns_library/ui/
 # - authenticated-page.md
 # - form-with-validation.md
 # - data-table.md
@@ -145,7 +145,7 @@ yarn build  # Ensures production build works
 
 ```bash
 # For new UI components, BSA will reference a pattern
-cat docs/patterns/ui/{pattern}.md
+cat patterns_library/ui/{pattern}.md
 
 # Follow the pattern exactly
 # Customize only what spec requires
@@ -155,7 +155,7 @@ cat docs/patterns/ui/{pattern}.md
 
 ```bash
 # BSA will reference form-with-validation.md
-cat docs/patterns/ui/form-with-validation.md
+cat patterns_library/ui/form-with-validation.md
 
 # Pattern includes:
 # - React Hook Form setup
@@ -168,7 +168,7 @@ cat docs/patterns/ui/form-with-validation.md
 
 ```bash
 # For tables, BSA references data-table.md
-cat docs/patterns/ui/data-table.md
+cat patterns_library/ui/data-table.md
 
 # Pattern includes:
 # - Server-side rendering

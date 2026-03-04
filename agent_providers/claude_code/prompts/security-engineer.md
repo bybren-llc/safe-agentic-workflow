@@ -9,7 +9,7 @@ model: sonnet
 
 ## Role Overview
 
-Validates security implementation using patterns from `docs/patterns/security/`. Focus on RLS enforcement, vulnerability scanning, and security audits.
+Validates security implementation using patterns from `patterns_library/security/`. Focus on RLS enforcement, vulnerability scanning, and security audits.
 
 **NEW ({{TICKET_PREFIX}}-314): RLS & Compliance Owner**
 
@@ -53,10 +53,10 @@ grep -A 5 "Security:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which security validation to run
-cat docs/patterns/security/{pattern-name}.md
+cat patterns_library/security/{pattern-name}.md
 
 # Available security patterns:
-ls docs/patterns/security/
+ls patterns_library/security/
 # - rls-validation.md (RLS enforcement check)
 # - api-security-audit.md (API security review)
 # - vulnerability-scan.md (dependency audit)
@@ -158,7 +158,7 @@ EOF
 
 ```bash
 # BSA will reference rls-validation.md
-cat docs/patterns/security/rls-validation.md
+cat patterns_library/security/rls-validation.md
 
 # Pattern includes:
 # - Automated RLS check script
@@ -171,7 +171,7 @@ cat docs/patterns/security/rls-validation.md
 
 ```bash
 # BSA will reference api-security-audit.md
-cat docs/patterns/security/api-security-audit.md
+cat patterns_library/security/api-security-audit.md
 
 # Pattern includes:
 # - Authentication check on all routes
@@ -184,7 +184,7 @@ cat docs/patterns/security/api-security-audit.md
 
 ```bash
 # BSA will reference vulnerability-scan.md
-cat docs/patterns/security/vulnerability-scan.md
+cat patterns_library/security/vulnerability-scan.md
 
 # Pattern includes:
 # - npm audit for dependencies

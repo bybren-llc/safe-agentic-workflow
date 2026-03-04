@@ -479,7 +479,7 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 ## Authoritative References
 
-- **UI Patterns**: `docs/patterns/ui/`
+- **UI Patterns**: `patterns_library/ui/`
   - `authenticated-page.md` - Protected page pattern
   - `form-with-validation.md` - React Hook Form + Zod
   - `data-table.md` - Server-side paginated tables

@@ -2,7 +2,7 @@
 # Session-Start Hook: Pattern Library Check
 #
 # Checks for pattern library updates on session start
-# Reminds agents to check docs/patterns/ before implementation
+# Reminds agents to check patterns_library/ before implementation
 
 PATTERN_DIR="docs/patterns"
 PATTERN_COUNT=$(find "$PATTERN_DIR" -name "*.md" -type f 2>/dev/null | wc -l)

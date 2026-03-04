@@ -167,7 +167,7 @@ cp docs/whitepapers/CLAUDE-CODE-HARNESS-*.md /path/to/your-project/docs/whitepap
 
 # SOPs
 cp -r docs/sop/ /path/to/your-project/docs/sop/
-cp -r docs/patterns/ /path/to/your-project/docs/patterns/
+cp -r patterns_library/ /path/to/your-project/patterns_library/
 ```
 
 ---

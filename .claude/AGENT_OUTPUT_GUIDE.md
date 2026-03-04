@@ -54,10 +54,10 @@ These paths are hardcoded across 80+ files. **DO NOT MODIFY THESE LOCATIONS**:
 
 ### Code Patterns
 
-- `/docs/patterns/api/` - API route patterns
-- `/docs/patterns/database/` - Database migration patterns
-- `/docs/patterns/testing/` - Test implementation patterns
-- `/docs/patterns/ui/` - UI component patterns
+- `/patterns_library/api/` - API route patterns
+- `/patterns_library/database/` - Database migration patterns
+- `/patterns_library/testing/` - Test implementation patterns
+- `/patterns_library/ui/` - UI component patterns
 
 ### Quality Reports (Legacy)
 
@@ -82,7 +82,7 @@ These paths are hardcoded across 80+ files. **DO NOT MODIFY THESE LOCATIONS**:
 
 ### Pattern Work?
 
-- [ ] Check `/docs/patterns/` for existing patterns FIRST
+- [ ] Check `/patterns_library/` for existing patterns FIRST
 - [ ] Reuse before creating new patterns
 
 ---
@@ -240,7 +240,7 @@ EOF
 
 ❌ Move `/docs/database/DATA_DICTIONARY.md`
 ❌ Move `/docs/database/RLS_*.md` files
-❌ Move `/docs/patterns/` directories
+❌ Move `/patterns_library/` directories
 ❌ Skip mandatory reading checklist
 ❌ Create new documentation locations without coordination
 

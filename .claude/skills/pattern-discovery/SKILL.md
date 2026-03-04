@@ -26,19 +26,19 @@ Invoke this skill when:
 
 ### Step 1: Check Pattern Library
 
-Search `docs/patterns/` for existing patterns:
+Search `patterns_library/` for existing patterns:
 
 ```bash
 # Find patterns by category
-ls docs/patterns/api/      # API route patterns
-ls docs/patterns/ui/       # UI component patterns
-ls docs/patterns/database/ # Database operation patterns
-ls docs/patterns/testing/  # Testing patterns
+ls patterns_library/api/      # API route patterns
+ls patterns_library/ui/       # UI component patterns
+ls patterns_library/database/ # Database operation patterns
+ls patterns_library/testing/  # Testing patterns
 ```
 
 ### Step 2: Review Pattern Index
 
-Check `docs/patterns/README.md` for the complete pattern index:
+Check `patterns_library/README.md` for the complete pattern index:
 
 | Category | Patterns Available                                                          |
 | -------- | --------------------------------------------------------------------------- |
@@ -46,6 +46,9 @@ Check `docs/patterns/README.md` for the complete pattern index:
 | UI       | Authenticated Page, Form with Validation, Data Table, Marketing Page        |
 | Database | RLS Migration, Prisma Transaction, Server Component Access                  |
 | Testing  | API Integration Test, E2E User Flow                                         |
+| Security | Input Sanitization, Rate Limiting, Secrets Management                       |
+| CI       | GitHub Actions Workflow, Deployment Pipeline                                |
+| Config   | Environment Config, Structured Logging                                      |
 
 ### Step 3: Apply or Escalate
 
@@ -66,7 +69,7 @@ Check `docs/patterns/README.md` for the complete pattern index:
 ## Pattern Library Structure
 
 ```
-docs/patterns/
+patterns_library/
 ├── README.md           # Pattern index and usage guide
 ├── api/
 │   ├── user-context-api.md
@@ -86,9 +89,16 @@ docs/patterns/
 ├── testing/
 │   ├── api-integration-test.md
 │   └── e2e-user-flow.md
-└── ci/
-    ├── service-configuration-pattern.md
-    └── database-setup-pattern.md
+├── security/
+│   ├── input-sanitization.md
+│   ├── rate-limiting.md
+│   └── secrets-management.md
+├── ci/
+│   ├── github-actions-workflow.md
+│   └── deployment-pipeline.md
+└── config/
+    ├── environment-config.md
+    └── structured-logging.md
 ```
 
 ## Pattern Matching Guide
@@ -108,6 +118,13 @@ docs/patterns/
 | Run multi-step DB operations       | `database/prisma-transaction.md`  |
 | Test API endpoints                 | `testing/api-integration-test.md` |
 | Write E2E user flow tests          | `testing/e2e-user-flow.md`        |
+| Sanitize user input                | `security/input-sanitization.md`  |
+| Add API rate limiting              | `security/rate-limiting.md`       |
+| Manage secrets/env vars            | `security/secrets-management.md`  |
+| Set up CI/CD pipeline              | `ci/github-actions-workflow.md`   |
+| Configure deployment stages        | `ci/deployment-pipeline.md`       |
+| Load environment configuration     | `config/environment-config.md`    |
+| Add structured logging             | `config/structured-logging.md`    |
 
 ## Security Requirements
 
@@ -130,6 +147,6 @@ yarn test:e2e                 # UI patterns
 
 ## Authoritative Reference
 
-- **Pattern Index**: `docs/patterns/README.md`
+- **Pattern Index**: `patterns_library/README.md`
 - **RLS Patterns**: See `rls-patterns` skill for database security
 - **Frontend Patterns**: See `frontend-patterns` skill for UI conventions
