@@ -59,7 +59,7 @@ Update to the most recent tagged release:
 Update to a specific version:
 
 ```bash
-./scripts/sync-claude-harness.sh sync --version v2.2.0
+./scripts/sync-claude-harness.sh sync --version {{HARNESS_VERSION}}
 ```
 
 ### View Detailed Differences
@@ -104,7 +104,7 @@ Project-specific files that should never be overwritten can be excluded by creat
 After syncing, the script updates `.claude/.harness-sync.json` with:
 
 - `last_synced_commit` - The exact commit hash synced
-- `last_synced_version` - The version tag (e.g., v2.2.0)
+- `last_synced_version` - The version tag (e.g., {{HARNESS_VERSION}})
 - `last_synced_at` - Timestamp of the sync
 - `sync_history` - History of all syncs
 
