@@ -159,7 +159,7 @@
   },
 
   "quality_gates": {
-    "_comment": "Quality gate commands. Each gate has a command placeholder to be filled with the project's actual CLI commands during setup-template.sh execution.",
+    "_comment": "Quality gate commands. Each gate has a command placeholder to be filled manually with the project's actual CLI commands after running setup-template.sh.",
     "lint": {
       "name": "Linting",
       "command": "{{LINT_COMMAND}}",
