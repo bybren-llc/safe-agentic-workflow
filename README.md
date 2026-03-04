@@ -1266,6 +1266,6 @@ See [NOTICE](NOTICE) for details.
 </p>
 
 <p align="center">
-  <strong>Version</strong>: 2.3.0 (January 2026)<br>
+  <strong>Version</strong>: {{HARNESS_VERSION}} (March 2026)<br>
   <strong>Status</strong>: Production-validated, multi-provider (Claude Code + Gemini CLI)
 </p>
