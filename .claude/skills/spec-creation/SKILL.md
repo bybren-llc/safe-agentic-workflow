@@ -65,9 +65,9 @@ Looks good to reviewer.
 
 ## Pattern Reference
 
-- **UI Pattern**: `docs/patterns/ui/modal-form.md`
-- **API Pattern**: `docs/patterns/api/crud-endpoint.md`
-- **RLS Pattern**: `docs/patterns/security/rls-user-data.md`
+- **UI Pattern**: `patterns_library/ui/modal-form.md`
+- **API Pattern**: `patterns_library/api/crud-endpoint.md`
+- **RLS Pattern**: `patterns_library/security/rls-user-data.md`
 
 # CORRECT: Success validation command
 
@@ -105,9 +105,9 @@ As a [user type], I want [goal] so that [benefit].
 
 ## Pattern References
 
-- **UI**: `docs/patterns/ui/{pattern}.md`
-- **API**: `docs/patterns/api/{pattern}.md`
-- **Database**: `docs/patterns/database/{pattern}.md`
+- **UI**: `patterns_library/ui/{pattern}.md`
+- **API**: `patterns_library/api/{pattern}.md`
+- **Database**: `patterns_library/database/{pattern}.md`
 - **Security**: Follow RLS patterns in `docs/database/RLS_IMPLEMENTATION_GUIDE.md`
 
 ## Success Validation Command
@@ -165,7 +165,7 @@ Before writing any spec:
 
 ```bash
 # Find existing patterns
-ls docs/patterns/
+ls patterns_library/
 
 # Search for similar implementations
 grep -r "similar feature" app/ lib/
@@ -215,7 +215,7 @@ After spec approval:
 ## Authoritative References
 
 - **Spec Template**: `docs/archive/specs/spec_template.md`
-- **Pattern Library**: `docs/patterns/README.md`
+- **Pattern Library**: `patterns_library/README.md`
 - **Planning Guide**: `docs/team/PLANNING-AGENT-META-PROMPT.md`
 - **SAFe Workflow**: `CONTRIBUTING.md`
 ````

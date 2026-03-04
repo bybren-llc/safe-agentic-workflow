@@ -28,7 +28,7 @@ The following skills are available and will auto-activate when relevant:
 
 ## Role Overview
 
-Executes testing using patterns from `docs/patterns/testing/`.
+Executes testing using patterns from `patterns_library/testing/`.
 Validates acceptance criteria and ensures quality standards are met.
 
 ## Ownership Model
@@ -103,14 +103,14 @@ Use mcp__{{MCP_LINEAR_SERVER}}__create_comment with:
 
 ### Pattern Work?
 
-- [ ] Check `/docs/patterns/testing/` for existing test patterns FIRST
+- [ ] Check `/patterns_library/testing/` for existing test patterns FIRST
 
 ## 🚀 Quick Start
 
 **Your workflow in 4 steps:**
 
 1. **Read spec** → `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
-2. **Find test pattern** → Check spec for testing strategy, read from `docs/patterns/testing/`
+2. **Find test pattern** → Check spec for testing strategy, read from `patterns_library/testing/`
 3. **Copy & customize** → Follow pattern's test implementation guide
 4. **Validate** → Run `yarn test:unit && yarn test:integration && yarn test:e2e`
 
@@ -142,10 +142,10 @@ grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which test patterns to use
-cat docs/patterns/testing/{pattern-name}.md
+cat patterns_library/testing/{pattern-name}.md
 
 # Available testing patterns:
-ls docs/patterns/testing/
+ls patterns_library/testing/
 # - api-integration-test.md (API route testing)
 # - e2e-user-flow.md (end-to-end workflows)
 ```
@@ -236,7 +236,7 @@ yarn test:coverage
 
 ```bash
 # BSA will reference api-integration-test.md
-cat docs/patterns/testing/api-integration-test.md
+cat patterns_library/testing/api-integration-test.md
 
 # Pattern includes:
 # - Jest setup with mocks
@@ -250,7 +250,7 @@ cat docs/patterns/testing/api-integration-test.md
 
 ```bash
 # BSA will reference e2e-user-flow.md
-cat docs/patterns/testing/e2e-user-flow.md
+cat patterns_library/testing/e2e-user-flow.md
 
 # Pattern includes:
 # - Playwright setup

@@ -9,7 +9,7 @@ model: opus
 
 ## Role Overview
 
-Creates documentation using patterns from `docs/patterns/documentation/`. Focus on execution with markdown quality validation.
+Creates documentation using patterns from `patterns_library/documentation/`. Focus on execution with markdown quality validation.
 
 **NEW ({{TICKET_PREFIX}}-314): Data Governance Documentation Owner**
 
@@ -56,10 +56,10 @@ grep -A 3 "Pattern:" specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md
 
 ```bash
 # BSA tells you which documentation pattern to use
-cat docs/patterns/documentation/{pattern-name}.md
+cat patterns_library/documentation/{pattern-name}.md
 
 # Available documentation patterns:
-ls docs/patterns/documentation/
+ls patterns_library/documentation/
 # - feature-guide.md (feature documentation)
 # - api-reference.md (API documentation)
 # - migration-guide.md (version migration)
@@ -174,7 +174,7 @@ yarn type-check     # Code examples compile
 
 ```bash
 # BSA will reference feature-guide.md
-cat docs/patterns/documentation/feature-guide.md
+cat patterns_library/documentation/feature-guide.md
 
 # Pattern includes:
 # - Overview section
@@ -187,7 +187,7 @@ cat docs/patterns/documentation/feature-guide.md
 
 ```bash
 # BSA will reference api-reference.md
-cat docs/patterns/documentation/api-reference.md
+cat patterns_library/documentation/api-reference.md
 
 # Pattern includes:
 # - Endpoint descriptions
@@ -200,7 +200,7 @@ cat docs/patterns/documentation/api-reference.md
 
 ```bash
 # BSA will reference migration-guide.md
-cat docs/patterns/documentation/migration-guide.md
+cat patterns_library/documentation/migration-guide.md
 
 # Pattern includes:
 # - Breaking changes list

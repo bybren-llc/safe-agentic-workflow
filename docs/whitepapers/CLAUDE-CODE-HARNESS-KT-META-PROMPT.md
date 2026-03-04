@@ -242,10 +242,10 @@ Location: .claude/agents/*.md
 [Required SOPs and documentation]
 ```
 
-### Pattern Library (`docs/patterns/`)
+### Pattern Library (`patterns_library/`)
 
 ```text
-Location: docs/patterns/
+Location: patterns_library/
 ```
 
 **Categories**:
@@ -404,7 +404,7 @@ These insights from the agent perspective addendum should be reflected in the pu
 
 ### 4. Pattern-First Is Real
 
-> "When I'm about to write code, I genuinely check `docs/patterns/` first.
+> "When I'm about to write code, I genuinely check `patterns_library/` first.
 > Not because a rule says to - because I've learned that the patterns there are _good_."
 
 **Application**: Pattern libraries must contain genuinely useful patterns, not bureaucratic templates.

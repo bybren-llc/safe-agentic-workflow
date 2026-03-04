@@ -33,9 +33,9 @@ As a [user type], I want [goal] so that [benefit].
 - [ ] {Testable criterion 3}
 
 ## Pattern References
-- **UI**: `docs/patterns/ui/{pattern}.md`
-- **API**: `docs/patterns/api/{pattern}.md`
-- **Database**: `docs/patterns/database/{pattern}.md`
+- **UI**: `patterns_library/ui/{pattern}.md`
+- **API**: `patterns_library/api/{pattern}.md`
+- **Database**: `patterns_library/database/{pattern}.md`
 
 ## Success Validation Command
 ```bash
@@ -77,4 +77,4 @@ As a [user type], I want [goal] so that [benefit].
 ## Reference
 
 - **Spec Template**: `docs/archive/specs/spec_template.md`
-- **Pattern Library**: `docs/patterns/README.md`
+- **Pattern Library**: `patterns_library/README.md`

@@ -40,16 +40,16 @@ yarn lint:md && echo "BSA SUCCESS" || echo "BSA FAILED"
 
 ```bash
 # Check pattern library for existing patterns
-cat docs/patterns/README.md
+cat patterns_library/README.md
 
 # Search for relevant pattern category
-ls docs/patterns/api/      # For API features
-ls docs/patterns/ui/       # For UI features
-ls docs/patterns/database/ # For database features
-ls docs/patterns/testing/  # For testing patterns
+ls patterns_library/api/      # For API features
+ls patterns_library/ui/       # For UI features
+ls patterns_library/database/ # For database features
+ls patterns_library/testing/  # For testing patterns
 
 # If pattern exists, use it (copy-paste ready)
-cat docs/patterns/{category}/{pattern-name}.md
+cat patterns_library/{category}/{pattern-name}.md
 
 # If no pattern exists, proceed to search codebase (Step 1)
 # If still no pattern, propose to System Architect to create new pattern
@@ -57,7 +57,7 @@ cat docs/patterns/{category}/{pattern-name}.md
 
 **Pattern Discovery Workflow**:
 
-1. ✅ Check `docs/patterns/` library FIRST
+1. ✅ Check `patterns_library/` library FIRST
 2. ✅ If pattern exists → Use it (execution agents implement)
 3. ✅ If no pattern → Search codebase for similar implementations
 4. ✅ If still no pattern → Propose to System Architect to create new pattern

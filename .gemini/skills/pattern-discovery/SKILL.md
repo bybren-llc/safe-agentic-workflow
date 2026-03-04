@@ -23,15 +23,15 @@ Enforce pattern-first development by checking the pattern library before impleme
 ### Step 1: Check Pattern Library
 
 ```bash
-ls docs/patterns/api/      # API route patterns
-ls docs/patterns/ui/       # UI component patterns
-ls docs/patterns/database/ # Database patterns
-ls docs/patterns/testing/  # Testing patterns
+ls patterns_library/api/      # API route patterns
+ls patterns_library/ui/       # UI component patterns
+ls patterns_library/database/ # Database patterns
+ls patterns_library/testing/  # Testing patterns
 ```
 
 ### Step 2: Review Pattern Index
 
-See `docs/patterns/README.md` for the complete index.
+See `patterns_library/README.md` for the complete index.
 
 ### Step 3: Apply or Escalate
 
@@ -54,6 +54,6 @@ See `docs/patterns/README.md` for the complete index.
 
 ## Reference
 
-- **Pattern Index**: `docs/patterns/README.md`
+- **Pattern Index**: `patterns_library/README.md`
 - **RLS Patterns**: See `rls-patterns` skill
 - **Frontend Patterns**: See `frontend-patterns` skill

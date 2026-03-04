@@ -175,7 +175,7 @@ Please:
 
 - User story: "As a developer, I want to..."
 - 3-5 acceptance criteria
-- Pattern reference (likely `docs/patterns/api/user-context-api.md` or similar)
+- Pattern reference (likely `patterns_library/api/user-context-api.md` or similar)
 - Testing strategy (unit tests, integration tests)
 
 **If this works**: ✅ Your BSA agent is functioning correctly!
@@ -201,7 +201,7 @@ Note: This is just a test, so you can show me the implementation without actuall
 
 **Expected Output**:
 
-- Pattern discovery results (searches `docs/patterns/api/`)
+- Pattern discovery results (searches `patterns_library/api/`)
 - Implementation code following the pattern
 - Explanation of how it meets acceptance criteria
 
@@ -244,7 +244,7 @@ Task({
   subagent_type: "bsa",
   description: "Create spec for {{TICKET_PREFIX}}-123",
   prompt:
-    "Create comprehensive spec for {{TICKET_PREFIX}}-123 user profile feature. Include pattern discovery, acceptance criteria, and testing strategy. Reference existing patterns from docs/patterns/.",
+    "Create comprehensive spec for {{TICKET_PREFIX}}-123 user profile feature. Include pattern discovery, acceptance criteria, and testing strategy. Reference existing patterns from patterns_library/.",
 });
 ```
 
@@ -342,7 +342,7 @@ ls .claude/agents/*.md | wc -l
 # Should output: 11
 
 # 2. Check pattern library
-ls docs/patterns/**/*.md | wc -l
+ls patterns_library/**/*.md | wc -l
 # Should output: 12
 
 # 3. Run session-start hook
@@ -376,7 +376,7 @@ head -6 .claude/agents/bsa.md
 **Issue**: Pattern discovery not working
 
 - **Solution**: Verify pattern library exists
-- **Check**: `ls docs/patterns/`
+- **Check**: `ls patterns_library/`
 
 ---
 
@@ -386,7 +386,7 @@ head -6 .claude/agents/bsa.md
 
 1. **Read the Cheat Sheet**: See `AGENTS.md` for quick reference
 2. **Try a Real Task**: Create your first Linear ticket and implement it
-3. **Explore Patterns**: Browse `docs/patterns/` to see what's available
+3. **Explore Patterns**: Browse `patterns_library/` to see what's available
 4. **Read SOPs**: Check `docs/sop/` for detailed workflows
 5. **Customize**: Replace {{PLACEHOLDERS}} with your project values
 
@@ -446,7 +446,7 @@ yarn ci:validate && echo "CI SUCCESS"
 - **AGENTS.md**: Quick reference for all 11 agents
 - **docs/sop/AGENT_CONFIGURATION_SOP.md**: Detailed configuration guide
 - **docs/sop/AGENT_WORKFLOW_SOP.md**: Workflow and orchestration guide
-- **docs/patterns/README.md**: Pattern library index
+- **patterns_library/README.md**: Pattern library index
 - **CONTRIBUTING.md**: Git workflow and PR process
 - **Confluence Cheat Sheet**: https://{{AUTHOR_HANDLE}}.atlassian.net/wiki/spaces/WA/pages/366411778
 

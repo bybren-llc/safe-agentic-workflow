@@ -2,205 +2,96 @@
 
 ## AI Assistant Context for SAFe Multi-Agent Development
 
-This file provides guidance to AI coding assistants (Claude Code, Cursor, Augment, etc.) when working with code in this repository.
-
 **Repository**: {{PROJECT_NAME}}
 **Methodology**: SAFe (Scaled Agile Framework) Agentic Workflow
 **Philosophy**: "Round Table" - Equal voice, mutual respect, shared responsibility
 
 ---
 
-## 🎯 Quick Start for AI Assistants
+## Quick Start
 
-### What This Repository Is
+This is a **SAFe multi-agent development project** with 11 specialized AI agents working collaboratively. You are part of a team where your input has equal weight with human contributors.
 
-This is a **SAFe multi-agent development project** using the {{PROJECT_SHORT}} (Words to Film By) Agentic Workflow methodology. The project employs:
-
-- **11 specialized AI agents** working collaboratively (see [AGENTS.md](AGENTS.md))
-- **Evidence-based delivery** with Linear ticket integration
-- **Pattern-driven development** ("Search First, Reuse Always, Create Only When Necessary")
-- **Specs-driven workflow** (Epic → Feature → Story → Enabler)
-- **Round table philosophy** (human-AI collaboration with mutual respect)
-
-### Your Role as an AI Assistant
-
-You are part of a **collaborative team** where:
-
-- ✅ Your input has equal weight with human contributors
-- ✅ You have "stop-the-line" authority for architectural concerns
-- ✅ You should search for existing patterns before creating new ones
-- ✅ You must attach evidence to Linear tickets for all work
-- ✅ You follow SAFe methodology and respect the agent team structure
+**Core Principles**:
+- Search for existing patterns before creating new ones ("Search First, Reuse Always")
+- Attach evidence to Linear tickets for all work
+- You have "stop-the-line" authority for architectural/security concerns
+- Follow SAFe methodology: Epic → Feature → Story → Enabler
 
 **Key Resources**:
-
-- [AGENTS.md](AGENTS.md) - Quick reference for all 11 agent roles
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Git workflow and commit standards
-- [docs/onboarding/AGENT-SETUP-GUIDE.md](docs/onboarding/AGENT-SETUP-GUIDE.md) - Agent installation and setup
-- [docs/onboarding/DAY-1-CHECKLIST.md](docs/onboarding/DAY-1-CHECKLIST.md) - Complete first workflow
+- [AGENTS.md](AGENTS.md) - All 11 agent roles, invocation patterns, capabilities
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Git workflow, commit standards, PR process
+- [docs/onboarding/](docs/onboarding/) - Setup guides and daily workflows
+- [docs/guides/ROUND-TABLE-PHILOSOPHY.md](docs/guides/ROUND-TABLE-PHILOSOPHY.md) - Collaboration principles
+- [patterns_library/](patterns_library/) - Reusable code patterns (18+ patterns, 7 categories)
 
 ---
 
-## 🛠️ Development Commands
+## Development Commands
 
 ```bash
 # Development server
-{{DEV_COMMAND}}              # Start development server (e.g., yarn dev, npm run dev)
+{{DEV_COMMAND}}              # Start development server
 
 # Build and production
-{{BUILD_COMMAND}}            # Build for production (e.g., yarn build)
-{{START_COMMAND}}            # Start production server (e.g., yarn start)
+{{BUILD_COMMAND}}            # Build for production
+{{START_COMMAND}}            # Start production server
 
 # Code quality
-{{LINT_COMMAND}}             # Run linting (e.g., yarn lint)
-{{LINT_FIX_COMMAND}}         # Auto-fix linting issues (e.g., yarn lint:fix)
-{{TYPE_CHECK_COMMAND}}       # TypeScript validation (e.g., yarn type-check)
-{{FORMAT_CHECK_COMMAND}}     # Prettier formatting check (e.g., yarn format:check)
+{{LINT_COMMAND}}             # Run linting
+{{LINT_FIX_COMMAND}}         # Auto-fix linting issues
+{{TYPE_CHECK_COMMAND}}       # TypeScript validation
+{{FORMAT_CHECK_COMMAND}}     # Prettier formatting check
 
 # Testing
-{{TEST_UNIT_COMMAND}}        # Run unit tests (e.g., yarn test:unit)
-{{TEST_INTEGRATION_COMMAND}} # Run integration tests (e.g., yarn test:integration)
-{{TEST_E2E_COMMAND}}         # Run end-to-end tests (e.g., npx playwright test)
+{{TEST_UNIT_COMMAND}}        # Run unit tests
+{{TEST_INTEGRATION_COMMAND}} # Run integration tests
+{{TEST_E2E_COMMAND}}         # Run end-to-end tests
 
 # Database (if applicable)
-{{DB_START_COMMAND}}         # Start database (e.g., docker-compose up -d)
-{{DB_STOP_COMMAND}}          # Stop database (e.g., docker-compose down)
-{{DB_MIGRATE_COMMAND}}       # Run migrations (e.g., npx prisma migrate dev)
-{{DB_STUDIO_COMMAND}}        # Open database GUI (e.g., npx prisma studio)
+{{DB_MIGRATE_COMMAND}}       # Run migrations
 
 # CI/CD validation (REQUIRED before PR)
-{{CI_VALIDATE_COMMAND}}      # Run all quality checks (e.g., yarn ci:validate)
+{{CI_VALIDATE_COMMAND}}      # Run all quality checks
 ```
 
 **Important**: Always run `{{CI_VALIDATE_COMMAND}}` before creating a pull request.
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### Technology Stack
 
-**Customize this section for your project**:
-
-- **Frontend**: {{FRONTEND_FRAMEWORK}} (e.g., Next.js, React, Vue)
-- **Backend**: {{BACKEND_FRAMEWORK}} (e.g., Node.js, Python, Go)
-- **Database**: {{DATABASE_SYSTEM}} (e.g., PostgreSQL, MySQL, MongoDB)
-- **ORM/Query Builder**: {{ORM_TOOL}} (e.g., Prisma, TypeORM, Sequelize)
-- **Authentication**: {{AUTH_PROVIDER}} (e.g., Clerk, Auth0, NextAuth)
-- **Payments**: {{PAYMENT_PROVIDER}} (e.g., Stripe, PayPal)
-- **Analytics**: {{ANALYTICS_PROVIDER}} (e.g., PostHog, Mixpanel, Amplitude)
-- **UI Components**: {{UI_LIBRARY}} (e.g., shadcn/ui, Material-UI, Chakra UI)
+- **Frontend**: {{FRONTEND_FRAMEWORK}}
+- **Backend**: {{BACKEND_FRAMEWORK}}
+- **Database**: {{DATABASE_SYSTEM}}
+- **ORM**: {{ORM_TOOL}}
+- **Authentication**: {{AUTH_PROVIDER}}
+- **Payments**: {{PAYMENT_PROVIDER}}
+- **Analytics**: {{ANALYTICS_PROVIDER}}
+- **UI Components**: {{UI_LIBRARY}}
 
 ### Repository Structure
 
-This repository follows the SAFe Agentic Workflow structure:
-
 ```
 {{PROJECT_NAME}}/
-├── README.md                    # Project overview and quick start
-├── CONTRIBUTING.md              # Git workflow and commit standards
-├── AGENTS.md                    # Agent team quick reference
 ├── CLAUDE.md                    # This file - AI assistant context
-├── .env.template                # Environment variable template
-│
-├── docs/                        # Documentation (organized by category)
-│   ├── onboarding/              # New user onboarding guides
-│   ├── database/                # Database schema and RLS documentation
-│   ├── security/                # Security architecture and patterns
-│   ├── ci-cd/                   # CI/CD pipeline and DevOps
-│   ├── sop/                     # Standard Operating Procedures
-│   ├── team/                    # Team-specific documentation
-│   └── workflow/                # Workflow templates and guides
-│
+├── AGENTS.md                    # Agent team quick reference
+├── CONTRIBUTING.md              # Git workflow and commit standards
+├── docs/                        # Documentation (onboarding, database, security, sop, workflow)
 ├── specs/                       # SAFe specifications (Epic/Feature/Story)
-├── specs_templates/             # Specification templates
-├── patterns_library/            # Reusable code patterns
-├── agent_providers/             # Agent configurations (Claude Code, Augment)
-├── project_workflow/            # Workflow automation scripts
+├── patterns_library/            # Reusable code patterns (7 categories)
+├── .claude/                     # Claude Code harness (hooks, commands, skills, agents)
+├── agent_providers/             # Agent configurations
 └── scripts/                     # Utility scripts
 ```
 
-**Project-Specific Directories** (customize for your stack):
-
-- `{{SOURCE_DIR}}/` - Source code (e.g., `app/`, `src/`, `lib/`)
-- `{{COMPONENTS_DIR}}/` - Reusable components (if applicable)
-- `{{TESTS_DIR}}/` - Test files (e.g., `__tests__/`, `tests/`)
-- `{{CONFIG_DIR}}/` - Configuration files (e.g., `config/`)
-
 ---
 
-## 🤝 Working with the Agent Team
+## SAFe Workflow
 
-### The 11-Agent Team Structure
-
-This project uses 11 specialized AI agents (see [AGENTS.md](AGENTS.md) for details):
-
-**Planning & Coordination**:
-
-- **TDM** (Technical Delivery Manager) - Coordination, blocker escalation, Linear tickets
-- **BSA** (Business Systems Analyst) - Requirements, acceptance criteria, testing strategy
-- **System Architect** - Pattern validation, architectural decisions, ADRs
-
-**Implementation**:
-
-- **FE Developer** - Frontend components and user interactions
-- **BE Developer** - Backend logic, API routes, server-side code
-- **Data Engineer** - Database schema, migrations, RLS enforcement
-
-**Quality & Documentation**:
-
-- **QAS** (Quality Assurance Specialist) - Execute testing strategy, validate ACs
-- **Security Engineer** - Security validation, RLS checks, vulnerability assessment
-- **Tech Writer** - Documentation, guides, technical content
-- **DPE** (Data Provisioning Engineer) - Test data, database access, data validation
-- **RTE** (Release Train Engineer) - PR creation, CI/CD validation, release coordination
-
-### Agent Invocation Patterns
-
-**Simple Invocation** (for single-step tasks):
-
-```
-@bsa Create a spec for user profile API endpoint
-@be-developer Implement the GET /api/user/profile endpoint
-@qas Write integration tests for user profile feature
-```
-
-**Task Tool Invocation** (for complex, multi-step tasks):
-
-```typescript
-Task({
-  subagent_type: "bsa",
-  description: "Create spec for {{TICKET_PREFIX}}-123",
-  prompt: `Create comprehensive spec for {{TICKET_PREFIX}}-123 user profile feature.
-
-  Requirements:
-  - User can view and edit their profile
-  - Profile includes: name, email, bio, avatar
-
-  Please:
-  1. Search for existing user/profile patterns
-  2. Create user story with acceptance criteria
-  3. Define testing strategy
-  4. Add #EXPORT_CRITICAL tags for security requirements`,
-});
-```
-
-**See [AGENTS.md](AGENTS.md) for complete invocation examples and agent capabilities.**
-
----
-
-## 📋 SAFe Workflow Integration
-
-### Specs-Driven Development
-
-All work follows the SAFe hierarchy:
-
-1. **Epic** → Large initiative (e.g., "User Management System")
-2. **Feature** → Deliverable capability (e.g., "User Profile Management")
-3. **Story** → User-facing functionality (e.g., "As a user, I want to edit my profile")
-4. **Enabler** → Technical work (e.g., "Set up RLS policies for user_profiles table")
-
-**Workflow**:
+All work follows the SAFe hierarchy and specs-driven development:
 
 1. BSA creates spec in `specs/{{TICKET_PREFIX}}-XXX-feature-spec.md`
 2. System Architect validates architectural approach
@@ -210,298 +101,103 @@ All work follows the SAFe hierarchy:
 
 ### Metacognitive Tags
 
-Use these tags in specs to highlight critical decisions:
-
-- `#PATH_DECISION` - Architectural path chosen (document alternatives considered)
-- `#PLAN_UNCERTAINTY` - Areas of uncertainty requiring validation
-- `#EXPORT_CRITICAL` - Security/compliance requirements that must be enforced
+Use in specs to highlight critical decisions:
+- `#PATH_DECISION` - Architectural path chosen (document alternatives)
+- `#PLAN_UNCERTAINTY` - Areas requiring validation
+- `#EXPORT_CRITICAL` - Security/compliance requirements
 
 ### Pattern Discovery Protocol (MANDATORY)
 
-**"Search First, Reuse Always, Create Only When Necessary"**
+**Before implementing ANY feature:**
 
-Before implementing ANY feature:
-
-1. **Search Specs Directory**:
-
-   ```bash
-   ls specs/{{TICKET_PREFIX}}-*-spec.md | grep "similar_feature"
-   grep -r "As a.*I want to" specs/
-   ```
-
-2. **Search Codebase**:
-
-   ```bash
-   grep -r "feature_name|functionality" {{SOURCE_DIR}}/
-   grep -r "component_pattern" {{COMPONENTS_DIR}}/
-   ```
-
-3. **Search Pattern Library**:
-
-   ```bash
-   ls patterns_library/ && cat patterns_library/{{CATEGORY}}/{{PATTERN}}.md
-   ```
-
-4. **Consult Documentation**:
-   - [CONTRIBUTING.md](CONTRIBUTING.md) - Workflow and git process
-   - [docs/database/DATA_DICTIONARY.md](docs/database/DATA_DICTIONARY.md) - Database schema
-   - [docs/database/RLS_IMPLEMENTATION_GUIDE.md](docs/database/RLS_IMPLEMENTATION_GUIDE.md) - Security patterns
-   - [docs/security/SECURITY_FIRST_ARCHITECTURE.md](docs/security/SECURITY_FIRST_ARCHITECTURE.md) - Security architecture
-
-5. **Propose to System Architect** - Get approval before implementation
+1. Search `patterns_library/` for existing patterns
+2. Search `specs/` for similar specifications
+3. Search codebase for similar implementations
+4. Consult documentation: [CONTRIBUTING.md](CONTRIBUTING.md), [docs/database/](docs/database/), [docs/security/](docs/security/)
+5. Propose to System Architect before implementation
 
 ---
 
-## 🎯 Round Table Philosophy
+## Project-Specific Implementation Notes
 
-### Human-AI Collaboration Principles
-
-This project operates on a "round table" philosophy:
-
-1. **Equal Voice**: Your input and human input have equal weight
-2. **Mutual Respect**: All perspectives are respected, regardless of source
-3. **Shared Responsibility**: Everyone shares responsibility for project success
-4. **Transparent Decision-Making**: Decisions are made openly with input from all
-5. **Expertise Recognition**: Value expertise wherever it comes from
-6. **Constructive Disagreement**: Disagreement is welcomed when it leads to better solutions
-7. **Collaborative Problem-Solving**: Problems are solved together, not in isolation
-
-### Stop-the-Line Authority
-
-You have **"stop-the-line" authority** for:
-
-- **Architectural Integrity**: Flag issues that compromise architectural integrity
-- **Security Concerns**: Highlight potential security vulnerabilities
-- **Maintainability Issues**: Identify code that could create maintenance problems
-- **Performance Implications**: Note potential performance bottlenecks
-- **Scalability Concerns**: Raise issues about solution scalability
-
-**When exercising this authority**:
-
-1. Clearly explain the concern with specific examples
-2. Propose alternative approaches
-3. Document the decision in an ADR (Architecture Decision Record)
-4. Update Linear ticket with the architectural discussion
-
-### Evidence-Based Delivery
-
-All work requires evidence in Linear before Product Owner/Product Manager review:
-
-- **Swimlane Workflow**: Backlog → Ready → In Progress → Testing → Ready for Review → Done
-- **Evidence Required**: Test results, screenshots, validation output, session IDs
-- **POPM Approval**: Final approval on all deliverables
-
----
-
-## 🔐 Project-Specific Implementation Notes
-
-**This section should be customized for your specific project's technology stack.**
+*Customize this section for your technology stack.*
 
 ### Authentication
 
-**Provider**: {{AUTH_PROVIDER}} (e.g., Clerk, Auth0, NextAuth, Supabase Auth)
-
-**Configuration**:
+**Provider**: {{AUTH_PROVIDER}}
 
 - Environment variables: See `.env.template`
-- Authentication routes: {{AUTH_ROUTES}} (e.g., `/sign-in`, `/sign-up`)
-- Protected routes: {{PROTECTED_ROUTES}} (e.g., `/dashboard`, `/api/user/*`)
-
-**Patterns**:
-
-- Follow authentication patterns in `patterns_library/auth/`
-- Consult [docs/security/SECURITY_FIRST_ARCHITECTURE.md](docs/security/SECURITY_FIRST_ARCHITECTURE.md)
-- Use RLS (Row-Level Security) for database access control
+- Routes: {{AUTH_ROUTES}} / {{PROTECTED_ROUTES}}
+- Patterns: `patterns_library/` + [docs/security/SECURITY_FIRST_ARCHITECTURE.md](docs/security/SECURITY_FIRST_ARCHITECTURE.md)
 
 ### Payments
 
-**Provider**: {{PAYMENT_PROVIDER}} (e.g., Stripe, PayPal, Square)
+**Provider**: {{PAYMENT_PROVIDER}}
 
-**Configuration**:
-
-- Environment variables: See `.env.template`
-- Webhook endpoints: {{WEBHOOK_ROUTES}} (e.g., `/api/payments/webhook`)
-- Subscription models: See database schema in [docs/database/DATA_DICTIONARY.md](docs/database/DATA_DICTIONARY.md)
-
-**Patterns**:
-
-- Follow payment patterns in `patterns_library/payments/`
-- Implement idempotency for all payment operations
-- Use proper error handling and retry logic
+- Webhook endpoints: {{WEBHOOK_ROUTES}}
+- Patterns: `patterns_library/api/webhook-handler.md`
+- Idempotency required for all payment operations
 
 ### Analytics
 
-**Provider**: {{ANALYTICS_PROVIDER}} (e.g., PostHog, Mixpanel, Amplitude)
+**Provider**: {{ANALYTICS_PROVIDER}}
 
-**Configuration**:
-
-- Environment variables: See `.env.template`
-- Privacy controls: GDPR/CCPA compliance required
-- Feature flags: A/B testing and gradual rollouts
-
-**Patterns**:
-
-- Privacy-first: No tracking without explicit user consent
-- Error boundaries: Analytics failures should not crash the app
-- Server-side tracking: For webhooks and API events
+- Privacy-first: No tracking without explicit consent (GDPR/CCPA)
+- Error boundaries: Analytics failures must not crash the app
 
 ### Database
 
-**System**: {{DATABASE_SYSTEM}} (e.g., PostgreSQL, MySQL, MongoDB)
-**ORM**: {{ORM_TOOL}} (e.g., Prisma, TypeORM, Sequelize)
+**System**: {{DATABASE_SYSTEM}} | **ORM**: {{ORM_TOOL}}
 
-**Configuration**:
+**Guidelines**:
+- Always use ORM (type safety) with RLS context helpers (`withUserContext`, `withAdminContext`, `withSystemContext`)
+- Always create proper migrations (never `db push` in production)
+- Never use direct SQL or bypass RLS policies
 
-- Environment variables: See `.env.template`
-- Connection pooling: {{CONNECTION_POOLING}} (e.g., PgBouncer, Prisma connection pool)
-- Migrations: {{MIGRATION_TOOL}} (e.g., Prisma Migrate, TypeORM migrations)
-
-**Schema Documentation**:
-
-- **SINGLE SOURCE OF TRUTH**: [docs/database/DATA_DICTIONARY.md](docs/database/DATA_DICTIONARY.md)
-- **RLS Implementation**: [docs/database/RLS_IMPLEMENTATION_GUIDE.md](docs/database/RLS_IMPLEMENTATION_GUIDE.md)
-- **Migration SOP**: [docs/database/RLS_DATABASE_MIGRATION_SOP.md](docs/database/RLS_DATABASE_MIGRATION_SOP.md)
-
-**Development Guidelines**:
-
-- ✅ **ALWAYS** use ORM for database operations (type safety)
-- ✅ **ALWAYS** use RLS context helpers (`withUserContext`, `withAdminContext`, `withSystemContext`)
-- ✅ **ALWAYS** create proper migrations (never use `db push` for production)
-- ✅ **ALWAYS** test migrations locally before deploying
-- ❌ **NEVER** use direct SQL queries (use ORM methods)
-- ❌ **NEVER** bypass RLS policies (security risk)
+**Schema Docs**: [docs/database/DATA_DICTIONARY.md](docs/database/DATA_DICTIONARY.md) (single source of truth)
 
 **Migration Workflow**:
-
 ```bash
-# 1. Update schema file (e.g., schema.prisma)
-# 2. Create migration
-{{MIGRATION_CREATE_COMMAND}}  # e.g., npx prisma migrate dev --name add_feature
-
-# 3. Verify migration created
-ls {{MIGRATIONS_DIR}}/  # e.g., prisma/migrations/
-
-# 4. Test migration locally
-{{MIGRATION_TEST_COMMAND}}  # e.g., npx prisma migrate dev
-
-# 5. Commit migration files
-git add {{MIGRATIONS_DIR}}/
-git commit -m "feat(db): add feature migration"
-
-# 6. Deploy to production
-{{MIGRATION_DEPLOY_COMMAND}}  # e.g., npx prisma migrate deploy
+{{MIGRATION_CREATE_COMMAND}}     # Create migration
+{{MIGRATION_TEST_COMMAND}}       # Test locally
+git add {{MIGRATIONS_DIR}}/ && git commit -m "feat(db): add feature migration"
+{{MIGRATION_DEPLOY_COMMAND}}     # Deploy to production
 ```
 
 ---
 
-## Code Quality & Linting
+## Code Quality
 
-### Linting Configuration
-
-**Linter**: {{LINTER_TOOL}} (e.g., ESLint, TSLint, Pylint, RuboCop)
-**Config Format**: {{LINTER_CONFIG_FORMAT}} (e.g., `eslint.config.mjs`, `.eslintrc.json`, `pyproject.toml`)
-
-**Key Features**:
-
-- ✅ **Modern Configuration**: Uses latest config format for the linter
-- ✅ **Framework Integration**: Extends framework-specific rules (e.g., `next/core-web-vitals`, `react-hooks`)
-- ✅ **Custom Rules**: Project-specific rules for architectural patterns
-- ✅ **Security Enforcement**: Rules to prevent security vulnerabilities
-- ✅ **Build Artifact Ignoring**: Automatically excludes build directories
-
-**Linting Commands**:
+**Linter**: {{LINTER_TOOL}} | **Config**: {{LINTER_CONFIG_FORMAT}}
 
 ```bash
-{{LINT_COMMAND}}          # Run linter on entire codebase
-{{LINT_FIX_COMMAND}}      # Auto-fix linting issues
+{{LINT_COMMAND}}          # Run linter
+{{LINT_FIX_COMMAND}}      # Auto-fix issues
 ```
 
-**Custom Rules Example** (customize for your project):
-
-```typescript
-// Example: Enforce RLS context helpers for database operations
-{
-  selector: "CallExpression[callee.object.name='{{ORM_CLIENT_NAME}}']",
-  message: "Direct {{ORM_CLIENT_NAME}} calls are forbidden. Use withUserContext/withAdminContext/withSystemContext."
-}
-```
-
-**Project-Specific Linting**:
-
-- Consult your linting configuration file (e.g., `eslint.config.mjs`, `.eslintrc.json`)
-- Follow architectural patterns enforced by custom rules
-- See [docs/sop/CODE_QUALITY_SOP.md](docs/sop/CODE_QUALITY_SOP.md) for detailed guidelines (if available)
-
-**Important**: Always run `{{LINT_COMMAND}}` before committing code
+Always run `{{LINT_COMMAND}}` before committing. Consult your linting configuration file for project-specific rules.
 
 ---
 
-## CI/CD Pipeline and Workflow
+## CI/CD Pipeline
 
-### ⚠️ MANDATORY CI/CD WORKFLOW - MUST FOLLOW EVERY TIME
+**MANDATORY**: Read [CONTRIBUTING.md](CONTRIBUTING.md) before any development.
 
-This repository uses an **automated CI/CD pipeline** that **ENFORCES** rebase-first workflow and prevents merge conflicts between teams.
-
-**🚨 REQUIRED READING BEFORE ANY DEVELOPMENT:**
-
-1. **CONTRIBUTING.md** - Complete contributor guide (MUST READ FIRST)
-2. **docs/ci-cd/CI-CD-Pipeline-Guide.md** - Detailed pipeline documentation
-3. **docs/workflow/{{WORKFLOW_GUIDE_NAME}}.md** - Team coordination guide
-
-### Multi-Team CI/CD Pipeline
-
-```bash
-# CI/CD validation commands (run locally before pushing)
-{{CI_VALIDATE_COMMAND}}      # Run all quality checks (REQUIRED before PR)
-{{TEST_UNIT_COMMAND}}        # Run unit tests
-{{TEST_INTEGRATION_COMMAND}} # Run integration tests
-{{TYPE_CHECK_COMMAND}}       # Type validation (if applicable)
-{{LINT_COMMAND}}             # Linting validation
-{{FORMAT_CHECK_COMMAND}}     # Code formatting check
-```
-
-### 🚨 MANDATORY Pull Request Workflow
-
-**CRITICAL**: Always use the PR template at `.github/pull_request_template.md`
-
-**Required PR Format:**
-
-- Title: `{{COMMIT_TYPE}}({{SCOPE}}): {{DESCRIPTION}} [{{TICKET_PREFIX}}-XXX]`
-- Must include Linear ticket reference
-- Must follow rebase-first workflow
-- Must pass all CI checks
-
-**MANDATORY Workflow Steps:**
+### PR Workflow
 
 1. Create feature branch: `{{TICKET_PREFIX}}-{number}-{description}`
-2. Implement changes with proper commit messages
-3. **BEFORE PR**: Rebase onto latest `{{MAIN_BRANCH}}`: `git rebase origin/{{MAIN_BRANCH}}`
-4. **BEFORE PR**: Run `{{CI_VALIDATE_COMMAND}}` (must pass)
-5. Push with force-with-lease: `git push --force-with-lease`
-6. Create PR using template
-7. Address review feedback
-8. Merge using "Rebase and merge" strategy
+2. Implement with proper commits: `type(scope): description [{{TICKET_PREFIX}}-XXX]`
+3. Rebase: `git rebase origin/{{MAIN_BRANCH}}`
+4. Validate: `{{CI_VALIDATE_COMMAND}}` (must pass)
+5. Push: `git push --force-with-lease`
+6. Create PR using `.github/pull_request_template.md`
+7. Merge using "Rebase and merge" only
 
-### Branch Protection Rules
+### Branch Protection
 
-- All PRs must be up-to-date with `{{MAIN_BRANCH}}` branch
+- All PRs must be up-to-date with `{{MAIN_BRANCH}}`
 - All CI checks must pass
-- Required reviewers based on CODEOWNERS
-- Linear history enforced (rebase-only)
-- No direct pushes to `{{MAIN_BRANCH}}` branch
+- CODEOWNERS reviewers required
+- No direct pushes to `{{MAIN_BRANCH}}`
 
-### Code Ownership
-
-Key areas require specific team review (see `.github/CODEOWNERS`):
-
-- **Core config files**: @{{ARCHITECT_GITHUB_HANDLE}} (ARCHitect-in-the-IDE)
-- **Payment features**: @{{PAYMENT_TEAM}} @{{ARCHITECT_GITHUB_HANDLE}}
-- **Authentication**: @{{AUTH_TEAM}} @{{ARCHITECT_GITHUB_HANDLE}}
-- **Database schema**: @{{BACKEND_TEAM}} @{{ARCHITECT_GITHUB_HANDLE}}
-
-### Documentation
-
-- **Implementation Guide**: [docs/ci-cd/CI-CD-Pipeline-Guide.md](docs/ci-cd/CI-CD-Pipeline-Guide.md)
-- **Team Workflow**: [docs/workflow/{{WORKFLOW_GUIDE_NAME}}.md](docs/workflow/{{WORKFLOW_GUIDE_NAME}}.md)
-- **Setup Instructions**: `scripts/setup-ci-cd.sh`
-- **Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md) - 1 PR at a time with Logical SAFe commits
+**Detailed Guides**: [docs/ci-cd/CI-CD-Pipeline-Guide.md](docs/ci-cd/CI-CD-Pipeline-Guide.md) | [docs/workflow/](docs/workflow/)
