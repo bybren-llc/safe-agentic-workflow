@@ -59,11 +59,25 @@ Comparative analysis of self-referential loops vs SAFe multi-agent orchestration
 - Integration recommendation (don't integrate - redundant)
 - Validation of SAFe approach superiority for enterprise work
 
+### 5. Anthropic Research Alignment
+
+**File**: `ANTHROPIC-RESEARCH-ALIGNMENT.md`
+
+Bridge document mapping Anthropic's published engineering research to harness components:
+
+- Claude's Character principles mapped to Round Table Philosophy and stop-the-line authority
+- Tool Use Best Practices mapped to three-layer architecture (Hooks, Commands, Skills)
+- Multi-Agent Orchestration research mapped to 11-agent team structure
+- Prompt Engineering guidance mapped to CLAUDE.md progressive disclosure and agent templates
+- Safety and Alignment (Constitutional AI, RLHF) mapped to security-first architecture and RLS enforcement
+- Extended Thinking research mapped to metacognitive tags (#PATH_DECISION, #PLAN_UNCERTAINTY, #EXPORT_CRITICAL)
+
 ## Quick Start
 
 1. **New to the harness?** Start with the Agent Perspective document to understand the philosophy
 2. **Implementing the harness?** Use the KT Meta-Prompt as your guide
 3. **Deep technical details?** The main whitepaper has everything
+4. **Want to understand the "why" behind design decisions?** Read the Anthropic Research Alignment document
 
 ## Related Documentation
 
