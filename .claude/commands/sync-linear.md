@@ -1,6 +1,6 @@
 ---
 description: Sync current work with Linear ticket status
-allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__{{MCP_LINEAR_SERVER}}__*]
 ---
 
 Synchronize current branch work with Linear ticket, ensuring ticket reflects actual progress.
@@ -18,7 +18,7 @@ git branch --show-current | grep -oE '{{TICKET_PREFIX}}-[0-9]+'
 Fetch ticket details:
 
 ```text
-mcp__linear-mcp__get_issue {{{TICKET_PREFIX}}-number}
+mcp__{{MCP_LINEAR_SERVER}}__get_issue {{{TICKET_PREFIX}}-number}
 ```
 
 ### 2. Analyze Work Done
@@ -71,7 +71,7 @@ Based on work analysis:
 Use Linear MCP to update:
 
 ```text
-mcp__linear-mcp__update_issue
+mcp__{{MCP_LINEAR_SERVER}}__update_issue
 ```
 
 Update fields:
@@ -116,7 +116,7 @@ Create detailed comment:
 Add comment via:
 
 ```text
-mcp__linear-mcp__create_comment
+mcp__{{MCP_LINEAR_SERVER}}__create_comment
 ```
 
 ### 6. Link Related Items

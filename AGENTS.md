@@ -430,7 +430,7 @@ ARCHitect-in-CLI is the primary orchestrator.`,
 2. **Mandate pattern discovery**: `Pattern discovery is MANDATORY before implementation`
 3. **Check #EXPORT_CRITICAL tags**: `Review #EXPORT_CRITICAL tags in spec first`
 4. **Validate with commands**: Use success validation commands from agent prompts
-5. **Update Linear**: TDM can update Linear with `mcp__linear-mcp__create_comment`
+5. **Update Linear**: TDM can update Linear with `mcp__{{MCP_LINEAR_SERVER}}__create_comment`
 6. **TDM is reactive**: Don't use TDM for orchestration—use ARCHitect-in-CLI
 
 ---

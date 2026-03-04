@@ -57,7 +57,7 @@
 
 - **Primary Responsibilities**: Execute testing strategy, validate acceptance criteria, **GATE authority**
 - **Role Type**: **Independence Gate** - NOT collapsible ({{TICKET_PREFIX}}-499)
-- **Tools**: Read, Bash, Playwright, Jest, **Linear MCP** (`mcp__linear-mcp__create_comment`, `mcp__linear-mcp__update_issue`)
+- **Tools**: Read, Bash, Playwright, Jest, **Linear MCP** (`mcp__{{MCP_LINEAR_SERVER}}__create_comment`, `mcp__{{MCP_LINEAR_SERVER}}__update_issue`)
 - **When to Assign**: Test execution, acceptance criteria validation, **blocking quality gate**
 - **Exit State**: `"Approved for RTE"`
 - **Iteration Authority**: Can bounce work back repeatedly until satisfied

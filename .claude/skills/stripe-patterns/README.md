@@ -1,7 +1,7 @@
 # Stripe Patterns
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 
 > Stripe payment integration patterns. Routes to existing patterns and provides evidence templates for payment testing.
 
@@ -47,7 +47,7 @@ Guides safe and consistent Stripe integration with proper webhook handling, idem
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-04 |
-| Harness Version | v2.2.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

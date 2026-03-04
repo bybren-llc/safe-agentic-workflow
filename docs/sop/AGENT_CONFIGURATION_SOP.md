@@ -46,7 +46,7 @@ model: opus|sonnet
 ### BSA (Business Systems Analyst)
 
 ```yaml
-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
+tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__{{MCP_LINEAR_SERVER}}__*]
 model: opus
 ```
 
@@ -115,9 +115,9 @@ tools:
     Read,
     Bash,
     Grep,
-    mcp__linear-mcp__create_comment,
-    mcp__linear-mcp__update_issue,
-    mcp__linear-mcp__list_comments,
+    mcp__{{MCP_LINEAR_SERVER}}__create_comment,
+    mcp__{{MCP_LINEAR_SERVER}}__update_issue,
+    mcp__{{MCP_LINEAR_SERVER}}__list_comments,
   ]
 model: sonnet
 ```
@@ -155,7 +155,7 @@ model: sonnet
 ### TDM (Technical Delivery Manager)
 
 ```yaml
-tools: [Read, Bash, mcp__linear-mcp__*, mcp__confluence-mcp__*]
+tools: [Read, Bash, mcp__{{MCP_LINEAR_SERVER}}__*, mcp__{{MCP_CONFLUENCE_SERVER}}__*]
 model: sonnet
 ```
 
@@ -212,14 +212,14 @@ model: sonnet
 
 ### Restricted Tools
 
-**Linear MCP** (`mcp__linear-mcp__*`):
+**Linear MCP** (`mcp__{{MCP_LINEAR_SERVER}}__*`):
 
 - ✅ BSA - Ticket analysis and spec creation
 - ✅ TDM - Orchestration and progress updates
 - ✅ QAS (v1.4) - Evidence posting and verdict (Gate Owner role - system of record)
 - ❌ Execution agents - No direct Linear access (reduces noise)
 
-**Confluence MCP** (`mcp__confluence-mcp__*`):
+**Confluence MCP** (`mcp__{{MCP_CONFLUENCE_SERVER}}__*`):
 
 - ✅ TDM - Documentation coordination
 - ❌ Others - Limited to essential use cases
@@ -264,7 +264,7 @@ model: opus|sonnet
 
 1. Does this agent need to create/modify code? → `Write`, `Edit`
 2. Does this agent need to run tests/validation? → `Bash`
-3. Does this agent need to update Linear? → `mcp__linear-mcp__*`
+3. Does this agent need to update Linear? → `mcp__{{MCP_LINEAR_SERVER}}__*`
 4. Does this agent need to search codebase? → `Grep`, `Glob`
 
 ### Step 4: Select Model

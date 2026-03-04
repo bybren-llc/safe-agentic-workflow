@@ -1,7 +1,7 @@
 # Testing Patterns
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Testing patterns for Jest and Playwright. Use when writing tests, setting up test fixtures, or validating RLS enforcement. Routes to existing test conventions.
@@ -46,7 +46,7 @@ Testing patterns for Jest and Playwright. Routes to existing test conventions an
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

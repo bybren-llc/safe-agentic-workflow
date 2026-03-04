@@ -63,6 +63,13 @@ read -rp "Main branch name [main]: " MAIN_BRANCH
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
 
 echo ""
+echo "--- MCP Server Names ---"
+read -rp "Linear MCP server name [linear-mcp]: " MCP_LINEAR_SERVER
+MCP_LINEAR_SERVER="${MCP_LINEAR_SERVER:-linear-mcp}"
+read -rp "Confluence MCP server name [confluence-mcp]: " MCP_CONFLUENCE_SERVER
+MCP_CONFLUENCE_SERVER="${MCP_CONFLUENCE_SERVER:-confluence-mcp}"
+
+echo ""
 echo "--- Infrastructure ---"
 read -rp "Database user (e.g., app_user): " DB_USER
 read -rp "Database password (e.g., app_password): " DB_PASSWORD
@@ -76,6 +83,7 @@ read -rp "Container registry (e.g., ghcr.io/acme-corp): " CONTAINER_REGISTRY
 TICKET_PREFIX_LOWER=$(echo "$TICKET_PREFIX" | tr '[:upper:]' '[:lower:]')
 AUTHOR_INITIALS="${AUTHOR_FIRST_NAME:0:1}. ${AUTHOR_LAST_NAME:0:1}."
 GITHUB_REPO_URL="https://github.com/${GITHUB_ORG}/${PROJECT_REPO}"
+HARNESS_VERSION="v2.4.0"
 
 echo ""
 echo "--- Review your values ---"
@@ -92,6 +100,9 @@ echo "  Security email:     $SECURITY_EMAIL"
 echo "  Ticket prefix:      $TICKET_PREFIX ($TICKET_PREFIX_LOWER)"
 echo "  Linear workspace:   $LINEAR_WORKSPACE"
 echo "  Main branch:        $MAIN_BRANCH"
+echo "  MCP Linear server:  $MCP_LINEAR_SERVER"
+echo "  MCP Confluence:     $MCP_CONFLUENCE_SERVER"
+echo "  Harness version:    $HARNESS_VERSION"
 echo "  Database:           $DB_USER / $DB_NAME ($DB_CONTAINER)"
 echo "  Dev container:      $DEV_CONTAINER"
 echo "  Staging container:  $STAGING_CONTAINER"
@@ -137,6 +148,9 @@ declare -a REPLACEMENTS=(
   "{{GITHUB_ORG}}|${GITHUB_ORG}"
   "{{DB_USER}}|${DB_USER}"
   "{{DB_NAME}}|${DB_NAME}"
+  "{{MCP_LINEAR_SERVER}}|${MCP_LINEAR_SERVER}"
+  "{{MCP_CONFLUENCE_SERVER}}|${MCP_CONFLUENCE_SERVER}"
+  "{{HARNESS_VERSION}}|${HARNESS_VERSION}"
 )
 
 # --- Apply replacements ---

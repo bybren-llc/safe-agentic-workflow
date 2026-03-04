@@ -27,7 +27,7 @@ Extract WOR number from branch name.
 Check ticket status using Linear MCP:
 
 ```text
-mcp__linear-mcp__get_issue
+mcp__{{MCP_LINEAR_SERVER}}__get_issue
 ```
 
 Verify:

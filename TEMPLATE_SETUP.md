@@ -42,6 +42,9 @@ If you prefer manual customization, replace these placeholders across the reposi
 | `{{STAGING_CONTAINER}}` | Staging app container name | `app-staging` |
 | `{{CONTAINER_REGISTRY}}` | Container registry URL | `ghcr.io/acme-corp` |
 | `{{GITHUB_REPO_URL}}` | Full GitHub repo URL (derived) | `https://github.com/acme-corp/my-saas-app` |
+| `{{MCP_LINEAR_SERVER}}` | Linear MCP server name | `linear-mcp` |
+| `{{MCP_CONFLUENCE_SERVER}}` | Confluence MCP server name | `confluence-mcp` |
+| `{{HARNESS_VERSION}}` | Harness version (derived) | `v2.4.0` |
 
 Additional placeholders in `CLAUDE.md` and `CONTRIBUTING.md` (technology stack):
 
@@ -58,6 +61,14 @@ Additional placeholders in `CLAUDE.md` and `CONTRIBUTING.md` (technology stack):
 | `{{DEV_COMMAND}}` | Dev server command | `yarn dev` |
 | `{{MAIN_BRANCH}}` | Main branch name | `main` |
 
+## Removing Optional Features
+
+Not every project needs every integration. See [`docs/guides/OPTIONAL-FEATURES.md`](docs/guides/OPTIONAL-FEATURES.md) for removal checklists covering:
+- **Stripe/Payment** patterns (if your project doesn't process payments)
+- **Confluence** integration (if you use a different documentation platform)
+- **RLS/PostgreSQL** patterns (if you use a different database)
+- **Clerk/Auth** patterns (if you use a different auth provider)
+
 ## Post-Setup Checklist
 
 - [ ] Setup wizard completed (or manual placeholders replaced)
@@ -65,6 +76,8 @@ Additional placeholders in `CLAUDE.md` and `CONTRIBUTING.md` (technology stack):
 - [ ] `LICENSE` copyright line updated
 - [ ] `.github/FUNDING.yml` updated (or removed if not sponsoring)
 - [ ] `CLAUDE.md` technology stack section customized
+- [ ] Review [optional features](docs/guides/OPTIONAL-FEATURES.md) and remove integrations you don't need
+- [ ] Customize `.claude/team-config.json` for your team structure
 - [ ] Linear workspace configured (see `docs/onboarding/`)
 - [ ] GitHub repository settings: enable "Template repository" if sharing
 - [ ] Delete this file (`TEMPLATE_SETUP.md`) after setup

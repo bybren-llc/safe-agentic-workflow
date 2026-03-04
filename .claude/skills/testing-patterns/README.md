@@ -1,7 +1,7 @@
 # Testing Patterns
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 
 > Testing patterns for Jest and Playwright. Routes to existing test conventions and provides evidence templates.
 
@@ -46,7 +46,7 @@ Guides consistent and effective testing using Jest for unit/integration tests an
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-04 |
-| Harness Version | v2.2.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

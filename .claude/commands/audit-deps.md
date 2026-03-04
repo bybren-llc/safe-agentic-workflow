@@ -174,7 +174,7 @@ For each significant finding:
 Use MCP:
 
 ```text
-mcp__linear-mcp__create_issue
+mcp__{{MCP_LINEAR_SERVER}}__create_issue
 ```
 
 ## Audit Frequency

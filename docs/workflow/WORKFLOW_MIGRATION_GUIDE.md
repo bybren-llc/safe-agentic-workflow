@@ -94,7 +94,7 @@ git pull origin dev
 # Must have no conflicts
 
 # 3. Linear ticket "In Progress"?
-# Check Linear board manually or via mcp__linear-mcp__get_issue
+# Check Linear board manually or via mcp__{{MCP_LINEAR_SERVER}}__get_issue
 
 # 4. Ready for atomic commits?
 git status

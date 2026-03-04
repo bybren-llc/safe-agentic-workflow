@@ -25,10 +25,10 @@ Invoke this skill when:
 
 ```text
 # Get issue by identifier
-mcp__linear-mcp__get_issue({ id: "{{TICKET_PREFIX}}-459" })
+mcp__{{MCP_LINEAR_SERVER}}__get_issue({ id: "{{TICKET_PREFIX}}-459" })
 
 # List issues with filters
-mcp__linear-mcp__list_issues({
+mcp__{{MCP_LINEAR_SERVER}}__list_issues({
   team: "{{PROJECT_TEAM_NAME}}",
   state: "In Progress",
   assignee: "me",
@@ -38,7 +38,7 @@ mcp__linear-mcp__list_issues({
 ### Creating Issues
 
 ```text
-mcp__linear-mcp__create_issue({
+mcp__{{MCP_LINEAR_SERVER}}__create_issue({
   title: "feat(scope): description",
   team: "{{PROJECT_TEAM_NAME}}",
   description: "## Summary\n\n...",
@@ -50,7 +50,7 @@ mcp__linear-mcp__create_issue({
 ### Updating Issues
 
 ```text
-mcp__linear-mcp__update_issue({
+mcp__{{MCP_LINEAR_SERVER}}__update_issue({
   id: "{{TICKET_PREFIX}}-459",
   state: "Done",
 })
@@ -59,7 +59,7 @@ mcp__linear-mcp__update_issue({
 ### Adding Comments
 
 ```text
-mcp__linear-mcp__create_comment({
+mcp__{{MCP_LINEAR_SERVER}}__create_comment({
   issueId: "{{TICKET_PREFIX}}-459",
   body: "**Dev Evidence**\n\n...",
 })
@@ -186,7 +186,7 @@ const issueId = "{{TICKET_PREFIX}}-459";
 const uuid = "ef6a5fa0-2b46-417f-8266-dea2d187b10a";
 
 // Get UUID from identifier via MCP tool
-// mcp__linear-mcp__get_issue({ id: "{{TICKET_PREFIX}}-459" })
+// mcp__{{MCP_LINEAR_SERVER}}__get_issue({ id: "{{TICKET_PREFIX}}-459" })
 // Returns issue object with .id property containing UUID
 ```
 
@@ -202,7 +202,7 @@ PRs are automatically linked when:
 ### Create Sub-Issue
 
 ```text
-mcp__linear-mcp__create_issue({
+mcp__{{MCP_LINEAR_SERVER}}__create_issue({
   title: "Sub-task description",
   team: "{{PROJECT_TEAM_NAME}}",
   parentId: "parent-issue-uuid",
@@ -212,7 +212,7 @@ mcp__linear-mcp__create_issue({
 ### Query by Label
 
 ```text
-mcp__linear-mcp__list_issues({
+mcp__{{MCP_LINEAR_SERVER}}__list_issues({
   label: "sprint-1",
   team: "{{PROJECT_TEAM_NAME}}",
 })

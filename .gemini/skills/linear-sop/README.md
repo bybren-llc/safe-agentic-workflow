@@ -1,7 +1,7 @@
 # Linear SOP
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Linear ticket management best practices. Use when creating issues, updating status, or attaching evidence. Provides evidence templates for dev/staging/done phases.
@@ -46,7 +46,7 @@ Linear ticket management best practices with evidence templates for dev/staging/
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

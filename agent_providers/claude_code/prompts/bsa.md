@@ -1,7 +1,7 @@
 ---
 name: bsa
 description: Business Systems Analyst - Pattern discovery, spec creation, acceptance criteria definition
-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
+tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__{{MCP_LINEAR_SERVER}}__*]
 model: opus
 ---
 

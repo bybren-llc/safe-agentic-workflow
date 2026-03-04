@@ -1,7 +1,7 @@
 # Pattern Discovery
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.2-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 
 > Pattern library discovery for pattern-first development. Use BEFORE implementing any new feature.
 
@@ -47,7 +47,7 @@ Enforces pattern-first development by requiring a search of the Pattern library 
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-04 |
-| Harness Version | v2.2.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

@@ -1,7 +1,7 @@
 # Migration Patterns
 
 ![Status](https://img.shields.io/badge/status-production-green)
-![Harness](https://img.shields.io/badge/harness-v2.3-blue)
+![Harness](https://img.shields.io/badge/harness-{{HARNESS_VERSION}}-blue)
 ![Provider](https://img.shields.io/badge/provider-Gemini_CLI-orange)
 
 > Database migration creation with mandatory RLS policies and ARCHitect approval workflow. Use when creating migrations, adding tables with RLS, or updating Prisma schema.
@@ -46,7 +46,7 @@ Database migration creation with mandatory RLS policies and ARCHitect approval w
 | Field | Value |
 |-------|-------|
 | Last Updated | 2026-01-14 |
-| Harness Version | v2.3.0 |
+| Harness Version | {{HARNESS_VERSION}} |
 
 ---
 

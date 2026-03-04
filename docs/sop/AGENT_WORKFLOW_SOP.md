@@ -445,9 +445,9 @@ QAS is a **GATE**, not just a report producer. Work does not proceed without QAS
 
 **Linear MCP Tools (MANDATORY for QAS)**:
 
-- `mcp__linear-mcp__create_comment` - Post evidence/verdict
-- `mcp__linear-mcp__update_issue` - Update ticket status
-- `mcp__linear-mcp__list_comments` - Review prior evidence
+- `mcp__{{MCP_LINEAR_SERVER}}__create_comment` - Post evidence/verdict
+- `mcp__{{MCP_LINEAR_SERVER}}__update_issue` - Update ticket status
+- `mcp__{{MCP_LINEAR_SERVER}}__list_comments` - Review prior evidence
 
 ### RTE PR Shepherd Role
 

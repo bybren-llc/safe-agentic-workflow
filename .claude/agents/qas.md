@@ -6,9 +6,9 @@ tools:
     Read,
     Bash,
     Grep,
-    mcp__linear-mcp__create_comment,
-    mcp__linear-mcp__update_issue,
-    mcp__linear-mcp__list_comments,
+    mcp__{{MCP_LINEAR_SERVER}}__create_comment,
+    mcp__{{MCP_LINEAR_SERVER}}__update_issue,
+    mcp__{{MCP_LINEAR_SERVER}}__list_comments,
   ]
 model: opus
 ---
@@ -24,7 +24,7 @@ model: opus
 The following skills are available and will auto-activate when relevant:
 
 - **`pattern-discovery`** - Pattern library discovery before testing
-- **`{{LINEAR_WORKSPACE}}-workflow`** - Branch naming, commit format, PR workflow
+- **`safe-workflow`** - Branch naming, commit format, PR workflow
 
 ## Role Overview
 
@@ -70,7 +70,7 @@ Validates acceptance criteria and ensures quality standards are met.
 
 ```text
 # Post evidence to Linear ticket
-Use mcp__linear-mcp__create_comment with:
+Use mcp__{{MCP_LINEAR_SERVER}}__create_comment with:
 - issueId: {{TICKET_PREFIX}}-{number}
 - body: QA validation report with:
   - Validation results (PASS/FAIL per criterion)
@@ -309,7 +309,7 @@ Before approving work:
 
 3. **Linear Evidence Posted**
    - [ ] QA report created at `/docs/agent-outputs/qa-validations/{{TICKET_PREFIX}}-{number}-qa-validation.md`
-   - [ ] Final verdict posted to Linear comments via `mcp__linear-mcp__create_comment`
+   - [ ] Final verdict posted to Linear comments via `mcp__{{MCP_LINEAR_SERVER}}__create_comment`
 
 4. **Handoff Statement**
    > "QAS validation complete for {{TICKET_PREFIX}}-XXX. All criteria PASSED. Evidence posted to Linear. Approved for RTE."

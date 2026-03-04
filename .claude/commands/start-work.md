@@ -1,7 +1,7 @@
 ---
 description: Start work on a new Linear ticket with proper workflow
 argument-hint: [{{TICKET_PREFIX}}-number]
-allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__linear-mcp__*]
+allowed-tools: [Read, Write, Edit, Bash, Grep, Glob, mcp__{{MCP_LINEAR_SERVER}}__*]
 ---
 
 You are starting work on a new Linear ticket.
@@ -12,7 +12,7 @@ You are starting work on a new Linear ticket.
 
 1. **Linear Ticket Exists?**
    - If no ticket number provided in arguments, ask user for Linear ticket number
-   - Verify ticket exists in Linear using `mcp__linear-mcp__get_issue`
+   - Verify ticket exists in Linear using `mcp__{{MCP_LINEAR_SERVER}}__get_issue`
    - Confirm ticket is in appropriate status (Todo, In Progress)
 
 2. **Stop-the-Line: AC/DoD Check** (MANDATORY)

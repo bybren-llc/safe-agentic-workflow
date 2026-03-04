@@ -30,7 +30,7 @@ Quick fixes are appropriate for:
 
 If WOR number provided ($1):
 
-- Fetch ticket: `mcp__linear-mcp__get_issue $1`
+- Fetch ticket: `mcp__{{MCP_LINEAR_SERVER}}__get_issue $1`
 - Verify it's a bug fix
 - Create branch: `git checkout -b {{TICKET_PREFIX}}-$1-fix-{description}`
 
