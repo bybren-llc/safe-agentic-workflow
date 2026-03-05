@@ -17,6 +17,7 @@ to your project.
 - [2. Confluence Integration](#2-confluence-integration)
 - [3. RLS / PostgreSQL Patterns](#3-rls--postgresql-patterns)
 - [4. Clerk / Auth Patterns](#4-clerk--auth-patterns)
+- [5. Agent Teams (Experimental)](#5-agent-teams-experimental)
 - [Verification After Removal](#verification-after-removal)
 
 ---
@@ -503,6 +504,105 @@ grep -r "{{AUTH_PROVIDER}}" CLAUDE.md
 
 ---
 
+## 5. Agent Teams (Experimental)
+
+**What it provides**: Real-time multi-agent coordination using Claude Code Agent Teams. Enables multiple Claude Code sessions to work as a team with shared TaskList, inter-agent messaging, and SAFe quality gate enforcement via task dependencies.
+
+**Status**: Experimental (requires explicit opt-in)
+
+**When to use**: Feature-level or Epic-level work requiring 3+ specialized agent roles working in parallel. Best for cross-layer coordination (frontend + backend + testing), parallel code review, or competing hypothesis debugging.
+
+**Token cost**: ~7x a single Claude Code session. Use only when parallel coordination adds genuine value.
+
+### Enabling Agent Teams
+
+1. **Set the experimental flag** in `.claude/settings.json`:
+
+   ```json
+   {
+     "env": {
+       "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+     }
+   }
+   ```
+
+2. **Optional: Configure display mode** for split-pane view (requires tmux or iTerm2):
+
+   ```json
+   {
+     "teammateMode": "tmux"
+   }
+   ```
+
+3. **Verify**: Start Claude Code and ask to create an agent team. The TDM agent serves as the natural team lead.
+
+### Harness Components for Agent Teams
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| Team Coordination Skill | `.claude/skills/team-coordination/` | Patterns for TeamCreate, SendMessage, TaskList |
+| TDM Agent (Team Lead) | `.claude/agents/tdm.md` | Team lead orchestration patterns |
+| Team Config | `.claude/team-config.json` (agent_teams section) | Gate dependencies, team sizing |
+| Settings Template | `.claude/settings.template.json` | Experimental flag configuration |
+| Onboarding Guide | `docs/onboarding/AGENT-TEAMS-GUIDE.md` | Setup and usage guide |
+
+### Removing Agent Teams Support
+
+If your project does not need multi-agent coordination:
+
+#### 5.1 Remove the skill directory
+
+- [ ] Delete `.claude/skills/team-coordination/`
+
+#### 5.2 Remove Agent Teams section from team-config.json
+
+- [ ] Edit `.claude/team-config.json` and delete the `"agent_teams"` key and its contents
+
+#### 5.3 Remove the settings template (if not needed for other settings)
+
+- [ ] Delete `.claude/settings.template.json`
+
+#### 5.4 Remove the onboarding guide
+
+- [ ] Delete `docs/onboarding/AGENT-TEAMS-GUIDE.md`
+
+#### 5.5 Remove Agent Teams section from TDM agent config
+
+- [ ] Edit `.claude/agents/tdm.md` and remove the "Agent Teams Orchestration" section
+
+#### 5.6 Leave the experimental flag unset
+
+- [ ] Do **not** set the `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` env var -- if the env var is absent or set to `"0"`, Agent Teams are disabled by default
+
+### Known Limitations
+
+- Experimental feature -- may change between Claude Code versions
+- No session resumption for in-process teammates
+- One team per session (clean up before starting a new one)
+- No nested teams (teammates cannot spawn their own teams)
+- Split-pane mode requires tmux or iTerm2
+- All teammates inherit the lead's permission mode
+
+### Verification
+
+```bash
+# If REMOVING: confirm no Agent Teams directories remain
+ls .claude/skills/team-coordination 2>/dev/null && echo "REMOVE ME" || echo "OK"
+ls docs/onboarding/AGENT-TEAMS-GUIDE.md 2>/dev/null && echo "REMOVE ME" || echo "OK"
+
+# Search for lingering Agent Teams references
+grep -ri "agent.teams\|team-coordination\|AGENT_TEAMS" \
+  .claude/ docs/onboarding/ CLAUDE.md \
+  | grep -v "OPTIONAL-FEATURES.md"
+# Expect: no output
+
+# If ENABLING: confirm the experimental flag is set
+grep "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS" .claude/settings.json 2>/dev/null \
+  && echo "Agent Teams ENABLED" || echo "Agent Teams NOT configured"
+```
+
+---
+
 ## Verification After Removal
 
 After completing any of the removal checklists above, run a final sweep to
@@ -546,6 +646,7 @@ diff <(ls .claude/skills/ | grep -v README.md | sort) \
 | Confluence | Low | `.claude/skills/confluence-docs/`, `.gemini/skills/confluence-docs/`, `agent_providers/augment/rules/confluence-standards.md` |
 | RLS / PostgreSQL | High | `.claude/skills/rls-patterns/`, `.gemini/skills/rls-patterns/`, `docs/database/RLS_*.md`, `patterns_library/database/rls-migration.md`, RLS hooks |
 | Clerk / Auth | Medium | Pattern library auth examples, skill auth references, agent prompt auth patterns |
+| Agent Teams | Low | `.claude/skills/team-coordination/`, `.claude/settings.template.json`, `docs/onboarding/AGENT-TEAMS-GUIDE.md` |
 
 When in doubt, keep a file and customize it rather than deleting it. The
 patterns in this template encode hard-won conventions -- even if you swap out
