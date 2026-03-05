@@ -1,5 +1,19 @@
 {
   "$schema": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
+  "general": {
+    "defaultApprovalMode": "default",
+    "plan": {
+      "directory": ".gemini/plans",
+      "modelRouting": true
+    },
+    "checkpointing": {
+      "enabled": false
+    },
+    "sessionRetention": {
+      "enabled": true,
+      "maxAge": "30d"
+    }
+  },
   "context": {
     "includePatterns": [
       "**/*.md",
@@ -31,14 +45,44 @@
   },
   "tools": {
     "sandbox": true,
-    "useRipgrep": true
+    "useRipgrep": true,
+    "enableHooks": true
   },
   "model": {
-    "name": "gemini-2.0-flash-exp"
+    "name": "{{GEMINI_MODEL}}"
   },
   "ui": {
     "showLineNumbers": true,
-    "useFullWidth": true
+    "useFullWidth": true,
+    "inlineThinkingMode": "off"
+  },
+  "skills": {
+    "enabled": true
+  },
+  "hooksConfig": {
+    "enabled": true
+  },
+  "hooks": {},
+  "security": {
+    "folderTrust": {
+      "enabled": true
+    },
+    "environmentVariableRedaction": {
+      "enabled": false,
+      "blocked": []
+    }
+  },
+  "policyPaths": [],
+  "agents": {
+    "browser": {
+      "sessionMode": "persistent",
+      "headless": false
+    }
+  },
+  "experimental": {
+    "enableAgents": false,
+    "directWebFetch": false,
+    "plan": false
   },
   "mcpServers": {}
 }
