@@ -135,10 +135,16 @@ Invoke this skill when:
 
 | Field | Required | Max Length | Description |
 |-------|----------|------------|-------------|
-| `name` | Yes | 64 chars | Lowercase letters, numbers, hyphens only |
-| `description` | Yes | 1024 chars | What it does + when to use it (Claude uses this for activation) |
-| `allowed-tools` | No | - | Restrict which tools Claude can use |
+| `name` | No | 64 chars | Lowercase letters, numbers, hyphens only. If omitted, uses directory name. |
+| `description` | Recommended | 1024 chars | What it does + when to use it (Claude uses this for activation) |
+| `argument-hint` | No | - | Hint shown during autocomplete (e.g., `[issue-number]`, `[filename] [format]`) |
+| `disable-model-invocation` | No | - | Set `true` to prevent Claude from auto-loading. Users invoke manually with `/name`. |
+| `user-invocable` | No | - | Set `false` to hide from `/` menu. Use for background knowledge Claude loads automatically. |
+| `allowed-tools` | No | - | Comma-separated tools Claude can use when skill is active (e.g., `Read, Grep, Glob`) |
 | `model` | No | - | Force specific Claude model when active |
+| `context` | No | - | Set to `fork` to run in isolated subagent context |
+| `agent` | No | - | Subagent type when `context: fork` is set (e.g., `Explore`, `Plan`, `general-purpose`, or custom agent name) |
+| `hooks` | No | - | Hook configurations scoped to skill lifecycle (PreToolUse, PostToolUse, Stop) |
 
 ### Description Best Practices
 
@@ -156,6 +162,118 @@ description: Row Level Security patterns for database operations. Use when writi
 description: Helps with database stuff.
 ```
 
+### Invocation Control
+
+Skills 2.0 gives you fine-grained control over who can invoke a skill:
+
+| Frontmatter | User Invokes | Claude Invokes | Context Loading |
+|-------------|-------------|----------------|-----------------|
+| (default) | Yes | Yes | Description always in context, full skill loads on invoke |
+| `disable-model-invocation: true` | Yes | No | Description NOT in context, loads only when user invokes |
+| `user-invocable: false` | No | Yes | Description always in context, loads when Claude decides |
+
+**When to use each**:
+
+- **Default**: Most skills — both user and Claude can trigger
+- **`disable-model-invocation: true`**: Dangerous operations with side effects (deploy, migrate, release)
+- **`user-invocable: false`**: Background knowledge (API conventions, security patterns, workflow rules)
+
+### Forked Context (`context: fork`)
+
+Adding `context: fork` runs the skill in an isolated subagent — the skill content becomes the subagent's task prompt. The main conversation context is NOT inherited.
+
+```yaml
+---
+name: deep-research
+description: Research a topic thoroughly
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob
+---
+
+Research $ARGUMENTS thoroughly:
+1. Find relevant files using Glob and Grep
+2. Read and analyze the code
+3. Summarize findings with specific file references
+```
+
+**When to use `context: fork`**:
+- Research/analysis tasks that should not pollute main conversation
+- Security audits that need isolation
+- Pattern discovery that generates large intermediate output
+
+**When NOT to use it**:
+- Background knowledge skills (they need conversation context)
+- Skills that provide guidelines without a concrete task
+
+The `agent` field specifies the execution environment:
+- `Explore` — Read-only tools, optimized for codebase exploration
+- `Plan` — Read-only, for designing implementation approaches
+- `general-purpose` — Full tool access (default if omitted)
+- Custom agent name from `.claude/agents/`
+
+### String Substitutions
+
+Skills support dynamic value substitution:
+
+| Variable | Description |
+|----------|-------------|
+| `$ARGUMENTS` | All arguments passed when invoking the skill |
+| `$ARGUMENTS[N]` or `$N` | Access specific argument by 0-based index |
+| `${CLAUDE_SESSION_ID}` | Current session ID (useful for logging) |
+| `${CLAUDE_SKILL_DIR}` | Directory containing the SKILL.md file |
+
+### Dynamic Context Injection
+
+The `!` backtick syntax runs shell commands before skill content is sent to Claude:
+
+```yaml
+---
+name: pr-summary
+description: Summarize PR changes
+context: fork
+agent: Explore
+---
+
+## PR Context
+- PR diff: !`gh pr diff`
+- Changed files: !`gh pr diff --name-only`
+
+## Task
+Summarize the changes in this pull request.
+```
+
+Commands run as preprocessing — Claude only sees the final output.
+
+### Hooks in Skills
+
+Skills can define hooks scoped to their lifecycle:
+
+```yaml
+---
+name: secure-implementation
+description: Implementation with security validation
+hooks:
+  PreToolUse:
+    - matcher: Write
+      command: "echo 'Validating security patterns before write'"
+  PostToolUse:
+    - matcher: Bash
+      command: "echo 'Checking for security issues after bash execution'"
+---
+```
+
+### Bundled Skills
+
+Claude Code ships with built-in skills available in every session:
+
+| Skill | Description | SAFe Alignment |
+|-------|-------------|----------------|
+| `/simplify` | Spawns 3 parallel review agents (code reuse, quality, efficiency) | Complements QAS review |
+| `/batch` | Orchestrates large-scale parallel changes with git worktrees | Large refactoring / cross-cutting |
+| `/debug` | Reads session debug log for troubleshooting | Agent debugging |
+| `/claude-api` | Claude API/SDK reference (auto-activates on `anthropic` import) | For Claude-based projects |
+
 ---
 
 ## 5. Our Harness Standards
@@ -172,6 +290,10 @@ Before submitting a new skill, verify:
 - [ ] **Code examples** with proper language tags
 - [ ] **Authoritative references** linking to source docs
 - [ ] **README.md** with badges and quick reference
+- [ ] **Invocation control set** — `disable-model-invocation` for dangerous ops, `user-invocable: false` for background knowledge
+- [ ] **Tool restrictions applied** — `allowed-tools` limits to minimum necessary tools
+- [ ] **Forked context where appropriate** — Research/audit skills use `context: fork`
+- [ ] **Arguments documented** — `argument-hint` set if skill accepts arguments
 
 ### Writing Guidelines
 
@@ -256,6 +378,13 @@ Start with this template:
 ---
 name: {skill-name}
 description: {What it does}. Use when {trigger conditions}.
+# Uncomment and configure as needed:
+# disable-model-invocation: true    # Only user can invoke (dangerous ops)
+# user-invocable: false             # Only Claude can invoke (background knowledge)
+# allowed-tools: Read, Grep, Glob  # Restrict available tools
+# context: fork                     # Run in isolated subagent
+# agent: Explore                    # Subagent type (with context: fork)
+# argument-hint: "[ticket-id]"     # Autocomplete hint
 ---
 
 ## Purpose
