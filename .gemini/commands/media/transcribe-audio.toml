@@ -1,0 +1,97 @@
+description = "Transcribe audio files to text with timestamps"
+
+prompt = """
+# Transcribe Audio Command
+
+Transcribe audio files to text with timestamps using Gemini's multimodal audio capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP3, WAV, AIFF, AAC, OGG, FLAC
+
+## Workflow
+
+### 1. Detect Audio File
+
+Verify the target audio file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Transcribe Audio
+
+Process the audio file through Gemini's multimodal input:
+- Detect language automatically (or use specified language)
+- Transcribe speech with word-level timestamps
+- Identify speaker labels when multiple speakers are present
+- Flag low-confidence segments for review
+
+### 3. Format Output
+
+Generate transcription in the requested format:
+
+**Plain Text:**
+```
+[00:00:01] Welcome to today's session.
+[00:00:05] We'll be covering three main topics.
+```
+
+**SRT Subtitles:**
+```srt
+1
+00:00:01,000 --> 00:00:04,500
+Welcome to today's session.
+
+2
+00:00:05,000 --> 00:00:08,200
+We'll be covering three main topics.
+```
+
+**VTT Subtitles:**
+```vtt
+WEBVTT
+
+00:00:01.000 --> 00:00:04.500
+Welcome to today's session.
+
+00:00:05.000 --> 00:00:08.200
+We'll be covering three main topics.
+```
+
+**JSON with Timestamps:**
+```json
+{
+  "segments": [
+    {"start": 1.0, "end": 4.5, "text": "Welcome to today's session.", "speaker": "Speaker 1"},
+    {"start": 5.0, "end": 8.2, "text": "We'll be covering three main topics.", "speaker": "Speaker 1"}
+  ]
+}
+```
+
+## Output Options
+
+- `--text` - Plain text with timestamps (default)
+- `--srt` - SRT subtitle format
+- `--vtt` - WebVTT subtitle format
+- `--json` - JSON with timestamps and speaker labels
+
+## Usage Examples
+
+```bash
+/media:transcribe-audio ./recording.mp3
+/media:transcribe-audio ~/interviews/session1.wav --srt
+/media:transcribe-audio ./podcast.aac --json
+/media:transcribe-audio ./meeting.ogg --vtt
+```
+
+## Notes
+
+- Gemini 3+ required for audio processing
+- Audio files up to 100MB supported
+- Speaker labels are provided when multiple speakers are detected
+- Best results with clear audio and minimal background noise
+- Privacy: Audio contents are sent to Gemini API for processing
+"""

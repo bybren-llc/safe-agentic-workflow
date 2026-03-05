@@ -1,0 +1,100 @@
+description = "Extract dialogue with speaker diarization"
+
+prompt = """
+# Extract Dialogue Command
+
+Extract dialogue from audio files with speaker diarization using Gemini's multimodal capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP3, WAV, AIFF, AAC, OGG, FLAC
+
+## Workflow
+
+### 1. Detect Audio File
+
+Verify the target audio file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Identify Speakers
+
+Analyze the audio to detect distinct speakers:
+- Estimate the number of unique speakers
+- Assign consistent labels (Speaker 1, Speaker 2, etc.)
+- Note speaker characteristics (pitch, pace, accent) for differentiation
+- Flag overlapping speech segments
+
+### 3. Transcribe Per Speaker
+
+Transcribe the audio with speaker attribution:
+- Assign each utterance to the identified speaker
+- Include timestamps for each dialogue turn
+- Preserve natural pauses and interruptions
+- Note non-verbal sounds (laughter, applause, silence)
+
+### 4. Format Output
+
+**Screenplay Format:**
+```
+SPEAKER 1
+(00:00:01)
+Welcome everyone. Let's get started with the agenda.
+
+SPEAKER 2
+(00:00:06)
+Thanks. I'd like to begin with the quarterly results.
+
+SPEAKER 1
+(00:00:12)
+Go ahead.
+```
+
+**JSON with Speaker Labels:**
+```json
+{
+  "speakers": ["Speaker 1", "Speaker 2"],
+  "dialogue": [
+    {"speaker": "Speaker 1", "start": 1.0, "end": 5.5, "text": "Welcome everyone. Let's get started with the agenda."},
+    {"speaker": "Speaker 2", "start": 6.0, "end": 11.0, "text": "Thanks. I'd like to begin with the quarterly results."},
+    {"speaker": "Speaker 1", "start": 12.0, "end": 13.0, "text": "Go ahead."}
+  ]
+}
+```
+
+**Plain Transcript:**
+```
+Speaker 1 [00:00:01]: Welcome everyone. Let's get started with the agenda.
+Speaker 2 [00:00:06]: Thanks. I'd like to begin with the quarterly results.
+Speaker 1 [00:00:12]: Go ahead.
+```
+
+## Output Options
+
+- `--screenplay` - Screenplay-style format (default)
+- `--json` - JSON with speaker labels and timestamps
+- `--transcript` - Plain labeled transcript
+- `--speakers N` - Hint for expected number of speakers
+
+## Usage Examples
+
+```bash
+/media:extract-dialogue ./meeting-recording.mp3
+/media:extract-dialogue ~/interviews/panel.wav --json
+/media:extract-dialogue ./podcast.aac --transcript
+/media:extract-dialogue ./debate.mp3 --screenplay --speakers 3
+```
+
+## Notes
+
+- Gemini 3+ required for audio processing
+- Speaker identification is approximate and based on voice characteristics
+- Accuracy improves with distinct voices and minimal crosstalk
+- Overlapping speech segments are flagged but may have reduced accuracy
+- Audio files up to 100MB supported
+- Privacy: Audio contents are sent to Gemini API for processing
+"""
