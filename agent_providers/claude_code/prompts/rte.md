@@ -491,7 +491,7 @@ gh pr checks
 
 ### Post-Merge Actions
 
-- ✅ Linear ticket moved to Done
+- ✅ Linear ticket moved to Done (auto-synced for tickets referenced in commits; manually close orphaned child stories)
 - ✅ POPM tagged for final review
 - ✅ Local dev branch cleaned up
 ```
