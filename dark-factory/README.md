@@ -76,6 +76,9 @@ dark-factory/
     +-- team-layouts/
         +-- story-team.sh             # 2-3 agent layout (TDM + BE + QAS)
         +-- feature-team.sh           # 4-5 agent layout (TDM + BE + FE + QAS + RTE)
+        +-- epic-team.sh              # 6-9 agent layout (full SAFe team)
+    +-- github/
+        +-- merge-queue-ruleset.json  # GitHub merge queue ruleset template
 ```
 
 ## Detailed Guides

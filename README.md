@@ -45,6 +45,7 @@ Includes:
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
 - **Agent Teams** - Multi-agent orchestration with SAFe quality gates (experimental)
+- **Dark Factory** - Persistent autonomous agent teams via tmux on remote servers ([guide](dark-factory/README.md))
 
 > **Origin**: 5 months production use, 169 issues, 2,193 commits. Implements patterns from
 > [6 Anthropic engineering papers](#implementing-anthropics-research) and [SAFe methodology](https://scaledagileframework.com/).
