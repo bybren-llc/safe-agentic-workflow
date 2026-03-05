@@ -22,7 +22,7 @@ This guide helps you install the SAFe Claude Code harness in a new project.
 # Copy slash commands (24 commands)
 cp -r .claude/commands/ /path/to/your-project/.claude/commands/
 
-# Copy skills (17 model-invoked skills)
+# Copy skills (18 model-invoked skills)
 cp -r .claude/skills/ /path/to/your-project/.claude/skills/
 
 # Copy agent profiles (11 SAFe agents)
@@ -124,7 +124,7 @@ Ask Claude:
 What skills are available?
 ```
 
-Expected: List of 17 skills with descriptions.
+Expected: List of 18 skills with descriptions.
 
 **Known Issue (v2.0.73)**: The `/skills` command has a display bug. Skills work correctly but won't appear in `/skills` output. Ask Claude directly instead.
 
@@ -183,7 +183,7 @@ After setup, your `.claude/` directory should look like:
 │   ├── pre-pr.md
 │   ├── end-work.md
 │   └── ... (21 more)
-├── skills/             # 17 model-invoked skills
+├── skills/             # 18 model-invoked skills
 │   ├── safe-workflow/SKILL.md
 │   ├── pattern-discovery/SKILL.md
 │   ├── rls-patterns/SKILL.md

@@ -12,7 +12,7 @@ The complete technical documentation of the three-layer harness architecture:
 
 - Background and motivation
 - Three-layer architecture (Hooks → Commands → Skills)
-- All 17 skills with implementation details
+- All 18 skills with implementation details
 - All 23 slash commands organized by category
 - Phase 0-3 completion history
 - SAFe role expansion vision

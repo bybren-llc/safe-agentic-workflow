@@ -91,6 +91,12 @@ AI agents (Claude Code, Augment agents) should:
 - Push without running local validation
 - Ignore failing CI checks
 
+### Skills 2.0 and Agent Teams (v2.5.0)
+
+Skills now support fine-grained invocation control via YAML frontmatter fields: `disable-model-invocation`, `user-invocable`, `context: fork`, `allowed-tools`, and `argument-hint`. See the [Skill Authoring Guide](docs/guides/SKILL_AUTHORING_GUIDE.md) for details.
+
+Agent Teams is an experimental feature for real-time multi-agent orchestration. See the [Agent Teams Guide](docs/onboarding/AGENT-TEAMS-GUIDE.md).
+
 ### AI Agent Workflow Example
 
 ```bash

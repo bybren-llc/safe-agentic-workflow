@@ -233,7 +233,7 @@ Skills activate based on context triggers, providing just-in-time expertise:
 - `safe-workflow` activates when making commits, branches, or PRs
 - `pattern-discovery` activates before writing any code
 
-This implements the separation of concerns principle. The agent does not carry all 17 skills in active context simultaneously. Skills surface when relevant, keeping the active context focused and performant.
+This implements the separation of concerns principle. The agent does not carry all 18 skills in active context simultaneously. Skills surface when relevant, keeping the active context focused and performant.
 
 **Specs (Session-Level Context)**
 

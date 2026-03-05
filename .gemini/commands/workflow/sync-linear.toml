@@ -49,8 +49,9 @@ Based on work analysis:
 - Link PR in comment
 
 **If PR merged**:
-- Status: "Done"
+- Status: "Done" (often auto-synced by GitHub-Linear integration for tickets referenced in commit messages)
 - Add completion timestamp
+- Manually close any child stories not referenced in commits
 
 **If blocked**:
 - Status: "Blocked"
