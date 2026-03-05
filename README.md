@@ -1199,6 +1199,11 @@ See project documentation for honest assessment of limitations.
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
 
+dark-factory/            # tmux Agent Teams infrastructure (optional)
+├── scripts/             # factory-setup, start, stop, status, attach
+├── templates/           # tmux.conf, team layouts, merge queue ruleset
+└── docs/                # Dark Factory guide, Cursor SSH, merge queue policy
+
 docs/                    # Additional documentation
 ├── whitepapers/         # Harness architecture and philosophy
 └── onboarding/          # Getting started guides
