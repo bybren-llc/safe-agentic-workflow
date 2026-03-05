@@ -43,7 +43,7 @@ The CLI will automatically detect and load skills from `.gemini/skills/` and com
 │   ├── rls-patterns/
 │   │   └── SKILL.md
 │   └── ... (14 more)
-└── commands/           # Custom commands (18 total)
+└── commands/           # Custom commands (29 total)
     ├── workflow/
     │   ├── start-work.toml
     │   ├── pre-pr.toml
@@ -128,6 +128,13 @@ gemini /help
 - `extract-pdf <file>` - Extract structured data from PDFs
 - `sketch-to-code <image>` - Generate code from UI sketches/wireframes
 - `organize-files <dir>` - Organize files based on content analysis
+- `analyze-audio <file>` - Analyze audio content, tone, and mood
+- `transcribe-audio <file>` - Transcribe audio to text, SRT, or VTT
+- `extract-dialogue <file>` - Extract dialogue with speaker diarization
+- `analyze-video <file>` - Analyze video content scene by scene
+- `extract-frames <file>` - Extract key frames with descriptions
+- `video-to-script <file>` - Generate screenplay from video
+- `scene-detect <file>` - Detect scene transitions with timestamps
 
 ## Multimodal Capabilities
 
@@ -139,6 +146,7 @@ Gemini CLI supports multimodal input for images, audio, and documents.
 |----------|---------|----------|
 | **Images** | PNG, JPG, GIF, WEBP, SVG, BMP | 100MB (Gemini 3) |
 | **Audio** | MP3, WAV, AIFF, AAC, OGG, FLAC | 100MB (Gemini 3) |
+| **Video** | MP4, MOV, AVI, MKV, WEBM, FLV | 100MB (Gemini 3) |
 | **Documents** | PDF | 100MB (Gemini 3) |
 
 ### Using Multimodal in Commands
@@ -168,6 +176,15 @@ Describe what you see.
 
 # Organize messy downloads folder
 /media:organize-files ~/Downloads
+
+# Transcribe meeting recording
+/media:transcribe-audio ./meeting.mp3
+
+# Analyze video footage
+/media:analyze-video ./footage.mp4
+
+# Generate screenplay from video
+/media:video-to-script ./interview.mov
 ```
 
 See [Gemini CLI Authoring Guide](../docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md) for creating custom multimodal commands.
@@ -180,10 +197,16 @@ Copy and customize `settings.json` for your project:
 
 ```json
 {
+  "general": {
+    "plan": { "directory": ".gemini/plans" },
+    "checkpointing": { "enabled": false }
+  },
   "context": {
     "includePatterns": ["**/*.md", "**/*.ts", "**/*.tsx"],
     "excludePatterns": ["node_modules/**", ".git/**", "dist/**"]
-  }
+  },
+  "skills": { "enabled": true },
+  "policyPaths": []
 }
 ```
 
@@ -298,6 +321,159 @@ gemini hooks migrate --from-claude
 ```
 
 See [Gemini CLI Hooks Documentation](https://geminicli.com/docs/hooks/) for complete details.
+
+## Plan Mode (v0.29.0+)
+
+Gemini CLI supports a plan-then-execute workflow via the `/plan` command.
+
+### Usage
+
+```bash
+# Enter plan mode
+/plan
+
+# Plan mode creates a structured plan before executing any changes
+# Plans are saved to the configured directory for review
+```
+
+### Configuration
+
+```json
+{
+  "general": {
+    "plan": {
+      "directory": ".gemini/plans",
+      "modelRouting": "auto"
+    }
+  }
+}
+```
+
+### Features
+
+- **Plan-then-execute**: Creates a detailed plan before making changes, allowing review and approval
+- **External editor support** (v0.32.0+): Open plans in your preferred editor for review and modification
+- **Multi-select options**: Choose which plan steps to execute, skip, or modify
+- **Plan history**: Plans are persisted to disk for reference and reuse
+
+## Policy Engine (v0.30.0+)
+
+The policy engine provides fine-grained control over tool usage and agent behavior, replacing the deprecated `--allowed-tools` flag.
+
+### Configuration
+
+Add policy paths to `settings.json`:
+
+```json
+{
+  "policyPaths": ["./policies/default.yaml", "./policies/security.yaml"]
+}
+```
+
+Or pass policies via CLI:
+
+```bash
+gemini --policy ./policies/strict.yaml
+```
+
+### Features
+
+- **YAML policy files**: Define tool restrictions, allowed operations, and behavioral constraints
+- **Seatbelt profiles**: Pre-built policy profiles for common security postures (e.g., read-only, no-network)
+- **Project-level policies**: Scope policies to specific projects or directories
+- **MCP server wildcards**: Allow or deny MCP server tools using glob patterns
+- **Tool annotation matching**: Match policies against tool metadata and annotations
+- **Replaces `--allowed-tools`**: The deprecated `--allowed-tools` flag is superseded by the policy engine
+
+## Browser Agent (Experimental, v0.31.0+)
+
+An experimental built-in browser agent for web interaction tasks.
+
+### Configuration
+
+Enable in `settings.json`:
+
+```json
+{
+  "agents": {
+    "browser": {
+      "enabled": true
+    }
+  }
+}
+```
+
+### Capabilities
+
+- **Navigate**: Open URLs and browse web pages
+- **Forms**: Fill out and submit web forms
+- **Click**: Interact with buttons, links, and UI elements
+- **Extract**: Scrape and extract structured data from web pages
+
+**Note**: The browser agent requires experimental opt-in and may change in future releases.
+
+## Extensions (v0.26.0+)
+
+Extensions bundle skills, MCP servers, commands, and tool restrictions into installable packages. They provide a higher-level abstraction than individual skills.
+
+### Extensions vs Skills
+
+| Aspect | Skills | Extensions |
+|--------|--------|------------|
+| Scope | Single knowledge domain | Bundled package of skills, MCP servers, commands |
+| Installation | Manual file creation | `gemini extensions install` |
+| Configuration | `SKILL.md` frontmatter | `settings.json` extensions section |
+| Distribution | Copy files | Package registry |
+
+### Management
+
+```bash
+gemini extensions install <name>    # Install an extension
+gemini extensions list              # List installed extensions
+gemini extensions remove <name>     # Remove an extension
+```
+
+### Configuration
+
+Extensions are configured in `settings.json`:
+
+```json
+{
+  "extensions": {
+    "installed": []
+  }
+}
+```
+
+## Checkpointing (v0.30.0+)
+
+Checkpointing provides session recovery, allowing you to restore previous sessions after crashes or disconnects.
+
+### Configuration
+
+```json
+{
+  "general": {
+    "checkpointing": {
+      "enabled": true
+    }
+  }
+}
+```
+
+### Usage
+
+```bash
+# Restore a previous session
+/restore
+```
+
+### Details
+
+- Checkpoints are saved automatically during sessions
+- Storage location: `~/.gemini/checkpoints/` (default)
+- Use `/restore` to list and restore available checkpoints
+- Checkpoints include full conversation context and tool state
 
 ## MCP Servers
 
@@ -416,6 +592,11 @@ This `.gemini/` directory works alongside `.claude/` for teams using both tools:
 | Hooks | `.claude/hooks-config.json` | `settings.json` hooks section |
 | MCP Servers | `settings.local.json` | `settings.json` mcpServers |
 | System Instructions | `CLAUDE.md` | `GEMINI.md` |
+| Plan Mode | N/A | `/plan` command, plan-then-execute |
+| Policy Engine | N/A | YAML policies, seatbelt profiles |
+| Browser Agent | MCP (claude-in-chrome) | Built-in experimental agent |
+| Extensions | N/A | Bundled skill/MCP/command packages |
+| Checkpointing | N/A | `/restore` session recovery |
 
 Both tools can coexist in the same repository.
 
@@ -423,4 +604,4 @@ Both tools can coexist in the same repository.
 
 MIT License - See [LICENSE](../LICENSE) for details.
 
-Copyright (c) 2024-2025 {{AUTHOR_NAME}} / {{COMPANY_NAME}}
+Copyright (c) 2024-2026 {{AUTHOR_NAME}} / {{COMPANY_NAME}}
