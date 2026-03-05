@@ -1,6 +1,7 @@
 ---
 name: testing-patterns
 description: Testing patterns for Jest and Playwright. Use when writing tests, setting up test fixtures, or validating RLS enforcement. Routes to existing test conventions and provides evidence templates.
+allowed-tools: Read, Bash, Grep, Glob
 ---
 
 # Testing Patterns Skill

@@ -1,6 +1,9 @@
 ---
 name: pattern-discovery
 description: Pattern library discovery for pattern-first development. Use BEFORE implementing any new feature, creating components, writing API routes, or adding database operations. Ensures existing patterns are checked first before writing new code.
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob
 ---
 
 # Pattern Discovery Skill

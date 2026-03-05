@@ -1,6 +1,8 @@
 ---
 name: spec-creation
 description: Spec creation with pattern references, acceptance criteria, and demo scripts. Use when creating implementation specs, defining acceptance criteria, or breaking down user stories.
+context: fork
+argument-hint: "[ticket-id]"
 ---
 
 # Spec Creation Skill

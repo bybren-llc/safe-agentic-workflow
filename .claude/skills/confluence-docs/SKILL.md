@@ -1,6 +1,7 @@
 ---
 name: confluence-docs
 description: Documentation templates for ADRs, runbooks, and architecture docs. Use when creating architectural decision records, operational runbooks, or technical documentation.
+allowed-tools: Read, Write, Edit, Grep, Glob
 ---
 
 # Confluence Documentation Skill
