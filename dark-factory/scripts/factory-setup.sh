@@ -7,11 +7,24 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FACTORY_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG_DIR="$HOME/.dark-factory"
-MAIN_BRANCH="{{MAIN_BRANCH}}"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 warn() { echo "WARNING: $*" >&2; }
 info() { echo "INFO: $*"; }
+
+# Source existing env config if available (for FACTORY_MAIN_BRANCH)
+if [[ -f "$CONFIG_DIR/env" ]]; then
+    # shellcheck source=/dev/null
+    source "$CONFIG_DIR/env"
+fi
+
+# Resolve main branch: env config > placeholder fallback
+# Note: cannot use ${:-} syntax because {{MAIN_BRANCH}} contains } characters
+if [[ -n "${FACTORY_MAIN_BRANCH:-}" ]]; then
+    MAIN_BRANCH="$FACTORY_MAIN_BRANCH"
+else
+    MAIN_BRANCH="{{MAIN_BRANCH}}"
+fi
 
 # ── Step 1: Check prerequisites ──────────────────────────────────────────────
 info "Checking prerequisites..."
@@ -59,13 +72,64 @@ repo_slug="$(gh repo view --json nameWithOwner -q '.nameWithOwner' 2>/dev/null)"
 owner="${repo_slug%%/*}"
 repo="${repo_slug##*/}"
 
-# Check branch protection rules via GitHub API
-protection_ok=false
-if gh api "repos/${owner}/${repo}/branches/${MAIN_BRANCH}/protection" &>/dev/null; then
-    info "Branch protection detected on '${MAIN_BRANCH}'."
-    protection_ok=true
-else
-    warn "No branch protection found on '${MAIN_BRANCH}'."
+# Check for merge queue requirement via rulesets API (preferred) or branch protection
+merge_queue_required=false
+
+# Method 1: Check rulesets for merge_queue rule type
+rulesets="$(gh api "repos/${owner}/${repo}/rulesets" 2>/dev/null || echo "[]")"
+if echo "$rulesets" | python3 -c "
+import sys, json
+rulesets = json.load(sys.stdin)
+for rs in rulesets:
+    detail = json.loads(sys.stdin.read()) if False else None
+" 2>/dev/null; then true; fi
+
+# Query each ruleset for merge_queue rule targeting our branch
+ruleset_ids="$(echo "$rulesets" | python3 -c "
+import sys, json
+for rs in json.load(sys.stdin):
+    print(rs.get('id', ''))
+" 2>/dev/null || true)"
+
+for rs_id in $ruleset_ids; do
+    [[ -z "$rs_id" ]] && continue
+    rs_detail="$(gh api "repos/${owner}/${repo}/rulesets/${rs_id}" 2>/dev/null || echo "{}")"
+    has_mq="$(echo "$rs_detail" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+rules = d.get('rules', [])
+conditions = d.get('conditions', {})
+ref_name = conditions.get('ref_name', {})
+includes = ref_name.get('include', [])
+branch_match = any('${MAIN_BRANCH}' in inc or inc == '~DEFAULT_BRANCH' for inc in includes)
+has_merge_queue = any(r.get('type') == 'merge_queue' for r in rules)
+print('yes' if (has_merge_queue and branch_match) else 'no')
+" 2>/dev/null || echo "no")"
+    if [[ "$has_mq" == "yes" ]]; then
+        merge_queue_required=true
+        info "Merge queue ruleset found targeting '${MAIN_BRANCH}'."
+        break
+    fi
+done
+
+# Method 2: Fallback — check branch protection for merge queue setting
+if [[ "$merge_queue_required" != true ]]; then
+    protection="$(gh api "repos/${owner}/${repo}/branches/${MAIN_BRANCH}/protection" 2>/dev/null || echo "{}")"
+    has_mq_protection="$(echo "$protection" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+# required_pull_request_reviews alone is not enough — we need merge queue
+mq = d.get('required_merge_queue', None)
+print('yes' if mq is not None else 'no')
+" 2>/dev/null || echo "no")"
+    if [[ "$has_mq_protection" == "yes" ]]; then
+        merge_queue_required=true
+        info "Merge queue detected in branch protection on '${MAIN_BRANCH}'."
+    fi
+fi
+
+if [[ "$merge_queue_required" != true ]]; then
+    warn "No merge queue requirement found on '${MAIN_BRANCH}'."
 fi
 
 # Check for merge_group trigger in workflow files
@@ -78,15 +142,15 @@ if [[ -d "$workflow_dir" ]]; then
     fi
 fi
 
-if [[ "$protection_ok" != true ]] || [[ "$merge_queue_workflow" != true ]]; then
+if [[ "$merge_queue_required" != true ]] || [[ "$merge_queue_workflow" != true ]]; then
     echo ""
     echo "READINESS GATE FAILED"
     echo "The Dark Factory requires merge queue enforcement for safe parallel merges."
     echo ""
-    [[ "$protection_ok" != true ]] && echo "  - Enable branch protection on '${MAIN_BRANCH}'"
+    [[ "$merge_queue_required" != true ]] && echo "  - Enable merge queue on '${MAIN_BRANCH}' via rulesets or branch protection"
     [[ "$merge_queue_workflow" != true ]] && echo "  - Add 'merge_group' trigger to at least one workflow in .github/workflows/"
     echo ""
-    echo "See: dark-factory/docs/ for setup instructions."
+    echo "See: dark-factory/docs/MERGE-QUEUE-POLICY.md for setup instructions."
     exit 1
 fi
 

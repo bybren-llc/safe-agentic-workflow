@@ -44,25 +44,32 @@ if [[ "${FACTORY_AUTO_PERMISSIONS:-false}" == "true" ]]; then
   CLAUDE_FLAGS="--dangerously-skip-permissions"
 fi
 
+# Resolve per-pane work directories (worktree-aware)
+DIR_1="$(agent_workdir 1)"
+DIR_2="$(agent_workdir 2)"
+DIR_3="$(agent_workdir 3)"
+DIR_4="$(agent_workdir 4)"
+DIR_5="$(agent_workdir 5)"
+
 # TDM (team lead) -- starts first, will orchestrate
 tmux send-keys -t "${SESSION_NAME}:1.1" \
-  "cd ${FACTORY_PROJECT_DIR} && claude ${CLAUDE_FLAGS} -p 'You are the TDM (Technical Delivery Manager) for this session. Act as team lead. Use the SAFe workflow from CLAUDE.md. Create PRs with gh pr create, then enqueue with gh pr merge --auto --squash. Never merge directly.'" Enter
+  "cd ${DIR_1} && claude ${CLAUDE_FLAGS} -p 'You are the TDM (Technical Delivery Manager) for this session. Act as team lead. Use the SAFe workflow from CLAUDE.md. Create PRs with gh pr create, then enqueue with gh pr merge --auto --squash. Never merge directly.'" Enter
 
 # BE Developer
 tmux send-keys -t "${SESSION_NAME}:1.2" \
-  "cd ${FACTORY_PROJECT_DIR} && claude ${CLAUDE_FLAGS}" Enter
+  "cd ${DIR_2} && claude ${CLAUDE_FLAGS}" Enter
 
 # QAS
 tmux send-keys -t "${SESSION_NAME}:1.3" \
-  "cd ${FACTORY_PROJECT_DIR} && claude ${CLAUDE_FLAGS}" Enter
+  "cd ${DIR_3} && claude ${CLAUDE_FLAGS}" Enter
 
 # FE Developer
 tmux send-keys -t "${SESSION_NAME}:1.4" \
-  "cd ${FACTORY_PROJECT_DIR} && claude ${CLAUDE_FLAGS}" Enter
+  "cd ${DIR_4} && claude ${CLAUDE_FLAGS}" Enter
 
 # RTE
 tmux send-keys -t "${SESSION_NAME}:1.5" \
-  "cd ${FACTORY_PROJECT_DIR} && claude ${CLAUDE_FLAGS}" Enter
+  "cd ${DIR_5} && claude ${CLAUDE_FLAGS}" Enter
 
 # Select TDM pane as active
 tmux select-pane -t "${SESSION_NAME}:1.1"

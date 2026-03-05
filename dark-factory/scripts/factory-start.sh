@@ -67,17 +67,67 @@ if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
     die "Session '$SESSION_NAME' already exists. Stop it first or use a different ticket-id."
 fi
 
+FACTORY_PROJECT_DIR="${FACTORY_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+
 export SESSION_NAME
 export FACTORY_DIR
 export FACTORY_LOG_DIR
 export FACTORY_USE_WORKTREES
 export FACTORY_WORKTREE_DIR
+export FACTORY_PROJECT_DIR
 
 info "Starting Dark Factory session: $SESSION_NAME"
 info "Team size: $team_size"
 info "Layout: $layout_file"
 
-# ── Step 5: Create tmux session ───────────────────────────────────────────────
+# ── Step 5: Create worktrees BEFORE layout (so agents cd into them) ──────────
+# When worktrees are enabled, each pane index gets its own isolated worktree.
+# Layout scripts read FACTORY_PANE_WORKDIRS to determine where each agent runs.
+declare -A FACTORY_PANE_WORKDIRS
+export FACTORY_PANE_WORKDIRS
+
+if [[ "$FACTORY_USE_WORKTREES" == "true" ]]; then
+    info "Creating git worktrees..."
+    repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" \
+        || die "Not in a git repository. Worktrees require a git repo."
+
+    current_branch="$(git -C "$repo_root" rev-parse --abbrev-ref HEAD)"
+
+    # Determine pane count from layout type
+    case "$team_size" in
+        story)   pane_count=3 ;;
+        feature) pane_count=5 ;;
+        epic)    pane_count=9 ;;
+    esac
+
+    for i in $(seq 1 "$pane_count"); do
+        worktree_path="$FACTORY_WORKTREE_DIR/${SESSION_NAME}/agent-${i}"
+        branch_name="${SESSION_NAME}-agent-${i}"
+
+        if [[ ! -d "$worktree_path" ]]; then
+            git -C "$repo_root" worktree add -b "$branch_name" "$worktree_path" "$current_branch" 2>/dev/null \
+                || info "Worktree for agent-${i} may already exist, skipping."
+        fi
+
+        FACTORY_PANE_WORKDIRS[$i]="$worktree_path"
+    done
+
+    info "Worktrees created at $FACTORY_WORKTREE_DIR/${SESSION_NAME}/"
+fi
+
+# Helper function for layout scripts: resolve work directory for a pane index
+# Usage: agent_workdir <pane_index>
+agent_workdir() {
+    local pane_idx="$1"
+    if [[ "$FACTORY_USE_WORKTREES" == "true" ]] && [[ -n "${FACTORY_PANE_WORKDIRS[$pane_idx]:-}" ]]; then
+        echo "${FACTORY_PANE_WORKDIRS[$pane_idx]}"
+    else
+        echo "$FACTORY_PROJECT_DIR"
+    fi
+}
+export -f agent_workdir
+
+# ── Step 6: Create tmux session ───────────────────────────────────────────────
 tmux_conf="$FACTORY_DIR/templates/tmux.conf"
 if [[ -f "$tmux_conf" ]]; then
     tmux -f "$tmux_conf" new-session -d -s "$SESSION_NAME"
@@ -86,34 +136,10 @@ else
     tmux new-session -d -s "$SESSION_NAME"
 fi
 
-# ── Step 6: Source team layout (creates panes and starts agents) ──────────────
+# ── Step 7: Source team layout (creates panes and starts agents) ──────────────
 info "Applying team layout: ${team_size}-team..."
 # shellcheck source=/dev/null
 source "$layout_file"
-
-# ── Step 7: Create worktrees if enabled ───────────────────────────────────────
-if [[ "$FACTORY_USE_WORKTREES" == "true" ]]; then
-    info "Creating git worktrees..."
-    repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" \
-        || die "Not in a git repository. Worktrees require a git repo."
-
-    current_branch="$(git -C "$repo_root" rev-parse --abbrev-ref HEAD)"
-
-    # Get pane count from the session
-    pane_count="$(tmux list-panes -t "$SESSION_NAME" -F '#{pane_index}' | wc -l)"
-
-    for i in $(seq 0 $((pane_count - 1))); do
-        worktree_path="$FACTORY_WORKTREE_DIR/${SESSION_NAME}/agent-${i}"
-        branch_name="${SESSION_NAME}-agent-${i}"
-
-        if [[ ! -d "$worktree_path" ]]; then
-            git -C "$repo_root" worktree add -b "$branch_name" "$worktree_path" "$current_branch" 2>/dev/null \
-                || info "Worktree for agent-${i} may already exist, skipping."
-        fi
-    done
-
-    info "Worktrees created at $FACTORY_WORKTREE_DIR/${SESSION_NAME}/"
-fi
 
 # ── Step 8: Set up logging ────────────────────────────────────────────────────
 session_log_dir="$FACTORY_LOG_DIR/$SESSION_NAME"
