@@ -141,6 +141,7 @@ Backlog → Ready → In Progress → Testing → Ready for Review → Done
 - Link related PRs
 - Update status as work progresses
 - Tag POPM when ready for review
+- **Note**: Tickets referenced in commit messages auto-sync to Done on PR merge. Manually close child stories not referenced in commits.
 
 ### 4. PR Coordination
 

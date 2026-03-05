@@ -165,6 +165,12 @@ const acceptanceCriteria = [
 Backlog -> Ready -> In Progress -> Testing -> Ready for Review -> Done
 ```
 
+### GitHub-Linear Auto-Sync
+
+Tickets referenced in commit messages (e.g., `[{{TICKET_PREFIX}}-123]`) automatically move to **Done** when the PR merges. Child stories not referenced in any commit message must be manually closed after merge.
+
+**Best practice**: Reference Feature-level tickets in commit messages. After merge, manually close orphaned child stories that weren't referenced.
+
 ### Status Update Guidelines
 
 | From             | To               | When                     |
@@ -173,7 +179,7 @@ Backlog -> Ready -> In Progress -> Testing -> Ready for Review -> Done
 | Ready            | In Progress      | Work starts              |
 | In Progress      | Testing          | PR created               |
 | Testing          | Ready for Review | Tests pass, UAT complete |
-| Ready for Review | Done             | POPM approval            |
+| Ready for Review | Done             | POPM approval or auto-sync via PR merge |
 
 ## UUID Handling
 

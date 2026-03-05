@@ -48,6 +48,8 @@ Quick check:
 
 ### 4. Update Linear Ticket
 
+> **Note**: Tickets referenced in commit messages (e.g., `[{{TICKET_PREFIX}}-XXX]`) auto-sync to Done when the PR merges via the GitHub-Linear integration. Manually close any child stories not referenced in commits.
+
 Based on work status:
 
 **If Complete**:

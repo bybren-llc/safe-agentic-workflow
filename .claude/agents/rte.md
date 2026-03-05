@@ -432,9 +432,10 @@ git pull origin dev
 # Verify merge successful
 git log --oneline -5 | grep "{{TICKET_PREFIX}}-XXX"
 
-# Update Linear ticket
-# - Move to "Done" swimlane
-# - Attach PR link
+# Linear ticket auto-sync:
+# - Tickets referenced in commit messages (e.g., [{{TICKET_PREFIX}}-XXX]) auto-move to Done
+# - Manually close any child stories NOT referenced in commits
+# - Attach PR link (if not auto-linked)
 # - Tag POPM for final review
 ```
 
