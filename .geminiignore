@@ -1,0 +1,59 @@
+# .geminiignore - Gemini CLI context exclusions
+# Supplements settings.json excludePatterns and .gitignore
+# See: https://geminicli.com/docs/reference/configuration/
+
+# Dependencies
+node_modules/
+vendor/
+bower_components/
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+.nuxt/
+.output/
+
+# Coverage and test output
+coverage/
+.nyc_output/
+test-results/
+
+# Environment and secrets
+.env
+.env.*
+!.env.template
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Lock files (large, not useful for context)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Binary and media files
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+*.flac
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
