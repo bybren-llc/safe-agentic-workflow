@@ -36,6 +36,14 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 | deployment-sop | Deployment workflows |
 | confluence-docs | ADRs, runbooks, docs |
 
+## Claude Code-Specific Skills
+
+The following skills are available only in the Claude Code provider (`.claude/skills/`) and are not included in the Gemini provider:
+
+| Skill | Reason |
+|-------|--------|
+| team-coordination | Requires Claude Code Agent Teams (experimental feature) |
+
 ## Creating New Skills
 
 See [/docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md](/docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md).
