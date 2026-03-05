@@ -1,0 +1,103 @@
+description = "Extract and describe key frames from video"
+
+prompt = """
+# Extract Frames Command
+
+Extract and describe key frames from video files using Gemini's multimodal video capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP4, MOV, AVI, MKV, WEBM
+
+## Workflow
+
+### 1. Detect Video File
+
+Verify the target video file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Identify Key Frames
+
+Analyze the video to identify significant frames based on:
+- **Scene changes**: Major visual transitions between scenes
+- **Significant moments**: Key actions, reactions, or events
+- **Composition shifts**: Notable changes in framing or camera angle
+- **Text appearances**: Title cards, lower thirds, captions
+- **Subject changes**: New people or objects entering frame
+
+### 3. Describe Each Frame
+
+For each key frame, provide:
+- Precise timestamp
+- Detailed visual description
+- Subjects and objects present
+- Composition and framing notes
+- Relevance to the overall narrative
+
+### 4. Generate Report
+
+**Markdown Storyboard:**
+```markdown
+## Key Frame Report
+
+### File Info
+- **File**: [filename]
+- **Duration**: [estimated duration]
+- **Key Frames Identified**: [count]
+
+### Frame 1 - 00:00:02
+- **Description**: Wide establishing shot of a modern office building
+- **Subjects**: Building exterior, pedestrians, signage
+- **Composition**: Wide angle, centered, natural lighting
+- **Significance**: Opening establishing shot
+
+### Frame 2 - 00:00:08
+- **Description**: Medium shot of presenter at podium
+- **Subjects**: Speaker, presentation slides, audience (background)
+- **Composition**: Medium close-up, rule of thirds, stage lighting
+- **Significance**: Introduction of main speaker
+
+### Frame 3 - 00:00:23
+...
+```
+
+**Storyboard Format:**
+```markdown
+## Storyboard
+
+| # | Timestamp | Visual | Action | Audio/Dialogue |
+|---|-----------|--------|--------|----------------|
+| 1 | 00:00:02  | [desc] | [action] | [audio]     |
+| 2 | 00:00:08  | [desc] | [action] | [audio]     |
+```
+
+## Output Options
+
+- `--storyboard` - Table-based storyboard format (default)
+- `--detailed` - Full descriptions per frame
+- `--json` - Structured JSON with frame data
+- `--max N` - Limit to N key frames (default: 20)
+
+## Usage Examples
+
+```bash
+/media:extract-frames ./commercial.mp4
+/media:extract-frames ~/footage/short-film.mov --detailed
+/media:extract-frames ./tutorial.webm --storyboard --max 10
+/media:extract-frames ./presentation.mp4 --json
+```
+
+## Notes
+
+- Gemini 3+ required for video processing
+- Useful for storyboard generation and edit decision support
+- Frame selection is based on visual significance, not fixed intervals
+- Video files up to 100MB supported
+- Number of key frames varies by content complexity
+- Privacy: Video contents are sent to Gemini API for processing
+"""

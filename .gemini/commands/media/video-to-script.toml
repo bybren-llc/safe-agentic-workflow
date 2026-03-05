@@ -1,0 +1,105 @@
+description = "Generate screenplay or script from video content"
+
+prompt = """
+# Video to Script Command
+
+Generate a screenplay or script from video content using Gemini's multimodal capabilities to combine audio transcription with visual analysis.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP4, MOV, AVI, MKV, WEBM
+
+## Workflow
+
+### 1. Detect Video File
+
+Verify the target video file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Transcribe Audio Track
+
+Extract and transcribe the audio component:
+- Transcribe all dialogue with speaker attribution
+- Note sound effects and ambient audio
+- Capture music cues and transitions
+- Identify non-verbal vocalizations
+
+### 3. Analyze Visual Content
+
+Process the visual track in parallel:
+- Identify scene locations (interior/exterior)
+- Describe character actions and movements
+- Note camera angles and transitions
+- Capture on-screen text and graphics
+
+### 4. Combine into Screenplay
+
+Merge audio and visual analysis into standard screenplay format:
+
+```
+FADE IN:
+
+INT. CONFERENCE ROOM - DAY
+
+A modern conference room with floor-to-ceiling windows.
+Six people sit around an oval table. Presentation slides
+glow on the wall-mounted display.
+
+                    SPEAKER 1
+          Welcome everyone. Let's review
+          the quarterly numbers.
+
+Speaker 1 clicks to the next slide. A bar chart appears
+showing upward trends.
+
+                    SPEAKER 2
+          Revenue is up twelve percent
+          over last quarter.
+
+CLOSE-UP on the chart. The green bars clearly exceed
+the projected targets shown in gray.
+
+                    SPEAKER 1
+          That's ahead of projections.
+          Nice work.
+
+CUT TO:
+
+INT. HALLWAY - CONTINUOUS
+
+Speaker 2 exits the conference room, smiling.
+
+FADE OUT.
+```
+
+## Output Options
+
+- `--screenplay` - Standard screenplay format (default)
+- `--narrative` - Prose narrative description
+- `--shot-list` - Technical shot list with descriptions
+- `--json` - Structured JSON with scene data
+
+## Usage Examples
+
+```bash
+/media:video-to-script ./interview.mp4
+/media:video-to-script ~/footage/short-film.mov --screenplay
+/media:video-to-script ./commercial.webm --shot-list
+/media:video-to-script ./tutorial.mp4 --narrative
+```
+
+## Notes
+
+- Gemini 3+ required for video processing
+- Combines audio transcription and visual analysis into a unified script
+- Speaker names default to "Speaker N" unless identifiable
+- Scene headings (INT/EXT) are inferred from visual context
+- Camera direction notes are approximate based on visual analysis
+- Video files up to 100MB supported
+- Privacy: Video contents are sent to Gemini API for processing
+"""

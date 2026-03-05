@@ -1,0 +1,103 @@
+description = "Detect scene changes and transitions in video"
+
+prompt = """
+# Scene Detect Command
+
+Detect scene changes and transitions in video files using Gemini's multimodal video capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP4, MOV, AVI, MKV, WEBM
+
+## Workflow
+
+### 1. Detect Video File
+
+Verify the target video file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Analyze for Transitions
+
+Scan the video for scene boundaries:
+- Monitor for significant visual changes between frames
+- Detect changes in color palette, composition, and content
+- Identify both hard cuts and gradual transitions
+- Track audio changes that coincide with visual transitions
+
+### 3. Classify Transition Types
+
+Categorize each detected transition:
+- **Cut**: Instantaneous change from one shot to another
+- **Fade In**: Scene gradually appears from black (or white)
+- **Fade Out**: Scene gradually disappears to black (or white)
+- **Dissolve**: One scene gradually blends into the next
+- **Wipe**: One scene replaces another with a moving boundary
+- **Jump Cut**: Cut within the same scene with a noticeable time skip
+
+### 4. Generate Scene List
+
+**Markdown Report:**
+```markdown
+## Scene Detection Report
+
+### File Info
+- **File**: [filename]
+- **Duration**: [estimated duration]
+- **Scenes Detected**: [count]
+- **Average Scene Length**: [duration]
+
+### Scene List
+
+| Scene | Start      | End        | Duration | Transition In | Description          |
+|-------|------------|------------|----------|---------------|----------------------|
+| 1     | 00:00:00   | 00:00:12   | 12s      | Fade In       | Exterior wide shot   |
+| 2     | 00:00:12   | 00:00:28   | 16s      | Cut           | Interior close-up    |
+| 3     | 00:00:28   | 00:00:45   | 17s      | Dissolve      | Montage sequence     |
+| 4     | 00:00:45   | 00:01:03   | 18s      | Cut           | Dialogue scene       |
+
+### Transition Summary
+- **Cuts**: 12
+- **Fades**: 3
+- **Dissolves**: 2
+- **Other**: 1
+```
+
+**EDL (Edit Decision List) Format:**
+```
+TITLE: [filename]
+001  001      V     C        00:00:00:00 00:00:12:00 00:00:00:00 00:00:12:00
+002  001      V     C        00:00:12:00 00:00:28:00 00:00:12:00 00:00:28:00
+003  001      V     D 030    00:00:28:00 00:00:45:00 00:00:28:00 00:00:45:00
+```
+
+## Output Options
+
+- `--table` - Markdown table format (default)
+- `--edl` - CMX 3600 Edit Decision List format
+- `--json` - Structured JSON output
+- `--timestamps` - Simple timestamp list only
+
+## Usage Examples
+
+```bash
+/media:scene-detect ./raw-footage.mp4
+/media:scene-detect ~/edits/rough-cut.mov --edl
+/media:scene-detect ./commercial.webm --json
+/media:scene-detect ./lecture.mkv --timestamps
+```
+
+## Notes
+
+- Gemini 3+ required for video processing
+- Useful for video editing workflows and content indexing
+- Transition classification is approximate based on visual analysis
+- EDL output follows CMX 3600 standard for NLE compatibility
+- Very fast-paced content may produce a high scene count
+- Video files up to 100MB supported
+- Privacy: Video contents are sent to Gemini API for processing
+"""

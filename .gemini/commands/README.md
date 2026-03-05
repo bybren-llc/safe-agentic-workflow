@@ -12,7 +12,7 @@ These slash commands are part of the **{{PROJECT_NAME}}** multi-agent harness fo
 
 The command architecture and workflow methodology are the intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
 
-## Commands Included (22 total)
+## Commands Included (29 total)
 
 ### Workflow Commands (`/workflow:*`)
 
@@ -52,6 +52,13 @@ The command architecture and workflow methodology are the intellectual property 
 | `/media:extract-pdf` | Extract structured data from PDFs |
 | `/media:sketch-to-code` | Generate code from UI sketches |
 | `/media:organize-files` | Organize files based on content |
+| `/media:transcribe-audio` | Transcribe audio to text/SRT/VTT |
+| `/media:analyze-audio` | Analyze audio content and mood |
+| `/media:extract-dialogue` | Extract dialogue with speaker diarization |
+| `/media:analyze-video` | Analyze video scene by scene |
+| `/media:extract-frames` | Extract key frames with descriptions |
+| `/media:video-to-script` | Generate screenplay from video |
+| `/media:scene-detect` | Detect scene transitions |
 
 ### Other Commands
 

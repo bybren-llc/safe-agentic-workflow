@@ -1,0 +1,98 @@
+description = "Analyze video content scene by scene"
+
+prompt = """
+# Analyze Video Command
+
+Analyze video content scene by scene using Gemini's multimodal video capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP4, MOV, AVI, MKV, WEBM
+
+## Workflow
+
+### 1. Detect Video File
+
+Verify the target video file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Analyze Scenes
+
+Process the video through Gemini's multimodal input:
+- Identify distinct scenes and transitions
+- Describe visual content in each scene
+- Detect objects, people, actions, and settings
+- Note camera movements and composition
+- Transcribe any dialogue or on-screen text
+
+### 3. Describe Content
+
+For each scene, capture:
+- **Setting**: Location, time of day, environment
+- **Subjects**: People, objects, animals present
+- **Actions**: What is happening in the scene
+- **Dialogue**: Any spoken words or on-screen text
+- **Visual Style**: Lighting, color palette, camera angle
+
+### 4. Generate Report
+
+```markdown
+## Video Analysis Report
+
+### File Info
+- **File**: [filename]
+- **Format**: [detected format]
+- **Duration**: [estimated duration]
+- **Total Scenes**: [count]
+
+### Scene Breakdown
+
+#### Scene 1 (00:00:00 - 00:00:15)
+- **Setting**: [description]
+- **Subjects**: [people, objects]
+- **Actions**: [what happens]
+- **Dialogue**: [spoken words]
+- **Visual Style**: [lighting, camera, color]
+- **Transition**: [cut/fade/dissolve to next]
+
+#### Scene 2 (00:00:15 - 00:00:42)
+...
+
+### Summary
+[Overall video description and narrative arc]
+
+### Visual Style Notes
+- **Dominant Colors**: [color palette]
+- **Camera Work**: [static, handheld, tracking, etc.]
+- **Editing Pace**: [fast, moderate, slow]
+```
+
+## Output Options
+
+- `--summary` - Brief overview with scene count (default)
+- `--detailed` - Full scene-by-scene breakdown
+- `--json` - Structured JSON output
+- `--timestamps` - Scene list with timestamps only
+
+## Usage Examples
+
+```bash
+/media:analyze-video ./presentation.mp4
+/media:analyze-video ~/footage/interview.mov --detailed
+/media:analyze-video ./tutorial.webm --json
+/media:analyze-video ./clip.mkv --timestamps
+```
+
+## Notes
+
+- Gemini 3+ required for video processing
+- Video files up to 100MB supported
+- Longer videos are sampled at key intervals for analysis
+- Audio track is analyzed alongside visual content
+- Privacy: Video contents are sent to Gemini API for analysis
+"""

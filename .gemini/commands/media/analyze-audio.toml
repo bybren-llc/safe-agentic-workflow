@@ -1,0 +1,102 @@
+description = "Analyze audio content, tone, and characteristics"
+
+prompt = """
+# Analyze Audio Command
+
+Analyze audio content, tone, and characteristics using Gemini's multimodal audio capabilities.
+
+**Target**: {{args}}
+
+## Supported Formats
+
+MP3, WAV, AIFF, AAC, OGG, FLAC
+
+## Workflow
+
+### 1. Detect Audio File
+
+Verify the target audio file exists and identify its format:
+
+```bash
+!{file {{args}} 2>/dev/null || echo "File not found"}
+```
+
+### 2. Classify Audio Type
+
+Determine the primary content type:
+- **Speech**: Conversation, presentation, podcast, narration
+- **Music**: Song, instrumental, soundtrack
+- **Ambient**: Environmental sounds, sound effects, background audio
+- **Mixed**: Combination of speech, music, and/or ambient sound
+
+### 3. Analyze Characteristics
+
+Perform detailed analysis based on content type:
+
+**For Speech:**
+- Language and dialect detection
+- Speaking pace (words per minute estimate)
+- Emotional tone (confident, nervous, enthusiastic, neutral)
+- Clarity and intelligibility rating
+
+**For Music:**
+- Genre classification
+- Tempo and rhythm description
+- Instrumentation detected
+- Mood and energy level
+
+**For Ambient/Mixed:**
+- Sound source identification
+- Layering and spatial characteristics
+- Dominant vs background elements
+
+### 4. Generate Report
+
+```markdown
+## Audio Analysis Report
+
+### File Info
+- **File**: [filename]
+- **Format**: [detected format]
+- **Duration**: [estimated duration]
+
+### Content Type
+[Speech / Music / Ambient / Mixed]
+
+### Mood & Tone
+[Overall mood and tonal characteristics]
+
+### Key Segments
+| Timestamp | Description | Notes |
+|-----------|-------------|-------|
+| 00:00:00  | [segment]   | [note]|
+
+### Technical Quality
+- **Clarity**: [High / Medium / Low]
+- **Background Noise**: [None / Minimal / Moderate / Heavy]
+- **Dynamic Range**: [Compressed / Normal / Wide]
+- **Overall Quality**: [Professional / Consumer / Low]
+```
+
+## Output Options
+
+- `--summary` - Brief one-paragraph summary (default)
+- `--detailed` - Full analysis report with all sections
+- `--json` - Structured JSON output
+
+## Usage Examples
+
+```bash
+/media:analyze-audio ./podcast-episode.mp3
+/media:analyze-audio ~/music/track.wav --detailed
+/media:analyze-audio ./soundscape.ogg --json
+```
+
+## Notes
+
+- Gemini 3+ required for audio processing
+- Best results with clear, high-quality audio
+- Background noise is noted and may affect analysis accuracy
+- Duration estimates are approximate
+- Privacy: Audio contents are sent to Gemini API for analysis
+"""
