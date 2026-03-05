@@ -191,21 +191,28 @@ Gemini CLI offers capabilities that complement Claude Code:
 | **Shell Injection** | `!{command}` - Execute shell, inject output into prompt | Via Bash tool only |
 | **File Injection** | `@{file}` - Inject file contents into prompts | Via Read tool only |
 | **Built-in Sandbox** | Google Cloud sandboxing | MCP sandboxing |
-| **Model Options** | Gemini 2.0 Flash, Gemini Pro | Claude Opus, Sonnet, Haiku |
+| **Model Options** | Gemini 3 Flash, Gemini 3.1 Pro Preview | Claude Opus, Sonnet, Haiku |
 | **Command Format** | TOML | YAML + Markdown |
 | **Namespaced Commands** | `/workflow:start-work` | `/start-work` |
 | **Hooks** | `settings.json` hooks section | `hooks-config.json` |
 | **MCP Servers** | `settings.json` mcpServers | `settings.local.json` |
 | **Hook Migration** | `gemini hooks migrate --from-claude` | N/A |
+| **Plan Mode** | `/plan` command, plan-then-execute | N/A |
+| **Policy Engine** | YAML policies, seatbelt profiles | N/A |
+| **Browser Agent** | Built-in experimental agent | MCP (claude-in-chrome) |
+| **Extensions** | Bundled skill/MCP/command packages | N/A |
+| **Checkpointing** | `/restore` session recovery | N/A |
+| **Audio/Video** | Native multimodal (Gemini 3+) | N/A |
 
 ### When to Use Gemini CLI
 
 **Choose Gemini CLI when you need:**
 - Shell command output directly in prompts (`!{git log --oneline -5}`)
 - File contents injected into context (`@{package.json}`)
-- Google Cloud integration
-- Gemini model family access
-- Built-in Claude Code hooks migration
+- Plan mode for complex multi-step tasks (`/plan`)
+- Audio/video transcription and analysis (Gemini 3+ multimodal)
+- Policy engine for fine-grained tool control
+- Google Cloud integration and Gemini model family access
 
 **Choose Claude Code when you need:**
 - Agent subprocesses with tool restrictions
@@ -1168,7 +1175,7 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 - **Multi-provider**: Supports Claude Code and Gemini CLI
 - **Generalized**: Placeholders for project-specific values
 - **Single-team validation**: Multi-team scalability not yet proven
-- **Gemini CLI new**: Gemini integration is new (January 2026), not yet production-tested
+- **Gemini CLI maturing**: Gemini CLI harness aligned with v0.32.1 (March 2026), less production-tested than Claude Code
 - **Domain examples**: Non-SWE adaptations are theoretical (documented, not validated)
 
 See project documentation for honest assessment of limitations.
@@ -1186,9 +1193,9 @@ See project documentation for honest assessment of limitations.
 └── SETUP.md             # Installation and customization guide
 
 .gemini/                 # Gemini CLI harness configuration
-├── commands/            # 18 TOML commands (namespaced: /workflow:*, /local:*, /remote:*)
+├── commands/            # 29 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
 ├── skills/              # 17 model-invoked skills (team-coordination is Claude-only)
-├── settings.json        # Context and model configuration
+├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
 
