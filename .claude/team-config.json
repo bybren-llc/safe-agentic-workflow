@@ -256,6 +256,55 @@
     "workflow_docs": "docs/workflow/"
   },
 
+  "agent_teams": {
+    "_comment": "Agent Teams configuration (experimental). Requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 in settings.json.",
+    "enabled": false,
+    "env_var": "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS",
+    "default_team_lead": "tdm",
+    "default_teammate_mode": "in-process",
+    "recommended_team_size": {
+      "story": "2-3",
+      "feature": "3-5",
+      "epic": "5-8"
+    },
+    "gate_dependencies": {
+      "_comment": "SAFe quality gates expressed as task dependencies. Blocked tasks cannot be claimed until dependencies complete.",
+      "implementation": {
+        "blocks": ["qas_validation"]
+      },
+      "qas_validation": {
+        "blockedBy": ["implementation"],
+        "blocks": ["rte_pr_creation"]
+      },
+      "rte_pr_creation": {
+        "blockedBy": ["qas_validation"],
+        "blocks": ["stage_1_review"]
+      },
+      "stage_1_review": {
+        "blockedBy": ["rte_pr_creation"],
+        "blocks": ["stage_2_review"]
+      },
+      "stage_2_review": {
+        "blockedBy": ["stage_1_review"],
+        "blocks": ["hitl_merge"]
+      },
+      "hitl_merge": {
+        "blockedBy": ["stage_2_review"]
+      }
+    },
+    "hooks": {
+      "_comment": "Hook templates for quality gate enforcement. Customize commands for your project.",
+      "TeammateIdle": {
+        "description": "Validate teammate completed assigned tasks before going idle",
+        "exit_code_2": "Sends feedback and keeps teammate working"
+      },
+      "TaskCompleted": {
+        "description": "Validate task output meets acceptance criteria before completion",
+        "exit_code_2": "Prevents completion and sends feedback"
+      }
+    }
+  },
+
   "documentation": {
     "_comment": "Key documentation files that agents must read before specific types of work.",
     "mandatory_always": [

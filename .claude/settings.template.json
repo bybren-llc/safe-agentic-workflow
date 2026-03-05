@@ -1,0 +1,10 @@
+{
+  "_comment": "Claude Code settings template. Copy to settings.json and customize for your project. See https://code.claude.com/docs/en/settings",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0"
+  },
+  "teammateMode": "in-process",
+  "permissions": {
+    "_comment": "Configure permission rules for your project. See https://code.claude.com/docs/en/permissions"
+  }
+}

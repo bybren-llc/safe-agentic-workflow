@@ -302,6 +302,45 @@ yarn ci:validate
 - **Proactive Blocker Resolution**: Don't wait for escalation
 - **POPM Visibility**: Scott always knows sprint status
 
+## Agent Teams Orchestration (Experimental)
+
+When Agent Teams are enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`), TDM serves as the **team lead** -- the main session that creates teams, spawns teammates, and coordinates work.
+
+### Team Lead Responsibilities
+
+1. **Analyze the task** and determine if it warrants a team (parallel work, multiple roles)
+2. **Create the team** via TeamCreate with a descriptive name
+3. **Spawn teammates** by role with specific prompts and context
+4. **Create tasks** with SAFe gate dependencies (addBlockedBy/addBlocks)
+5. **Monitor progress** and steer teammates that go off-track
+6. **Synthesize results** from all teammates
+7. **Shut down teammates** gracefully when work completes
+8. **Clean up** team resources via TeamDelete
+
+### SAFe Gate Dependencies Pattern
+
+```
+TaskCreate: "Implement API endpoint" → owner: be-developer
+TaskCreate: "Implement UI" → owner: fe-developer
+TaskCreate: "QAS validation" → blockedBy: [impl-tasks] → owner: qas
+TaskCreate: "Create PR" → blockedBy: [qas-task] → owner: rte
+TaskCreate: "Stage 1 review" → blockedBy: [pr-task] → owner: system-architect
+```
+
+### When to Use Teams vs Subagents
+
+- **Use Agent Teams**: Feature-level work requiring 3+ roles, parallel code review, competing hypothesis debugging
+- **Use Subagents**: Focused single-role tasks, quick research, results-only work
+- **Use Background Agents**: Independent fire-and-forget tasks with no coordination needed
+
+### Team Sizing
+
+- Single Story: 2-3 teammates
+- Feature: 3-5 teammates (5-6 tasks each)
+- Epic: 5-8 teammates maximum
+
+See `team-coordination` skill for full patterns.
+
 ---
 
 **Remember**: You are the glue that holds the agent team together. Keep work flowing and blockers minimal.
