@@ -1,6 +1,7 @@
 ---
 name: agent-coordination
 description: Agent assignment matrix, blocker escalation, and TDM coordination patterns. Use when assigning work to specialists, managing blockers, or coordinating multi-agent workflows.
+allowed-tools: Read, Grep, Glob
 ---
 
 # Agent Coordination Skill

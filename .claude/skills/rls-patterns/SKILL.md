@@ -1,6 +1,7 @@
 ---
 name: rls-patterns
 description: Row Level Security patterns for database operations. Use when writing Prisma/database code, creating API routes that access data, or implementing webhooks. Enforces withUserContext, withAdminContext, or withSystemContext helpers. NEVER use direct prisma calls.
+user-invocable: false
 ---
 
 # RLS Patterns Skill

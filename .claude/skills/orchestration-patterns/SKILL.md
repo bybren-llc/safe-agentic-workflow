@@ -1,6 +1,7 @@
 ---
 name: orchestration-patterns
 description: Agentic orchestration patterns for long-running tasks. Implements evidence-based delivery and Simon Willison's agent loop. Use when managing multi-step work, coordinating subagents, or orchestrating PR workflows.
+allowed-tools: Read, Bash, Grep, Glob, Task
 ---
 
 # Orchestration Patterns Skill

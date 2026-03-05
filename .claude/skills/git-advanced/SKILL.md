@@ -1,6 +1,7 @@
 ---
 name: git-advanced
 description: Advanced git operations including rebase, bisect, cherry-pick, and conflict resolution. Use when rebasing branches, debugging with bisect, cherry-picking commits, or resolving complex merge conflicts.
+allowed-tools: Read, Bash, Grep
 ---
 
 # Git Advanced Skill

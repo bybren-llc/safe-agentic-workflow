@@ -1,6 +1,7 @@
 ---
 name: api-patterns
 description: API route implementation patterns with RLS, Zod validation, and error handling. Use when creating API routes, implementing endpoints, or adding server-side validation.
+user-invocable: false
 ---
 
 # API Patterns Skill

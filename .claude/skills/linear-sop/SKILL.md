@@ -1,6 +1,7 @@
 ---
 name: linear-sop
 description: Linear ticket management best practices. Use when creating issues, updating status, or attaching evidence. Provides evidence templates for dev/staging/done phases.
+allowed-tools: Read, Grep
 ---
 
 # Linear SOP Skill

@@ -1,6 +1,9 @@
 ---
 name: security-audit
 description: RLS validation, security audits, OWASP compliance, and vulnerability scanning. Use when validating RLS policies, auditing API routes, or scanning for security issues.
+context: fork
+agent: Explore
+allowed-tools: Read, Bash, Grep, Glob
 ---
 
 # Security Audit Skill

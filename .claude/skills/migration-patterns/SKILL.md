@@ -1,6 +1,7 @@
 ---
 name: migration-patterns
 description: Database migration creation with mandatory RLS policies and ARCHitect approval workflow. Use when creating migrations, adding tables with RLS, or updating Prisma schema.
+disable-model-invocation: true
 ---
 
 # Migration Patterns Skill
