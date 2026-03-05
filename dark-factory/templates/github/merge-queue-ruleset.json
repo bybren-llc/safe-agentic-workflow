@@ -1,0 +1,48 @@
+{
+  "_comment": "Dark Factory Merge Queue Ruleset -- import via GitHub Settings > Rules > Rulesets",
+  "name": "dark-factory-merge-queue",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/{{MAIN_BRANCH}}"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 0,
+        "dismiss_stale_reviews_on_push": true,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false
+      }
+    },
+    {
+      "type": "merge_queue",
+      "parameters": {
+        "merge_method": "squash",
+        "min_entries_to_merge": 1,
+        "max_entries_to_merge": 5,
+        "min_entries_to_merge_wait_minutes": 1,
+        "grouping_strategy": "ALLGREEN",
+        "check_response_timeout_minutes": 30
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "required_status_checks": [
+          { "context": "Validate PR" },
+          { "context": "Analyze (javascript-typescript)" },
+          { "context": "Analyze (python)" },
+          { "context": "Analyze (actions)" },
+          { "context": "CodeQL" }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}
