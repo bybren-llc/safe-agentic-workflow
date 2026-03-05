@@ -35,6 +35,7 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 | stripe-patterns | Payment integration, webhooks |
 | deployment-sop | Deployment workflows |
 | confluence-docs | ADRs, runbooks, docs |
+| team-coordination | Agent Teams orchestration (experimental) |
 
 ## Creating New Skills
 

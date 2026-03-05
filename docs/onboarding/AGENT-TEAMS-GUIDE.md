@@ -68,12 +68,10 @@ Agent Teams supports two display modes for teammate sessions.
 
 ```json
 {
-  "experiments": {
-    "agentTeams": true
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "agentTeams": {
-    "displayMode": "in-process"
-  }
+  "teammateMode": "in-process"
 }
 ```
 
@@ -81,12 +79,10 @@ Agent Teams supports two display modes for teammate sessions.
 
 ```json
 {
-  "experiments": {
-    "agentTeams": true
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "agentTeams": {
-    "displayMode": "split-pane"
-  }
+  "teammateMode": "tmux"
 }
 ```
 
@@ -104,7 +100,7 @@ cd {{PROJECT_NAME}}
 claude
 ```
 
-Once inside the Claude Code session, verify that the team lead can spawn teammates by checking for the `spawnTeammate`, `sendMessage`, and `createTask` tools in the available tool list. You can test by asking Claude directly:
+Once inside the Claude Code session, verify that the team lead can spawn teammates by checking for the `TeamCreate`, `SendMessage`, and `TaskCreate` tools in the available tool list. You can test by asking Claude directly:
 
 ```
 Can you confirm that Agent Teams tools are available? List the team-related tools you have access to.
@@ -112,12 +108,11 @@ Can you confirm that Agent Teams tools are available? List the team-related tool
 
 Expected tools include:
 
-- `spawnTeammate` -- Create a new teammate session
-- `sendMessage` -- Send a direct message to a teammate
-- `createTask` -- Add a task to the shared TaskList
-- `listTeammates` -- See all active teammates and their status
-- `listTasks` -- View the shared TaskList with statuses
-- `shutdownTeammate` -- Gracefully stop a teammate session
+- `TeamCreate` — Create a new team with shared task list
+- `Task` — Spawn teammates as specialized agents
+- `SendMessage` — Send direct messages, broadcasts, or shutdown requests
+- `TaskCreate` / `TaskUpdate` / `TaskList` — Manage the shared task board
+- `TeamDelete` — Clean up team resources when done
 
 If these tools are not listed, verify that the experimental flag is correctly set and that your Claude Code version is 2.1.0 or later (`claude --version`).
 
@@ -153,8 +148,8 @@ Create tasks with proper dependencies so QAS waits for both BE and FE to finish.
 **What happens behind the scenes:**
 
 1. The lead reads the spec and identifies the work breakdown.
-2. The lead calls `spawnTeammate` three times, once for each role, providing each teammate with role-specific system prompts from `.claude/agents/`.
-3. The lead calls `createTask` to add tasks to the shared TaskList:
+2. The lead uses `TeamCreate` to set up the team, then spawns teammates via the `Task` tool with `team_name` parameter, providing each with role-specific prompts from `.claude/agents/`.
+3. The lead calls `TaskCreate` to add tasks to the shared TaskList:
    - Task A: "Implement profile API endpoints" (assigned to BE Developer)
    - Task B: "Build profile UI components" (assigned to FE Developer)
    - Task C: "Write and run tests for profile feature" (assigned to QAS, blocked by Task A and Task B)
@@ -304,7 +299,7 @@ Direct messages are targeted to a specific teammate and are the most common comm
 
 1. Verify all tasks in the TaskList have status "completed"
 2. Send a final message to each teammate confirming that no further work is needed
-3. Call `shutdownTeammate` for each teammate
+3. Send `shutdown_request` via `SendMessage` for each teammate
 4. Summarize the session results
 
 ---
@@ -449,7 +444,7 @@ Agent Teams is an experimental feature with the following limitations as of Clau
 
 ### Teammates Not Appearing
 
-**Symptom**: `spawnTeammate` is called but no teammate session starts.
+**Symptom**: Teammate spawning is attempted but no teammate session starts.
 
 **Solutions**:
 
@@ -531,9 +526,9 @@ tmux kill-server
 
 **Solutions**:
 
-- Verify the task dependencies are correctly set. Use `listTasks` to inspect the TaskList and confirm `blockedBy` references are correct.
+- Verify the task dependencies are correctly set. Use `TaskList` to inspect the shared task board and confirm `blockedBy` references are correct.
 - Send a direct message to the blocked teammate notifying it that the dependency is resolved and it should proceed.
-- The lead can also call `createTask` with the same task details to re-trigger the assignment if needed.
+- The lead can also call `TaskCreate` with the same task details to re-trigger the assignment if needed.
 
 ---
 
