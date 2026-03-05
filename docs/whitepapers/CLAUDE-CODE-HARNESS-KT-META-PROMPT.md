@@ -149,7 +149,7 @@ Location: .claude/commands/*.md
 Location: .claude/skills/*.md
 ```
 
-**17 Model-Invoked Skills** (Phase 3 Complete):
+**18 Model-Invoked Skills** (Phase 3 Complete):
 
 | Skill                    | Trigger Context           | Generalization                                        |
 | ------------------------ | ------------------------- | ----------------------------------------------------- |
@@ -455,7 +455,7 @@ Check PR #324 or subsequent PRs for full diff and review discussion.
 ├── .claude/
 │   ├── settings.json          # Hooks configuration
 │   ├── commands/              # 24 slash commands
-│   ├── skills/                # 17 model-invoked skills
+│   ├── skills/                # 18 model-invoked skills
 │   └── agents/                # 12 agent profiles
 ├── AGENTS.md                  # Quick reference
 ├── CONTRIBUTING.md            # Workflow documentation

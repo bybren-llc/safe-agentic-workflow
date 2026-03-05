@@ -58,6 +58,7 @@ Skills are loaded progressively—metadata at startup, full content when context
 | `testing-patterns`       | Writing tests          | Jest, Playwright patterns                   |
 | `orchestration-patterns` | Multi-step work        | Agent loop, evidence-based delivery         |
 | `agent-coordination`     | Multi-agent work       | Assignment matrix, escalation patterns      |
+| `team-coordination`    | Agent Teams spawn     | Multi-agent orchestration (experimental)  |
 
 **Note**: `/skills` command has display bug (v2.0.73, GitHub #14733). Skills work but won't show in list. Ask Claude directly: "What skills are available?"
 
@@ -259,6 +260,14 @@ Each agent has explicit exit states that define handoff points:
 - **SecEng**: NOT collapsible (security audit requires independence)
 
 See [Agent Workflow SOP v1.4](./docs/sop/AGENT_WORKFLOW_SOP.md) for details.
+
+### Agent Teams (Experimental)
+
+Agent Teams enable real-time multi-agent orchestration using Claude Code's experimental Agent Teams feature. When enabled, agents are spawned as teammates with shared task lists and SAFe quality gates enforced via task dependencies.
+
+- **Enable**: Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`
+- **Skill**: `/team-coordination` — patterns for TeamCreate, SendMessage, shared TaskList
+- **Guide**: See [Agent Teams Guide](docs/onboarding/AGENT-TEAMS-GUIDE.md) and [Optional Features](docs/guides/OPTIONAL-FEATURES.md)
 
 ---
 

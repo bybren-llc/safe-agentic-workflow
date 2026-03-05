@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
   <a href=".claude/skills/">
-    <img src="https://img.shields.io/badge/skills-17%20model--invoked-purple?style=flat-square" alt="Skills">
+    <img src="https://img.shields.io/badge/skills-18%20model--invoked-purple?style=flat-square" alt="Skills">
   </a>
   <a href=".claude/commands/">
     <img src="https://img.shields.io/badge/commands-23%20workflows-orange?style=flat-square" alt="Commands">
@@ -40,10 +40,11 @@ Works for any team with repeatable processes: Software, Marketing, Research, Leg
 
 Includes:
 
-- **17 Model-Invoked Skills** - Domain expertise that loads automatically
+- **18 Model-Invoked Skills** - Domain expertise that loads automatically (Skills 2.0 frontmatter)
 - **23 Slash Commands** - Workflow automation for common tasks
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
+- **Agent Teams** - Multi-agent orchestration with SAFe quality gates (experimental)
 
 > **Origin**: 5 months production use, 169 issues, 2,193 commits. Implements patterns from
 > [6 Anthropic engineering papers](#implementing-anthropics-research) and [SAFe methodology](https://scaledagileframework.com/).
@@ -150,7 +151,7 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 
 ### Production Results (v1.0 Harness)
 
-> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.2** (Skills Enhancement), which adds comprehensive skill documentation and authoring guide.
+> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.5** (Skills 2.0 + Agent Teams), which adds Skills 2.0 frontmatter to all 18 skills, Agent Teams orchestration, and comprehensive upgrade documentation.
 
 | Metric           | Value              | Source     |
 | ---------------- | ------------------ | ---------- |
@@ -262,8 +263,8 @@ This harness directly implements patterns from Anthropic's engineering papers:
 | ----------------------------------------------------------------------------------------------------------- | -------------------------- |
 | [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)                | 11-agent team structure    |
 | [Effective Harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)    | Three-layer architecture   |
-| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 17 model-invoked skills    |
-| [Skills Announcement](https://www.anthropic.com/news/skills)                                                | Skill trigger patterns     |
+| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 18 model-invoked skills    |
+| [Skills Announcement](https://www.anthropic.com/news/skills)                                                | Skills 2.0 frontmatter, trigger patterns |
 | [Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp)                    | Tool restrictions per role |
 
 > "The best harness is one you forget exists." — [Agent Perspective](docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md)
@@ -1161,7 +1162,7 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 
 ## Important Caveats
 
-**Version 2.3** - Production-tested but with known limitations:
+**Version 2.5** - Production-tested but with known limitations:
 
 - **Production validated**: 5+ months, 169 issues, 2,193 commits (Claude Code)
 - **Multi-provider**: Supports Claude Code and Gemini CLI
@@ -1179,13 +1180,14 @@ See project documentation for honest assessment of limitations.
 ```text
 .claude/                 # Claude Code harness configuration
 ├── commands/            # 23 slash commands for workflow automation
-├── skills/              # 17 model-invoked skills for domain expertise
+├── skills/              # 18 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
+├── team-config.json     # Agent Teams settings (optional, experimental)
 └── SETUP.md             # Installation and customization guide
 
 .gemini/                 # Gemini CLI harness configuration
 ├── commands/            # 18 TOML commands (namespaced: /workflow:*, /local:*, /remote:*)
-├── skills/              # 17 model-invoked skills (same as Claude)
+├── skills/              # 17 model-invoked skills (team-coordination is Claude-only)
 ├── settings.json        # Context and model configuration
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide

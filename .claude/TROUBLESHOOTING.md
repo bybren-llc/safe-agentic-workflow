@@ -308,7 +308,7 @@ ls -la .claude/commands/*.md | wc -l
 
 # Check all skill directories exist
 ls -d .claude/skills/*/SKILL.md | wc -l
-# Expected: 17
+# Expected: 18
 
 # Check hooks config is valid JSON
 cat .claude/settings.local.json | jq . > /dev/null && echo "Valid JSON"
