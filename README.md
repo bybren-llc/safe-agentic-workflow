@@ -45,6 +45,7 @@ Includes:
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
 - **Agent Teams** - Multi-agent orchestration with SAFe quality gates (experimental)
+- **Dark Factory** - Persistent autonomous agent teams via tmux on remote servers ([guide](dark-factory/README.md))
 
 > **Origin**: 5 months production use, 169 issues, 2,193 commits. Implements patterns from
 > [6 Anthropic engineering papers](#implementing-anthropics-research) and [SAFe methodology](https://scaledagileframework.com/).
@@ -1198,6 +1199,11 @@ See project documentation for honest assessment of limitations.
 ├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
+
+dark-factory/            # tmux Agent Teams infrastructure (optional)
+├── scripts/             # factory-setup, start, stop, status, attach
+├── templates/           # tmux.conf, team layouts, merge queue ruleset
+└── docs/                # Dark Factory guide, Cursor SSH, merge queue policy
 
 docs/                    # Additional documentation
 ├── whitepapers/         # Harness architecture and philosophy

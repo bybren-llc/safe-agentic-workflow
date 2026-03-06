@@ -18,6 +18,7 @@ to your project.
 - [3. RLS / PostgreSQL Patterns](#3-rls--postgresql-patterns)
 - [4. Clerk / Auth Patterns](#4-clerk--auth-patterns)
 - [5. Agent Teams (Experimental)](#5-agent-teams-experimental)
+- [6. Dark Factory (tmux Agent Teams)](#6-dark-factory-tmux-agent-teams)
 - [Verification After Removal](#verification-after-removal)
 
 ---
@@ -603,6 +604,54 @@ grep "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS" .claude/settings.json 2>/dev/null \
 
 ---
 
+## 6. Dark Factory (tmux Agent Teams)
+
+**What it provides**: Infrastructure for running persistent, autonomous AI agent teams on a remote headless machine via tmux. Agents run 24/7, create PRs, and merge via GitHub merge queue -- observable from Cursor IDE via SSH.
+
+**Status**: Optional add-on (self-contained in `dark-factory/` directory)
+
+**When to use**: When you want autonomous agent teams running on a dedicated dev server, processing Linear tickets and creating PRs without human presence. Best for high-throughput development with merge queue enforcement.
+
+**Dependencies**: Requires Agent Teams (Section 5) for cross-agent coordination, though agents can also run independently.
+
+### Enabling Dark Factory
+
+1. Copy or keep the `dark-factory/` directory in your project
+2. Run `./dark-factory/scripts/factory-setup.sh` (validates prerequisites and merge queue)
+3. Edit `~/.dark-factory/env` with your project settings
+4. Start a session: `./dark-factory/scripts/factory-start.sh feature {{TICKET_PREFIX}}-123`
+
+### Dark Factory Components
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| Setup Script | `dark-factory/scripts/factory-setup.sh` | One-time setup with merge queue readiness gate |
+| Start Script | `dark-factory/scripts/factory-start.sh` | Launch tmux session with agent team |
+| Stop Script | `dark-factory/scripts/factory-stop.sh` | Graceful shutdown with log archiving |
+| Status Script | `dark-factory/scripts/factory-status.sh` | Dashboard for running sessions |
+| Attach Script | `dark-factory/scripts/factory-attach.sh` | Quick attach to session/pane |
+| Team Layouts | `dark-factory/templates/team-layouts/` | Story (3), Feature (5), Epic (9) pane layouts |
+| tmux Config | `dark-factory/templates/tmux.conf` | Agent-optimized tmux settings |
+| Merge Queue Ruleset | `dark-factory/templates/github/merge-queue-ruleset.json` | GitHub ruleset for merge queue enforcement |
+| Guides | `dark-factory/docs/` | Setup guide, Cursor SSH guide, merge queue policy |
+
+### Removing Dark Factory
+
+If your project does not need persistent autonomous agent sessions:
+
+- [ ] Delete the entire `dark-factory/` directory
+- [ ] Remove the `dark-factory/` entry from the Repository Structure section in the root `README.md`
+- [ ] Remove this section from `OPTIONAL-FEATURES.md`
+
+### Verification
+
+```bash
+# If REMOVING: confirm no Dark Factory directory remains
+ls dark-factory/ 2>/dev/null && echo "REMOVE ME" || echo "OK"
+```
+
+---
+
 ## Verification After Removal
 
 After completing any of the removal checklists above, run a final sweep to
@@ -647,6 +696,7 @@ diff <(ls .claude/skills/ | grep -v README.md | sort) \
 | RLS / PostgreSQL | High | `.claude/skills/rls-patterns/`, `.gemini/skills/rls-patterns/`, `docs/database/RLS_*.md`, `patterns_library/database/rls-migration.md`, RLS hooks |
 | Clerk / Auth | Medium | Pattern library auth examples, skill auth references, agent prompt auth patterns |
 | Agent Teams | Low | `.claude/skills/team-coordination/`, `.claude/settings.template.json`, `docs/onboarding/AGENT-TEAMS-GUIDE.md` |
+| Dark Factory | Low | `dark-factory/` (entire directory) |
 
 When in doubt, keep a file and customize it rather than deleting it. The
 patterns in this template encode hard-won conventions -- even if you swap out
