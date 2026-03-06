@@ -12,7 +12,7 @@ These slash commands are part of the **{{PROJECT_NAME}}™** multi-agent harness
 
 The command architecture and workflow methodology are the intellectual property of {{AUTHOR_NAME}} and {{COMPANY_NAME}}.
 
-## Commands Included (23 total)
+## Commands Included (24 total)
 
 ### Workflow Commands
 
@@ -20,6 +20,7 @@ The command architecture and workflow methodology are the intellectual property 
 |---------|---------|
 | `/start-work` | Begin work on Linear ticket |
 | `/pre-pr` | Run validation before PR |
+| `/release` | Full version release (merge, tag, publish, sync, cleanup) |
 | `/end-work` | Complete work session |
 | `/check-workflow` | Check workflow status |
 | `/update-docs` | Update documentation |
