@@ -155,7 +155,7 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 
 ### Production Results (v1.0 Harness)
 
-> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.5** (Skills 2.0 + Agent Teams), which adds Skills 2.0 frontmatter to all 18 skills, Agent Teams orchestration, and comprehensive upgrade documentation.
+> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.6** (Dark Factory + Template Readiness), which adds persistent autonomous agent teams via tmux, comprehensive adoption guides, Gemini CLI v0.32.1 alignment, and Skills 2.0 + Agent Teams from v2.5.
 
 | Metric           | Value              | Source     |
 | ---------------- | ------------------ | ---------- |
@@ -1173,7 +1173,7 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 
 ## Important Caveats
 
-**Version 2.5** - Production-tested but with known limitations:
+**Version 2.6** - Production-tested but with known limitations:
 
 - **Production validated**: 5+ months, 169 issues, 2,193 commits (Claude Code)
 - **Multi-provider**: Supports Claude Code and Gemini CLI
