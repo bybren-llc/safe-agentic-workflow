@@ -81,3 +81,46 @@ Not every project needs every integration. See [`docs/guides/OPTIONAL-FEATURES.m
 - [ ] Linear workspace configured (see `docs/onboarding/`)
 - [ ] GitHub repository settings: enable "Template repository" if sharing
 - [ ] Delete this file (`TEMPLATE_SETUP.md`) after setup
+
+## What's Next?
+
+Setup is complete — now read **[Getting Started](docs/guides/GETTING-STARTED.md)** for the end-to-end workflow: your first agent session, first PR, and optional advanced features.
+
+### Optional: Agent Teams
+
+Enable multi-agent parallel work (requires Claude Code 2.1.0+):
+
+1. Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in your environment
+2. Follow the [Agent Teams Guide](docs/onboarding/AGENT-TEAMS-GUIDE.md)
+
+### Optional: Dark Factory (Remote Agent Teams)
+
+Run persistent autonomous agent teams on a remote server via tmux:
+
+1. Set up a remote Linux machine with SSH, tmux, Claude Code, git, and `gh`
+2. Configure `~/.dark-factory/env` with your project values
+3. Follow the [Dark Factory Guide](dark-factory/docs/DARK-FACTORY-GUIDE.md)
+
+### Adopting into an Existing Project?
+
+If you pulled this harness into a repo that already has code (rather than using
+the GitHub template), see the
+[Workspace Adoption Guide](docs/guides/WORKSPACE-ADOPTION-GUIDE.md) for
+multi-repo strategies and keeping the harness up to date.
+
+### Upgrading an Existing Harness?
+
+If you already have a previous version of the harness and need to update:
+
+```bash
+# Check what version you're on
+./scripts/sync-claude-harness.sh version
+
+# Preview changes before applying
+./scripts/sync-claude-harness.sh sync --dry-run
+
+# Apply the latest release
+./scripts/sync-claude-harness.sh sync --latest
+```
+
+See [Keeping the Harness Updated](docs/guides/WORKSPACE-ADOPTION-GUIDE.md#keeping-the-harness-updated) for full details on what to update vs. what to preserve.

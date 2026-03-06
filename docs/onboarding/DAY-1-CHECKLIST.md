@@ -362,6 +362,9 @@ https://linear.app/your-team/issue/{{TICKET_PREFIX}}-1"
 
 ## Phase 5: Validation & Retrospective (15 minutes)
 
+> **Phases 6 and 7 below are optional.** Complete Phase 5 first, then
+> continue to Agent Teams and/or Dark Factory if your team uses those features.
+
 ### Step 5.1: Validate Complete Workflow
 
 **Checklist**:
@@ -436,6 +439,137 @@ https://linear.app/your-team/issue/{{TICKET_PREFIX}}-1"
    - [ ] Implement a real feature using agents
    - [ ] Follow the complete SAFe workflow
    - [ ] Measure your velocity and iterate
+
+---
+
+## Phase 6: Agent Teams Setup (Optional — 20 minutes)
+
+> **Skip this phase** if your team does not use Claude Code Agent Teams.
+> Come back when you're ready to run parallel multi-agent sessions.
+
+### Step 6.1: Enable Agent Teams
+
+```bash
+# Option A: Environment variable (add to ~/.bashrc or ~/.zshrc)
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Option B: Settings file (~/.claude/settings.json)
+# Add: { "experiments": { "agentTeams": true } }
+```
+
+### Step 6.2: Verify Agent Teams Tools
+
+```bash
+cd {{PROJECT_NAME}}
+claude
+```
+
+Inside the session, ask:
+
+```
+Can you confirm that Agent Teams tools are available?
+List the team-related tools you have access to.
+```
+
+**Expected**: You should see `TeamCreate`, `SendMessage`, `TaskCreate`,
+`TaskUpdate`, `TaskList`, and `TeamDelete`.
+
+### Step 6.3: Spawn a Test Team
+
+```
+Create a small test team with 2 teammates:
+1. A BE Developer to review the project structure
+2. A QAS to validate the agent setup
+
+Each teammate should report what they find and then shut down.
+```
+
+**Validation**:
+
+- [ ] Agent Teams experimental flag is enabled
+- [ ] Team tools are visible in Claude Code
+- [ ] Test team spawned successfully
+- [ ] Teammates communicated via the shared TaskList
+- [ ] Team shut down cleanly
+
+**Deep dive**: [Agent Teams Guide](AGENT-TEAMS-GUIDE.md)
+
+---
+
+## Phase 7: Dark Factory Setup (Optional — 30 minutes)
+
+> **Skip this phase** if your team does not have a remote dev server.
+> Dark Factory is for running persistent, autonomous agent teams via tmux
+> on an always-on machine.
+
+### Step 7.1: Verify Remote Prerequisites
+
+SSH into your remote server and confirm:
+
+```bash
+ssh {{REMOTE_HOST}}
+
+# Check prerequisites
+tmux -V          # tmux 3.0+
+claude --version # Claude Code 2.1.0+
+git --version    # git 2.30+
+gh --version     # GitHub CLI 2.0+
+```
+
+### Step 7.2: Run Factory Setup
+
+```bash
+cd /path/to/{{PROJECT_NAME}}
+./dark-factory/scripts/factory-setup.sh
+```
+
+The setup script will:
+- Check all prerequisites
+- Create `~/.dark-factory/` configuration directory
+- Copy `env.template` for you to customize
+- Verify merge queue enforcement on your repository
+
+### Step 7.3: Configure Environment
+
+```bash
+nano ~/.dark-factory/env
+```
+
+Fill in your project values:
+
+```bash
+FACTORY_PROJECT_DIR="/path/to/{{PROJECT_NAME}}"
+FACTORY_MAIN_BRANCH="{{MAIN_BRANCH}}"
+FACTORY_TICKET_PREFIX="{{TICKET_PREFIX}}"
+FACTORY_USE_WORKTREES=true
+FACTORY_AUTO_PERMISSIONS=true
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+```
+
+### Step 7.4: Test a Factory Session
+
+```bash
+# Start a small story team
+./dark-factory/scripts/factory-start.sh story {{TICKET_PREFIX}}-TEST
+
+# Check status
+./dark-factory/scripts/factory-status.sh
+
+# Stop the test session
+./dark-factory/scripts/factory-stop.sh
+```
+
+**Validation**:
+
+- [ ] Remote server meets all prerequisites
+- [ ] `factory-setup.sh` completed without errors
+- [ ] `~/.dark-factory/env` configured with your values
+- [ ] Test factory session started and showed 3 panes (TDM + BE + QAS)
+- [ ] `factory-status.sh` showed active session
+- [ ] `factory-stop.sh` shut down cleanly
+
+**Deep dive**: [Dark Factory Guide](../../dark-factory/docs/DARK-FACTORY-GUIDE.md) |
+[Cursor SSH Guide](../../dark-factory/docs/CURSOR-SSH-GUIDE.md)
 
 ---
 
