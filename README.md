@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/skills-18%20model--invoked-purple?style=flat-square" alt="Skills">
   </a>
   <a href=".claude/commands/">
-    <img src="https://img.shields.io/badge/commands-24%20workflows-orange?style=flat-square" alt="Commands">
+    <img src="https://img.shields.io/badge/commands-23%20workflows-orange?style=flat-square" alt="Commands">
   </a>
   <img src="https://img.shields.io/badge/template-ready-brightgreen?style=flat-square" alt="Template Ready">
 </p>
@@ -41,7 +41,7 @@ Works for any team with repeatable processes: Software, Marketing, Research, Leg
 Includes:
 
 - **18 Model-Invoked Skills** - Domain expertise that loads automatically (Skills 2.0 frontmatter)
-- **24 Slash Commands** - Workflow automation for common tasks
+- **23 Slash Commands** - Workflow automation for common tasks
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
 - **Agent Teams** - Multi-agent orchestration with SAFe quality gates (experimental)
@@ -129,7 +129,7 @@ export GEMINI_API_KEY="your-api-key"
 
 ### Full Command Reference
 
-**Workflow** (8): `/start-work`, `/pre-pr`, `/release`, `/end-work`, `/check-workflow`, `/update-docs`, `/retro`, `/sync-linear`
+**Workflow** (7): `/start-work`, `/pre-pr`, `/end-work`, `/check-workflow`, `/update-docs`, `/retro`, `/sync-linear`
 
 **Local Operations** (3): `/local-sync`, `/local-deploy`, `/quick-fix`
 
@@ -1190,14 +1190,14 @@ See project documentation for honest assessment of limitations.
 
 ```text
 .claude/                 # Claude Code harness configuration
-├── commands/            # 24 slash commands for workflow automation
+├── commands/            # 23 slash commands for workflow automation
 ├── skills/              # 18 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
 ├── team-config.json     # Agent Teams settings (optional, experimental)
 └── SETUP.md             # Installation and customization guide
 
 .gemini/                 # Gemini CLI harness configuration
-├── commands/            # 30 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
+├── commands/            # 29 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
 ├── skills/              # 17 model-invoked skills (team-coordination is Claude-only)
 ├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions

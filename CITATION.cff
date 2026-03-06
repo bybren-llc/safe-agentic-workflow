@@ -26,6 +26,6 @@ abstract: >-
   A production-tested Claude Code harness for teams that want structured AI
   workflows. Built on SAFe methodology, adapted for multi-agent teams. Based
   on 5 months of production experience (169 issues, 9 cycles, 2,193 commits).
-  Includes 18 model-invoked skills, 24 slash commands, 11 SAFe agent profiles,
+  Includes 18 model-invoked skills, 23 slash commands, 11 SAFe agent profiles,
   and a three-layer architecture implementing patterns from Anthropic's
   engineering research.
