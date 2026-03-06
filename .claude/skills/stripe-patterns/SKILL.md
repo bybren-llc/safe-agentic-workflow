@@ -2,6 +2,7 @@
 name: stripe-patterns
 description: Stripe payment integration patterns. Use when implementing payment flows, handling webhooks, or working with subscriptions. Routes to existing patterns and provides evidence templates for payment testing.
 user-invocable: false
+allowed-tools: Read, Grep, Glob
 ---
 
 # Stripe Patterns Skill

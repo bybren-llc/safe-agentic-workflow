@@ -2,6 +2,7 @@
 name: frontend-patterns
 description: Frontend patterns for Next.js App Router, Clerk auth, shadcn/Radix UI, and PostHog analytics. Use when building UI components, creating pages, implementing auth flows, or adding analytics events. Ensures consistent UX patterns and accessibility standards.
 user-invocable: false
+allowed-tools: Read, Grep, Glob
 ---
 
 # Frontend Patterns Skill

@@ -2,6 +2,7 @@
 name: safe-workflow
 description: SAFe development workflow guidance including branch naming conventions, commit message format, rebase-first workflow, and CI validation. Use when starting work on a Linear ticket, preparing commits, creating branches, writing PR descriptions, or asking about contribution guidelines.
 user-invocable: false
+allowed-tools: Read, Grep, Glob
 ---
 
 # SAFe Workflow Skill

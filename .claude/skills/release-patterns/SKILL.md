@@ -3,6 +3,7 @@ name: release-patterns
 description: PR creation, CI/CD validation, and release coordination patterns. Use when creating pull requests, running pre-PR validation, checking CI status, or coordinating merges.
 disable-model-invocation: true
 argument-hint: "[ticket-id]"
+allowed-tools: Read, Bash, Grep, Glob
 ---
 
 # Release Patterns Skill
