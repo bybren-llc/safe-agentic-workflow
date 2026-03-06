@@ -111,9 +111,12 @@ export GEMINI_API_KEY="your-api-key"
 
 ### Getting Started
 
-1. Copy `.claude/` directory to your project
-2. Edit placeholders in `.claude/SETUP.md`
+1. Run `bash scripts/setup-template.sh` to customize placeholders
+2. Read the [Getting Started Guide](docs/guides/GETTING-STARTED.md) for the full walkthrough
 3. Run `/start-work` on your first ticket
+
+**Adopting into an existing repo?** See the [Workspace Adoption Guide](docs/guides/WORKSPACE-ADOPTION-GUIDE.md).
+**Upgrading from a previous version?** See [Keeping the Harness Updated](docs/guides/WORKSPACE-ADOPTION-GUIDE.md#keeping-the-harness-updated).
 
 ### Key Commands
 

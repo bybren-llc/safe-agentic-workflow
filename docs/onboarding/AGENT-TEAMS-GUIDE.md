@@ -532,6 +532,76 @@ tmux kill-server
 
 ---
 
+## Running Agent Teams on a Remote Server (Dark Factory)
+
+For persistent, 24/7 agent teams on a headless remote machine, the harness includes the **Dark Factory** module — a self-contained set of tmux scripts that automate team session management.
+
+### Why Remote?
+
+- **Always-on**: Agent teams run overnight or over weekends without keeping your laptop open
+- **Resource isolation**: Dedicated CPU/RAM for agent workloads
+- **Team visibility**: Multiple developers can observe via SSH or Cursor Remote
+- **Worktree isolation**: Each agent pane gets its own git worktree (no cross-agent file collisions)
+
+### Quick Start
+
+On your remote server:
+
+```bash
+cd /path/to/{{PROJECT_NAME}}
+
+# One-time setup (checks prerequisites, creates config, validates merge queue)
+./dark-factory/scripts/factory-setup.sh
+
+# Configure your project values
+nano ~/.dark-factory/env
+
+# Launch a feature team for a ticket
+./dark-factory/scripts/factory-start.sh feature {{TICKET_PREFIX}}-42
+
+# Monitor from any terminal
+./dark-factory/scripts/factory-status.sh
+
+# Attach to a specific agent's pane
+./dark-factory/scripts/factory-attach.sh
+
+# Graceful shutdown when done
+./dark-factory/scripts/factory-stop.sh
+```
+
+### Team Layouts
+
+Dark Factory provides pre-built tmux layouts that map to the team sizes described in [Team Sizing Guidelines](#team-sizing-guidelines):
+
+| Layout | Panes | Agents | Command |
+| --- | --- | --- | --- |
+| `story` | 3 | TDM + BE + QAS | `factory-start.sh story` |
+| `feature` | 5 | TDM + BE + FE + QAS + RTE | `factory-start.sh feature` |
+| `epic` | 9 | TDM + BSA + ARCH + SecEng + BE + FE + Data + QAS + RTE | `factory-start.sh epic` |
+
+### Observing from Cursor IDE
+
+Connect Cursor IDE to your remote server via SSH Remote, then:
+
+1. Open a terminal in Cursor
+2. Run `tmux attach -t factory-*` to observe agent panes
+3. Use Cursor's file explorer to see worktree changes in real time
+
+See [Cursor SSH Guide](../../dark-factory/docs/CURSOR-SSH-GUIDE.md) for detailed setup.
+
+### Merge Queue Enforcement
+
+Dark Factory enforces merge queue policy as a hard requirement. Agents create PRs via `gh pr create` and enqueue them via `gh pr merge --auto --squash`. No direct merges are permitted. See [Merge Queue Policy](../../dark-factory/docs/MERGE-QUEUE-POLICY.md).
+
+### Full Documentation
+
+- [Dark Factory README](../../dark-factory/README.md) — Architecture overview and quick start
+- [Dark Factory Guide](../../dark-factory/docs/DARK-FACTORY-GUIDE.md) — Comprehensive setup, monitoring, recovery, and FAQ
+- [Cursor SSH Guide](../../dark-factory/docs/CURSOR-SSH-GUIDE.md) — Observing agents from Cursor IDE
+- [Merge Queue Policy](../../dark-factory/docs/MERGE-QUEUE-POLICY.md) — Squash merge enforcement
+
+---
+
 ## Related Documentation
 
 - [AGENTS.md](../../AGENTS.md) - Agent team quick reference (all 11 roles)
