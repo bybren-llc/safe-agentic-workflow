@@ -55,6 +55,88 @@ entire factory is observable and controllable from Cursor IDE via SSH.
 ./dark-factory/scripts/factory-status.sh
 ```
 
+## Operator's Quick Reference
+
+### Daily Workflow
+
+```bash
+# Morning: Start a team for today's ticket
+./dark-factory/scripts/factory-start.sh feature {{TICKET_PREFIX}}-42
+
+# Throughout the day: Check on your agents
+./dark-factory/scripts/factory-status.sh
+
+# Auto-refreshing dashboard (updates every 5 seconds)
+watch -n 5 ./dark-factory/scripts/factory-status.sh
+
+# Tail all agent logs live
+tail -f ~/.dark-factory/logs/factory-{{TICKET_PREFIX}}-42/*.log
+
+# Jump into a specific agent's pane to observe
+./dark-factory/scripts/factory-attach.sh factory-{{TICKET_PREFIX}}-42 2
+
+# End of day: Graceful shutdown
+./dark-factory/scripts/factory-stop.sh factory-{{TICKET_PREFIX}}-42
+```
+
+### Status Dashboard Output
+
+The status dashboard shows health for every agent in every session:
+
+```
+========================================
+  Dark Factory Status Dashboard
+========================================
+
+Session: factory-{{TICKET_PREFIX}}-42
+  Created: 2026-03-06 09:15:00
+  Panes:
+    [1] TDM (lead)           active        ← Claude running, recent output
+    [2] BE Developer         active
+    [3] FE Developer         idle (342s)   ← Claude running, no activity 5+ min
+    [4] QAS                  dead          ← Claude process exited
+    [5] RTE                  active
+
+Aggregate Stats
+  Sessions:  1
+  Agents:    5 (3 active, 1 idle, 1 dead)
+  Processes: 4 claude process(es), ~1200MB RSS
+```
+
+**Color codes**: green = active, yellow = idle, red = dead.
+
+**If a pane shows "dead"**: Attach and check for errors:
+```bash
+./dark-factory/scripts/factory-attach.sh factory-{{TICKET_PREFIX}}-42 4
+# In the pane, restart: claude --dangerously-skip-permissions
+```
+
+### Observing from Cursor IDE (Remote SSH)
+
+1. Connect Cursor to your server via Remote-SSH
+2. Open a terminal: `Ctrl+\``
+3. Attach read-only: `tmux attach -t factory-{{TICKET_PREFIX}}-42 -r`
+4. Navigate panes: `Alt+Arrow` or `Prefix+q` (show numbers)
+5. Zoom one pane: `Prefix+z` (toggle)
+6. See file changes: Open worktree in Cursor's file explorer
+
+See [Cursor SSH Guide](docs/CURSOR-SSH-GUIDE.md) for full setup.
+
+### All Commands at a Glance
+
+| Command | What It Does |
+|---------|-------------|
+| `factory-setup.sh` | One-time setup (prerequisites + merge queue gate) |
+| `factory-start.sh story\|feature\|epic [TICKET]` | Launch a team session |
+| `factory-status.sh` | Color-coded health dashboard |
+| `factory-attach.sh [SESSION] [PANE]` | List sessions or jump into a pane |
+| `factory-stop.sh [SESSION]` | Graceful shutdown + log archive |
+| `watch -n 5 factory-status.sh` | Auto-refreshing monitoring |
+| `tail -f ~/.dark-factory/logs/SESSION/*.log` | Live agent output |
+| `tmux attach -t SESSION -r` | Read-only tmux observation |
+
+---
+
 ## Directory Structure
 
 ```
