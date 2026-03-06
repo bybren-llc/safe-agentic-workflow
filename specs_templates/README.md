@@ -14,6 +14,26 @@ Used by the **Business Systems Analyst (BSA)** agent to decompose large initiati
 
 This is the first step in translating business needs into technical requirements.
 
+### `pi_planning_template.md`
+
+Used for **Program Increment (PI) level planning** — the full-PI view that maps
+feature streams to sprints, tracks cross-team dependencies, manages risks, and
+defines phase gate criteria. Includes 10 sections covering:
+
+1. Program Summary
+2. Program Board (stream × sprint matrix)
+3. Sprint Plans (per-sprint ticket tables)
+4. Delivery Teams (human + agent mapping)
+5. Phase Enablers (technical debt as first-class stories)
+6. Dependencies (cross-team, typed, with timing)
+7. ROAM Risk Register
+8. Gate Criteria (measurable phase gates)
+9. POPM Decisions (pending + resolved)
+10. PI Planning Update Log (mid-PI scope changes)
+
+A companion spreadsheet template (`pi_planning_template.xlsx`) is also provided
+for teams that prefer tabular formats. Keep one authoritative source.
+
 ### `spec_template.md`
 
 The master template for a single unit of work (typically a Linear User Story). The BSA agent copies this template to create a new `{{TICKET_PREFIX}}-XXX-feature-name-spec.md` file for each task.
