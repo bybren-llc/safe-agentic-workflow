@@ -3,6 +3,7 @@ name: deployment-sop
 description: Deployment workflows, pre-deploy validation, and smoke testing patterns. Use when deploying to staging or production, running smoke tests, or validating deployments.
 disable-model-invocation: true
 argument-hint: "[environment]"
+allowed-tools: Read, Bash, Grep, Glob
 ---
 
 # Deployment SOP Skill
