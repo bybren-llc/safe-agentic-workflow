@@ -211,8 +211,8 @@ simultaneously.
 
 Worktrees are created at:
 ```
-~/.dark-factory/worktrees/<session-name>/agent-0/
 ~/.dark-factory/worktrees/<session-name>/agent-1/
+~/.dark-factory/worktrees/<session-name>/agent-2/
 ...
 ```
 

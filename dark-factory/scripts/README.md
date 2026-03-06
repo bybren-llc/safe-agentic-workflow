@@ -22,16 +22,16 @@ tokens.
 # Edit ~/.dark-factory/env with your project settings
 
 # 2. Start a session
-./factory-start.sh feature WOR-123
+./factory-start.sh feature {{TICKET_PREFIX}}-123
 
 # 3. Monitor
 ./factory-status.sh
 
 # 4. Observe specific agent
-./factory-attach.sh factory-WOR-123 2
+./factory-attach.sh factory-{{TICKET_PREFIX}}-123 2
 
 # 5. When done
-./factory-stop.sh factory-WOR-123
+./factory-stop.sh factory-{{TICKET_PREFIX}}-123
 ```
 
 ## Configuration

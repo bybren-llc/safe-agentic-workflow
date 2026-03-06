@@ -41,6 +41,6 @@ fi
 
 # ── Step 3: Session + pane — select pane then attach ──────────────────────────
 pane_index="$2"
-tmux select-pane -t "${session}:0.${pane_index}" 2>/dev/null \
+tmux select-pane -t "${session}:1.${pane_index}" 2>/dev/null \
     || die "Pane index '$pane_index' not found in session '$session'."
 exec tmux attach -t "$session"

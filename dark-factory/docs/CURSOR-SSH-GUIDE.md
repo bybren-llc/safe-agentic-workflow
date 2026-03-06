@@ -83,7 +83,7 @@ tmux attach -t factory-{{TICKET_PREFIX}}-123 -r
 
 If agents use git worktrees, open the worktree directory:
 ```
-~/.dark-factory/worktrees/<session-name>/agent-0/
+~/.dark-factory/worktrees/<session-name>/agent-1/
 ```
 
 Cursor's file explorer will show changes as agents write files. Use the
@@ -133,6 +133,49 @@ tmux attach -t factory-{{TICKET_PREFIX}}-123 -r
 ```
 
 mosh survives network changes, laptop sleep, and temporary disconnects.
+
+---
+
+## Agent Teams tmux Integration
+
+When Claude Code runs with `teammateMode: "tmux"`, it creates additional tmux
+panes for each teammate within the session. This means:
+
+- **The Dark Factory tmux session IS the control plane.** Each pane shows a
+  live agent — you can see what every agent is doing in real-time.
+- **Agent Teams split panes nest inside factory panes.** When the TDM pane
+  spawns teammates via `TeamCreate`, Claude Code creates sub-panes for each
+  teammate within the tmux session.
+- **`factory-status.sh` shows all panes** — both factory-created and
+  Agent Teams-created panes appear in the dashboard.
+- **`factory-attach.sh` lets you jump to any pane** — select a specific
+  agent by pane index to watch its work.
+
+### Observing the Full Team
+
+```bash
+# SSH from Cursor terminal
+ssh {{REMOTE_USER}}@{{REMOTE_HOST}}
+
+# See the full session with all agent panes
+tmux attach -t factory-{{TICKET_PREFIX}}-42 -r
+
+# Navigate between panes:
+#   Prefix + q     → show pane numbers (click to select)
+#   Prefix + o     → cycle to next pane
+#   Prefix + z     → zoom into current pane (toggle)
+#   Alt + Arrow    → move between panes
+```
+
+### Using `watch` for Continuous Monitoring
+
+```bash
+# In a Cursor terminal, refresh status every 5 seconds
+watch -n 5 ./dark-factory/scripts/factory-status.sh
+
+# Tail logs from all agents simultaneously
+tail -f ~/.dark-factory/logs/factory-{{TICKET_PREFIX}}-42/*.log
+```
 
 ---
 
