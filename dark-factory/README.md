@@ -179,6 +179,6 @@ SAFe conventions as agents run locally.
 
 ## License
 
-Copyright (c) {{YEAR}} {{AUTHOR_NAME}}, {{COMPANY_NAME}}. All rights reserved.
+Copyright (c) 2026 J. Scott Graham (@cheddarfox), ByBren, LLC. All rights reserved.
 
 Licensed under the terms specified in the root [LICENSE](../LICENSE) file.
