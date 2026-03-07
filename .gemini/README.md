@@ -604,4 +604,4 @@ Both tools can coexist in the same repository.
 
 MIT License - See [LICENSE](../LICENSE) for details.
 
-Copyright (c) 2024-2026 {{AUTHOR_NAME}} / {{COMPANY_NAME}}
+Copyright (c) 2024-2026 J. Scott Graham (@cheddarfox) / ByBren, LLC
