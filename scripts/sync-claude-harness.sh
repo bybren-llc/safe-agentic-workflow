@@ -516,8 +516,7 @@ do_sync() {
                 ;;
             modified)
                 if [ "$dry_run" = false ]; then
-                    # Check if local has custom modifications we should preserve
-                    # For now, just copy upstream (user can rollback if needed)
+                    # Overwrite local with upstream version (user can rollback if needed)
                     cp "$file" "$local_file"
                 fi
                 print_success "Updated: $rel_path"

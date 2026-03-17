@@ -9,8 +9,16 @@ The `sync-claude-harness.sh` script allows projects using this harness to:
 - Check for upstream updates
 - Preview changes before applying
 - Sync to specific versions or latest release
-- Preserve project-specific customizations
-- Rollback if needed
+- Preserve project-specific customizations via exclusion file
+- Rollback if needed (automatic backups before each sync)
+
+## Prerequisites
+
+The sync script requires the following tools to be installed:
+
+- **curl** - for downloading upstream tarballs and querying the GitHub API
+- **node** (Node.js) - for JSON parsing and manipulation
+- **gh** (GitHub CLI) - optional, used for faster release lookups when available
 
 ## Installation
 
@@ -28,6 +36,10 @@ The `sync-claude-harness.sh` script allows projects using this harness to:
    ./scripts/sync-claude-harness.sh init
    ```
 
+   This creates two files:
+   - `.claude/.harness-sync.json` - Sync metadata and upstream configuration
+   - `.claude/.sync-exclude` - File exclusion patterns (gitignore-style)
+
 ## Usage
 
 ### Check Current Status
@@ -36,6 +48,14 @@ See if updates are available:
 
 ```bash
 ./scripts/sync-claude-harness.sh status
+```
+
+### Show Current Version
+
+Display the currently synced harness version:
+
+```bash
+./scripts/sync-claude-harness.sh version
 ```
 
 ### Preview Changes (Dry Run)
@@ -64,15 +84,31 @@ Update to a specific version:
 
 ### View Detailed Differences
 
-See exactly what changed between your version and upstream:
+See exactly what files differ between your local version and upstream:
 
 ```bash
 ./scripts/sync-claude-harness.sh diff
 ```
 
+### List Available Releases
+
+See what upstream releases are available:
+
+```bash
+./scripts/sync-claude-harness.sh releases
+```
+
+### Check for Conflict Files
+
+List any `.conflict` files remaining in the harness directory:
+
+```bash
+./scripts/sync-claude-harness.sh conflicts
+```
+
 ### Rollback Changes
 
-Restore from the automatic backup:
+Restore from the most recent automatic backup:
 
 ```bash
 ./scripts/sync-claude-harness.sh rollback
@@ -80,33 +116,55 @@ Restore from the automatic backup:
 
 ## Configuration
 
-### Excluding Files
+### Excluding Files from Sync
 
-Project-specific files that should never be overwritten can be excluded by creating `.claude/.harness-sync.json`:
+Project-specific files that should never be overwritten are listed in `.claude/.sync-exclude`. This file uses gitignore-style patterns, one per line:
 
-```json
-{
-  "exclude_patterns": [
-    "hooks-config.json",
-    "settings.local.json",
-    "custom-agent.md"
-  ],
-  "project_customizations": {
-    "ticket_prefix": "{{TICKET_PREFIX}}-",
-    "project_name": "MyProject",
-    "main_branch": "dev"
-  }
-}
+```text
+# Claude Harness Sync Exclusions
+# Files listed here will NEVER be overwritten by upstream sync
+# Uses gitignore-style patterns
+
+# Project-specific configurations (CONFIGS only, not scripts!)
+settings.local.json
+hooks-config.json
+
+# Add any project-specific files below:
+# my-custom-agent.md
 ```
 
-### Tracked Metadata
+The following files are always excluded automatically (hardcoded in the script):
+- `.harness-sync.json` (sync metadata)
+- `.sync-exclude` (this exclusion file itself)
+- `.sync-exclude.default`
+- `.harness-backup/*` (backup directory)
 
-After syncing, the script updates `.claude/.harness-sync.json` with:
+### Sync Metadata
 
-- `last_synced_commit` - The exact commit hash synced
-- `last_synced_version` - The version tag (e.g., {{HARNESS_VERSION}})
-- `last_synced_at` - Timestamp of the sync
-- `sync_history` - History of all syncs
+The `.claude/.harness-sync.json` file stores upstream configuration and sync history. It is created by `init` and updated automatically after each sync. It tracks:
+
+- `upstream_repo` - The GitHub repository to sync from
+- `upstream_branch` - The default branch to sync from
+- `last_synced_commit` - The exact commit hash of the last sync
+- `last_synced_version` - The version tag or branch name synced (e.g., {{HARNESS_VERSION}})
+- `last_synced_at` - Timestamp of the last sync
+- `sync_history` - History of the last 10 syncs
+- `project_customizations` - Project-specific settings (ticket prefix, project name, main branch)
+
+## How Sync Works
+
+Understanding the sync behavior is important:
+
+1. The script downloads the upstream `.claude/` directory as a tarball
+2. A backup of your current `.claude/` directory is created automatically
+3. Each upstream file is compared against your local copy
+4. **New files** (exist upstream but not locally) are added
+5. **Modified files** (differ between upstream and local) are **overwritten with the upstream version** -- local modifications are replaced, not merged
+6. **Excluded files** (listed in `.sync-exclude`) are skipped entirely
+7. **Unchanged files** are left as-is
+8. Sync metadata is updated in `.harness-sync.json`
+
+**Important**: The sync does NOT perform any merge or conflict resolution. If a file has been modified both locally and upstream, the upstream version wins. Use `--dry-run` first to preview what will change, and use `rollback` if you need to restore your previous state.
 
 ## Best Practices
 
@@ -114,53 +172,50 @@ After syncing, the script updates `.claude/.harness-sync.json` with:
 2. **Review Changes**: Use `diff` to understand what's changing
 3. **Commit Before Sync**: Have a clean git state before syncing
 4. **Test After Sync**: Run your project's tests after syncing
-5. **Keep Custom Files Excluded**: Add project-specific files to exclusions
+5. **Exclude Custom Files**: Add any project-specific files to `.claude/.sync-exclude`
+6. **Use Version Tags**: Prefer `--version <tag>` over `--latest` for reproducibility
 
 ## Backup and Recovery
 
-The script automatically creates backups before each sync at:
+The script automatically creates a timestamped backup before each sync at:
 
 ```
 .claude/.harness-backup/<timestamp>/
 ```
 
-To restore:
+Only the 3 most recent backups are retained; older backups are pruned automatically.
+
+To restore from the most recent backup:
 
 ```bash
 ./scripts/sync-claude-harness.sh rollback
-# Or manually copy from backup directory
+# Or manually copy from the backup directory
 ```
 
 ## Troubleshooting
 
-### "Branch is not ahead of base"
+### "No releases found"
 
-This means your harness is already up to date. Check with:
-
-```bash
-./scripts/sync-claude-harness.sh version
-```
-
-### Merge Conflicts
-
-If automatic merge fails:
-
-1. The script will report conflicts
-2. Manually resolve conflicts in listed files
-3. Run `./scripts/sync-claude-harness.sh conflicts` to see remaining issues
-4. After resolving, commit your changes
-
-### Network Issues
-
-If GitHub is unreachable:
+This means the upstream repository has no tagged releases. Use `--version` with a branch name or commit ref instead:
 
 ```bash
-# Check connectivity
-curl -I https://api.github.com
-
-# Use cached version if available
-./scripts/sync-claude-harness.sh sync --offline
+./scripts/sync-claude-harness.sh sync --version main
 ```
+
+### "Failed to fetch upstream"
+
+Check that:
+1. You have network connectivity: `curl -I https://api.github.com`
+2. The upstream repository is accessible
+3. The ref (branch/tag) you specified exists
+
+### Files Were Overwritten Unexpectedly
+
+If a sync overwrote local changes you needed to keep:
+
+1. Run `./scripts/sync-claude-harness.sh rollback` to restore from backup
+2. Add the affected files to `.claude/.sync-exclude` to prevent future overwrites
+3. Re-run the sync
 
 ## Integration with CI/CD
 
