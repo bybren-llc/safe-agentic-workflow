@@ -1,0 +1,184 @@
+# =============================================================================
+# Harness Manifest Schema - v1.0.0
+# =============================================================================
+#
+# This file declares how a downstream fork has customized the upstream
+# SAFe Agentic Workflow harness. The sync script reads this manifest to
+# perform intelligent syncing: applying substitutions, respecting renames,
+# and never overwriting protected files.
+#
+# Location: .harness-manifest.yml (repository root)
+# Scope: .claude/ directory only (v2.7.0)
+# Docs: docs/HARNESS_MANIFEST_SCHEMA.md
+#
+# If this file is absent, the sync script falls back to legacy behavior
+# (file-level copy with .sync-exclude pattern matching).
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Schema version (REQUIRED)
+# -----------------------------------------------------------------------------
+# Allows the sync script to handle older manifest formats gracefully.
+# Bump only when the schema itself changes in a backward-incompatible way.
+manifest_version: "1.0"
+
+# -----------------------------------------------------------------------------
+# Identity (REQUIRED)
+# -----------------------------------------------------------------------------
+# Project identity values that were set during setup-template.sh.
+# These match the {{...}} placeholder names from setup-template.sh exactly.
+# The sync script uses these to rebuild the substitution map.
+identity:
+  PROJECT_NAME: "{{PROJECT_NAME}}"
+  PROJECT_REPO: "{{PROJECT_REPO}}"
+  PROJECT_SHORT: "{{PROJECT_SHORT}}"
+  PROJECT_DOMAIN: "{{PROJECT_DOMAIN}}"
+  GITHUB_ORG: "{{GITHUB_ORG}}"
+  COMPANY_NAME: "{{COMPANY_NAME}}"
+  AUTHOR_NAME: "{{AUTHOR_NAME}}"
+  AUTHOR_FIRST_NAME: "{{AUTHOR_FIRST_NAME}}"
+  AUTHOR_LAST_NAME: "{{AUTHOR_LAST_NAME}}"
+  AUTHOR_HANDLE: "{{AUTHOR_HANDLE}}"
+  AUTHOR_EMAIL: "{{AUTHOR_EMAIL}}"
+  AUTHOR_WEBSITE: "{{AUTHOR_WEBSITE}}"
+  SECURITY_EMAIL: "{{SECURITY_EMAIL}}"
+  ARCHITECT_GITHUB_HANDLE: "{{ARCHITECT_GITHUB_HANDLE}}"
+  TICKET_PREFIX: "{{TICKET_PREFIX}}"
+  LINEAR_WORKSPACE: "{{LINEAR_WORKSPACE}}"
+  MAIN_BRANCH: "{{MAIN_BRANCH}}"
+  MCP_LINEAR_SERVER: "{{MCP_LINEAR_SERVER}}"
+  MCP_CONFLUENCE_SERVER: "{{MCP_CONFLUENCE_SERVER}}"
+  DB_USER: "{{DB_USER}}"
+  DB_PASSWORD: "{{DB_PASSWORD}}"
+  DB_NAME: "{{DB_NAME}}"
+  DB_CONTAINER: "{{DB_CONTAINER}}"
+  DEV_CONTAINER: "{{DEV_CONTAINER}}"
+  STAGING_CONTAINER: "{{STAGING_CONTAINER}}"
+  CONTAINER_REGISTRY: "{{CONTAINER_REGISTRY}}"
+
+# -----------------------------------------------------------------------------
+# Substitutions (OPTIONAL)
+# -----------------------------------------------------------------------------
+# Map of upstream placeholder token -> fork's resolved value.
+# During sync, the script replaces {{TOKEN}} in incoming upstream files
+# with the value specified here before writing to disk.
+#
+# Variable names MUST match those in scripts/setup-template.sh.
+# Derived values (TICKET_PREFIX_LOWER, AUTHOR_INITIALS, GITHUB_REPO_URL,
+# HARNESS_VERSION) are computed automatically from identity values and
+# do not need to be listed here unless you want to override the derivation.
+#
+# Example:
+#   substitutions:
+#     TICKET_PREFIX: "REN"
+#     GITHUB_ORG: "ByBren-LLC"
+#     PROJECT_NAME: "RenderTrust"
+substitutions: {}
+
+# -----------------------------------------------------------------------------
+# Renames (OPTIONAL)
+# -----------------------------------------------------------------------------
+# Map of upstream relative path -> local relative path.
+# All paths are relative to .claude/ (v2.7.0 scope).
+#
+# Use this when a fork has renamed files or directories from their upstream
+# names. The sync script maps incoming upstream paths to local paths.
+#
+# File rename example:
+#   "agents/fe-developer.md": "agents/ui-engineer.md"
+#
+# Directory rename example (trailing / is REQUIRED for directories):
+#   "skills/stripe-patterns/": "skills/payment-patterns/"
+#
+# Rules:
+# - Source (left) is the upstream path relative to .claude/
+# - Target (right) is the local path relative to .claude/
+# - Trailing / distinguishes directory renames from file renames
+# - Directory renames apply recursively to all contained files
+# - If a file matches both a directory rename and a file rename,
+#   the file rename takes precedence (more specific wins)
+renames: {}
+
+# -----------------------------------------------------------------------------
+# Protected (OPTIONAL)
+# -----------------------------------------------------------------------------
+# List of glob patterns (relative to .claude/) that the sync script must
+# NEVER overwrite. Protected files are completely skipped during sync.
+#
+# Use this for files with project-specific configuration that would break
+# if replaced with upstream defaults. These are the fork's "owned" files.
+#
+# Supports standard glob syntax: *, **, ?
+#
+# Example:
+#   protected:
+#     - "hooks-config.json"
+#     - "settings.local.json"
+#     - "agents/custom-*.md"
+protected: []
+
+# -----------------------------------------------------------------------------
+# Replaced (OPTIONAL)
+# -----------------------------------------------------------------------------
+# List of paths (relative to .claude/) that the fork has completely
+# rewritten. Unlike protected files, these still have an upstream
+# counterpart — but the fork's version is authoritative.
+#
+# During sync:
+#   - The file is NOT overwritten
+#   - The sync script logs a notice: "Skipped (replaced): <path>"
+#   - If the upstream version has changed since last sync, the script
+#     emits a warning so the maintainer can manually review changes
+#
+# This differs from "protected" in intent:
+#   - protected = config files that never exist upstream or are filler
+#   - replaced = files that exist upstream but fork maintains independently
+#
+# Example:
+#   replaced:
+#     - "agents/system-architect.md"
+#     - "AGENT_OUTPUT_GUIDE.md"
+replaced: []
+
+# -----------------------------------------------------------------------------
+# Sync preferences (OPTIONAL)
+# -----------------------------------------------------------------------------
+# Tuning knobs for sync behavior. All have sensible defaults.
+sync:
+  # Automatically apply substitutions from the identity/substitutions
+  # sections to incoming upstream files during sync.
+  # Default: true
+  # Set to false to sync raw upstream files without token replacement.
+  auto_substitute: true
+
+  # Create a timestamped backup of .claude/ before each sync.
+  # Default: true
+  # Backups are stored in .claude/.harness-backup/<timestamp>/
+  backup: true
+
+  # Strategy for resolving conflicts when both upstream and local
+  # have changed a file since last sync.
+  #
+  # Values:
+  #   "upstream-wins"  - Always take upstream version (after substitution)
+  #   "local-wins"     - Always keep local version (log warning)
+  #   "prompt"         - Write both versions (.upstream suffix) for manual review
+  #   "three-way"      - Attempt three-way merge using last-synced as base
+  #
+  # Default: "prompt"
+  conflict_strategy: "prompt"
+
+  # File extensions to apply substitutions to.
+  # Non-matching files are copied verbatim (binary safety).
+  # Default: common text extensions
+  substitution_extensions:
+    - ".md"
+    - ".json"
+    - ".yml"
+    - ".yaml"
+    - ".sh"
+    - ".py"
+    - ".ts"
+    - ".mjs"
+    - ".txt"
+    - ".toml"

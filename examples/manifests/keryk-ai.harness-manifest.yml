@@ -1,0 +1,84 @@
+# =============================================================================
+# Example: Keryk AI fork manifest
+# =============================================================================
+# Fork: keryk-ai/scaleforge
+# Ticket prefix: SCA
+# Main branch: main
+# Notable customizations:
+#   - Renamed agents (fe-developer -> ui-engineer, be-developer -> api-engineer)
+#   - Renamed skill directory (stripe-patterns -> payment-patterns)
+#   - Custom agent added (agents/ml-engineer.md) - protected from overwrite
+#   - Completely rewritten system-architect agent for ML-focused review
+# =============================================================================
+
+manifest_version: "1.0"
+
+identity:
+  PROJECT_NAME: "ScaleForge"
+  PROJECT_REPO: "scaleforge"
+  PROJECT_SHORT: "SCA"
+  PROJECT_DOMAIN: "scaleforge.ai"
+  GITHUB_ORG: "keryk-ai"
+  COMPANY_NAME: "Keryk AI"
+  AUTHOR_NAME: "Alex Keryk"
+  AUTHOR_FIRST_NAME: "Alex"
+  AUTHOR_LAST_NAME: "Keryk"
+  AUTHOR_HANDLE: "akeryk"
+  AUTHOR_EMAIL: "alex@keryk.ai"
+  AUTHOR_WEBSITE: "https://keryk.ai"
+  SECURITY_EMAIL: "security@keryk.ai"
+  ARCHITECT_GITHUB_HANDLE: "akeryk"
+  TICKET_PREFIX: "SCA"
+  LINEAR_WORKSPACE: "keryk-ai"
+  MAIN_BRANCH: "main"
+  MCP_LINEAR_SERVER: "linear-mcp"
+  MCP_CONFLUENCE_SERVER: "confluence-mcp"
+  DB_USER: "scaleforge"
+  DB_PASSWORD: "scaleforge_dev"
+  DB_NAME: "scaleforge_dev"
+  DB_CONTAINER: "scaleforge-postgres"
+  DEV_CONTAINER: "scaleforge-dev"
+  STAGING_CONTAINER: "scaleforge-staging"
+  CONTAINER_REGISTRY: "ghcr.io/keryk-ai"
+
+substitutions: {}
+
+# Keryk AI renamed several files and one skill directory.
+renames:
+  # Agent renames (file renames)
+  "agents/fe-developer.md": "agents/ui-engineer.md"
+  "agents/be-developer.md": "agents/api-engineer.md"
+  "agents/data-engineer.md": "agents/ml-engineer.md"
+
+  # Skill directory rename (trailing / = directory rename)
+  "skills/stripe-patterns/": "skills/payment-patterns/"
+
+# Files that Keryk AI owns and sync must never touch.
+protected:
+  - "hooks-config.json"
+  - "team-config.json"
+  - "settings.local.json"
+  # Custom agent not present in upstream
+  - "agents/ml-ops-engineer.md"
+
+# Files that exist upstream but Keryk AI has completely rewritten.
+replaced:
+  - "agents/system-architect.md"
+  - "AGENT_OUTPUT_GUIDE.md"
+  - "README.md"
+
+sync:
+  auto_substitute: true
+  backup: true
+  conflict_strategy: "three-way"
+  substitution_extensions:
+    - ".md"
+    - ".json"
+    - ".yml"
+    - ".yaml"
+    - ".sh"
+    - ".py"
+    - ".ts"
+    - ".mjs"
+    - ".txt"
+    - ".toml"
