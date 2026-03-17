@@ -434,6 +434,142 @@ validate_renames_against_upstream() {
 # End Manifest Loading & Validation
 # =============================================================================
 
+# =============================================================================
+# Rename Resolution (SAW-5)
+# =============================================================================
+# When a manifest declares renames, these functions resolve upstream paths
+# to their local equivalents. File renames take precedence over directory
+# renames (more specific wins).
+# =============================================================================
+
+# Resolve an upstream relative path to its local equivalent using manifest renames.
+# File renames (exact match) take precedence over directory renames (prefix match).
+# Returns the resolved local path on stdout.
+# Usage: resolve_rename "agents/fe-developer.md" -> "agents/ui-engineer.md"
+resolve_rename() {
+    local upstream_path="$1"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        echo "$upstream_path"
+        return
+    fi
+
+    node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const renames = data.renames || {};
+            const upPath = '$upstream_path';
+
+            // 1. Check file renames first (exact match, more specific wins)
+            if (renames[upPath] !== undefined) {
+                console.log(renames[upPath]);
+                process.exit(0);
+            }
+
+            // 2. Check directory renames (prefix match with trailing /)
+            for (const [src, dst] of Object.entries(renames)) {
+                if (!src.endsWith('/')) continue;  // Skip file renames
+                if (upPath.startsWith(src)) {
+                    // Replace the directory prefix
+                    console.log(dst + upPath.slice(src.length));
+                    process.exit(0);
+                }
+            }
+
+            // 3. No rename found — return original
+            console.log(upPath);
+        } catch(e) {
+            console.log('$upstream_path');
+        }
+    "
+}
+
+# Check if an upstream path has a rename defined in the manifest.
+# Returns "file", "directory", or "none" on stdout.
+# Usage: rename_type "agents/fe-developer.md" -> "file"
+#        rename_type "skills/rls-patterns/SKILL.md" -> "directory"
+rename_type() {
+    local upstream_path="$1"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        echo "none"
+        return
+    fi
+
+    node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const renames = data.renames || {};
+            const upPath = '$upstream_path';
+
+            // Check file renames first (exact match)
+            if (renames[upPath] !== undefined) {
+                console.log('file');
+                process.exit(0);
+            }
+
+            // Check directory renames (prefix match)
+            for (const [src, dst] of Object.entries(renames)) {
+                if (!src.endsWith('/')) continue;
+                if (upPath.startsWith(src)) {
+                    console.log('directory');
+                    process.exit(0);
+                }
+            }
+
+            console.log('none');
+        } catch(e) {
+            console.log('none');
+        }
+    "
+}
+
+# Get all directory renames from the manifest as "src|dst" lines.
+# Usage: get_directory_renames -> lines like "skills/rls-patterns/|skills/firestore-security/"
+get_directory_renames() {
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        return
+    fi
+
+    node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const renames = data.renames || {};
+            for (const [src, dst] of Object.entries(renames)) {
+                if (src.endsWith('/')) {
+                    console.log(src + '|' + dst);
+                }
+            }
+        } catch(e) {}
+    "
+}
+
+# Compare an upstream file to a local file at a (possibly different) path.
+# Usage: compare_file_with_paths "upstream_rel_path" "local_rel_path"
+compare_file_with_paths() {
+    local upstream_rel_path="$1"
+    local local_rel_path="$2"
+    local upstream_file="$TMP_DIR/.claude/$upstream_rel_path"
+    local local_file="$CLAUDE_DIR/$local_rel_path"
+
+    if [ ! -f "$upstream_file" ]; then
+        echo "deleted"
+    elif [ ! -f "$local_file" ]; then
+        echo "new"
+    elif diff -q "$upstream_file" "$local_file" > /dev/null 2>&1; then
+        echo "unchanged"
+    else
+        echo "modified"
+    fi
+}
+
+# =============================================================================
+# End Rename Resolution
+# =============================================================================
+
 # Get current upstream commit SHA
 get_upstream_sha() {
     local ref="${1:-$UPSTREAM_BRANCH}"
@@ -659,7 +795,11 @@ do_diff() {
 
     print_header "Differences (local vs upstream)"
 
-    local new=0 modified=0 deleted=0 excluded=0 unchanged=0
+    local new=0 modified=0 deleted=0 excluded=0 unchanged=0 renamed=0
+
+    # Track directory rename file counts for summary output
+    # Associative arrays: dir_rename_counts["src|dst"] = count
+    declare -A dir_rename_counts
 
     # Check upstream files
     while IFS= read -r -d '' file; do
@@ -671,16 +811,52 @@ do_diff() {
             continue
         fi
 
+        # Resolve rename: map upstream path to local path
+        local local_path
+        local rtype
+        local_path=$(resolve_rename "$rel_path")
+        rtype=$(rename_type "$rel_path")
+
+        # Also check exclusion for the resolved local path
+        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
+            echo -e "${YELLOW}EXCLUDED${NC}  $local_path (renamed from $rel_path)"
+            excluded=$((excluded + 1))
+            continue
+        fi
+
         local status
-        status=$(compare_file "$rel_path")
+        status=$(compare_file_with_paths "$rel_path" "$local_path")
+
+        # Track directory rename file counts
+        if [ "$rtype" = "directory" ]; then
+            # Find the directory rename key for this file
+            local dir_key=""
+            while IFS='|' read -r src dst; do
+                if [[ "$rel_path" == "$src"* ]]; then
+                    dir_key="${src}|${dst}"
+                    break
+                fi
+            done < <(get_directory_renames)
+            if [ -n "$dir_key" ]; then
+                dir_rename_counts["$dir_key"]=$(( ${dir_rename_counts["$dir_key"]:-0} + 1 ))
+            fi
+        fi
 
         case "$status" in
             new)
-                echo -e "${GREEN}NEW${NC}       $rel_path"
+                if [ "$local_path" != "$rel_path" ]; then
+                    echo -e "${GREEN}NEW${NC}       $local_path (upstream: $rel_path)"
+                else
+                    echo -e "${GREEN}NEW${NC}       $rel_path"
+                fi
                 new=$((new + 1))
                 ;;
             modified)
-                echo -e "${BLUE}MODIFIED${NC}  $rel_path"
+                if [ "$local_path" != "$rel_path" ]; then
+                    echo -e "${BLUE}MODIFIED${NC}  $local_path (upstream: $rel_path)"
+                else
+                    echo -e "${BLUE}MODIFIED${NC}  $rel_path"
+                fi
                 modified=$((modified + 1))
                 ;;
             unchanged)
@@ -690,23 +866,72 @@ do_diff() {
     done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
 
     # Check for files only in local (deleted from upstream)
+    # Build a set of all resolved local paths from upstream for efficient lookup
+    local resolved_local_paths_file="$TMP_DIR/resolved_local_paths.txt"
+    while IFS= read -r -d '' file; do
+        local rel_path="${file#$TMP_DIR/.claude/}"
+        resolve_rename "$rel_path"
+    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null) > "$resolved_local_paths_file"
+
     while IFS= read -r -d '' file; do
         local rel_path="${file#$CLAUDE_DIR/}"
-        local upstream_file="$TMP_DIR/.claude/$rel_path"
 
         # Skip metadata and excluded files
         [[ "$rel_path" == .harness-* ]] && continue
         [[ "$rel_path" == .sync-* ]] && continue
         is_excluded "$rel_path" && continue
 
-        if [ ! -f "$upstream_file" ]; then
-            echo -e "${RED}LOCAL ONLY${NC} $rel_path"
-            deleted=$((deleted + 1))
+        # Check if this local path is accounted for (either as direct upstream or as rename target)
+        local upstream_file="$TMP_DIR/.claude/$rel_path"
+        if [ -f "$upstream_file" ]; then
+            continue
         fi
+
+        # Check if this local path is a rename target
+        if grep -qxF "$rel_path" "$resolved_local_paths_file" 2>/dev/null; then
+            continue
+        fi
+
+        echo -e "${RED}LOCAL ONLY${NC} $rel_path"
+        deleted=$((deleted + 1))
     done < <(find "$CLAUDE_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
 
+    # Show directory rename summary lines
+    if [ ${#dir_rename_counts[@]} -gt 0 ]; then
+        echo ""
+        for dir_key in "${!dir_rename_counts[@]}"; do
+            local src_dir="${dir_key%%|*}"
+            local dst_dir="${dir_key##*|}"
+            local count="${dir_rename_counts[$dir_key]}"
+            echo -e "${CYAN}RENAMED${NC}  ${src_dir} -> ${dst_dir} ($count files)"
+            renamed=$((renamed + count))
+        done
+    fi
+
+    # Count file renames (not part of directory renames)
+    if [ "$HAS_MANIFEST" = "true" ] && [ -n "$MANIFEST_JSON" ] && [ -f "$MANIFEST_JSON" ]; then
+        local file_rename_count
+        file_rename_count=$(node -e "
+            const fs = require('fs');
+            try {
+                const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+                const renames = data.renames || {};
+                let count = 0;
+                for (const src of Object.keys(renames)) {
+                    if (!src.endsWith('/')) count++;
+                }
+                console.log(count);
+            } catch(e) { console.log(0); }
+        ")
+        renamed=$((renamed + file_rename_count))
+    fi
+
     echo ""
-    print_info "Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged"
+    if [ "$renamed" -gt 0 ]; then
+        print_info "Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged, $renamed renamed"
+    else
+        print_info "Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged"
+    fi
 }
 
 # Perform sync
@@ -773,7 +998,6 @@ do_sync() {
     # Process upstream files
     while IFS= read -r -d '' file; do
         local rel_path="${file#$TMP_DIR/.claude/}"
-        local local_file="$CLAUDE_DIR/$rel_path"
 
         if is_excluded "$rel_path"; then
             print_warning "Skipping excluded: $rel_path"
@@ -781,8 +1005,25 @@ do_sync() {
             continue
         fi
 
+        # Resolve rename: map upstream path to local path
+        local local_path
+        local_path=$(resolve_rename "$rel_path")
+        local local_file="$CLAUDE_DIR/$local_path"
+
+        # Also check exclusion for the resolved local path
+        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
+            print_warning "Skipping excluded: $local_path (renamed from $rel_path)"
+            skipped=$((skipped + 1))
+            continue
+        fi
+
         local status
-        status=$(compare_file "$rel_path")
+        status=$(compare_file_with_paths "$rel_path" "$local_path")
+
+        local display_path="$local_path"
+        if [ "$local_path" != "$rel_path" ]; then
+            display_path="$local_path (upstream: $rel_path)"
+        fi
 
         case "$status" in
             new)
@@ -790,7 +1031,7 @@ do_sync() {
                     mkdir -p "$(dirname "$local_file")"
                     cp "$file" "$local_file"
                 fi
-                print_success "Added: $rel_path"
+                print_success "Added: $display_path"
                 new_files=$((new_files + 1))
                 updated=$((updated + 1))
                 ;;
@@ -800,7 +1041,7 @@ do_sync() {
                     # For now, just copy upstream (user can rollback if needed)
                     cp "$file" "$local_file"
                 fi
-                print_success "Updated: $rel_path"
+                print_success "Updated: $display_path"
                 updated=$((updated + 1))
                 ;;
             unchanged)
@@ -915,6 +1156,23 @@ do_status() {
         echo "  Protected:     $protected_count"
         echo "  Replaced:      $replaced_count"
         echo "  Conflict:      $conflict_strategy"
+
+        # Show rename details when renames exist
+        if [ "$rename_count" -gt 0 ]; then
+            echo ""
+            echo "  Rename mappings (upstream -> local):"
+            node -e "
+                const fs = require('fs');
+                try {
+                    const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+                    const renames = data.renames || {};
+                    for (const [src, dst] of Object.entries(renames)) {
+                        const type = src.endsWith('/') ? 'dir' : 'file';
+                        console.log('    ' + src + ' -> ' + dst + ' (' + type + ')');
+                    }
+                } catch(e) {}
+            "
+        fi
     else
         echo ""
         print_info "No manifest found (using legacy sync mode)"
