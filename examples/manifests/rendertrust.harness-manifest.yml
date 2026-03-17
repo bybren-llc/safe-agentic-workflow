@@ -1,0 +1,76 @@
+# =============================================================================
+# Example: RenderTrust fork manifest
+# =============================================================================
+# Fork: ByBren-LLC/rendertrust
+# Ticket prefix: REN
+# Main branch: dev (not main)
+# Notable customizations:
+#   - Custom quality gate commands (ruff, mypy, pytest, docker compose)
+#   - Customized hooks-config.json for Python/FastAPI project
+#   - team-config.json fully populated with project values
+#   - No file renames (uses upstream structure as-is)
+# =============================================================================
+
+manifest_version: "1.0"
+
+identity:
+  PROJECT_NAME: "RenderTrust"
+  PROJECT_REPO: "rendertrust"
+  PROJECT_SHORT: "REN"
+  PROJECT_DOMAIN: "rendertrust.com"
+  GITHUB_ORG: "ByBren-LLC"
+  COMPANY_NAME: "ByBren, LLC"
+  AUTHOR_NAME: "J. Scott Graham"
+  AUTHOR_FIRST_NAME: "Scott"
+  AUTHOR_LAST_NAME: "Graham"
+  AUTHOR_HANDLE: "cheddarfox"
+  AUTHOR_EMAIL: "scott@cheddarfox.com"
+  AUTHOR_WEBSITE: "https://cheddarfox.com"
+  SECURITY_EMAIL: "security@rendertrust.com"
+  ARCHITECT_GITHUB_HANDLE: "cheddarfox"
+  TICKET_PREFIX: "REN"
+  LINEAR_WORKSPACE: "cheddarfox"
+  MAIN_BRANCH: "dev"
+  MCP_LINEAR_SERVER: "claude_ai_Linear"
+  MCP_CONFLUENCE_SERVER: "claude_ai_Atlassian"
+  DB_USER: "rendertrust"
+  DB_PASSWORD: "rendertrust_dev"
+  DB_NAME: "rendertrust_dev"
+  DB_CONTAINER: "rendertrust-postgres"
+  DEV_CONTAINER: "rendertrust-dev"
+  STAGING_CONTAINER: "rendertrust-staging"
+  CONTAINER_REGISTRY: "ghcr.io/bybren-llc"
+
+# Substitutions are derived from identity above.
+# Only override here if a derived value needs to differ from the automatic
+# computation (e.g., TICKET_PREFIX_LOWER != lowercase of TICKET_PREFIX).
+substitutions: {}
+
+# RenderTrust uses the upstream file structure unchanged.
+renames: {}
+
+# Files that RenderTrust owns and should never be overwritten by sync.
+protected:
+  - "hooks-config.json"
+  - "team-config.json"
+
+# Files that RenderTrust has completely rewritten from the upstream template.
+# The sync script will warn (but not overwrite) if upstream changes these.
+replaced:
+  - "AGENT_OUTPUT_GUIDE.md"
+
+sync:
+  auto_substitute: true
+  backup: true
+  conflict_strategy: "prompt"
+  substitution_extensions:
+    - ".md"
+    - ".json"
+    - ".yml"
+    - ".yaml"
+    - ".sh"
+    - ".py"
+    - ".ts"
+    - ".mjs"
+    - ".txt"
+    - ".toml"
