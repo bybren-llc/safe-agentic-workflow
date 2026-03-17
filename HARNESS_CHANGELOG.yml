@@ -1,0 +1,161 @@
+# =============================================================================
+# HARNESS_CHANGELOG.yml -- Machine-Readable Changelog for SAFe Agentic Workflow
+# =============================================================================
+#
+# PURPOSE:
+#   Tracks all changes to the .claude/ harness directory between releases.
+#   Consumed by sync-claude-harness.sh for automated categorization and by
+#   downstream fork maintainers for upgrade planning.
+#
+# SCOPE:
+#   v2.7.0+: .claude/ files only
+#   Future versions may expand to include patterns_library/, dark-factory/, etc.
+#
+# SCHEMA VERSION: 1.0.0
+#
+# -----------------------------------------------------------------------------
+# SCHEMA REFERENCE
+# -----------------------------------------------------------------------------
+#
+# Top-level keys:
+#   schema_version   (string, required) -- Semver of this schema format
+#   generated_at     (string, required) -- ISO 8601 timestamp of last generation
+#   releases         (list,   required) -- Ordered list of release entries (newest first)
+#
+# Release entry:
+#   version          (string, required) -- Semver release tag (e.g., "2.7.0")
+#   date             (string, required) -- Release date in YYYY-MM-DD format
+#   summary          (string, required) -- One-line human-readable summary
+#   upgrade_doc      (string, optional) -- Relative path to upgrade guide
+#   changes          (list,   required) -- List of individual file change entries
+#   migration_notes  (list,   optional) -- Free-form notes for breaking changes
+#
+# Change entry:
+#   path             (string, required) -- Relative file path from repo root
+#   category         (enum,   required) -- One of the categories below
+#   change_type      (enum,   required) -- "added", "modified", "renamed", "deleted"
+#   description      (string, required) -- What changed and why
+#   breaking         (bool,   required) -- Whether this change can break downstream forks
+#   renamed_from     (string, optional) -- Previous path, required when change_type is "renamed"
+#   config_keys      (list,   optional) -- For CONFIG category: list of key path entries
+#   migration_action (string, optional) -- For breaking changes: what the fork maintainer must do
+#
+# Categories (enum):
+#   NEW_FILE         -- File added since last release. Safe to copy for forks.
+#   UPDATED_FILE     -- Existing file modified. Diff review needed by forks.
+#   METHODOLOGY      -- Changes to agent roles, skills, SOPs. Affects workflow.
+#   BREAKING         -- Renames, deletions, structural changes. Requires fork adaptation.
+#   CONFIG           -- Changes to JSON config files. Specific key paths documented.
+#
+# Config key entry (used in config_keys):
+#   key_path         (string, required) -- Dot-notation path (e.g., "agents.dpe.primary_tools")
+#   action           (enum,   required) -- "added", "changed", "removed"
+#   description      (string, required) -- What the key controls and why it changed
+#
+# -----------------------------------------------------------------------------
+# FILE CLASSIFICATION HEURISTIC
+# -----------------------------------------------------------------------------
+#
+# Use this mapping to determine the correct category for each file:
+#
+#   .claude/agents/*.md                        -> METHODOLOGY
+#   .claude/skills/*/SKILL.md                  -> METHODOLOGY
+#   .claude/commands/*.md (new file)           -> NEW_FILE
+#   .claude/commands/*.md (existing, modified) -> UPDATED_FILE
+#   .claude/*.json (team-config, hooks-config, settings) -> CONFIG
+#   .claude/*.md (README, SETUP, TROUBLESHOOTING, AGENT_OUTPUT_GUIDE) -> UPDATED_FILE
+#   .claude/hooks/*                            -> CONFIG
+#
+# Override rules:
+#   - Any file that is renamed or deleted is always BREAKING regardless of heuristic.
+#   - A new agent or skill file is METHODOLOGY + NEW_FILE; use METHODOLOGY as primary.
+#   - If a CONFIG change also alters agent behavior, list it as CONFIG with a note
+#     in description referencing the methodology impact.
+#
+# -----------------------------------------------------------------------------
+# CHANGELOG ENTRIES
+# -----------------------------------------------------------------------------
+
+schema_version: "1.0.0"
+
+generated_at: "2026-03-17T00:00:00Z"
+
+releases: []
+  # ---------------------------------------------------------------------------
+  # EXAMPLE ENTRY (for reference -- remove or replace with real data)
+  # ---------------------------------------------------------------------------
+  # - version: "2.7.0"
+  #   date: "2026-04-01"
+  #   summary: "Changelog schema, sync automation, and new QAS skill"
+  #   upgrade_doc: "docs/releases/v2.7.0-UPGRADE.md"
+  #   changes:
+  #
+  #     # --- NEW FILES ---
+  #     - path: ".claude/skills/changelog-automation/SKILL.md"
+  #       category: NEW_FILE
+  #       change_type: added
+  #       description: "New skill for automated changelog generation from git history."
+  #       breaking: false
+  #
+  #     # --- METHODOLOGY ---
+  #     - path: ".claude/agents/qas.md"
+  #       category: METHODOLOGY
+  #       change_type: modified
+  #       description: "Added regression testing checklist and expanded gate criteria."
+  #       breaking: false
+  #
+  #     - path: ".claude/skills/safe-workflow/SKILL.md"
+  #       category: METHODOLOGY
+  #       change_type: modified
+  #       description: "Updated SAFe ceremony definitions to align with v6.0 guidance."
+  #       breaking: false
+  #
+  #     # --- UPDATED FILES ---
+  #     - path: ".claude/commands/pre-pr.md"
+  #       category: UPDATED_FILE
+  #       change_type: modified
+  #       description: "Added changelog validation step to pre-PR checklist."
+  #       breaking: false
+  #
+  #     - path: ".claude/README.md"
+  #       category: UPDATED_FILE
+  #       change_type: modified
+  #       description: "Updated skill count from 18 to 19."
+  #       breaking: false
+  #
+  #     # --- CONFIG ---
+  #     - path: ".claude/team-config.json"
+  #       category: CONFIG
+  #       change_type: modified
+  #       description: "Added changelog-automation skill and updated paths section."
+  #       breaking: false
+  #       config_keys:
+  #         - key_path: "paths.changelog"
+  #           action: added
+  #           description: "Path to HARNESS_CHANGELOG.yml for sync script consumption."
+  #         - key_path: "agents.qas.validation_command"
+  #           action: changed
+  #           description: "Now includes changelog validation in the QAS gate."
+  #
+  #     - path: ".claude/hooks/pre-release-changelog-check.sh"
+  #       category: CONFIG
+  #       change_type: added
+  #       description: "Hook that validates HARNESS_CHANGELOG.yml before release tags."
+  #       breaking: false
+  #
+  #     # --- BREAKING ---
+  #     - path: ".claude/skills/deployment-sop/SKILL.md"
+  #       category: BREAKING
+  #       change_type: renamed
+  #       description: "Renamed from deployment-sop to deploy-patterns for consistency."
+  #       breaking: true
+  #       renamed_from: ".claude/skills/deployment-sop/SKILL.md"
+  #       migration_action: >
+  #         Rename your local .claude/skills/deployment-sop/ directory to
+  #         .claude/skills/deploy-patterns/. Update any references in custom
+  #         scripts or agent configs.
+  #
+  #   migration_notes:
+  #     - "Forks that reference .claude/skills/deployment-sop/ by path must
+  #        rename to .claude/skills/deploy-patterns/."
+  #     - "The new pre-release hook requires bash 4.0+. Verify with: bash --version"
