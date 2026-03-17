@@ -26,7 +26,11 @@ SYNC_CONFIG="$CLAUDE_DIR/.harness-sync.json"
 EXCLUDE_FILE="$CLAUDE_DIR/.sync-exclude"
 EXCLUDE_DEFAULT="$CLAUDE_DIR/.sync-exclude.default"
 BACKUP_DIR="$CLAUDE_DIR/.harness-backup"
+MANIFEST_FILE="$CLAUDE_DIR/.harness-manifest.yml"
+MANIFEST_SCHEMA="$PROJECT_ROOT/.harness-manifest.schema.json"
 TMP_DIR="/tmp/claude-harness-sync-$$"
+MANIFEST_JSON=""  # Path to cached JSON parse of manifest (set by load_manifest)
+HAS_MANIFEST=false
 
 # Upstream configuration (defaults, can be overridden via config)
 UPSTREAM_REPO="{{GITHUB_ORG}}/{{PROJECT_REPO}}"
@@ -161,6 +165,275 @@ load_config() {
     fi
 }
 
+# =============================================================================
+# Manifest Loading & Validation (SAW-6)
+# =============================================================================
+# When .claude/.harness-manifest.yml exists, parse it and make its data
+# available to all sync commands. Falls back to legacy behavior when absent.
+# =============================================================================
+
+# Load and parse .harness-manifest.yml if present
+# Sets HAS_MANIFEST=true and MANIFEST_JSON to cached JSON path on success.
+# Called once during initialization; result is cached for the session.
+load_manifest() {
+    if [ ! -f "$MANIFEST_FILE" ]; then
+        HAS_MANIFEST=false
+        return 0
+    fi
+
+    # Check for python3 (required for YAML parsing)
+    if ! command -v python3 &> /dev/null; then
+        print_warning "python3 not found; manifest loading requires Python 3 with PyYAML"
+        print_warning "Falling back to legacy sync (no manifest)"
+        HAS_MANIFEST=false
+        return 0
+    fi
+
+    # Parse YAML to JSON using python3 + PyYAML
+    MANIFEST_JSON="$TMP_DIR/manifest.json"
+    mkdir -p "$TMP_DIR"
+
+    local parse_err=""
+    local parse_rc=0
+    parse_err=$(python3 -c "
+import sys, json
+try:
+    import yaml
+except ImportError:
+    print('PyYAML not installed. Install with: pip install pyyaml', file=sys.stderr)
+    sys.exit(1)
+try:
+    with open(sys.argv[1], 'r') as f:
+        data = yaml.safe_load(f)
+    if data is None:
+        data = {}
+    with open(sys.argv[2], 'w') as f:
+        json.dump(data, f, indent=2)
+except yaml.YAMLError as e:
+    print(str(e), file=sys.stderr)
+    sys.exit(2)
+except Exception as e:
+    print(str(e), file=sys.stderr)
+    sys.exit(3)
+" "$MANIFEST_FILE" "$MANIFEST_JSON" 2>&1) || parse_rc=$?
+
+    if [ "$parse_rc" -ne 0 ]; then
+        print_warning "Failed to parse manifest YAML: $parse_err"
+        print_warning "Falling back to legacy sync (no manifest)"
+        HAS_MANIFEST=false
+        MANIFEST_JSON=""
+        return 0
+    fi
+
+    HAS_MANIFEST=true
+    return 0
+}
+
+# Query a value from the cached manifest JSON
+# Usage: manifest_get "key.nested.path" "default_value"
+manifest_get() {
+    local path="$1"
+    local default="${2:-}"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        echo "$default"
+        return
+    fi
+
+    json_get "$MANIFEST_JSON" "$path" "$default"
+}
+
+# Get the count of entries in a manifest object or array
+# Usage: manifest_count "renames" -> number of key-value pairs or array items
+manifest_count() {
+    local key="$1"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        echo "0"
+        return
+    fi
+
+    node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const val = data['$key'];
+            if (Array.isArray(val)) {
+                console.log(val.length);
+            } else if (val && typeof val === 'object') {
+                console.log(Object.keys(val).length);
+            } else {
+                console.log(0);
+            }
+        } catch(e) {
+            console.log(0);
+        }
+    "
+}
+
+# Validate manifest against schema requirements
+# Returns 0 on success, 1 on validation failure (with errors printed).
+# Must be called after load_manifest().
+validate_manifest() {
+    if [ "$HAS_MANIFEST" != "true" ]; then
+        return 0
+    fi
+
+    local errors=0
+    local warnings=0
+
+    # --- Required field: manifest_version ---
+    local manifest_version
+    manifest_version=$(manifest_get "manifest_version")
+    if [ -z "$manifest_version" ] || [ "$manifest_version" = "null" ] || [ "$manifest_version" = "undefined" ]; then
+        print_error "Manifest missing required field: manifest_version"
+        errors=$((errors + 1))
+    elif ! echo "$manifest_version" | grep -qE '^[0-9]+\.[0-9]+$'; then
+        print_error "Manifest manifest_version must match pattern X.Y (got: $manifest_version)"
+        errors=$((errors + 1))
+    fi
+
+    # --- Required field: identity (object with required sub-fields) ---
+    local has_identity
+    has_identity=$(node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            console.log(data.identity && typeof data.identity === 'object' ? 'yes' : 'no');
+        } catch(e) { console.log('no'); }
+    ")
+    if [ "$has_identity" != "yes" ]; then
+        print_error "Manifest missing required field: identity"
+        errors=$((errors + 1))
+    else
+        # Validate required identity sub-fields per schema
+        local required_identity_fields="PROJECT_NAME PROJECT_REPO PROJECT_SHORT GITHUB_ORG TICKET_PREFIX MAIN_BRANCH"
+        for field in $required_identity_fields; do
+            local value
+            value=$(manifest_get "identity.$field")
+            if [ -z "$value" ] || [ "$value" = "null" ] || [ "$value" = "undefined" ]; then
+                print_error "Manifest identity missing required field: $field"
+                errors=$((errors + 1))
+            fi
+        done
+    fi
+
+    # --- Validate rename paths (structural checks) ---
+    local rename_count
+    rename_count=$(manifest_count "renames")
+    if [ "$rename_count" -gt 0 ]; then
+        # Validate path structure: no absolute paths, no ".." traversals, no empty entries
+        node -e "
+            const fs = require('fs');
+            try {
+                const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+                const renames = data.renames || {};
+                for (const [src, dst] of Object.entries(renames)) {
+                    if (src.startsWith('/') || src.includes('..')) {
+                        console.log('ERROR:' + src + ' (source must be relative, no ..)');
+                    }
+                    if (dst.startsWith('/') || dst.includes('..')) {
+                        console.log('ERROR:' + dst + ' (target must be relative, no ..)');
+                    }
+                    if (!src || !dst) {
+                        console.log('ERROR:(empty rename entry)');
+                    }
+                }
+            } catch(e) {}
+        " | while IFS= read -r line; do
+            local detail="${line#ERROR:}"
+            print_warning "Invalid rename: $detail"
+        done
+
+        # Count warnings from rename validation
+        local rename_warnings
+        rename_warnings=$(node -e "
+            const fs = require('fs');
+            try {
+                const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+                const renames = data.renames || {};
+                let count = 0;
+                for (const [src, dst] of Object.entries(renames)) {
+                    if (src.startsWith('/') || src.includes('..') || !src) count++;
+                    if (dst.startsWith('/') || dst.includes('..') || !dst) count++;
+                }
+                console.log(count);
+            } catch(e) { console.log(0); }
+        ")
+        warnings=$((warnings + rename_warnings))
+    fi
+
+    # --- Compute summary counts ---
+    local sub_count protected_count replaced_count
+    sub_count=$(manifest_count "substitutions")
+    protected_count=$(manifest_count "protected")
+    replaced_count=$(manifest_count "replaced")
+
+    # --- Fail on errors ---
+    if [ "$errors" -gt 0 ]; then
+        print_error "Manifest validation failed with $errors error(s)"
+        return 1
+    fi
+
+    # --- Success: report summary ---
+    print_success "Manifest found: $rename_count renames, $sub_count substitutions, $((protected_count + replaced_count)) protected patterns"
+
+    if [ "$warnings" -gt 0 ]; then
+        print_warning "$warnings rename warning(s) found"
+    fi
+
+    return 0
+}
+
+# Validate rename sources against fetched upstream (call after fetch_upstream)
+# Warns when a rename source path does not exist in the upstream tree.
+validate_renames_against_upstream() {
+    if [ "$HAS_MANIFEST" != "true" ]; then
+        return 0
+    fi
+
+    local rename_count
+    rename_count=$(manifest_count "renames")
+    if [ "$rename_count" -eq 0 ]; then
+        return 0
+    fi
+
+    if [ ! -d "$TMP_DIR/.claude" ]; then
+        return 0
+    fi
+
+    # Check each rename source path against the fetched upstream
+    node -e "
+        const fs = require('fs');
+        const path = require('path');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const renames = data.renames || {};
+            const upstreamBase = '$TMP_DIR/.claude';
+            for (const [src, dst] of Object.entries(renames)) {
+                const fullPath = path.join(upstreamBase, src);
+                const isDir = src.endsWith('/');
+                if (isDir) {
+                    if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isDirectory()) {
+                        console.log('WARN:' + src);
+                    }
+                } else {
+                    if (!fs.existsSync(fullPath)) {
+                        console.log('WARN:' + src);
+                    }
+                }
+            }
+        } catch(e) {}
+    " | while IFS= read -r line; do
+        local src_path="${line#WARN:}"
+        print_warning "Rename source does not exist in upstream: $src_path"
+    done
+}
+
+# =============================================================================
+# End Manifest Loading & Validation
+# =============================================================================
+
 # Get current upstream commit SHA
 get_upstream_sha() {
     local ref="${1:-$UPSTREAM_BRANCH}"
@@ -248,8 +521,9 @@ fetch_upstream() {
 is_excluded() {
     local file="$1"
 
-    # Always exclude sync metadata and backups
+    # Always exclude sync metadata, manifest, and backups
     [[ "$file" == .harness-sync.json ]] && return 0
+    [[ "$file" == .harness-manifest.yml ]] && return 0
     [[ "$file" == .sync-exclude ]] && return 0
     [[ "$file" == .sync-exclude.default ]] && return 0
     [[ "$file" == .harness-backup* ]] && return 0
@@ -380,6 +654,9 @@ do_diff() {
 
     fetch_upstream "$ref" || return 1
 
+    # Validate rename sources against fetched upstream tree
+    validate_renames_against_upstream
+
     print_header "Differences (local vs upstream)"
 
     local new=0 modified=0 deleted=0 excluded=0 unchanged=0
@@ -480,6 +757,9 @@ do_sync() {
     fi
 
     fetch_upstream "$ref" || return 1
+
+    # Validate rename sources against fetched upstream tree
+    validate_renames_against_upstream
 
     # Create backup before sync (unless dry run)
     if [ "$dry_run" = false ]; then
@@ -616,6 +896,28 @@ do_status() {
     if [ -n "$current_sha" ] && [ "$last_commit" != "$current_sha" ]; then
         echo ""
         print_info "Branch $UPSTREAM_BRANCH has newer commits (${current_sha:0:8})"
+    fi
+
+    # Show manifest info when present
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        echo ""
+        local mv rename_count sub_count protected_count replaced_count
+        mv=$(manifest_get "manifest_version" "?")
+        rename_count=$(manifest_count "renames")
+        sub_count=$(manifest_count "substitutions")
+        protected_count=$(manifest_count "protected")
+        replaced_count=$(manifest_count "replaced")
+        local conflict_strategy
+        conflict_strategy=$(manifest_get "sync.conflict_strategy" "prompt")
+        echo "Manifest:      v${mv} ($MANIFEST_FILE)"
+        echo "  Renames:       $rename_count"
+        echo "  Substitutions: $sub_count"
+        echo "  Protected:     $protected_count"
+        echo "  Replaced:      $replaced_count"
+        echo "  Conflict:      $conflict_strategy"
+    else
+        echo ""
+        print_info "No manifest found (using legacy sync mode)"
     fi
 }
 
@@ -757,7 +1059,15 @@ EXAMPLES:
 CONFIGURATION:
     Metadata:   .claude/.harness-sync.json
     Exclusions: .claude/.sync-exclude
+    Manifest:   .claude/.harness-manifest.yml (optional, enables smart sync)
+    Schema:     .harness-manifest.schema.json
     Backups:    .claude/.harness-backup/
+
+MANIFEST:
+    When .claude/.harness-manifest.yml is present, the sync script loads
+    and validates it on every command invocation (fail-fast). The manifest
+    declares renames, substitutions, protected files, and sync preferences.
+    Without a manifest, the script uses legacy file-level copy behavior.
 
 EOF
 }
@@ -776,24 +1086,45 @@ esac
 case "${1:-}" in
     init)
         do_init
-        exit $?
+        # After init, load manifest to report its status (informational only)
+        load_manifest
+        if [ "$HAS_MANIFEST" = "true" ]; then
+            validate_manifest || true  # Non-fatal during init
+        fi
+        exit 0
         ;;
     status)
         load_config
+        load_manifest
+        if [ "$HAS_MANIFEST" = "true" ]; then
+            validate_manifest || exit 1
+        fi
         do_status
         exit $?
         ;;
     version)
+        load_manifest
+        if [ "$HAS_MANIFEST" = "true" ]; then
+            validate_manifest || exit 1
+        fi
         do_version
         exit $?
         ;;
     diff)
         load_config
+        load_manifest
+        if [ "$HAS_MANIFEST" = "true" ]; then
+            validate_manifest || exit 1
+        fi
         do_diff "${2:-}"
         exit $?
         ;;
     sync)
         load_config
+        load_manifest
+        if [ "$HAS_MANIFEST" = "true" ]; then
+            validate_manifest || exit 1
+        fi
         shift
         do_sync "$@"
         exit $?
