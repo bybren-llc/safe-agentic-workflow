@@ -42,7 +42,7 @@
 | Shared skills (SKILL.md) | 18 | All present | PASS |
 | Cursor rules (.mdc) | 16 | All present | PASS |
 | Cursor MCP config | 1 | Valid JSON | PASS |
-| Codex config.toml | 1 | Valid TOML (placeholder tokens expected pre-substitution) | PASS |
+| Codex config.toml | 1 | Structure valid; strict TOML parse fails on `{{MCP_LINEAR_SERVER}}` table name (expected — placeholder resolved after `setup-template.sh`) | PASS (with caveat) |
 
 ## 5. Regression Testing
 
