@@ -13,6 +13,7 @@
 #   ./scripts/sync-claude-harness.sh sync --dry-run    # Preview changes
 #   ./scripts/sync-claude-harness.sh sync --version v2.2.0  # Sync to specific release
 #   ./scripts/sync-claude-harness.sh sync --latest     # Sync to latest release
+#   ./scripts/sync-claude-harness.sh sync --generate-patches --version v2.6.0  # Generate patches
 #   ./scripts/sync-claude-harness.sh rollback          # Restore from backup
 #   ./scripts/sync-claude-harness.sh conflicts         # List unresolved conflicts
 #   ./scripts/sync-claude-harness.sh help              # Show help
@@ -26,6 +27,8 @@ SYNC_CONFIG="$CLAUDE_DIR/.harness-sync.json"
 EXCLUDE_FILE="$CLAUDE_DIR/.sync-exclude"
 EXCLUDE_DEFAULT="$CLAUDE_DIR/.sync-exclude.default"
 BACKUP_DIR="$CLAUDE_DIR/.harness-backup"
+=======
+PATCHES_DIR="$CLAUDE_DIR/.harness-patches"
 MANIFEST_FILE="$CLAUDE_DIR/.harness-manifest.yml"
 MANIFEST_SCHEMA="$PROJECT_ROOT/.harness-manifest.schema.json"
 TMP_DIR="/tmp/claude-harness-sync-$$"
@@ -1531,6 +1534,214 @@ do_diff() {
     print_info "$summary"
 }
 
+# =============================================================================
+# Patch Generation Mode (SAW-4)
+# =============================================================================
+# Instead of overwriting files during sync, generate unified diff patches
+# into .claude/.harness-patches/<version>/. Patches are rename-aware
+# (use fork's local paths in headers) and substitution-aware (use fork's
+# placeholder values). Each patch is valid for `git apply --check`.
+#
+# An APPLY_ORDER.md summary file groups patches by category (NEW, UPDATED)
+# and lists them in recommended application order.
+# =============================================================================
+
+# Generate a unified diff patch for a single file.
+# For NEW files, generates a diff against /dev/null.
+# For MODIFIED files, generates a diff between current local and upstream.
+#
+# Uses fork's resolved local paths in patch headers (rename-aware).
+# The upstream file in TMP_DIR has already been substituted (substitution-aware).
+#
+# Usage: generate_patch "upstream_rel_path" "local_rel_path" "status" "patches_dir" "claude_dir"
+# Returns: path to generated .patch file, or empty string on skip
+generate_patch() {
+    local upstream_rel="$1"
+    local local_rel="$2"
+    local status="$3"
+    local patches_dir="$4"
+    local claude_dir="$5"
+
+    local upstream_file="$TMP_DIR/.claude/$upstream_rel"
+    local local_file="$claude_dir/$local_rel"
+
+    # Create sanitized patch filename (replace / with __ for flat structure)
+    local patch_name
+    patch_name=$(echo "$local_rel" | sed 's|/|__|g')
+    local patch_file="$patches_dir/${patch_name}.patch"
+
+    mkdir -p "$patches_dir"
+
+    case "$status" in
+        new)
+            # For new files, diff against /dev/null
+            # Use git-compatible header: a/dev/null -> b/.claude/<local_rel>
+            diff -u /dev/null "$upstream_file" \
+                --label "a/dev/null" \
+                --label "b/.claude/$local_rel" \
+                > "$patch_file" 2>/dev/null || true
+            # diff returns 1 when files differ, which is expected
+            if [ -s "$patch_file" ]; then
+                echo "$patch_file"
+            fi
+            ;;
+        modified)
+            # For modified files, diff between current local and substituted upstream
+            if [ -f "$local_file" ]; then
+                diff -u "$local_file" "$upstream_file" \
+                    --label "a/.claude/$local_rel" \
+                    --label "b/.claude/$local_rel" \
+                    > "$patch_file" 2>/dev/null || true
+                if [ -s "$patch_file" ]; then
+                    echo "$patch_file"
+                fi
+            else
+                # Local file missing but expected -- treat as new
+                diff -u /dev/null "$upstream_file" \
+                    --label "a/dev/null" \
+                    --label "b/.claude/$local_rel" \
+                    > "$patch_file" 2>/dev/null || true
+                if [ -s "$patch_file" ]; then
+                    echo "$patch_file"
+                fi
+            fi
+            ;;
+    esac
+}
+
+# Generate the APPLY_ORDER.md summary file.
+# Groups patches by category (NEW, UPDATED) and lists git apply commands.
+#
+# Usage: generate_apply_order "patches_dir" "version"
+# Reads entry files:
+#   $patches_dir/._new_entries.txt - newline-separated "local_rel|patch_filename" entries
+#   $patches_dir/._updated_entries.txt - same format for updated files
+generate_apply_order() {
+    local patches_dir="$1"
+    local version="$2"
+    local new_entries_file="$patches_dir/._new_entries.txt"
+    local updated_entries_file="$patches_dir/._updated_entries.txt"
+    local apply_order_file="$patches_dir/APPLY_ORDER.md"
+
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+    cat > "$apply_order_file" << HEADER
+# Harness Patch Apply Order
+
+**Version**: ${version}
+**Generated**: ${timestamp}
+**Base directory**: Run all commands from the project root.
+
+## How to apply
+
+Review each patch, then apply:
+
+\`\`\`bash
+# Dry-run check (recommended first)
+git apply --check .claude/.harness-patches/${version}/<patch-file>.patch
+
+# Apply a single patch
+git apply .claude/.harness-patches/${version}/<patch-file>.patch
+
+# Apply all patches in order
+cat .claude/.harness-patches/${version}/APPLY_ORDER.md  # review this file first
+\`\`\`
+
+HEADER
+
+    # NEW files section
+    local new_count=0
+    if [ -f "$new_entries_file" ]; then
+        new_count=$(wc -l < "$new_entries_file" | tr -d ' ')
+    fi
+
+    if [ "$new_count" -gt 0 ]; then
+        cat >> "$apply_order_file" << 'SECTION_NEW'
+## NEW files
+
+These patches add files that do not yet exist locally.
+
+| # | File | Patch | Command |
+|---|------|-------|---------|
+SECTION_NEW
+
+        local idx=1
+        while IFS='|' read -r local_rel patch_name; do
+            [ -z "$local_rel" ] && continue
+            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .claude/.harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            idx=$((idx + 1))
+        done < "$new_entries_file"
+        echo "" >> "$apply_order_file"
+    fi
+
+    # UPDATED files section
+    local updated_count=0
+    if [ -f "$updated_entries_file" ]; then
+        updated_count=$(wc -l < "$updated_entries_file" | tr -d ' ')
+    fi
+
+    if [ "$updated_count" -gt 0 ]; then
+        cat >> "$apply_order_file" << 'SECTION_UPDATED'
+## UPDATED files
+
+These patches modify existing local files. Review changes carefully.
+
+| # | File | Patch | Command |
+|---|------|-------|---------|
+SECTION_UPDATED
+
+        local idx=1
+        while IFS='|' read -r local_rel patch_name; do
+            [ -z "$local_rel" ] && continue
+            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .claude/.harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            idx=$((idx + 1))
+        done < "$updated_entries_file"
+        echo "" >> "$apply_order_file"
+    fi
+
+    # Apply-all command
+    local total=$((new_count + updated_count))
+    cat >> "$apply_order_file" << FOOTER
+## Apply all patches
+
+\`\`\`bash
+# Apply all ${total} patch(es) in recommended order
+for patch in \\
+FOOTER
+
+    # List new patches first, then updated
+    if [ -f "$new_entries_file" ]; then
+        while IFS='|' read -r local_rel patch_name; do
+            [ -z "$local_rel" ] && continue
+            echo "    .claude/.harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
+        done < "$new_entries_file"
+    fi
+    if [ -f "$updated_entries_file" ]; then
+        while IFS='|' read -r local_rel patch_name; do
+            [ -z "$local_rel" ] && continue
+            echo "    .claude/.harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
+        done < "$updated_entries_file"
+    fi
+
+    # Close the for loop
+    cat >> "$apply_order_file" << 'LOOP_END'
+    ; do
+    git apply --check "$patch" && git apply "$patch"
+done
+```
+LOOP_END
+
+    # Clean up temp entry files
+    rm -f "$new_entries_file" "$updated_entries_file"
+
+    echo "$apply_order_file"
+}
+
+# =============================================================================
+# End Patch Generation Mode
+# =============================================================================
+
 # Perform sync
 do_sync() {
     local dry_run=false
@@ -1538,6 +1749,7 @@ do_sync() {
     local use_latest=false
     local no_placeholders=false
     local skip_preflight=false
+    local generate_patches=false
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -1562,6 +1774,10 @@ do_sync() {
                 skip_preflight=true
                 shift
                 ;;
+            --generate-patches)
+                generate_patches=true
+                shift
+                ;;
             *)
                 shift
                 ;;
@@ -1582,7 +1798,9 @@ do_sync() {
         print_info "Syncing to latest release: $ref"
     fi
 
-    if [ "$dry_run" = true ]; then
+    if [ "$generate_patches" = true ]; then
+        print_header "Generating Patches (no files will be overwritten)"
+    elif [ "$dry_run" = true ]; then
         print_header "Dry Run - No changes will be made"
     else
         print_header "Syncing Harness"
@@ -1643,6 +1861,110 @@ do_sync() {
         if ! run_preflight "$plan_text" "$CLAUDE_DIR" "$no_placeholders"; then
             return 1
         fi
+    fi
+
+    # --- Patch generation mode (SAW-4) ---
+    if [ "$generate_patches" = true ]; then
+        # Determine version label for patches directory
+        local patch_version="$ref"
+        if [ -z "$patch_version" ] || [ "$patch_version" = "$UPSTREAM_BRANCH" ]; then
+            patch_version="$(date -u +%Y%m%d-%H%M%S)"
+        fi
+        local patches_version_dir="$PATCHES_DIR/$patch_version"
+
+        # Clean previous patches for this version
+        if [ -d "$patches_version_dir" ]; then
+            rm -rf "$patches_version_dir"
+        fi
+        mkdir -p "$patches_version_dir"
+
+        # Create temp entry files for APPLY_ORDER.md
+        local new_entries_file="$patches_version_dir/._new_entries.txt"
+        local updated_entries_file="$patches_version_dir/._updated_entries.txt"
+        : > "$new_entries_file"
+        : > "$updated_entries_file"
+
+        local patch_count=0 skipped=0 protected_count=0 new_patches=0 updated_patches=0
+
+        while IFS= read -r -d '' file; do
+            local rel_path="${file#$TMP_DIR/.claude/}"
+
+            if is_excluded "$rel_path"; then
+                if is_manifest_protected "$rel_path"; then
+                    print_warning "Skipping protected: $rel_path"
+                    protected_count=$((protected_count + 1))
+                else
+                    print_warning "Skipping excluded: $rel_path"
+                fi
+                skipped=$((skipped + 1))
+                continue
+            fi
+
+            local local_path
+            local_path=$(resolve_rename "$rel_path")
+
+            if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
+                if is_manifest_protected "$local_path"; then
+                    print_warning "Skipping protected: $local_path"
+                    protected_count=$((protected_count + 1))
+                fi
+                skipped=$((skipped + 1))
+                continue
+            fi
+
+            local status
+            status=$(compare_file_with_paths "$rel_path" "$local_path")
+
+            case "$status" in
+                new|modified)
+                    local patch_file
+                    patch_file=$(generate_patch "$rel_path" "$local_path" "$status" "$patches_version_dir" "$CLAUDE_DIR")
+                    if [ -n "$patch_file" ]; then
+                        local patch_basename
+                        patch_basename=$(basename "$patch_file")
+                        local display_path="$local_path"
+                        if [ "$local_path" != "$rel_path" ]; then
+                            display_path="$local_path (upstream: $rel_path)"
+                        fi
+                        if [ "$status" = "new" ]; then
+                            print_success "Patch (NEW): $display_path -> $patch_basename"
+                            echo "${local_path}|${patch_basename}" >> "$new_entries_file"
+                            new_patches=$((new_patches + 1))
+                        else
+                            print_success "Patch (UPD): $display_path -> $patch_basename"
+                            echo "${local_path}|${patch_basename}" >> "$updated_entries_file"
+                            updated_patches=$((updated_patches + 1))
+                        fi
+                        patch_count=$((patch_count + 1))
+                    fi
+                    ;;
+                unchanged)
+                    # No patch needed
+                    ;;
+            esac
+        done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+
+        # Generate APPLY_ORDER.md
+        if [ "$patch_count" -gt 0 ]; then
+            local apply_order
+            apply_order=$(generate_apply_order "$patches_version_dir" "$patch_version")
+            print_success "Generated APPLY_ORDER.md"
+        else
+            # Clean up temp entry files even when no patches
+            rm -f "$new_entries_file" "$updated_entries_file"
+        fi
+
+        echo ""
+        local patch_summary="Summary: $patch_count patch(es) generated ($new_patches new, $updated_patches updated), $skipped skipped"
+        if [ "$protected_count" -gt 0 ]; then
+            patch_summary="$patch_summary, $protected_count protected"
+        fi
+        print_info "$patch_summary"
+        if [ "$patch_count" -gt 0 ]; then
+            print_info "Patches written to: $patches_version_dir"
+            print_info "Review APPLY_ORDER.md for application instructions"
+        fi
+        return 0
     fi
 
     # Create backup before sync (unless dry run)
@@ -1982,6 +2304,7 @@ SYNC OPTIONS:
     --latest            Sync to latest release
     --no-placeholders   Skip placeholder substitution step
     --skip-preflight    Skip preflight safety checks (advanced users only)
+    --generate-patches  Generate .patch files instead of overwriting
 
 PREFLIGHT (SAW-2):
     A preflight safety check runs automatically before every sync.
@@ -2020,6 +2343,9 @@ EXAMPLES:
     # Sync bypassing preflight (advanced)
     $0 sync --latest --skip-preflight
 
+    # Generate patches instead of overwriting files (SAW-4)
+    $0 sync --generate-patches --version v2.6.0
+
     # If something breaks
     $0 rollback
 
@@ -2029,6 +2355,21 @@ CONFIGURATION:
     Manifest:   .claude/.harness-manifest.yml (optional, enables smart sync)
     Schema:     .harness-manifest.schema.json
     Backups:    .claude/.harness-backup/
+    Patches:    .claude/.harness-patches/<version>/  (generated by --generate-patches)
+
+PATCH GENERATION (SAW-4):
+    --generate-patches creates unified diff patches instead of overwriting.
+    Patches are:
+      - Rename-aware: use fork's local paths in patch headers
+      - Substitution-aware: use fork's placeholder values
+      - Valid for git apply --check
+    Output: .claude/.harness-patches/<version>/ with APPLY_ORDER.md
+
+MANIFEST:
+    When .claude/.harness-manifest.yml is present, the sync script loads
+    and validates it on every command invocation (fail-fast). The manifest
+    declares renames, substitutions, protected files, and sync preferences.
+    Without a manifest, the script uses legacy file-level copy behavior.
 
 MANIFEST:
     When .claude/.harness-manifest.yml is present, the sync script loads
