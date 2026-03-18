@@ -1,0 +1,83 @@
+---
+description: "Backend Python development rules for FastAPI, SQLAlchemy 2.x, async patterns, and Alembic migrations."
+globs: "core/**/*.py,edgekit/**/*.py"
+alwaysApply: false
+---
+
+# Backend Python Rules
+
+These rules apply when working on backend Python code in `core/` and `edgekit/`.
+
+## Technology Stack
+
+- **Framework**: FastAPI (Python 3.11+)
+- **ORM**: SQLAlchemy 2.x with async session patterns
+- **Migrations**: Alembic
+- **Database**: PostgreSQL 16
+- **Authentication**: JWT (custom implementation)
+
+## Coding Standards
+
+- Use `ruff` for linting and formatting (config in `pyproject.toml`)
+- Always run `ruff check .` before committing
+- Use `mypy` for type checking
+- Python 3.11+ features are allowed (StrEnum, etc.)
+- Use async/await patterns for all FastAPI endpoints
+
+## Database Operations
+
+**CRITICAL**: All database operations MUST use RLS context helpers.
+
+```python
+# User operations
+async with with_user_context(session, user_id) as ctx:
+    result = await ctx.execute(select(Model).where(Model.user_id == user_id))
+
+# Admin operations
+async with with_admin_context(session, user_id) as ctx:
+    result = await ctx.execute(select(Model))
+
+# System/background operations
+async with with_system_context(session, "source_name") as ctx:
+    result = await ctx.execute(insert(Model).values(data))
+```
+
+Never use direct session calls without RLS context wrappers.
+
+## Migration Workflow
+
+```bash
+alembic revision --autogenerate -m "description"  # Create migration
+alembic upgrade head                               # Apply locally
+# Review the generated migration file before committing
+git add alembic/versions/
+git commit -m "feat(db): add migration description [{{TICKET_PREFIX}}-XXX]"
+```
+
+Rules:
+- Always create proper Alembic migrations (never skip)
+- Review auto-generated migrations for correctness
+- Add RLS policies for any new tables
+- Schema changes require System Architect approval
+
+## FastAPI Patterns
+
+- Use dependency injection for database sessions
+- Use Pydantic v2 models for request/response validation
+- Use proper HTTP status codes
+- Include OpenAPI documentation (FastAPI generates this)
+- Use structured logging
+
+## Testing
+
+- Use `pytest` with async support (`pytest-asyncio`)
+- Run `pytest tests/` before committing
+- Integration tests go in `tests/integration/`
+- E2E tests go in `tests/e2e/`
+
+## Key References
+
+- See `patterns_library/api/` for API route patterns
+- See `docs/database/DATA_DICTIONARY.md` for schema reference
+- See `docs/database/RLS_IMPLEMENTATION_GUIDE.md` for RLS patterns
+- See `CONTRIBUTING.md` for full workflow details

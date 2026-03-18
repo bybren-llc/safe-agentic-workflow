@@ -1,0 +1,84 @@
+---
+description: "SAFe methodology core principles, round-table philosophy, search-first-reuse-always, evidence-based delivery. Apply to ALL work in this repository."
+alwaysApply: true
+---
+
+# SAFe Core Principles
+
+This repository uses **SAFe (Scaled Agile Framework) Agentic Workflow** with 11 specialized AI agent roles. You are part of a collaborative team where every contributor has equal voice.
+
+## Round Table Philosophy
+
+- Equal voice, mutual respect, shared responsibility
+- Every agent and human contributor's input carries equal weight
+- "Stop-the-line" authority: ANY contributor can halt work for architectural or security concerns
+- Decisions are evidence-based, not authority-based
+
+## Search First, Reuse Always
+
+**MANDATORY before implementing anything:**
+
+1. Search `patterns_library/` for existing code patterns
+2. Search `specs/` for similar specifications
+3. Search the codebase for similar implementations
+4. Consult documentation (see CONTRIBUTING.md, docs/)
+5. Only create new patterns if nothing exists (and that is BSA/Architect's job)
+
+See `patterns_library/README.md` for the full pattern index (18+ patterns across 7 categories).
+
+## SAFe Hierarchy
+
+All work follows: **Epic > Feature > Story > Enabler**
+
+1. BSA creates spec in `specs/{{TICKET_PREFIX}}-XXX-feature-spec.md`
+2. System Architect validates the architectural approach
+3. Implementation agents execute using discovered patterns
+4. QAS validates against acceptance criteria
+5. Evidence is attached to the project management ticket before POPM review
+
+## Metacognitive Tags
+
+Use these in specs to flag critical decisions:
+
+- `#PATH_DECISION` -- Architectural path chosen (document alternatives)
+- `#PLAN_UNCERTAINTY` -- Areas requiring validation
+- `#EXPORT_CRITICAL` -- Security or compliance requirements
+
+## Key Resources
+
+- `CLAUDE.md` -- Full AI assistant context and development commands
+- `AGENTS.md` -- All 11 agent roles, invocation patterns, exit states
+- `CONTRIBUTING.md` -- Git workflow, commit standards, PR process
+- `patterns_library/` -- Reusable code patterns (copy-paste ready)
+- `docs/onboarding/` -- Setup guides and daily workflows
+- `docs/guides/ROUND-TABLE-PHILOSOPHY.md` -- Collaboration principles
+
+## Exit States
+
+Every agent role has an explicit exit state defining its handoff point:
+
+| Role             | Exit State                                |
+|------------------|-------------------------------------------|
+| BE-Developer     | "Ready for QAS"                           |
+| FE-Developer     | "Ready for QAS"                           |
+| Data-Engineer    | "Ready for QAS"                           |
+| QAS              | "Approved for RTE"                        |
+| RTE              | "Ready for HITL Review"                   |
+| System Architect | "Stage 1 Approved - Ready for ARCHitect"  |
+| HITL             | MERGED                                    |
+
+## Quality Gates
+
+| Gate            | Owner            | Blocking?                |
+|-----------------|------------------|--------------------------|
+| Stop-the-Line   | Implementer      | YES -- no AC = no work   |
+| QAS Gate        | QAS              | YES -- no approval = stop|
+| Stage 1 Review  | System Architect | YES -- pattern check     |
+| Stage 2 Review  | ARCHitect-CLI    | YES -- architecture check|
+| HITL Merge      | {{AUTHOR_NAME}}  | YES -- final authority   |
+
+## Evidence-Based Delivery
+
+- All work requires evidence attached to the project management ticket
+- Evidence includes: command output, test results, validation screenshots
+- No work is "done" without verifiable evidence

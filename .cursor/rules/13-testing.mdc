@@ -1,0 +1,108 @@
+---
+description: "Testing rules for pytest, integration tests, and E2E Docker framework."
+globs: "tests/**/*.py,tests/**"
+alwaysApply: false
+---
+
+# Testing Rules
+
+These rules apply when writing or modifying tests.
+
+## Testing Stack
+
+- **Unit/Integration**: pytest with pytest-asyncio
+- **E2E**: Docker-based framework (`docker-compose.test.yml`)
+- **Coverage**: pytest-cov
+
+## Test Organization
+
+```
+tests/
+  unit/           # Fast, isolated unit tests
+  integration/    # API and database integration tests
+  e2e/            # End-to-end tests (Docker required)
+```
+
+## Running Tests
+
+```bash
+# Unit tests
+pytest tests/unit/
+
+# Integration tests
+pytest tests/integration/
+
+# E2E tests
+pytest tests/e2e/
+# or: make test-e2e
+
+# All tests
+pytest tests/ -v
+
+# Full CI validation
+{{CI_VALIDATE_COMMAND}}
+```
+
+## Test Patterns
+
+### API Integration Tests
+
+See `patterns_library/testing/api-integration-test.md` for the full pattern.
+
+Key points:
+- Mock authentication for isolated testing
+- Verify RLS context is used (no direct ORM calls)
+- Test both success and error paths
+- Test authentication failures (401)
+- Test authorization failures (403)
+- Test input validation errors (422)
+
+### E2E Tests
+
+See `patterns_library/testing/e2e-user-flow.md` for the full pattern.
+
+Key points:
+- Use `docker-compose.test.yml` for infrastructure
+- Test complete user journeys
+- Include login/auth setup in fixtures
+- Clean up test data after each run
+
+## Writing Good Tests
+
+1. **Independent**: Tests must not depend on execution order
+2. **Repeatable**: Same result every time, no flaky tests
+3. **Clear naming**: `test_<what>_<condition>_<expected>`
+4. **Arrange-Act-Assert**: Follow the AAA pattern
+5. **Edge cases**: Cover boundary conditions, empty states, error paths
+6. **RLS isolation**: Verify user A cannot access user B's data
+
+## Coverage Requirements
+
+- Business logic: Aim for high coverage
+- API endpoints: All routes should have integration tests
+- Security paths: Authentication and authorization MUST be tested
+- Error handling: All error responses MUST be tested
+
+## Acceptance Criteria Verification
+
+When testing a spec, map each acceptance criterion to at least one test:
+
+```python
+# From spec: "User can create new resource"
+def test_user_can_create_resource():
+    ...
+
+# From spec: "Validation shows errors for invalid input"
+def test_create_resource_invalid_input_returns_422():
+    ...
+
+# From spec: "Unauthorized access returns 401"
+def test_create_resource_unauthenticated_returns_401():
+    ...
+```
+
+## Key References
+
+- `patterns_library/testing/` -- Test patterns (copy-paste ready)
+- `AGENTS.md` -- QAS role definition and validation commands
+- `CONTRIBUTING.md` -- CI pipeline test stages

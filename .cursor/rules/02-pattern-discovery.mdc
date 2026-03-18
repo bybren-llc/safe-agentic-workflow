@@ -1,0 +1,84 @@
+---
+description: "MANDATORY pattern discovery protocol before implementing anything. Search patterns_library/, specs/, and codebase first."
+alwaysApply: true
+---
+
+# Pattern Discovery Protocol (MANDATORY)
+
+**Before writing ANY code**, you MUST complete pattern discovery. This is not optional.
+
+## Step 0: Search Specs Directory (FIRST)
+
+```bash
+# Find similar implementations in specs
+ls specs/*-spec.md
+
+# Review SAFe user stories for related work
+grep -r "As a.*I want to" specs/
+
+# Check patterns referenced by past specs
+cat specs/{{TICKET_PREFIX}}-XXX-similar-spec.md
+```
+
+## Step 1: Search Pattern Library
+
+Check `patterns_library/` for an existing pattern that fits your use case.
+
+**Available categories:**
+
+| Category   | Path                        | Contents                            |
+|------------|-----------------------------|-------------------------------------|
+| API        | `patterns_library/api/`     | User context, admin, webhooks, Zod  |
+| UI         | `patterns_library/ui/`      | Authenticated pages, forms, tables  |
+| Database   | `patterns_library/database/`| RLS migration, Prisma transactions  |
+| Testing    | `patterns_library/testing/` | API integration, E2E user flows     |
+| Security   | `patterns_library/security/`| Input sanitization, rate limiting   |
+| CI         | `patterns_library/ci/`      | GitHub Actions, deployment pipeline |
+| Config     | `patterns_library/config/`  | Environment config, logging         |
+
+See `patterns_library/README.md` for the full index of 18+ patterns.
+
+## Step 2: Search Codebase
+
+```bash
+# Search for similar functionality
+grep -r "feature_name" app/ lib/ components/
+
+# Find existing helpers
+ls lib/
+grep -r "helper_pattern" lib/
+
+# Check for existing components
+grep -r "ComponentName" components/
+```
+
+## Step 3: Consult Documentation
+
+Required reading before implementation:
+
+- `CONTRIBUTING.md` -- Workflow and git process
+- `docs/database/DATA_DICTIONARY.md` -- Database schema (SINGLE SOURCE OF TRUTH)
+- `docs/database/RLS_IMPLEMENTATION_GUIDE.md` -- Row Level Security (MANDATORY for DB ops)
+- `docs/security/SECURITY_FIRST_ARCHITECTURE.md` -- Security patterns
+
+## Step 4: Architectural Validation
+
+- Propose your chosen pattern to the System Architect before implementation
+- Get approval before writing code
+- Document the decision in session notes
+
+## What to Do When No Pattern Exists
+
+1. Do NOT create a new pattern yourself (that is BSA/Architect's job)
+2. Report the gap to BSA with: what you need, what you searched, why existing patterns do not fit
+3. Wait for BSA to create and Architect to validate the new pattern
+4. Then proceed with implementation
+
+## Pattern Usage Workflow
+
+Once you have found the right pattern:
+
+1. **Copy** the pattern code from its `.md` file (patterns are copy-paste ready)
+2. **Customize** using the pattern's Customization Guide (replace `{placeholders}`)
+3. **Validate** using the pattern's validation commands
+4. **Commit** with SAFe format referencing the ticket

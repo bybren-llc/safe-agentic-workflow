@@ -1,0 +1,92 @@
+---
+description: "Git branch naming, commit message format, rebase-first workflow, and PR process for SAFe development. Apply to ALL git operations."
+alwaysApply: true
+---
+
+# Git Workflow
+
+This project enforces a **rebase-first workflow** validated by CI/CD automation. See `CONTRIBUTING.md` for the full guide.
+
+## Branch Naming
+
+**Required format:** `{{TICKET_PREFIX}}-{number}-{short-description}`
+
+Examples:
+- `{{TICKET_PREFIX}}-42-add-user-authentication`
+- `{{TICKET_PREFIX}}-57-fix-profile-image-upload`
+
+Rules:
+- MUST start with `{{TICKET_PREFIX}}-{number}`
+- Use lowercase letters and hyphens only
+- Keep total length under 50 characters
+- Never include personal names or dates
+- CI will reject branches that do not follow this format
+
+## Commit Message Format
+
+**Required format:** `type(scope): description [{{TICKET_PREFIX}}-XXX]`
+
+### Types
+
+- `feat` -- New feature
+- `fix` -- Bug fix
+- `docs` -- Documentation changes
+- `style` -- Code formatting (no logic changes)
+- `refactor` -- Code restructuring
+- `test` -- Adding or updating tests
+- `chore` -- Maintenance tasks, dependencies
+- `ci` -- CI/CD pipeline changes
+
+### Scopes (optional)
+
+- `payments`, `auth`, `ui`, `api`, `db`, `scheduler`, `security`, `cursor`
+
+### Examples
+
+```
+feat(payments): add Stripe checkout integration [{{TICKET_PREFIX}}-42]
+fix(auth): resolve login redirect issue [{{TICKET_PREFIX}}-57]
+docs: update API documentation [{{TICKET_PREFIX}}-123]
+```
+
+CI will reject commits that do not include a ticket reference.
+
+## Workflow Steps
+
+```bash
+# 1. Start from latest base branch
+git checkout {{MAIN_BRANCH}}
+git pull origin {{MAIN_BRANCH}}
+git checkout -b {{TICKET_PREFIX}}-{number}-{description}
+
+# 2. Make changes and commit
+git add <files>
+git commit -m "feat(scope): description [{{TICKET_PREFIX}}-XXX]"
+
+# 3. Keep branch updated (rebase, NEVER merge)
+git fetch origin
+git rebase origin/{{MAIN_BRANCH}}
+
+# 4. Validate before pushing
+# Run: {{CI_VALIDATE_COMMAND}}
+
+# 5. Push
+git push --force-with-lease origin {{TICKET_PREFIX}}-{number}-{description}
+
+# 6. Create PR using .github/pull_request_template.md
+# 7. Merge using "Rebase and merge" ONLY (never squash or merge commit)
+```
+
+## Rules
+
+- **Rebase-first**: Never create merge commits. Always rebase onto the base branch.
+- **Force-with-lease**: Use `--force-with-lease` after rebase, never `--force`.
+- **Linear history**: The project requires a clean linear commit history.
+- **One ticket per branch**: Each branch maps to exactly one project management ticket.
+- **PR template**: Always use `.github/pull_request_template.md` and fill ALL sections.
+
+## Role Collapsing
+
+- **RTE** role is collapsible (PR creation can be done by implementer)
+- **QAS** role is NOT collapsible (independence gate)
+- **SecEng** role is NOT collapsible (security audit requires independence)

@@ -1,0 +1,74 @@
+---
+description: "Frontend development rules for React 18, Electron, ShadCN UI, and Tailwind CSS."
+globs: "sdk/**/*.tsx,sdk/**/*.ts,sdk/**/*.jsx,sdk/**/*.js"
+alwaysApply: false
+---
+
+# Frontend React Rules
+
+These rules apply when working on frontend code in `sdk/`.
+
+## Technology Stack
+
+- **Framework**: React 18
+- **Desktop**: Electron
+- **UI Library**: ShadCN UI components
+- **Styling**: Tailwind CSS
+- **Type Safety**: TypeScript (strict mode)
+
+## Component Patterns
+
+- Use functional components with hooks (no class components)
+- Use TypeScript interfaces for all props
+- Follow ShadCN UI component patterns for consistency
+- Use Tailwind utility classes for styling (avoid custom CSS)
+
+### Authenticated Pages
+
+For pages requiring authentication, see `patterns_library/ui/authenticated-page.md`.
+
+### Forms
+
+For forms with validation, see `patterns_library/ui/form-with-validation.md` (React Hook Form + Zod).
+
+### Data Tables
+
+For paginated data tables, see `patterns_library/ui/data-table.md`.
+
+## State Management
+
+- Use React hooks for local state
+- Use context for shared state within feature boundaries
+- Avoid prop drilling beyond 2 levels
+
+## API Integration
+
+- All API calls must handle loading, error, and success states
+- Use proper error boundaries so analytics/API failures do not crash the app
+- Handle authentication token refresh transparently
+
+## Accessibility
+
+- All interactive elements must be keyboard-navigable
+- Use semantic HTML elements
+- Include ARIA labels where needed
+- Follow ShadCN UI's built-in accessibility patterns
+
+## Validation Commands
+
+```bash
+# TypeScript validation
+{{TYPE_CHECK_COMMAND}}
+
+# Linting
+{{LINT_COMMAND}}
+
+# Build verification
+{{BUILD_COMMAND}}
+```
+
+## Key References
+
+- See `patterns_library/ui/` for UI component patterns
+- See `docs/security/SECURITY_FIRST_ARCHITECTURE.md` for client-side security
+- See `CONTRIBUTING.md` for full workflow details

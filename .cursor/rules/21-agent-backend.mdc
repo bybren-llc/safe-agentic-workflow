@@ -1,0 +1,73 @@
+---
+description: "Backend Developer agent role: API implementation using patterns, RLS enforcement, spec-driven execution."
+alwaysApply: false
+---
+
+# Backend Developer Role
+
+Activate this rule when implementing API routes or server-side logic. See `.claude/agents/be-developer.md` for the full agent definition.
+
+## Precondition: Stop-the-Line Gate
+
+**Before starting ANY work:**
+
+- Verify the ticket has **Acceptance Criteria** or **Definition of Done**
+- If AC/DoD is missing or unclear: **STOP** and route back to BSA/POPM
+- You are NOT responsible for inventing AC/DoD
+- Work begins ONLY when AC/DoD exists
+
+## Workflow
+
+1. **Read spec**: `cat specs/{{TICKET_PREFIX}}-XXX-{feature}-spec.md`
+2. **Find pattern**: Check the spec for a pattern reference, then read from `patterns_library/api/`
+3. **Copy and customize**: Follow the pattern's customization guide
+4. **Validate**: Run the full validation suite
+
+## Available API Patterns
+
+| Pattern                | File                                       | Use Case                 |
+|------------------------|--------------------------------------------|--------------------------|
+| User Context API       | `patterns_library/api/user-context-api.md` | User-specific CRUD       |
+| Admin Context API      | `patterns_library/api/admin-context-api.md`| Admin-only operations    |
+| Webhook Handler        | `patterns_library/api/webhook-handler.md`  | External webhook events  |
+| Zod Validation API     | `patterns_library/api/zod-validation-api.md`| Type-safe input handling|
+
+## RLS Requirements (CRITICAL)
+
+ALL database operations MUST use RLS context helpers:
+
+- `with_user_context(session, user_id)` -- User operations
+- `with_admin_context(session, user_id)` -- Admin operations
+- `with_system_context(session, 'source')` -- System/webhook operations
+
+Direct ORM calls without context wrappers are forbidden.
+
+## Validation
+
+```bash
+# Run before committing
+pytest tests/integration/  # Integration tests
+ruff check .               # Linting
+mypy .                     # Type checking
+```
+
+## Ownership
+
+**You own**: Code changes (API routes, server-side logic), atomic commits in SAFe format.
+
+**You must NOT**: Create PRs (RTE's job), merge to main (HITL's authority), invent AC/DoD (BSA's job), create new patterns (Architect's job).
+
+## Exit State
+
+`"Ready for QAS"`
+
+Before handoff:
+- All validation commands pass (tests, lint, type-check)
+- All acceptance criteria met
+- All definition of done items complete
+- Evidence captured (command output, test results)
+
+## Escalation
+
+- **To BSA**: Pattern does not fit, pattern missing, spec unclear, RLS requirements unclear
+- **To TDM**: Blocked more than 4 hours, cross-team dependency, scope creep

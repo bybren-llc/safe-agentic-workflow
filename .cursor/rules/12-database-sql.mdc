@@ -1,0 +1,82 @@
+---
+description: "Database rules for PostgreSQL 16, Alembic migrations, SQLAlchemy models, and Row Level Security."
+globs: "alembic/**,**/models.py,**/schemas.py,**/models/**"
+alwaysApply: false
+---
+
+# Database and SQL Rules
+
+These rules apply when working on database models, schemas, and migrations.
+
+## Technology
+
+- **Database**: PostgreSQL 16
+- **ORM**: SQLAlchemy 2.x
+- **Migrations**: Alembic
+- **RLS**: Row Level Security (MANDATORY)
+
+## Row Level Security (RLS)
+
+**CRITICAL**: RLS is mandatory for ALL tables containing user data.
+
+### RLS Context Helpers
+
+Every database operation MUST use the appropriate context helper:
+
+| Helper                | Use Case                     |
+|-----------------------|------------------------------|
+| `with_user_context`   | User-scoped operations       |
+| `with_admin_context`  | Admin-scoped operations      |
+| `with_system_context` | Background/webhook operations|
+
+### Zero Tolerance
+
+- No direct session/ORM calls without RLS context wrappers
+- No bypassing RLS policies for convenience
+- No using superuser credentials in application code
+
+### RLS Validation
+
+After any schema change, validate RLS:
+- User isolation: User A cannot see User B's data
+- Admin access: Admin can see data within policy scope
+- System context: Background tasks use system context
+
+## Migration Workflow
+
+```bash
+# 1. Create migration
+alembic revision --autogenerate -m "description"
+
+# 2. REVIEW the generated migration (do not blindly apply)
+# 3. Add RLS policies if new table created
+# 4. Test locally
+alembic upgrade head
+
+# 5. Commit
+git add alembic/versions/
+git commit -m "feat(db): description [{{TICKET_PREFIX}}-XXX]"
+```
+
+### Migration Rules
+
+- Never use `DROP TABLE` without a backup strategy
+- Never skip Alembic (no manual DDL in production)
+- Always add proper indexes for query patterns
+- Add RLS policies for every new table with user data
+- Schema changes REQUIRE System Architect approval
+
+## SQLAlchemy Model Standards
+
+- Use SQLAlchemy 2.x `Mapped` type annotations
+- Define relationships explicitly
+- Include `created_at` and `updated_at` timestamps on all tables
+- Use UUIDs for primary keys
+
+## Key References
+
+- `docs/database/DATA_DICTIONARY.md` -- Schema reference (SINGLE SOURCE OF TRUTH)
+- `docs/database/RLS_DATABASE_MIGRATION_SOP.md` -- Migration SOP (MANDATORY reading)
+- `docs/database/RLS_IMPLEMENTATION_GUIDE.md` -- RLS implementation details
+- `patterns_library/database/rls-migration.md` -- RLS migration pattern
+- `patterns_library/database/prisma-transaction.md` -- Transaction pattern
