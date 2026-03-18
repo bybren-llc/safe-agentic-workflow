@@ -125,6 +125,36 @@ cursor /your-project
 
 ---
 
+## Keeping Your Harness Updated
+
+Already using the harness and a new version is out? You have two paths:
+
+**Automated** (`.claude/` directory only):
+```bash
+# Initialize sync metadata (first time only)
+./scripts/sync-claude-harness.sh init
+./scripts/sync-claude-harness.sh manifest init --yes
+
+# Preview and apply
+./scripts/sync-claude-harness.sh sync --version v2.9.0 --dry-run
+./scripts/sync-claude-harness.sh sync --version v2.9.0
+```
+
+**Manual** (full release, all providers):
+```bash
+git remote add harness https://github.com/bybren-llc/safe-agentic-workflow.git
+git fetch harness main --tags
+git diff v2.8.1..v2.9.0 --stat              # See what changed
+git checkout harness/main -- .codex/agents/  # Cherry-pick what you need
+bash scripts/setup-template.sh               # Re-apply your placeholders
+```
+
+> The sync script protects your customizations via a manifest. It won't overwrite
+> files you've marked as protected. See the [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md)
+> for the full reference and [Upgrade Guide](docs/releases/v2.9.0-UPGRADE.md) for rollback options.
+
+---
+
 ## The Three-Layer Architecture
 
 ```text
