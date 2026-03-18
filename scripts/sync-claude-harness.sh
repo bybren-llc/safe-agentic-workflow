@@ -27,7 +27,6 @@ SYNC_CONFIG="$CLAUDE_DIR/.harness-sync.json"
 EXCLUDE_FILE="$CLAUDE_DIR/.sync-exclude"
 EXCLUDE_DEFAULT="$CLAUDE_DIR/.sync-exclude.default"
 BACKUP_DIR="$CLAUDE_DIR/.harness-backup"
-=======
 PATCHES_DIR="$CLAUDE_DIR/.harness-patches"
 MANIFEST_FILE="$CLAUDE_DIR/.harness-manifest.yml"
 MANIFEST_SCHEMA="$PROJECT_ROOT/.harness-manifest.schema.json"
@@ -2029,8 +2028,6 @@ do_sync() {
             modified)
                 if [ "$dry_run" = false ]; then
                     # Copy the already-substituted file from TMP_DIR
-=======
-                    # Overwrite local with upstream version (user can rollback if needed)
                     cp "$file" "$local_file"
                 fi
                 print_success "Updated: $display_path"
