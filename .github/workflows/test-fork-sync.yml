@@ -1,0 +1,65 @@
+name: Fork Sync Compatibility
+
+# Ensures upstream changes never silently break downstream forks.
+# Tests sync --dry-run against known fork manifest fixtures (rendertrust + keryk-ai).
+
+on:
+  push:
+    branches: [template]
+    paths:
+      - 'scripts/sync-claude-harness.sh'
+      - '.harness-manifest.schema.json'
+      - 'tests/fixtures/sync/**'
+      - 'tests/test-fork-sync.sh'
+      - '.github/workflows/test-fork-sync.yml'
+  pull_request:
+    branches: [template]
+    paths:
+      - 'scripts/sync-claude-harness.sh'
+      - '.harness-manifest.schema.json'
+      - 'tests/fixtures/sync/**'
+      - 'tests/test-fork-sync.sh'
+      - '.github/workflows/test-fork-sync.yml'
+
+jobs:
+  fork-sync-compat:
+    name: Fork Sync Compatibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Run fork sync compatibility tests
+        run: bash tests/test-fork-sync.sh
+
+      - name: Run existing sync unit tests
+        run: |
+          echo "--- Manifest Loader Tests ---"
+          bash tests/test-manifest-loader.sh || exit 1
+          echo ""
+          echo "--- Rename Diff Tests ---"
+          bash tests/test-rename-diff.sh || exit 1
+          echo ""
+          echo "--- Substitution Tests ---"
+          bash tests/test-substitutions.sh || exit 1
+          echo ""
+          echo "--- Protected Files Tests ---"
+          bash tests/test-protected-files.sh || exit 1
+          echo ""
+          echo "--- Preflight Tests ---"
+          bash tests/test-preflight.sh || exit 1

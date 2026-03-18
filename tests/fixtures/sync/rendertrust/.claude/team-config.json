@@ -1,0 +1,7 @@
+{
+  "description": "RenderTrust team config (PROTECTED - should never be overwritten)",
+  "team_name": "RenderTrust Team",
+  "ticket_prefix": "REN",
+  "main_branch": "dev",
+  "project_name": "RenderTrust"
+}

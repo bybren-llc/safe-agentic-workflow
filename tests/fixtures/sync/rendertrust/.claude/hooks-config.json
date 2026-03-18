@@ -1,0 +1,13 @@
+{
+  "description": "RenderTrust custom hooks config (PROTECTED - should never be overwritten)",
+  "hooks": {
+    "pre-commit": {
+      "command": "ruff check . && mypy .",
+      "description": "Run Python linting and type checks"
+    },
+    "pre-push": {
+      "command": "pytest tests/",
+      "description": "Run test suite before push"
+    }
+  }
+}
