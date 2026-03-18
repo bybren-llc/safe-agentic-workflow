@@ -207,7 +207,7 @@ gh api repos/{{GITHUB_ORG}}/{{GITHUB_REPO}}/tags --jq '.[0:5] | .[].name'
 
 ```bash
 # List remote branches that are not main/dev/template
-gh api repos/{{GITHUB_ORG}}/{{GITHUB_REPO}}/branches --jq '.[].name' | grep -v '^main$\|^dev$\|^template$'
+gh api repos/{{GITHUB_ORG}}/{{GITHUB_REPO}}/branches --jq '.[].name' | grep -v '^main$\|^dev$'
 ```
 
 For each stale branch from a merged PR:

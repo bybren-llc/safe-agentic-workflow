@@ -167,10 +167,10 @@ echo ""
 echo -e "${CYAN}5. Git State${NC}"
 
 BRANCH=$(git branch --show-current)
-if [ "$BRANCH" = "template" ]; then
-    check_pass "On template branch"
+if [ "$BRANCH" = "main" ]; then
+    check_pass "On main branch"
 else
-    check_fail "Not on template branch (on: $BRANCH)"
+    check_fail "Not on main branch (on: $BRANCH)"
 fi
 
 # Check for uncommitted changes
