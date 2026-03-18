@@ -1,4 +1,6 @@
-# AI Agent Harness for Multi-Agent Team Workflows
+# SAW — SAFe Agentic Workflow
+
+### AI Agent Harness for Multi-Agent Team Workflows
 
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
@@ -188,19 +190,7 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 </details>
 
 <details>
-<summary><strong>For Leaders</strong> - I want ROI and risk assessment</summary>
-
-### Production Results (v1.0 Harness)
-
-> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.9** (Codex Agents + Shared Skills + Cursor MCP + Branch Restructure), which adds 11 Codex agent TOML files, 18 cross-provider shared skills, Cursor MCP integration, enriched Codex config, and GitHub template-standard branch topology (`main` + `dev`).
-
-| Metric           | Value              | Source     |
-| ---------------- | ------------------ | ---------- |
-| Issues Completed | 169                | Linear     |
-| Velocity Growth  | 14× (Cycle 3→8)    | Linear     |
-| Commits          | 2,193 (10.3/day)   | GitHub     |
-| PR Merge Rate    | 90.9% (159/175)    | GitHub     |
-| Documentation    | 136 docs, 36 specs | Repository |
+<summary><strong>For Leaders</strong> - I want to understand adoption</summary>
 
 ### Adoption Requirements
 
@@ -208,11 +198,17 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 - Git repository
 - Team buy-in for structured workflows
 
+### Why Teams Choose SAW
+
+- **Structured autonomy**: AI agents work within clear boundaries and quality gates
+- **Evidence-based delivery**: Every deliverable requires verifiable evidence, not "trust me"
+- **Stop-the-line authority**: Any agent can halt work for quality or security concerns
+- **Multi-provider flexibility**: Same workflow across Claude Code, Gemini CLI, Codex CLI, and Cursor IDE
+
 ### Known Limitations
 
-- Single-team validation only
-- Claude Code has the deepest integration (5+ months production use); Gemini CLI, Codex CLI, and Cursor IDE support is newer
-
+- Claude Code has the deepest integration; Gemini CLI, Codex CLI, and Cursor IDE support is newer
+- Non-SWE domain adaptations (marketing, research) are documented but not yet validated in production
 
 </details>
 
@@ -1210,16 +1206,10 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 
 ## Important Caveats
 
-**Version 2.6** - Production-tested but with known limitations:
-
-- **Production validated**: 5+ months, 169 issues, 2,193 commits (Claude Code)
 - **Multi-provider**: Supports Claude Code, Gemini CLI, Codex CLI, and Cursor IDE
-- **Generalized**: Placeholders for project-specific values
-- **Single-team validation**: Multi-team scalability not yet proven
-- **Provider maturity varies**: Claude Code has 5+ months production use; Gemini CLI aligned with v0.32.1; Codex CLI and Cursor IDE harnesses are newer
-- **Domain examples**: Non-SWE adaptations are theoretical (documented, not validated)
-
-See project documentation for honest assessment of limitations.
+- **Template-ready**: All project-specific values use `{{PLACEHOLDER}}` tokens
+- **Provider maturity varies**: Claude Code has the deepest integration; other providers are newer
+- **Domain examples**: Non-SWE adaptations (marketing, research) are documented but not yet validated
 
 ---
 
@@ -1252,7 +1242,7 @@ See project documentation for honest assessment of limitations.
     └── 30-31            # Background agents and MCP integration
 
 .agents/                 # Shared agent skills (discovered by Codex and other agents)
-└── skills/              # pattern-discovery, safe-workflow, testing-patterns
+└── skills/              # 18 cross-provider skills (api-patterns, safe-workflow, etc.)
 
 dark-factory/            # tmux Agent Teams infrastructure (optional)
 ├── scripts/             # factory-setup, start, stop, status, attach
@@ -1265,13 +1255,6 @@ docs/                    # Additional documentation
 ```
 
 ---
-
-## Meta-Note: Self-Validation
-
-This methodology was **validated by itself**: 7 SAFe agents performed meta-circular validation of the harness documentation and caught critical fabricated data before publication.
-
-
-**The methodology caught its own problems.** That's the proof it works.
 
 ---
 

@@ -88,13 +88,28 @@ Each skill follows this structure:
 
 Skills are **shared across all agents** (not Codex-specific). The same `.agents/skills/` directory is used by any tool that supports the convention.
 
-#### Available Skills
+#### Available Skills (18)
 
-| Skill | Description | When to Use |
-|-------|-------------|-------------|
-| `safe-workflow` | Branch naming, commits, PR workflow | Starting work, commits, PRs |
-| `pattern-discovery` | Pattern library discovery | Before implementing features |
-| `testing-patterns` | Unit, integration, E2E patterns | Writing tests |
+| Skill | Description |
+|-------|-------------|
+| `safe-workflow` | Branch naming, commits, PR workflow |
+| `pattern-discovery` | Pattern library discovery |
+| `testing-patterns` | Unit, integration, E2E patterns |
+| `api-patterns` | REST API implementation patterns |
+| `rls-patterns` | Row-Level Security patterns |
+| `frontend-patterns` | React/UI implementation patterns |
+| `spec-creation` | User story specification creation |
+| `agent-coordination` | Multi-agent orchestration patterns |
+| `orchestration-patterns` | SAFe workflow coordination |
+| `security-audit` | Security validation procedures |
+| `linear-sop` | Linear ticket management |
+| `confluence-docs` | Confluence integration patterns |
+| `git-advanced` | Advanced Git workflows |
+| `stripe-patterns` | Stripe payment integration |
+| `release-patterns` | Release checklist patterns |
+| `deployment-sop` | Deployment procedures |
+| `migration-patterns` | Database migration patterns |
+| `team-coordination` | Agent Teams orchestration (Claude Code only) |
 
 ### MCP Support
 
@@ -117,25 +132,29 @@ MCP enables Codex to interact with external services like Linear (ticket managem
 ```
 .codex/
 ├── README.md           # This file - setup guide
-└── config.toml         # Codex CLI configuration (TOML format)
+├── config.toml         # Codex CLI configuration (TOML format)
+└── agents/             # 11 SAFe agent role definitions (TOML)
+    ├── bsa.toml        # Business Systems Analyst
+    ├── be-developer.toml
+    ├── fe-developer.toml
+    ├── system-architect.toml
+    ├── qas.toml
+    ├── security-engineer.toml
+    ├── rte.toml
+    ├── tdm.toml
+    ├── tech-writer.toml
+    ├── data-engineer.toml
+    └── data-provisioning-eng.toml
 
 .agents/
-└── skills/             # Shared skills (discovered by Codex and other agents)
-    ├── pattern-discovery/
-    │   ├── SKILL.md
-    │   ├── scripts/
-    │   ├── references/
-    │   └── assets/
+└── skills/             # 18 shared skills (discovered by Codex and other agents)
+    ├── api-patterns/
+    │   └── SKILL.md
     ├── safe-workflow/
-    │   ├── SKILL.md
-    │   ├── scripts/
-    │   ├── references/
-    │   └── assets/
-    └── testing-patterns/
-        ├── SKILL.md
-        ├── scripts/
-        ├── references/
-        └── assets/
+    │   └── SKILL.md
+    ├── testing-patterns/
+    │   └── SKILL.md
+    └── ... (18 total, each with SKILL.md + optional scripts/references/assets)
 ```
 
 ## What Codex Does NOT Have
@@ -169,7 +188,7 @@ This `.codex/` directory works alongside `.claude/`, `.gemini/`, and `.cursor/` 
 | Configuration | `.codex/config.toml` | `.claude/settings.local.json` | `.gemini/settings.json` | `.cursor/rules/*.mdc` frontmatter |
 | Commands | N/A (natural language) | `.claude/commands/*.md` | `.gemini/commands/*.toml` | N/A (use `@rule-name`) |
 | Skills | `.agents/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | `.gemini/skills/*/SKILL.md` | N/A (rules serve as skills) |
-| Agents | N/A | `.claude/agents/` | N/A | Agent-role rules (20-23) |
+| Agents | `.codex/agents/*.toml` (11 roles) | `.claude/agents/` | N/A | Agent-role rules (20-23) |
 | MCP Servers | Native support | `settings.local.json` | `settings.json` mcpServers | `.cursor/mcp.json` or settings UI |
 | Background Agents | N/A | Agent Teams (experimental) | N/A | Background Agents (isolated VMs) |
 
