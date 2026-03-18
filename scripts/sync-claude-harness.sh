@@ -570,6 +570,384 @@ compare_file_with_paths() {
 # End Rename Resolution
 # =============================================================================
 
+# =============================================================================
+# Placeholder Substitution Engine (SAW-10)
+# =============================================================================
+# After fetching upstream files, re-apply fork-specific values from the
+# manifest substitutions section. This prevents upstream methodology updates
+# from reverting the fork's project identity.
+#
+# Key design decisions:
+#   - Substitutions sorted by key length descending (longest-match-first)
+#     to prevent partial matches (e.g., {{GITHUB_REPO_URL}} before {{GITHUB_ORG}})
+#   - Only explicit manifest keys are substituted (not arbitrary {{...}} patterns)
+#   - Both {{PLACEHOLDER}} tokens and literal strings are supported
+#   - Identity values are also applied as {{KEY}} -> value substitutions
+# =============================================================================
+
+# Apply manifest substitutions to a single file.
+# Reads substitution entries from the manifest, sorts by key length descending,
+# and applies sed replacements. Only substitutes keys explicitly listed in the
+# manifest -- does NOT match arbitrary {{...}} patterns in content.
+#
+# Usage: apply_substitutions "/path/to/file"
+apply_substitutions() {
+    local file_path="$1"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$file_path" ]; then
+        return 0
+    fi
+
+    # Generate sed commands from manifest substitutions + identity,
+    # sorted by key length descending (longest-match-first).
+    # Output format: one sed 's|...|...|g' command per line.
+    local sed_commands
+    sed_commands=$(node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const subs = data.substitutions || {};
+            const identity = data.identity || {};
+
+            // Build combined substitution map:
+            // 1. Explicit substitutions (literal key -> value)
+            // 2. Identity values as {{KEY}} -> value (lower priority)
+            const combined = {};
+
+            // Identity values: add as {{KEY}} -> value
+            for (const [key, value] of Object.entries(identity)) {
+                if (typeof value === 'string' && value.length > 0) {
+                    combined['{{' + key + '}}'] = value;
+                }
+            }
+
+            // Explicit substitutions override identity-derived ones.
+            // Keys can be either '{{PLACEHOLDER}}' tokens or literal strings.
+            for (const [key, value] of Object.entries(subs)) {
+                if (typeof value === 'string') {
+                    // If the key does not already have {{ }}, also add the
+                    // braced form derived from identity (already handled above).
+                    // The explicit key always wins.
+                    combined[key] = value;
+                    // Also ensure the {{KEY}} form maps to the same value
+                    if (!key.startsWith('{{')) {
+                        combined['{{' + key + '}}'] = value;
+                    }
+                }
+            }
+
+            // Sort by key length descending (longest-match-first)
+            const sortedKeys = Object.keys(combined).sort((a, b) => b.length - a.length);
+
+            for (const key of sortedKeys) {
+                const value = combined[key];
+                // Escape sed BRE special characters in key and value.
+                // In BRE: . * [ ] ^ $ \ are special. { } ( ) + ? are literal.
+                // We use | as delimiter so escape | too.
+                // Do NOT escape { } -- in BRE they are literal unescaped,
+                // and \\{ \\} would activate interval expressions.
+                const escKey = key.replace(/[|&\\\\\\[\\]\\^\\$\\.\\*]/g, '\\\\\\&');
+                const escVal = value.replace(/[|&\\\\]/g, '\\\\\\&');
+                console.log('s|' + escKey + '|' + escVal + '|g');
+            }
+        } catch(e) {
+            // Silent failure — no substitutions applied
+        }
+    ")
+
+    if [ -z "$sed_commands" ]; then
+        return 0
+    fi
+
+    # Build a single sed invocation with all commands
+    local sed_args=()
+    while IFS= read -r cmd; do
+        [ -z "$cmd" ] && continue
+        sed_args+=(-e "$cmd")
+    done <<< "$sed_commands"
+
+    if [ ${#sed_args[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    # Apply substitutions in-place using cross-platform sed
+    if sed --version 2>/dev/null | grep -q 'GNU'; then
+        sed -i "${sed_args[@]}" "$file_path"
+    else
+        sed -i '' "${sed_args[@]}" "$file_path"
+    fi
+}
+
+# Apply substitutions to all synced files in a directory.
+# Walks .claude/ and applies substitutions to each file.
+#
+# Usage: apply_all_substitutions "/path/to/.claude"
+apply_all_substitutions() {
+    local claude_dir="$1"
+    local count=0
+
+    if [ "$HAS_MANIFEST" != "true" ]; then
+        return 0
+    fi
+
+    local sub_count
+    sub_count=$(manifest_count "substitutions")
+    local identity_count
+    identity_count=$(manifest_count "identity")
+
+    if [ "$sub_count" -eq 0 ] && [ "$identity_count" -eq 0 ]; then
+        return 0
+    fi
+
+    while IFS= read -r -d '' file; do
+        local rel_path="${file#$claude_dir/}"
+
+        # Skip binary files and metadata
+        [[ "$rel_path" == .harness-* ]] && continue
+        [[ "$rel_path" == .sync-* ]] && continue
+        [[ "$rel_path" == .harness-backup* ]] && continue
+
+        # Only process text files (by extension)
+        case "$rel_path" in
+            *.md|*.json|*.yml|*.yaml|*.sh|*.py|*.txt|*.toml|*.ts|*.mjs|*.bib|*.cff)
+                apply_substitutions "$file"
+                count=$((count + 1))
+                ;;
+        esac
+    done < <(find "$claude_dir" -type f -print0 2>/dev/null)
+
+    if [ "$count" -gt 0 ]; then
+        print_success "Applied substitutions to $count file(s)"
+    fi
+}
+
+# =============================================================================
+# End Placeholder Substitution Engine
+# =============================================================================
+
+# =============================================================================
+# Protected File Enforcement (SAW-3)
+# =============================================================================
+# The manifest `protected` section lists glob patterns (relative to .claude/)
+# for files that must NEVER be modified during sync, even if upstream has
+# changes. This supersedes .sync-exclude but both sources are merged for
+# backward compatibility.
+#
+# Precedence: manifest protected patterns checked first, then .sync-exclude.
+# Duplicate patterns are de-duplicated. Hardcoded metadata exclusions
+# (.harness-sync.json, .harness-manifest.yml, etc.) always apply.
+# =============================================================================
+
+# Get all protected patterns from manifest and .sync-exclude (merged).
+# Manifest patterns are listed first; .sync-exclude patterns appended.
+# Outputs one pattern per line.
+get_protected_patterns() {
+    local patterns=()
+
+    # 1. Manifest protected section (primary source)
+    if [ "$HAS_MANIFEST" = "true" ] && [ -n "$MANIFEST_JSON" ] && [ -f "$MANIFEST_JSON" ]; then
+        while IFS= read -r pat; do
+            [ -n "$pat" ] && patterns+=("$pat")
+        done < <(node -e "
+            const fs = require('fs');
+            try {
+                const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+                const prot = data.protected || [];
+                if (Array.isArray(prot)) {
+                    prot.forEach(p => console.log(p));
+                }
+            } catch(e) {}
+        ")
+    fi
+
+    # 2. .sync-exclude patterns (fallback / merged)
+    if [ -f "$EXCLUDE_FILE" ]; then
+        while IFS= read -r pattern || [ -n "$pattern" ]; do
+            # Skip comments and empty lines
+            [[ "$pattern" =~ ^#.*$ ]] && continue
+            [[ -z "$pattern" ]] && continue
+            [[ "$pattern" =~ ^[[:space:]]*$ ]] && continue
+            # Trim whitespace
+            pattern=$(echo "$pattern" | xargs)
+            # De-duplicate: only add if not already present
+            local already=false
+            for existing in "${patterns[@]}"; do
+                if [ "$existing" = "$pattern" ]; then
+                    already=true
+                    break
+                fi
+            done
+            if [ "$already" = false ]; then
+                patterns+=("$pattern")
+            fi
+        done < "$EXCLUDE_FILE"
+    fi
+
+    # Output all patterns
+    for p in "${patterns[@]}"; do
+        echo "$p"
+    done
+}
+
+# Check if a file path matches any protected pattern (manifest + .sync-exclude merged).
+# Returns 0 (true) if protected, 1 (false) otherwise.
+# Usage: is_protected "path/to/file.md"
+is_protected() {
+    local file="$1"
+
+    # Always protect sync metadata, manifest, and backups (hardcoded)
+    [[ "$file" == .harness-sync.json ]] && return 0
+    [[ "$file" == .harness-manifest.yml ]] && return 0
+    [[ "$file" == .sync-exclude ]] && return 0
+    [[ "$file" == .sync-exclude.default ]] && return 0
+    [[ "$file" == .harness-backup* ]] && return 0
+
+    # Check against merged protected patterns
+    while IFS= read -r pattern; do
+        [ -z "$pattern" ] && continue
+        # Glob match (supports *, **, ?)
+        if [[ "$file" == $pattern ]]; then
+            return 0
+        fi
+        # Also check substring match for backward compat with .sync-exclude behavior
+        if [[ "$file" == *"$pattern"* ]]; then
+            return 0
+        fi
+    done < <(get_protected_patterns)
+
+    return 1
+}
+
+# Check if a file is protected specifically by the manifest protected section
+# (not counting .sync-exclude). Used for PROTECTED label distinction in diff.
+# Returns 0 if manifest-protected, 1 otherwise.
+is_manifest_protected() {
+    local file="$1"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        return 1
+    fi
+
+    # Write JS to temp file to avoid bash escaping issues with regex
+    local js_file="$TMP_DIR/_is_manifest_protected.js"
+    mkdir -p "$TMP_DIR"
+    cat > "$js_file" << 'JSEOF'
+const fs = require('fs');
+try {
+    const manifestPath = process.argv[2];
+    const filePath = process.argv[3];
+    const data = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const prot = data.protected || [];
+    if (!Array.isArray(prot)) { console.log('no'); process.exit(0); }
+    for (const pattern of prot) {
+        // Convert glob to regex: escape regex chars except * and ?, then handle globs
+        let re = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+        re = re.replace(/\*\*/g, '{{GLOBSTAR}}');
+        re = re.replace(/\*/g, '[^/]*');
+        re = re.replace(/\{\{GLOBSTAR\}\}/g, '.*');
+        re = re.replace(/\?/g, '.');
+        re = '^' + re + '$';
+        if (new RegExp(re).test(filePath)) {
+            console.log('yes');
+            process.exit(0);
+        }
+        // Also check substring match for simple patterns without globs
+        if (!pattern.includes('*') && !pattern.includes('?') && filePath.includes(pattern)) {
+            console.log('yes');
+            process.exit(0);
+        }
+    }
+    console.log('no');
+} catch(e) {
+    console.log('no');
+}
+JSEOF
+
+    local result
+    result=$(node "$js_file" "$MANIFEST_JSON" "$file")
+
+    [ "$result" = "yes" ] && return 0
+    return 1
+}
+
+# Validate that protected patterns in the manifest match at least one local file.
+# Warns if a pattern does not match anything (possible typo).
+# Must be called after load_manifest().
+validate_protected_paths() {
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        return 0
+    fi
+
+    local protected_count
+    protected_count=$(manifest_count "protected")
+    if [ "$protected_count" -eq 0 ]; then
+        return 0
+    fi
+
+    # Get all local file paths relative to .claude/
+    local local_files_list="$TMP_DIR/local_files_for_protected.txt"
+    mkdir -p "$TMP_DIR"
+    if [ -d "$CLAUDE_DIR" ]; then
+        find "$CLAUDE_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null | \
+            while IFS= read -r -d '' f; do
+                echo "${f#$CLAUDE_DIR/}"
+            done > "$local_files_list"
+    else
+        touch "$local_files_list"
+    fi
+
+    # Write JS to temp file to avoid bash escaping issues with regex
+    local js_file="$TMP_DIR/_validate_protected.js"
+    cat > "$js_file" << 'JSEOF'
+const fs = require('fs');
+try {
+    const manifestPath = process.argv[2];
+    const localFilesPath = process.argv[3];
+    const data = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const prot = data.protected || [];
+    if (!Array.isArray(prot)) process.exit(0);
+
+    const localFiles = fs.readFileSync(localFilesPath, 'utf8').split('\n').filter(Boolean);
+
+    for (const pattern of prot) {
+        // Convert glob to regex: escape regex chars except * and ?, then handle globs
+        let re = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+        re = re.replace(/\*\*/g, '{{GLOBSTAR}}');
+        re = re.replace(/\*/g, '[^/]*');
+        re = re.replace(/\{\{GLOBSTAR\}\}/g, '.*');
+        re = re.replace(/\?/g, '.');
+        re = '^' + re + '$';
+        const regex = new RegExp(re);
+
+        const hasGlob = pattern.includes('*') || pattern.includes('?');
+        const hasMatch = localFiles.some(f => {
+            if (regex.test(f)) return true;
+            if (!hasGlob && f.includes(pattern)) return true;
+            return false;
+        });
+
+        if (!hasMatch) {
+            console.log('WARN:' + pattern);
+        }
+    }
+} catch(e) {}
+JSEOF
+
+    # Execute and process warnings
+    node "$js_file" "$MANIFEST_JSON" "$local_files_list" | while IFS= read -r line; do
+        local pat="${line#WARN:}"
+        print_warning "Protected pattern does not match any local file: $pat (possible typo in manifest)"
+    done
+}
+
+# =============================================================================
+# End Protected File Enforcement
+# =============================================================================
+
 # Get current upstream commit SHA
 get_upstream_sha() {
     local ref="${1:-$UPSTREAM_BRANCH}"
@@ -653,7 +1031,10 @@ fetch_upstream() {
     print_success "Fetched upstream (${sha:0:8})"
 }
 
-# Check if file is excluded from sync
+# Check if file is excluded from sync.
+# When a manifest is present, checks BOTH manifest protected patterns AND
+# .sync-exclude (merged, manifest takes precedence). Without a manifest,
+# uses only .sync-exclude (legacy behavior, backward compatible).
 is_excluded() {
     local file="$1"
 
@@ -664,6 +1045,13 @@ is_excluded() {
     [[ "$file" == .sync-exclude.default ]] && return 0
     [[ "$file" == .harness-backup* ]] && return 0
 
+    # When manifest is present, use merged protected check (manifest + .sync-exclude)
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        is_protected "$file"
+        return $?
+    fi
+
+    # Legacy fallback: .sync-exclude only
     if [ ! -f "$EXCLUDE_FILE" ]; then
         return 1
     fi
@@ -793,9 +1181,12 @@ do_diff() {
     # Validate rename sources against fetched upstream tree
     validate_renames_against_upstream
 
+    # Validate protected patterns against local files (warn on typos)
+    validate_protected_paths
+
     print_header "Differences (local vs upstream)"
 
-    local new=0 modified=0 deleted=0 excluded=0 unchanged=0 renamed=0
+    local new=0 modified=0 deleted=0 excluded=0 unchanged=0 renamed=0 protected=0
 
     # Track directory rename file counts for summary output
     # Associative arrays: dir_rename_counts["src|dst"] = count
@@ -806,8 +1197,14 @@ do_diff() {
         local rel_path="${file#$TMP_DIR/.claude/}"
 
         if is_excluded "$rel_path"; then
-            echo -e "${YELLOW}EXCLUDED${NC}  $rel_path"
-            excluded=$((excluded + 1))
+            # Distinguish PROTECTED (manifest) from EXCLUDED (.sync-exclude / hardcoded)
+            if is_manifest_protected "$rel_path"; then
+                echo -e "${YELLOW}PROTECTED${NC}  $rel_path (upstream has changes, skipping per manifest)"
+                protected=$((protected + 1))
+            else
+                echo -e "${YELLOW}EXCLUDED${NC}  $rel_path"
+                excluded=$((excluded + 1))
+            fi
             continue
         fi
 
@@ -819,8 +1216,13 @@ do_diff() {
 
         # Also check exclusion for the resolved local path
         if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
-            echo -e "${YELLOW}EXCLUDED${NC}  $local_path (renamed from $rel_path)"
-            excluded=$((excluded + 1))
+            if is_manifest_protected "$local_path"; then
+                echo -e "${YELLOW}PROTECTED${NC}  $local_path (upstream has changes, skipping per manifest)"
+                protected=$((protected + 1))
+            else
+                echo -e "${YELLOW}EXCLUDED${NC}  $local_path (renamed from $rel_path)"
+                excluded=$((excluded + 1))
+            fi
             continue
         fi
 
@@ -927,11 +1329,14 @@ do_diff() {
     fi
 
     echo ""
-    if [ "$renamed" -gt 0 ]; then
-        print_info "Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged, $renamed renamed"
-    else
-        print_info "Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged"
+    local summary="Summary: $new new, $modified modified, $deleted local-only, $excluded excluded, $unchanged unchanged"
+    if [ "$protected" -gt 0 ]; then
+        summary="$summary, $protected protected"
     fi
+    if [ "$renamed" -gt 0 ]; then
+        summary="$summary, $renamed renamed"
+    fi
+    print_info "$summary"
 }
 
 # Perform sync
@@ -939,6 +1344,7 @@ do_sync() {
     local dry_run=false
     local version=""
     local use_latest=false
+    local no_placeholders=false
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -953,6 +1359,10 @@ do_sync() {
                 ;;
             --latest)
                 use_latest=true
+                shift
+                ;;
+            --no-placeholders)
+                no_placeholders=true
                 shift
                 ;;
             *)
@@ -986,12 +1396,15 @@ do_sync() {
     # Validate rename sources against fetched upstream tree
     validate_renames_against_upstream
 
+    # Validate protected patterns against local files (warn on typos)
+    validate_protected_paths
+
     # Create backup before sync (unless dry run)
     if [ "$dry_run" = false ]; then
         create_backup
     fi
 
-    local updated=0 skipped=0 conflicts=0 new_files=0
+    local updated=0 skipped=0 conflicts=0 new_files=0 protected_count=0
     local sha
     sha=$(get_upstream_sha "$ref")
 
@@ -1000,7 +1413,13 @@ do_sync() {
         local rel_path="${file#$TMP_DIR/.claude/}"
 
         if is_excluded "$rel_path"; then
-            print_warning "Skipping excluded: $rel_path"
+            # Distinguish protected (manifest) from excluded (.sync-exclude / hardcoded)
+            if is_manifest_protected "$rel_path"; then
+                print_warning "Skipping protected: $rel_path (upstream has changes, skipping per manifest)"
+                protected_count=$((protected_count + 1))
+            else
+                print_warning "Skipping excluded: $rel_path"
+            fi
             skipped=$((skipped + 1))
             continue
         fi
@@ -1012,7 +1431,12 @@ do_sync() {
 
         # Also check exclusion for the resolved local path
         if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
-            print_warning "Skipping excluded: $local_path (renamed from $rel_path)"
+            if is_manifest_protected "$local_path"; then
+                print_warning "Skipping protected: $local_path (upstream has changes, skipping per manifest)"
+                protected_count=$((protected_count + 1))
+            else
+                print_warning "Skipping excluded: $local_path (renamed from $rel_path)"
+            fi
             skipped=$((skipped + 1))
             continue
         fi
@@ -1050,13 +1474,25 @@ do_sync() {
         esac
     done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
 
+    # Apply placeholder substitutions after file copy (SAW-10)
+    # Backup retains upstream originals; substitution happens on local copies.
+    if [ "$dry_run" = false ] && [ "$no_placeholders" = false ] && [ "$HAS_MANIFEST" = "true" ]; then
+        apply_all_substitutions "$CLAUDE_DIR"
+    elif [ "$no_placeholders" = true ]; then
+        print_info "Skipping placeholder substitutions (--no-placeholders)"
+    fi
+
     # Update sync metadata (unless dry run)
     if [ "$dry_run" = false ]; then
         update_sync_metadata "$sha" "$ref" "$updated" "$skipped" "$conflicts"
     fi
 
     echo ""
-    print_info "Summary: $updated updated ($new_files new), $skipped skipped, $conflicts conflicts"
+    local sync_summary="Summary: $updated updated ($new_files new), $skipped skipped, $conflicts conflicts"
+    if [ "$protected_count" -gt 0 ]; then
+        sync_summary="$sync_summary, $protected_count protected"
+    fi
+    print_info "$sync_summary"
 
     if [ "$dry_run" = true ]; then
         print_info "Run without --dry-run to apply changes"
@@ -1291,9 +1727,10 @@ COMMANDS:
     help              Show this help
 
 SYNC OPTIONS:
-    --dry-run         Preview changes without applying
-    --version <tag>   Sync to specific release tag (e.g., v2.2.0)
-    --latest          Sync to latest release
+    --dry-run           Preview changes without applying
+    --version <tag>     Sync to specific release tag (e.g., v2.2.0)
+    --latest            Sync to latest release
+    --no-placeholders   Skip placeholder substitution step
 
 EXAMPLES:
     # First time setup
@@ -1310,6 +1747,9 @@ EXAMPLES:
 
     # Sync to latest release
     $0 sync --latest
+
+    # Sync without applying substitutions
+    $0 sync --latest --no-placeholders
 
     # If something breaks
     $0 rollback
