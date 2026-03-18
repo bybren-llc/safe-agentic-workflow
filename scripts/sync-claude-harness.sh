@@ -948,6 +948,198 @@ JSEOF
 # End Protected File Enforcement
 # =============================================================================
 
+# =============================================================================
+# Preflight Safety Check (SAW-2)
+# =============================================================================
+# Adapted from keryk-ai pattern: allowlist safety gate + unreplaced token
+# scanner. Runs automatically before every sync (unless --skip-preflight).
+#
+# Three checks:
+#   (a) Scope check: all files are within .claude/ (manifest scope)
+#   (b) Token check: no manifest substitution keys remain as {{KEY}} tokens
+#       after substitution (only checks keys from manifest, not arbitrary)
+#   (c) Protected check: none of the target files are protected
+#
+# Returns 0 on pass, 1 on fail (sync aborted with clear error messages).
+# =============================================================================
+
+# Scan a single file for unreplaced {{KEY}} tokens where KEY is a manifest
+# substitution or identity key. Reports file:line for each found.
+# Only flags tokens that SHOULD have been replaced (not arbitrary {{...}}).
+#
+# Usage: scan_unreplaced_tokens "/path/to/file" "rel_path"
+# Output: lines like "rel_path:42: unreplaced token {{PROJECT_NAME}}"
+# Returns: 0 if clean, 1 if unreplaced tokens found
+scan_unreplaced_tokens() {
+    local file_path="$1"
+    local rel_path="$2"
+
+    if [ "$HAS_MANIFEST" != "true" ] || [ -z "$MANIFEST_JSON" ] || [ ! -f "$MANIFEST_JSON" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$file_path" ]; then
+        return 0
+    fi
+
+    # Get all manifest substitution and identity keys
+    local keys_json
+    keys_json=$(node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
+            const keys = new Set();
+            // Identity keys
+            const identity = data.identity || {};
+            for (const key of Object.keys(identity)) {
+                keys.add(key);
+            }
+            // Substitution keys (extract KEY from {{KEY}} patterns)
+            const subs = data.substitutions || {};
+            for (const key of Object.keys(subs)) {
+                const m = key.match(/^\{\{(.+)\}\}$/);
+                if (m) {
+                    keys.add(m[1]);
+                } else {
+                    keys.add(key);
+                }
+            }
+            console.log(JSON.stringify([...keys]));
+        } catch(e) {
+            console.log('[]');
+        }
+    ")
+
+    if [ "$keys_json" = "[]" ]; then
+        return 0
+    fi
+
+    # Scan file for unreplaced tokens matching manifest keys
+    local found
+    found=$(node -e "
+        const fs = require('fs');
+        try {
+            const keys = $keys_json;
+            const content = fs.readFileSync('$file_path', 'utf8');
+            const lines = content.split('\n');
+            const results = [];
+            for (let i = 0; i < lines.length; i++) {
+                for (const key of keys) {
+                    const token = '{{' + key + '}}';
+                    if (lines[i].includes(token)) {
+                        results.push('$rel_path:' + (i + 1) + ': unreplaced token ' + token);
+                    }
+                }
+            }
+            if (results.length > 0) {
+                results.forEach(r => console.log(r));
+            }
+        } catch(e) {}
+    ")
+
+    if [ -n "$found" ]; then
+        echo "$found"
+        return 1
+    fi
+    return 0
+}
+
+# Run preflight safety checks on the sync plan.
+# Takes a newline-separated list of "action|upstream_rel_path|local_rel_path"
+# entries representing what WOULD be written.
+#
+# Checks:
+#   (a) All target files are within .claude/ scope
+#   (b) No unreplaced manifest tokens remain post-substitution
+#   (c) No protected files being modified
+#
+# Usage: run_preflight "$sync_plan" "$claude_dir" [skip_token_check]
+# Returns: 0 on pass, 1 on fail
+run_preflight() {
+    local sync_plan="$1"
+    local claude_dir="$2"
+    local skip_token_check="${3:-false}"
+    local errors=0
+    local scope_violations=""
+    local token_violations=""
+    local protected_violations=""
+
+    print_header "Preflight Safety Check"
+
+    if [ -z "$sync_plan" ]; then
+        print_success "Preflight passed (no files to sync)"
+        return 0
+    fi
+
+    while IFS='|' read -r action upstream_rel local_rel; do
+        [ -z "$action" ] && continue
+
+        # --- Check (a): scope check -- all files must be within .claude/ ---
+        # The local_rel path is relative to .claude/, so check for path traversal
+        if [[ "$local_rel" == ../* ]] || [[ "$local_rel" == /* ]] || [[ "$local_rel" == */../* ]]; then
+            scope_violations="${scope_violations}  - $local_rel (path escapes .claude/ scope)\n"
+            errors=$((errors + 1))
+        fi
+
+        # --- Check (c): protected file check ---
+        if is_protected "$local_rel"; then
+            protected_violations="${protected_violations}  - $local_rel (protected by manifest or .sync-exclude)\n"
+            errors=$((errors + 1))
+        fi
+        # Also check upstream path for protection
+        if [ "$upstream_rel" != "$local_rel" ] && is_protected "$upstream_rel"; then
+            protected_violations="${protected_violations}  - $upstream_rel -> $local_rel (upstream path is protected)\n"
+            errors=$((errors + 1))
+        fi
+
+        # --- Check (b): unreplaced token check ---
+        # Only check files that will be written (new or modified)
+        # We scan the upstream copy (in TMP_DIR) post-substitution simulation
+        # Skip this check when --no-placeholders is used (tokens are expected)
+        if [ "$skip_token_check" != "true" ]; then
+            local upstream_file="$TMP_DIR/.claude/$upstream_rel"
+            if [ -f "$upstream_file" ] && [ "$action" != "skip" ]; then
+                local token_output
+                token_output=$(scan_unreplaced_tokens "$upstream_file" "$local_rel") || true
+                if [ -n "$token_output" ]; then
+                    token_violations="${token_violations}${token_output}\n"
+                    errors=$((errors + 1))
+                fi
+            fi
+        fi
+
+    done <<< "$sync_plan"
+
+    # Report results
+    if [ -n "$scope_violations" ]; then
+        print_error "Scope violation: files outside .claude/ would be modified:"
+        echo -e "$scope_violations"
+    fi
+
+    if [ -n "$protected_violations" ]; then
+        print_error "Protected file violation: sync would modify protected files:"
+        echo -e "$protected_violations"
+    fi
+
+    if [ -n "$token_violations" ]; then
+        print_error "Unreplaced token violation: manifest tokens still present after substitution:"
+        echo -e "$token_violations"
+    fi
+
+    if [ "$errors" -gt 0 ]; then
+        print_error "Preflight FAILED with $errors error(s). Sync aborted."
+        print_info "Use --skip-preflight to bypass (advanced users only)"
+        return 1
+    fi
+
+    print_success "Preflight passed: all files within scope, no protected conflicts, no unreplaced tokens"
+    return 0
+}
+
+# =============================================================================
+# End Preflight Safety Check
+# =============================================================================
+
 # Get current upstream commit SHA
 get_upstream_sha() {
     local ref="${1:-$UPSTREAM_BRANCH}"
@@ -1345,6 +1537,7 @@ do_sync() {
     local version=""
     local use_latest=false
     local no_placeholders=false
+    local skip_preflight=false
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -1363,6 +1556,10 @@ do_sync() {
                 ;;
             --no-placeholders)
                 no_placeholders=true
+                shift
+                ;;
+            --skip-preflight)
+                skip_preflight=true
                 shift
                 ;;
             *)
@@ -1399,14 +1596,61 @@ do_sync() {
     # Validate protected patterns against local files (warn on typos)
     validate_protected_paths
 
+    # Apply substitutions to upstream copies in TMP_DIR BEFORE preflight
+    # so the token scanner checks post-substitution state (SAW-2)
+    if [ "$no_placeholders" = false ] && [ "$HAS_MANIFEST" = "true" ]; then
+        apply_all_substitutions "$TMP_DIR/.claude"
+    fi
+
+    # --- Build sync plan (SAW-2) ---
+    # Enumerate what WOULD be written, for preflight validation
+    local sync_plan=""
+    local sha
+    sha=$(get_upstream_sha "$ref")
+
+    while IFS= read -r -d '' file; do
+        local rel_path="${file#$TMP_DIR/.claude/}"
+
+        if is_excluded "$rel_path"; then
+            continue
+        fi
+
+        # Resolve rename: map upstream path to local path
+        local local_path
+        local_path=$(resolve_rename "$rel_path")
+
+        # Also check exclusion for the resolved local path
+        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
+            continue
+        fi
+
+        local status
+        status=$(compare_file_with_paths "$rel_path" "$local_path")
+
+        case "$status" in
+            new|modified)
+                sync_plan="${sync_plan}${status}|${rel_path}|${local_path}\n"
+                ;;
+        esac
+    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+
+    # --- Run preflight (SAW-2) ---
+    if [ "$skip_preflight" = true ]; then
+        print_warning "Preflight check SKIPPED (--skip-preflight). Proceeding without safety validation."
+    else
+        local plan_text
+        plan_text=$(echo -e "$sync_plan")
+        if ! run_preflight "$plan_text" "$CLAUDE_DIR" "$no_placeholders"; then
+            return 1
+        fi
+    fi
+
     # Create backup before sync (unless dry run)
     if [ "$dry_run" = false ]; then
         create_backup
     fi
 
     local updated=0 skipped=0 conflicts=0 new_files=0 protected_count=0
-    local sha
-    sha=$(get_upstream_sha "$ref")
 
     # Process upstream files
     while IFS= read -r -d '' file; do
@@ -1453,6 +1697,7 @@ do_sync() {
             new)
                 if [ "$dry_run" = false ]; then
                     mkdir -p "$(dirname "$local_file")"
+                    # Copy the already-substituted file from TMP_DIR
                     cp "$file" "$local_file"
                 fi
                 print_success "Added: $display_path"
@@ -1461,8 +1706,7 @@ do_sync() {
                 ;;
             modified)
                 if [ "$dry_run" = false ]; then
-                    # Check if local has custom modifications we should preserve
-                    # For now, just copy upstream (user can rollback if needed)
+                    # Copy the already-substituted file from TMP_DIR
                     cp "$file" "$local_file"
                 fi
                 print_success "Updated: $display_path"
@@ -1474,15 +1718,13 @@ do_sync() {
         esac
     done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
 
-    # Apply placeholder substitutions after file copy (SAW-10)
-    # Backup retains upstream originals; substitution happens on local copies.
-    if [ "$dry_run" = false ] && [ "$no_placeholders" = false ] && [ "$HAS_MANIFEST" = "true" ]; then
-        apply_all_substitutions "$CLAUDE_DIR"
-    elif [ "$no_placeholders" = true ]; then
+    # Note: Substitutions were already applied to TMP_DIR copies before preflight.
+    # The substituted files are what get copied to CLAUDE_DIR above.
+    if [ "$no_placeholders" = true ]; then
         print_info "Skipping placeholder substitutions (--no-placeholders)"
     fi
 
-    # Update sync metadata (unless dry run)
+    # Update sync metadata with provenance (unless dry run) (SAW-2)
     if [ "$dry_run" = false ]; then
         update_sync_metadata "$sha" "$ref" "$updated" "$skipped" "$conflicts"
     fi
@@ -1514,19 +1756,27 @@ update_sync_metadata() {
             const fs = require('fs');
             const data = JSON.parse(fs.readFileSync('$SYNC_CONFIG', 'utf8'));
 
-            // Update main fields
+            // Update main provenance fields (SAW-2)
             data.last_synced_commit = '$commit';
             data.last_synced_version = '$version';
             data.last_synced_at = '$timestamp';
 
-            // Add to sync history (keep last 10)
+            // Provenance tracking (SAW-2): explicit source provenance fields
+            data.last_sync_timestamp = '$timestamp';
+            data.last_sync_version = '$version';
+            data.last_sync_commit = '$commit';
+
+            // Add to sync history (keep last 10) with provenance (SAW-2)
             const historyEntry = {
                 commit: '$commit',
                 version: '$version',
                 synced_at: '$timestamp',
                 files_updated: $updated,
                 files_skipped: $skipped,
-                conflicts: $conflicts
+                conflicts: $conflicts,
+                source_commit_sha: '$commit',
+                upstream_version: '$version',
+                sync_timestamp: '$timestamp'
             };
             data.sync_history = [historyEntry, ...(data.sync_history || [])].slice(0, 10);
 
@@ -1731,6 +1981,22 @@ SYNC OPTIONS:
     --version <tag>     Sync to specific release tag (e.g., v2.2.0)
     --latest            Sync to latest release
     --no-placeholders   Skip placeholder substitution step
+    --skip-preflight    Skip preflight safety checks (advanced users only)
+
+PREFLIGHT (SAW-2):
+    A preflight safety check runs automatically before every sync.
+    It validates:
+      (a) All files are within .claude/ scope (no path traversal)
+      (b) No manifest substitution tokens remain unreplaced
+      (c) No protected files would be modified
+    Use --skip-preflight to bypass (logged as warning).
+
+PROVENANCE (SAW-2):
+    After each sync, .harness-sync.json records:
+      - last_sync_commit: upstream source commit SHA
+      - last_sync_version: upstream version/tag synced to
+      - last_sync_timestamp: ISO 8601 timestamp
+      - sync_history: last 10 sync entries with full provenance
 
 EXAMPLES:
     # First time setup
@@ -1750,6 +2016,9 @@ EXAMPLES:
 
     # Sync without applying substitutions
     $0 sync --latest --no-placeholders
+
+    # Sync bypassing preflight (advanced)
+    $0 sync --latest --skip-preflight
 
     # If something breaks
     $0 rollback
