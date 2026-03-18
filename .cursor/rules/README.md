@@ -30,6 +30,9 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 | `11-frontend-react.mdc`  | `sdk/**/*.tsx, sdk/**/*.ts`                | React 18, Electron, ShadCN, Tailwind  |
 | `12-database-sql.mdc`    | `alembic/**, **/models.py, **/schemas.py`  | PostgreSQL 16, migrations, RLS         |
 | `13-testing.mdc`          | `tests/**/*.py, tests/**`                  | pytest, integration, E2E Docker        |
+| `14-spec-creation.mdc`   | `specs/**/*.md, specs_templates/**/*.md`    | Spec templates, AC/DoD, pattern refs   |
+| `15-deployment.mdc`       | `docker-compose*.yml, Dockerfile*, scripts/deploy*` | Deploy procedures, Coolify, Docker |
+| `16-stripe-payments.mdc`  | `core/**/billing/**, core/**/payments/**`   | Stripe webhooks, checkout, idempotency |
 
 ### Agent-Role Rules (manual, use `@rule-name` to activate)
 
@@ -46,6 +49,24 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 |-------------------------------|---------------------------------------------------|
 | `30-background-agents.mdc`   | Guidelines for Cursor background agents running in isolated VMs |
 | `31-mcp-integration.mdc`     | MCP server configuration guidance for external service integration |
+
+## MCP Server Configuration
+
+Cursor supports project-level MCP server configuration via `.cursor/mcp.json`. This harness includes a pre-configured MCP config with placeholder tokens for Linear and Confluence integration.
+
+**Config file**: `.cursor/mcp.json`
+
+To activate:
+
+1. Open `.cursor/mcp.json`
+2. Replace `{{MCP_LINEAR_SERVER}}` with your preferred server name (e.g., `linear`)
+3. Replace `{{MCP_CONFLUENCE_SERVER}}` with your preferred server name (e.g., `confluence`)
+4. Set environment variable values (API keys, tokens, URLs)
+5. Cursor auto-detects the config -- servers appear in Settings > Features > MCP Servers
+
+**Security**: Never commit real API keys. Use environment variables or Cursor's settings UI for secrets. The `.cursor/mcp.json` file uses placeholder values that must be replaced per-project.
+
+See `31-mcp-integration.mdc` for detailed MCP usage guidance across SAFe agent roles.
 
 ## Background Agent Support
 
@@ -102,7 +123,7 @@ Reference these when working with background agents or MCP:
 1. **DRY**: Rules reference existing docs (CLAUDE.md, AGENTS.md, patterns_library/) rather than duplicating content
 2. **Concise**: Each rule stays under 200 lines to respect Cursor's context limits
 3. **Template-Ready**: Uses `{{TICKET_PREFIX}}`, `{{MAIN_BRANCH}}`, and other placeholders for project customization
-4. **Hierarchical**: Numbering (00-02, 10-13, 20-23, 30-31) groups rules by activation type
+4. **Hierarchical**: Numbering (00-02, 10-16, 20-23, 30-31) groups rules by activation type
 
 ## Relationship to Other Configurations
 

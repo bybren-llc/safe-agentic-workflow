@@ -1,0 +1,109 @@
+---
+description: "Spec-driven development: spec templates, acceptance criteria, definition of done, pattern references, and demo scripts."
+globs: "specs/**/*.md,specs_templates/**/*.md"
+alwaysApply: false
+---
+
+# Spec Creation Rules
+
+These rules apply when creating or editing implementation specs. Every spec drives implementation -- incomplete specs block all downstream work.
+
+## Stop-the-Line: Spec Quality Gate
+
+Every spec MUST include:
+
+1. **Acceptance Criteria** -- Testable pass/fail conditions
+2. **Pattern References** -- Pointers to `patterns_library/` for execution agents
+3. **Success Validation Command** -- A runnable command to verify the feature works
+4. **Demo Script** -- Step-by-step reproduction for QAS
+
+If any of these are missing, the spec is not ready for implementation.
+
+## Spec Template
+
+Use this structure for all implementation specs:
+
+```markdown
+# SPEC-{{TICKET_PREFIX}}-{number}: {Feature Name}
+
+## Summary
+{One paragraph describing the feature}
+
+## User Story
+As a [user type], I want [goal] so that [benefit].
+
+## Acceptance Criteria
+- [ ] {Testable criterion 1}
+- [ ] {Testable criterion 2}
+- [ ] {Testable criterion 3}
+
+## Pattern References
+- **API**: `patterns_library/api/{pattern}.md`
+- **Database**: `patterns_library/database/{pattern}.md`
+- **Security**: `docs/database/RLS_IMPLEMENTATION_GUIDE.md`
+
+## Success Validation Command
+{runnable command to verify the feature}
+
+## Demo Script
+1. Navigate to {page}
+2. Perform {action}
+3. Observe {expected behavior}
+4. Verify {success indicator}
+
+## Logical Commits
+1. `feat(scope): implement data model [{{TICKET_PREFIX}}-{number}]`
+2. `feat(scope): add API endpoint [{{TICKET_PREFIX}}-{number}]`
+3. `test(scope): add tests [{{TICKET_PREFIX}}-{number}]`
+```
+
+## Acceptance Criteria Patterns
+
+### User Action Criteria
+
+```markdown
+- [ ] User can {action} -> {result}
+- [ ] When user {triggers}, system {responds}
+- [ ] User receives {feedback} after {action}
+```
+
+### Data Criteria
+
+```markdown
+- [ ] Data persists after {action}
+- [ ] User can only see their own {data type}
+- [ ] {field} validates {constraint}
+```
+
+### Error Criteria
+
+```markdown
+- [ ] Invalid input shows {error message}
+- [ ] Network failure shows retry option
+- [ ] Unauthorized access returns 401
+```
+
+## FORBIDDEN Patterns
+
+- Specs without testable acceptance criteria
+- Specs without pattern references (execution agents need pointers)
+- Specs with "looks good to reviewer" as done criteria (not testable)
+- Specs that skip the success validation command
+
+## Quality Checklist
+
+Before submitting a spec:
+
+- [ ] All acceptance criteria are testable (verifiable pass/fail)
+- [ ] Pattern references point to existing patterns in `patterns_library/`
+- [ ] Success validation command is runnable
+- [ ] Demo script is step-by-step reproducible
+- [ ] Logical commits follow SAFe format
+- [ ] Linear ticket referenced
+
+## Key References
+
+- **Spec templates**: `specs_templates/`
+- **Pattern library**: `patterns_library/README.md`
+- **SAFe workflow**: `CONTRIBUTING.md`
+- **Full skill docs**: `.claude/skills/spec-creation/SKILL.md`
