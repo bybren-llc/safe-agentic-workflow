@@ -1,0 +1,7 @@
+{
+  "description": "ScaleForge team config (PROTECTED)",
+  "team_name": "ScaleForge Team",
+  "ticket_prefix": "SCA",
+  "main_branch": "main",
+  "project_name": "ScaleForge"
+}

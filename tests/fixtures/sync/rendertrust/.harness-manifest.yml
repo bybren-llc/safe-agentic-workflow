@@ -1,0 +1,54 @@
+# Fixture: RenderTrust fork manifest (from examples/manifests/)
+# No renames, protected files, identity substitutions
+
+manifest_version: "1.0"
+
+identity:
+  PROJECT_NAME: "RenderTrust"
+  PROJECT_REPO: "rendertrust"
+  PROJECT_SHORT: "REN"
+  PROJECT_DOMAIN: "rendertrust.com"
+  GITHUB_ORG: "ByBren-LLC"
+  COMPANY_NAME: "ByBren, LLC"
+  AUTHOR_NAME: "J. Scott Graham"
+  AUTHOR_FIRST_NAME: "Scott"
+  AUTHOR_LAST_NAME: "Graham"
+  AUTHOR_HANDLE: "cheddarfox"
+  AUTHOR_EMAIL: "scott@cheddarfox.com"
+  AUTHOR_WEBSITE: "https://cheddarfox.com"
+  SECURITY_EMAIL: "security@rendertrust.com"
+  ARCHITECT_GITHUB_HANDLE: "cheddarfox"
+  TICKET_PREFIX: "REN"
+  LINEAR_WORKSPACE: "cheddarfox"
+  MAIN_BRANCH: "dev"
+  MCP_LINEAR_SERVER: "claude_ai_Linear"
+  MCP_CONFLUENCE_SERVER: "claude_ai_Atlassian"
+  DB_USER: "rendertrust"
+  DB_PASSWORD: "rendertrust_dev"
+  DB_NAME: "rendertrust_dev"
+  DB_CONTAINER: "rendertrust-postgres"
+  DEV_CONTAINER: "rendertrust-dev"
+  STAGING_CONTAINER: "rendertrust-staging"
+  CONTAINER_REGISTRY: "ghcr.io/bybren-llc"
+
+substitutions: {}
+
+renames: {}
+
+protected:
+  - "hooks-config.json"
+  - "team-config.json"
+
+replaced:
+  - "AGENT_OUTPUT_GUIDE.md"
+
+sync:
+  auto_substitute: true
+  backup: true
+  conflict_strategy: "prompt"
+  substitution_extensions:
+    - ".md"
+    - ".json"
+    - ".yml"
+    - ".yaml"
+    - ".sh"

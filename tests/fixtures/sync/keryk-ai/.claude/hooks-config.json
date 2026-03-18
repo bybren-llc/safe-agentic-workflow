@@ -1,0 +1,9 @@
+{
+  "description": "ScaleForge custom hooks config (PROTECTED)",
+  "hooks": {
+    "pre-commit": {
+      "command": "npm run lint && npm run typecheck",
+      "description": "Run linting and type checks"
+    }
+  }
+}
