@@ -7,9 +7,9 @@ authors:
     email: "scott@wordstofilmby.com"
   - name: "WTFB Development Team"
 title: "Claude Code Harness for Multi-Agent Team Workflows"
-version: 2.6.0
-date-released: 2025-12-22
-url: "https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow"
+version: 2.9.0
+date-released: 2026-03-18
+url: "https://github.com/bybren-llc/safe-agentic-workflow"
 keywords:
   - multi-agent
   - SAFe
@@ -20,7 +20,7 @@ keywords:
   - task orchestration
   - evidence-based development
 license: MIT
-repository-code: "https://github.com/ByBren-LLC/WTFB-SAFe-Agentic-Workflow"
+repository-code: "https://github.com/bybren-llc/safe-agentic-workflow"
 type: software
 abstract: >-
   A production-tested Claude Code harness for teams that want structured AI

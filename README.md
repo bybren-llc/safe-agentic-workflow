@@ -192,7 +192,7 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 
 ### Production Results (v1.0 Harness)
 
-> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.6** (Dark Factory + Template Readiness), which adds persistent autonomous agent teams via tmux, comprehensive adoption guides, Gemini CLI v0.32.1 alignment, and Skills 2.0 + Agent Teams from v2.5.
+> **Note**: These metrics are from the **v1.0 harness** deployed on the {{PROJECT_SHORT}}-app project (5+ months production use). This repository is now at **v2.9** (Codex Agents + Shared Skills + Cursor MCP + Branch Restructure), which adds 11 Codex agent TOML files, 18 cross-provider shared skills, Cursor MCP integration, enriched Codex config, and GitHub template-standard branch topology (`main` + `dev`).
 
 | Metric           | Value              | Source     |
 | ---------------- | ------------------ | ---------- |
