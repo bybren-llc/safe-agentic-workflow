@@ -161,18 +161,31 @@ export MAIN_BRANCH=main
 
 ## Relationship to Other AI Tool Configs
 
-This `.codex/` directory works alongside `.claude/` and `.gemini/` for teams using multiple AI tools:
+This `.codex/` directory works alongside `.claude/`, `.gemini/`, and `.cursor/` for teams using multiple AI tools:
 
-| Feature | Codex CLI | Claude Code | Gemini CLI |
-|---------|-----------|-------------|------------|
-| System Instructions | `AGENTS.md` (project root) | `CLAUDE.md` | `GEMINI.md` |
-| Configuration | `.codex/config.toml` | `.claude/settings.local.json` | `.gemini/settings.json` |
-| Commands | N/A (natural language) | `.claude/commands/*.md` | `.gemini/commands/*.toml` |
-| Skills | `.agents/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | `.gemini/skills/*/SKILL.md` |
-| Agents | N/A | `.claude/agents/` | N/A |
-| MCP Servers | Native support | `settings.local.json` | `settings.json` mcpServers |
+| Feature | Codex CLI | Claude Code | Gemini CLI | Cursor IDE |
+|---------|-----------|-------------|------------|------------|
+| System Instructions | `AGENTS.md` (project root) | `CLAUDE.md` | `GEMINI.md` | `.cursor/rules/*.mdc` |
+| Configuration | `.codex/config.toml` | `.claude/settings.local.json` | `.gemini/settings.json` | `.cursor/rules/*.mdc` frontmatter |
+| Commands | N/A (natural language) | `.claude/commands/*.md` | `.gemini/commands/*.toml` | N/A (use `@rule-name`) |
+| Skills | `.agents/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | `.gemini/skills/*/SKILL.md` | N/A (rules serve as skills) |
+| Agents | N/A | `.claude/agents/` | N/A | Agent-role rules (20-23) |
+| MCP Servers | Native support | `settings.local.json` | `settings.json` mcpServers | `.cursor/mcp.json` or settings UI |
+| Background Agents | N/A | Agent Teams (experimental) | N/A | Background Agents (isolated VMs) |
 
 All tools can coexist in the same repository. `AGENTS.md` is the universal file read by Codex and useful to all agents.
+
+## Dark Factory Compatibility
+
+Codex CLI works in [Dark Factory](../dark-factory/README.md) tmux sessions. Each tmux pane can run an independent Codex session:
+
+```bash
+# In a Dark Factory tmux pane
+cd /path/to/project
+codex  # Starts interactive session with AGENTS.md context
+```
+
+Since Codex uses natural language instead of slash commands, describe the SAFe workflow step you want to execute conversationally (e.g., "Start work on {{TICKET_PREFIX}}-42" instead of `/start-work {{TICKET_PREFIX}}-42`).
 
 ## Troubleshooting
 

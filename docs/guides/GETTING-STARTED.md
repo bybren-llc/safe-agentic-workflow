@@ -46,7 +46,8 @@ git fetch harness
 
 # Cherry-pick the harness directories into your repo
 git checkout harness/{{MAIN_BRANCH}} -- \
-  .claude/ .gemini/ CLAUDE.md AGENTS.md CONTRIBUTING.md \
+  .claude/ .gemini/ .codex/ .cursor/ .agents/ \
+  CLAUDE.md AGENTS.md CONTRIBUTING.md \
   patterns_library/ specs/ specs_templates/ scripts/ \
   docs/ dark-factory/
 
@@ -120,6 +121,18 @@ ls .claude/agents/ | wc -l
 # Gemini harness present?
 ls .gemini/settings.json .gemini/GEMINI.md
 # Expect: both files exist
+
+# Codex CLI harness present?
+ls .codex/config.toml .codex/README.md
+# Expect: both files exist
+
+# Cursor rules present?
+ls .cursor/rules/*.mdc | wc -l
+# Expect: 14+ files
+
+# Shared agent skills present?
+ls .agents/skills/ | wc -l
+# Expect: 3 directories
 ```
 
 ---
@@ -295,6 +308,8 @@ See [dark-factory/README.md](../../dark-factory/README.md) for the full guide.
 |-----|-------|
 | [Skill Authoring Guide](SKILL_AUTHORING_GUIDE.md) | Creating custom skills |
 | [Gemini CLI Guide](GEMINI_CLI_AUTHORING_GUIDE.md) | Using Gemini CLI harness |
+| [Codex CLI Setup](../../.codex/README.md) | Using Codex CLI harness |
+| [Cursor Rules](../../.cursor/rules/README.md) | Cursor IDE rules and background agents |
 | [Round Table Philosophy](ROUND-TABLE-PHILOSOPHY.md) | Collaboration principles |
 | [Agent Teams Guide](../onboarding/AGENT-TEAMS-GUIDE.md) | Multi-agent orchestration |
 | [Dark Factory Guide](../../dark-factory/docs/DARK-FACTORY-GUIDE.md) | Persistent agent sessions |

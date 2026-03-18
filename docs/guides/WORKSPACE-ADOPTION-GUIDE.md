@@ -23,10 +23,13 @@ The harness is designed as a GitHub template, but it works equally well when
 pulled into an existing repository. The key directories are:
 
 ```
-.claude/          # Claude Code harness (agents, skills, commands, hooks)
-.gemini/          # Gemini CLI harness (commands, skills, settings)
+.claude/          # Claude Code harness (agents, skills, commands, hooks) — primary provider
+.gemini/          # Gemini CLI harness (commands, skills, settings) — secondary provider
+.codex/           # Codex CLI harness (config.toml, reads AGENTS.md) — TOML config, MCP native
+.cursor/          # Cursor IDE harness (.mdc rules with glob-based activation, background agents)
+.agents/          # Shared agent skills (discovered by Codex CLI and other agents)
 CLAUDE.md         # AI assistant context (read by Claude Code on every session)
-AGENTS.md         # Agent role reference
+AGENTS.md         # Agent role reference (also read by Codex CLI as system instructions)
 CONTRIBUTING.md   # Git workflow and commit standards
 patterns_library/ # Reusable code patterns
 dark-factory/     # Persistent agent teams via tmux (optional)
@@ -35,7 +38,7 @@ docs/             # Documentation
 ```
 
 **What you keep vs. customize:**
-- `.claude/`, `.gemini/`, `patterns_library/` — keep as-is, customize placeholders
+- `.claude/`, `.gemini/`, `.codex/`, `.cursor/`, `.agents/`, `patterns_library/` — keep as-is, customize placeholders
 - `CLAUDE.md` — customize the technology stack section for your project
 - `CONTRIBUTING.md` — customize branch/commit conventions if they differ
 - `dark-factory/` — optional, include only if using remote agent teams
@@ -59,6 +62,9 @@ git fetch harness
 git checkout harness/{{MAIN_BRANCH}} -- \
   .claude/ \
   .gemini/ \
+  .codex/ \
+  .cursor/ \
+  .agents/ \
   CLAUDE.md \
   AGENTS.md \
   CONTRIBUTING.md \
@@ -72,7 +78,7 @@ git checkout harness/{{MAIN_BRANCH}} -- \
 
 # Commit the initial adoption
 git add -A
-git commit -m "feat: adopt SAFe agentic workflow harness v2.5.0"
+git commit -m "feat: adopt SAFe agentic workflow harness v2.7.0"
 ```
 
 ### Step 3: Run the Setup Wizard
@@ -150,7 +156,7 @@ Other repos can adopt the same harness:
 cd {{PROJECT_NAME}}-packages
 git remote add harness https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}.git
 git fetch harness
-git checkout harness/{{MAIN_BRANCH}} -- .claude/ .gemini/ CLAUDE.md AGENTS.md
+git checkout harness/{{MAIN_BRANCH}} -- .claude/ .gemini/ .codex/ .cursor/ .agents/ CLAUDE.md AGENTS.md
 # Run setup wizard with this repo's values
 bash scripts/setup-template.sh
 ```
@@ -162,6 +168,9 @@ cd {{PROJECT_NAME}}-packages
 # Copy harness from workspace
 cp -r ../{{PROJECT_NAME}}/.claude/ .claude/
 cp -r ../{{PROJECT_NAME}}/.gemini/ .gemini/
+cp -r ../{{PROJECT_NAME}}/.codex/ .codex/
+cp -r ../{{PROJECT_NAME}}/.cursor/ .cursor/
+cp -r ../{{PROJECT_NAME}}/.agents/ .agents/
 cp ../{{PROJECT_NAME}}/CLAUDE.md .
 cp ../{{PROJECT_NAME}}/AGENTS.md .
 
@@ -340,6 +349,9 @@ git fetch harness
 git checkout harness/{{MAIN_BRANCH}} -- \
   .claude/ \
   .gemini/ \
+  .codex/ \
+  .cursor/ \
+  .agents/ \
   dark-factory/ \
   patterns_library/ \
   scripts/sync-claude-harness.sh \
@@ -380,6 +392,9 @@ git diff HEAD harness/{{MAIN_BRANCH}} -- .claude/team-config.json
 | `CLAUDE.md` | Keep your tech stack section, merge structural changes |
 | `CONTRIBUTING.md` | Keep your conventions, merge new sections |
 | `.gemini/` | Always update from upstream |
+| `.codex/` | Always update from upstream |
+| `.cursor/rules/` | Update, review for project-specific rule customizations |
+| `.agents/skills/` | Always update from upstream |
 | `dark-factory/scripts/` | Always update from upstream |
 | `dark-factory/templates/` | Update, review `env.template` for new variables |
 | `dark-factory/docs/` | Always update from upstream |
@@ -394,7 +409,7 @@ If you have multiple repos using the harness:
 ```bash
 # Update primary repo first
 cd {{PROJECT_NAME}}
-git fetch harness && git checkout harness/{{MAIN_BRANCH}} -- .claude/ .gemini/
+git fetch harness && git checkout harness/{{MAIN_BRANCH}} -- .claude/ .gemini/ .codex/ .cursor/ .agents/
 bash scripts/setup-template.sh
 git add -A && git commit -m "chore: upgrade harness to vX.Y.Z"
 
@@ -402,6 +417,9 @@ git add -A && git commit -m "chore: upgrade harness to vX.Y.Z"
 cd ../{{PROJECT_NAME}}-packages
 cp -r ../{{PROJECT_NAME}}/.claude/ .claude/
 cp -r ../{{PROJECT_NAME}}/.gemini/ .gemini/
+cp -r ../{{PROJECT_NAME}}/.codex/ .codex/
+cp -r ../{{PROJECT_NAME}}/.cursor/ .cursor/
+cp -r ../{{PROJECT_NAME}}/.agents/ .agents/
 # Adjust project-specific values
 bash scripts/setup-template.sh
 git add -A && git commit -m "chore: upgrade harness to vX.Y.Z"

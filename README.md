@@ -21,6 +21,12 @@
   <a href=".gemini/">
     <img src="https://img.shields.io/badge/Gemini_CLI-Google-blue?style=flat-square&logo=google" alt="Gemini CLI">
   </a>
+  <a href=".codex/">
+    <img src="https://img.shields.io/badge/Codex_CLI-OpenAI-412991?style=flat-square&logo=openai" alt="Codex CLI">
+  </a>
+  <a href=".cursor/rules/">
+    <img src="https://img.shields.io/badge/Cursor_IDE-Anysphere-00D084?style=flat-square" alt="Cursor IDE">
+  </a>
 </p>
 
 > **Template Repository** - Click "Use this template" above to create your own AI agent harness.
@@ -33,7 +39,7 @@
 
 A **production-tested AI agent harness** for teams that want structured AI workflows.
 
-**Multi-provider support**: Works with both **Claude Code** (Anthropic) and **Gemini CLI** (Google).
+**Multi-provider support**: Works with **Claude Code** (Anthropic), **Gemini CLI** (Google), **Codex CLI** (OpenAI), and **Cursor IDE** (Anysphere).
 
 **Built on SAFe methodology** (Scaled Agile Framework), adapted for AI agent teams.
 Works for any team with repeatable processes: Software, Marketing, Research, Legal, Operations.
@@ -81,6 +87,36 @@ export GEMINI_API_KEY="your-api-key"
 
 # Start working
 /workflow:start-work TICKET-123
+```
+
+### Codex CLI (OpenAI)
+
+```bash
+# Copy harness to your project
+cp -r .codex/ /your-project/.codex/
+cp -r .agents/ /your-project/.agents/
+
+# Install Codex CLI (if needed)
+npm install -g @openai/codex
+
+# Authenticate
+export OPENAI_API_KEY="your-api-key"
+
+# Start working (natural language, no slash commands)
+codex
+```
+
+### Cursor IDE (Anysphere)
+
+```bash
+# Copy rules to your project
+cp -r .cursor/ /your-project/.cursor/
+
+# Open in Cursor
+cursor /your-project
+
+# Rules activate automatically based on file context
+# Use @rule-name to invoke agent roles manually
 ```
 
 **That's it.** Your AI assistant now has your team's workflow patterns built in.
@@ -1190,19 +1226,33 @@ See project documentation for honest assessment of limitations.
 ## Repository Structure
 
 ```text
-.claude/                 # Claude Code harness configuration
+.claude/                 # Claude Code harness (primary provider)
 ├── commands/            # 24 slash commands for workflow automation
 ├── skills/              # 18 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
 ├── team-config.json     # Agent Teams settings (optional, experimental)
 └── SETUP.md             # Installation and customization guide
 
-.gemini/                 # Gemini CLI harness configuration
+.gemini/                 # Gemini CLI harness (secondary provider)
 ├── commands/            # 30 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
 ├── skills/              # 17 model-invoked skills (team-coordination is Claude-only)
 ├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
+
+.codex/                  # Codex CLI harness (reads AGENTS.md, TOML config, MCP native)
+├── config.toml          # Codex CLI configuration (model, approval policy, sandbox)
+└── README.md            # Codex-specific setup guide
+
+.cursor/                 # Cursor IDE harness (glob-based .mdc rules, background agents)
+└── rules/               # .mdc rule files with YAML frontmatter activation
+    ├── 00-02            # Always-apply core rules (SAFe, git, patterns)
+    ├── 10-13            # Auto-attached tech rules (Python, React, SQL, tests)
+    ├── 20-23            # Agent-role rules (Architect, Backend, QAS, Security)
+    └── 30-31            # Background agents and MCP integration
+
+.agents/                 # Shared agent skills (discovered by Codex and other agents)
+└── skills/              # pattern-discovery, safe-workflow, testing-patterns
 
 dark-factory/            # tmux Agent Teams infrastructure (optional)
 ├── scripts/             # factory-setup, start, stop, status, attach
@@ -1286,5 +1336,5 @@ See [NOTICE](NOTICE) for details.
 
 <p align="center">
   <strong>Version</strong>: {{HARNESS_VERSION}} (March 2026)<br>
-  <strong>Status</strong>: Production-validated, multi-provider (Claude Code + Gemini CLI)
+  <strong>Status</strong>: Production-validated, multi-provider (Claude Code + Gemini CLI + Codex CLI + Cursor IDE)
 </p>

@@ -1,6 +1,6 @@
 # Cursor Rules for SAFe Agentic Workflow
 
-This directory contains `.mdc` rule files that translate the SAFe harness methodology into Cursor IDE's native rule format.
+This directory contains `.mdc` rule files that translate the SAFe harness methodology into Cursor IDE's native rule format. Cursor is one of four supported AI providers in this harness, alongside Claude Code, Gemini CLI, and Codex CLI.
 
 ## How Cursor Rules Work
 
@@ -40,6 +40,33 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 | `22-agent-qas.mdc`         | QAS: independent gate, acceptance criteria verification |
 | `23-agent-security.mdc`    | SecEng: OWASP, RLS validation, vulnerability scanning |
 
+### Advanced Features (manual, use `@rule-name` to activate)
+
+| File                          | Purpose                                           |
+|-------------------------------|---------------------------------------------------|
+| `30-background-agents.mdc`   | Guidelines for Cursor background agents running in isolated VMs |
+| `31-mcp-integration.mdc`     | MCP server configuration guidance for external service integration |
+
+## Background Agent Support
+
+Cursor Background Agents can run long tasks autonomously in isolated Ubuntu VMs. They clone the repo, work on a branch, and open PRs. This harness includes guidelines for using background agents within the SAFe workflow:
+
+- Activate the rule with `@30-background-agents` for guidance
+- Background agents follow the same SAFe gate chain (Stop-the-Line, QAS, 3-stage review)
+- Assign one ticket per agent for clear scope
+- PRs created by background agents still require QAS validation and HITL merge
+
+See `30-background-agents.mdc` for full details.
+
+## MCP Integration
+
+Cursor supports the Model Context Protocol (MCP) natively. Configure MCP servers in `.cursor/mcp.json` or via Cursor settings to enable agents to interact with Linear, Confluence, GitHub, and other services.
+
+- Activate the rule with `@31-mcp-integration` for configuration guidance
+- MCP servers are interchangeable across all four supported providers
+
+See `31-mcp-integration.mdc` for configuration examples.
+
 ## Usage
 
 ### Always-Apply Rules
@@ -61,19 +88,32 @@ Reference these manually when you want Cursor to adopt a specific SAFe agent per
 @23-agent-security Audit RLS policies for this new table
 ```
 
+### Advanced Feature Rules
+
+Reference these when working with background agents or MCP:
+
+```
+@30-background-agents Set up a background agent for {{TICKET_PREFIX}}-42
+@31-mcp-integration Configure Linear MCP for ticket management
+```
+
 ## Design Principles
 
 1. **DRY**: Rules reference existing docs (CLAUDE.md, AGENTS.md, patterns_library/) rather than duplicating content
 2. **Concise**: Each rule stays under 200 lines to respect Cursor's context limits
 3. **Template-Ready**: Uses `{{TICKET_PREFIX}}`, `{{MAIN_BRANCH}}`, and other placeholders for project customization
-4. **Hierarchical**: Numbering (00-02, 10-13, 20-23) groups rules by activation type
+4. **Hierarchical**: Numbering (00-02, 10-13, 20-23, 30-31) groups rules by activation type
 
 ## Relationship to Other Configurations
 
+This harness supports four AI providers. All share the same SAFe methodology and reference the same source docs:
+
 | Tool        | Config Location                    | Purpose                         |
 |-------------|------------------------------------|---------------------------------|
-| Claude Code | `.claude/agents/`, `.claude/skills/` | Agent definitions and skills    |
+| Claude Code | `.claude/` (agents, skills, commands, hooks) | Primary provider -- full harness    |
+| Gemini CLI  | `.gemini/` (commands, skills, settings) | Secondary provider -- TOML commands |
+| Codex CLI   | `.codex/config.toml` + `.agents/skills/` | TOML config, reads AGENTS.md, MCP native |
+| Cursor IDE  | `.cursor/rules/` (this directory)  | .mdc rules, background agents, MCP |
 | Augment     | `agent_providers/augment/rules/`   | Augment Code rules              |
-| Cursor      | `.cursor/rules/` (this directory)  | Cursor IDE rules                |
 
 All configurations reference the same source docs (CLAUDE.md, AGENTS.md, CONTRIBUTING.md, patterns_library/) to maintain consistency.

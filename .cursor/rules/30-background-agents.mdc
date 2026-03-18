@@ -1,0 +1,74 @@
+---
+description: "Guidelines for Cursor background agents running long tasks autonomously in isolated VMs."
+alwaysApply: false
+---
+
+# Background Agent Guidelines
+
+Cursor Background Agents run long tasks autonomously in isolated Ubuntu VMs with internet access. They clone the repo from GitHub, work on a separate branch, and open PRs when complete.
+
+## How Background Agents Work
+
+- Each background agent runs in an isolated Ubuntu VM provisioned by Cursor
+- The agent clones the repository from GitHub (it does NOT use your local checkout)
+- It works on a dedicated branch and can commit, push, and open pull requests
+- You are notified when the task completes or if the agent needs input
+- Multiple background agents can run in parallel on different tasks
+
+## SAFe Gate Chain Compliance
+
+Background agents MUST follow the same SAFe workflow as interactive sessions:
+
+1. **Stop-the-Line Gate**: Verify AC/DoD exists before starting work
+2. **Pattern Discovery**: Search `patterns_library/` before implementing
+3. **Commit Format**: Use SAFe format `type(scope): description [{{TICKET_PREFIX}}-XXX]`
+4. **Branch Naming**: Use `{{TICKET_PREFIX}}-{number}-{description}`
+5. **Exit States**: Declare the correct exit state when complete
+
+## PR Creation from Background Agents
+
+When a background agent opens a PR:
+
+- Reference the Linear ticket in the PR title: `feat(scope): description [{{TICKET_PREFIX}}-XXX]`
+- Follow the PR template from `CONTRIBUTING.md`
+- Include a test plan in the PR body
+- Tag appropriate reviewers per the 3-stage review process
+- The PR still requires QAS validation and HITL merge authority
+
+## Best Practices
+
+- Assign one ticket per background agent for clear scope
+- Provide the full spec path: `specs/{{TICKET_PREFIX}}-XXX-feature-spec.md`
+- Reference the agent role: "Act as the BE Developer" or "Act as the FE Developer"
+- Include validation commands the agent should run before opening the PR
+- Monitor agent progress via Cursor's background agent dashboard
+
+## Limitations
+
+- Background agents cannot access your local filesystem or environment variables
+- They start fresh from the GitHub remote each time
+- They cannot interact with local Docker containers or databases
+- Session state does not persist between background agent runs
+- They inherit repository-level Cursor rules but not user-level settings
+
+## When to Use Background Agents
+
+| Scenario | Use Background Agent? |
+|----------|-----------------------|
+| Implementing a well-specified story with clear AC | Yes |
+| Exploratory debugging or investigation | No -- use interactive |
+| Multi-file refactoring with clear scope | Yes |
+| Tasks requiring local environment (Docker, DB) | No -- use interactive |
+| Running test suites and fixing failures | Yes |
+| Architectural decisions requiring discussion | No -- use interactive |
+
+## Example Invocation
+
+```
+Run as a background agent:
+- Act as the BE Developer (see .claude/agents/be-developer.md)
+- Implement {{TICKET_PREFIX}}-42 per specs/{{TICKET_PREFIX}}-42-user-api-spec.md
+- Follow patterns from patterns_library/api/user-context-api.md
+- Run: pytest tests/integration/ && ruff check . && mypy .
+- Open a PR when all checks pass
+```

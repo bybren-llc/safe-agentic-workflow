@@ -1,5 +1,13 @@
 # QAS Validation Report: SAW-24 -- Codex CLI Harness
 
+> **SUPERSEDED**: This validation report covers the original SAW-24 implementation
+> which was subsequently rewritten in SAW-25 (`c19c1e8`) to match actual OpenAI
+> Codex CLI documentation. The files validated here (`CODEX.md`,
+> `.codex/settings.json`, `.codex/commands/`, `.codex/skills/`) no longer exist.
+> The current Codex harness uses `AGENTS.md` for instructions, `.codex/config.toml`
+> for configuration, and `.agents/skills/` for shared skills. See `.codex/README.md`
+> for current documentation.
+
 **Ticket**: SAW-24
 **Branch**: `SAW-24-codex-cli`
 **Commit**: `ceec6de feat(codex): create .codex/ harness for OpenAI Codex CLI [SAW-24]`
@@ -8,7 +16,7 @@
 
 ---
 
-## Verdict: APPROVED
+## Verdict: APPROVED (subsequently superseded by SAW-25 rewrite)
 
 ---
 
