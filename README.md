@@ -204,14 +204,14 @@ See `docs/whitepapers/` for methodology deep-dives and comparative analysis.
 
 ### Adoption Requirements
 
-- Claude Code CLI or Gemini CLI installed
+- At least one supported AI tool: Claude Code, Gemini CLI, Codex CLI, or Cursor IDE
 - Git repository
 - Team buy-in for structured workflows
 
 ### Known Limitations
 
 - Single-team validation only
-- Gemini CLI support is new (Claude Code has 5+ months production use)
+- Claude Code has the deepest integration (5+ months production use); Gemini CLI, Codex CLI, and Cursor IDE support is newer
 
 
 </details>
@@ -1213,10 +1213,10 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 **Version 2.6** - Production-tested but with known limitations:
 
 - **Production validated**: 5+ months, 169 issues, 2,193 commits (Claude Code)
-- **Multi-provider**: Supports Claude Code and Gemini CLI
+- **Multi-provider**: Supports Claude Code, Gemini CLI, Codex CLI, and Cursor IDE
 - **Generalized**: Placeholders for project-specific values
 - **Single-team validation**: Multi-team scalability not yet proven
-- **Gemini CLI maturing**: Gemini CLI harness aligned with v0.32.1 (March 2026), less production-tested than Claude Code
+- **Provider maturity varies**: Claude Code has 5+ months production use; Gemini CLI aligned with v0.32.1; Codex CLI and Cursor IDE harnesses are newer
 - **Domain examples**: Non-SWE adaptations are theoretical (documented, not validated)
 
 See project documentation for honest assessment of limitations.

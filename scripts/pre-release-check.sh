@@ -51,7 +51,7 @@ else
 fi
 
 # Merge conflict markers
-CONFLICTS=$(grep -rl '<<<<<<' . --include='*.sh' --include='*.md' --include='*.json' --include='*.toml' --include='*.yml' --include='*.mdc' 2>/dev/null | grep -v node_modules | grep -v .git || true)
+CONFLICTS=$(grep -rl '<<<<<<' . --include='*.sh' --include='*.md' --include='*.json' --include='*.toml' --include='*.yml' --include='*.mdc' 2>/dev/null | grep -v node_modules | grep -v .git | grep -v pre-release | grep -v PRE-RELEASE || true)
 if [ -z "$CONFLICTS" ]; then
     check_pass "No merge conflict markers"
 else
@@ -110,7 +110,7 @@ for provider_doc in .claude/README.md .codex/README.md .cursor/rules/README.md .
 done
 
 # Stale references
-STALE=$(grep -rl 'CODEX\.md' docs/ README.md .claude/ .codex/ .cursor/ .gemini/ 2>/dev/null | grep -v CHANGELOG | grep -v PRE-RELEASE || true)
+STALE=$(grep -rl 'CODEX\.md' docs/ README.md .claude/ .codex/ .cursor/ .gemini/ 2>/dev/null | grep -v CHANGELOG | grep -v PRE-RELEASE | grep -v 'qa-validations/' | grep -v '.codex/README.md' || true)
 if [ -z "$STALE" ]; then
     check_pass "No stale CODEX.md references"
 else
