@@ -2,9 +2,14 @@
 
 Dark Factory is a self-contained module for running persistent, autonomous AI
 agent teams on a remote headless machine using tmux. Each agent runs its own
-Claude Code instance inside an isolated tmux pane, coordinated by a TDM (Technical
-Delivery Manager) agent that orchestrates work through the SAFe workflow. The
-entire factory is observable and controllable from Cursor IDE via SSH.
+AI CLI instance inside an isolated tmux pane or window, coordinated by a TDM
+(Technical Delivery Manager) agent that orchestrates work through the SAFe
+workflow. The entire factory is observable and controllable from Cursor IDE via
+SSH.
+
+**Supported runtimes:**
+- **Claude Code** -- Anthropic's CLI agent (pane-based layouts)
+- **Codex CLI** -- OpenAI's CLI agent with codex-yolo auto-approval (window-based layouts)
 
 ## Architecture
 
@@ -35,6 +40,8 @@ entire factory is observable and controllable from Cursor IDE via SSH.
 
 ## Prerequisites
 
+### Claude Code Factory
+
 | Tool | Minimum Version | Purpose |
 |------|----------------|---------|
 | tmux | 3.0+ | Session and pane management |
@@ -42,7 +49,17 @@ entire factory is observable and controllable from Cursor IDE via SSH.
 | GitHub CLI (`gh`) | 2.0+ | PR creation and merge queue |
 | git | 2.30+ | Worktree support |
 
+### Codex CLI Factory (additional)
+
+| Tool | Minimum Version | Purpose |
+|------|----------------|---------|
+| Codex CLI | Latest | AI agent runtime (`npm install -g @openai/codex`) |
+| codex-yolo | Latest | Auto-approval daemon for autonomous execution |
+| Node.js | 22+ | Required by Codex CLI |
+
 ## Quick Start
+
+### Claude Code Factory
 
 ```bash
 # 1. One-time setup (validates prerequisites and merge queue)
@@ -53,6 +70,23 @@ entire factory is observable and controllable from Cursor IDE via SSH.
 
 # 3. Check on running sessions
 ./dark-factory/scripts/factory-status.sh
+```
+
+### Codex CLI Factory
+
+```bash
+# 1. Run the same one-time setup (shared infrastructure)
+./dark-factory/scripts/factory-setup.sh
+
+# 2. Copy and customize the Codex factory template
+cp dark-factory/templates/codex-factory.sh /tmp/my-codex-factory.sh
+# Edit: replace {{PLACEHOLDER}} tokens with your project values
+
+# 3. Launch the Codex factory
+bash /tmp/my-codex-factory.sh
+
+# 4. Monitor via audit log (built into the Control window)
+tail -f ~/.codex-yolo/audit.log
 ```
 
 ## Operator's Quick Reference
@@ -143,18 +177,20 @@ See [Cursor SSH Guide](docs/CURSOR-SSH-GUIDE.md) for full setup.
 dark-factory/
 +-- README.md                          # This file
 +-- docs/
-|   +-- DARK-FACTORY-GUIDE.md         # Comprehensive setup and usage guide
+|   +-- DARK-FACTORY-GUIDE.md         # Comprehensive setup and usage guide (Claude Code)
+|   +-- CODEX-DARK-FACTORY-GUIDE.md   # Codex CLI factory guide (codex-yolo)
 |   +-- CURSOR-SSH-GUIDE.md           # Cursor IDE remote observation guide
 |   +-- MERGE-QUEUE-POLICY.md         # Merge queue enforcement policy
 +-- scripts/
 |   +-- factory-setup.sh              # One-time environment setup
-|   +-- factory-start.sh              # Launch a factory session
+|   +-- factory-start.sh              # Launch a Claude Code factory session
 |   +-- factory-status.sh             # Dashboard for running sessions
 |   +-- factory-attach.sh             # Attach to a session or specific pane
 |   +-- factory-stop.sh               # Graceful session shutdown
 +-- templates/
     +-- env.template                   # Environment config template
     +-- tmux.conf                      # tmux configuration for agent sessions
+    +-- codex-factory.sh               # Codex CLI factory tmux template
     +-- team-layouts/
         +-- story-team.sh             # 2-3 agent layout (TDM + BE + QAS)
         +-- feature-team.sh           # 4-5 agent layout (TDM + BE + FE + QAS + RTE)
@@ -165,17 +201,19 @@ dark-factory/
 
 ## Detailed Guides
 
-- [Dark Factory Guide](docs/DARK-FACTORY-GUIDE.md) -- Full setup, usage, and troubleshooting
+- [Dark Factory Guide](docs/DARK-FACTORY-GUIDE.md) -- Full setup, usage, and troubleshooting (Claude Code)
+- [Codex Dark Factory Guide](docs/CODEX-DARK-FACTORY-GUIDE.md) -- Codex CLI factory with codex-yolo
 - [Cursor SSH Guide](docs/CURSOR-SSH-GUIDE.md) -- Observe your factory from Cursor IDE
 - [Merge Queue Policy](docs/MERGE-QUEUE-POLICY.md) -- Why and how squash merge queue is enforced
 
 ## Relationship to Main Harness
 
-This module is additive. It does not modify any files in `.claude/`, `.gemini/`,
-or `docs/`. Your existing harness configuration is untouched. Dark Factory
-scripts reference the same `CLAUDE.md`, `AGENTS.md`, and `patterns_library/`
-that your interactive workflow uses -- agents in the factory follow the same
-SAFe conventions as agents run locally.
+This module is additive. It does not modify any files in `.claude/`, `.codex/`,
+`.gemini/`, or `docs/`. Your existing harness configuration is untouched. Dark
+Factory scripts reference the same `CLAUDE.md`, `AGENTS.md`, and
+`patterns_library/` that your interactive workflow uses -- agents in the factory
+follow the same SAFe conventions as agents run locally. Codex CLI agents
+additionally read `.codex/agents/*.toml` for role-specific configuration.
 
 ## License
 
