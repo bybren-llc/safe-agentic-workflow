@@ -1,0 +1,43 @@
+{
+  "$schema": "https://openai.com/codex-cli/settings.schema.json",
+  "_comment": "Codex CLI settings for SAFe Agentic Workflow. See .codex/README.md for setup.",
+  "model": "o4-mini",
+  "approval_mode": "suggest",
+  "sandbox": {
+    "enable": true,
+    "permissions": {
+      "read": [
+        ".",
+        "~/.gitconfig"
+      ],
+      "write": [
+        "."
+      ],
+      "net": false
+    }
+  },
+  "context": {
+    "include": [
+      "CODEX.md",
+      "AGENTS.md",
+      "CONTRIBUTING.md",
+      "patterns_library/**/*.md",
+      "docs/**/*.md",
+      "specs/**/*.md",
+      ".codex/**/*.md"
+    ],
+    "exclude": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      "coverage/**",
+      "*.log",
+      ".env*"
+    ]
+  },
+  "instructions": "CODEX.md",
+  "notify": true,
+  "full_auto_error_mode": "ask-user"
+}
