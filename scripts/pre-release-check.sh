@@ -30,9 +30,9 @@ PASS=0
 FAIL=0
 WARN=0
 
-check_pass() { ((PASS++)); echo -e "  ${GREEN}✓${NC} $1"; }
-check_fail() { ((FAIL++)); echo -e "  ${RED}✗${NC} $1"; }
-check_warn() { ((WARN++)); echo -e "  ${YELLOW}⚠${NC} $1"; }
+check_pass() { PASS=$((PASS + 1)); echo -e "  ${GREEN}✓${NC} $1"; }
+check_fail() { FAIL=$((FAIL + 1)); echo -e "  ${RED}✗${NC} $1"; }
+check_warn() { WARN=$((WARN + 1)); echo -e "  ${YELLOW}⚠${NC} $1"; }
 
 echo -e "${CYAN}════════════════════════════════════════════════════${NC}"
 echo -e "${CYAN}  Pre-Release Validation: ${VERSION}${NC}"
