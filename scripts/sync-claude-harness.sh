@@ -2029,6 +2029,8 @@ do_sync() {
             modified)
                 if [ "$dry_run" = false ]; then
                     # Copy the already-substituted file from TMP_DIR
+=======
+                    # Overwrite local with upstream version (user can rollback if needed)
                     cp "$file" "$local_file"
                 fi
                 print_success "Updated: $display_path"

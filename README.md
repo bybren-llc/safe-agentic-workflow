@@ -117,6 +117,7 @@ export GEMINI_API_KEY="your-api-key"
 
 **Adopting into an existing repo?** See the [Workspace Adoption Guide](docs/guides/WORKSPACE-ADOPTION-GUIDE.md).
 **Upgrading from a previous version?** See [Keeping the Harness Updated](docs/guides/WORKSPACE-ADOPTION-GUIDE.md#keeping-the-harness-updated).
+**Syncing your fork with upstream?** See the [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md).
 
 ### Key Commands
 
