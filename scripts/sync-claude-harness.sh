@@ -14,6 +14,8 @@
 #   ./scripts/sync-claude-harness.sh sync --version v2.2.0  # Sync to specific release
 #   ./scripts/sync-claude-harness.sh sync --latest     # Sync to latest release
 #   ./scripts/sync-claude-harness.sh sync --generate-patches --version v2.6.0  # Generate patches
+#   ./scripts/sync-claude-harness.sh manifest init     # Auto-generate manifest from project state
+#   ./scripts/sync-claude-harness.sh manifest validate # Validate existing manifest
 #   ./scripts/sync-claude-harness.sh rollback          # Restore from backup
 #   ./scripts/sync-claude-harness.sh conflicts         # List unresolved conflicts
 #   ./scripts/sync-claude-harness.sh help              # Show help
@@ -2275,6 +2277,545 @@ do_conflicts() {
     fi
 }
 
+# =============================================================================
+# Manifest Init Wizard (SAW-12)
+# =============================================================================
+# Auto-generates .claude/.harness-manifest.yml by analyzing the current
+# project state: reads team-config.json for identity values, detects which
+# setup-template.sh placeholders have been replaced, reads .sync-exclude
+# for protected patterns, and outputs a valid manifest.
+#
+# Subcommands:
+#   manifest init              Generate manifest from project state
+#   manifest init --dry-run    Print to stdout without writing
+#   manifest init --yes        Skip confirmation prompts
+#   manifest validate          Run existing validation on manifest
+# =============================================================================
+
+# Check if a value looks like an unreplaced template placeholder.
+# Returns 0 (true) if the value is a placeholder like {{FOO}}.
+is_placeholder() {
+    local val="$1"
+    [[ "$val" =~ ^\{\{[A-Z_]+\}\}$ ]]
+}
+
+# Read identity values from team-config.json.
+# Outputs lines: "KEY=VALUE" for each detected non-placeholder identity value.
+# Values that are still {{PLACEHOLDER}} are skipped.
+read_team_config_identity() {
+    local team_config="$1"
+
+    if [ ! -f "$team_config" ]; then
+        return 0
+    fi
+
+    node -e "
+        const fs = require('fs');
+        try {
+            const data = JSON.parse(fs.readFileSync('$team_config', 'utf8'));
+            const map = [
+                ['project.name', 'PROJECT_NAME'],
+                ['project.repo', 'PROJECT_REPO'],
+                ['project.short_name', 'PROJECT_SHORT'],
+                ['project.domain', 'PROJECT_DOMAIN'],
+                ['project.github_org', 'GITHUB_ORG'],
+                ['project.company', 'COMPANY_NAME'],
+                ['workflow.ticket_prefix', 'TICKET_PREFIX'],
+                ['workflow.main_branch', 'MAIN_BRANCH'],
+                ['workflow.linear_workspace', 'LINEAR_WORKSPACE'],
+                ['mcp_servers.linear', 'MCP_LINEAR_SERVER'],
+                ['mcp_servers.confluence', 'MCP_CONFLUENCE_SERVER'],
+                ['review_stages.stage_2.reviewer', 'ARCHITECT_GITHUB_HANDLE'],
+                ['review_stages.stage_3.reviewer', 'AUTHOR_HANDLE'],
+            ];
+
+            for (const [path, key] of map) {
+                const parts = path.split('.');
+                let val = data;
+                for (const p of parts) {
+                    if (val == null) break;
+                    val = val[p];
+                }
+                if (typeof val === 'string' && val.length > 0) {
+                    // Skip unreplaced placeholders
+                    if (/^\{\{[A-Z_]+\}\}$/.test(val)) continue;
+                    console.log(key + '=' + val);
+                }
+            }
+        } catch(e) {}
+    "
+}
+
+# Scan for additional derived substitutions from known identity values.
+# Given a set of known identity values, computes derived values such as
+# TICKET_PREFIX_LOWER and GITHUB_REPO_URL.
+#
+# Outputs lines: "KEY=VALUE" for derived substitutions.
+# Arguments:
+#   $1 - path to .claude/ directory
+#   $2 - newline-separated KEY=VALUE pairs already discovered from team-config
+scan_for_additional_substitutions() {
+    local claude_dir="$1"
+    local known_pairs="$2"
+
+    if [ -z "$known_pairs" ]; then
+        return 0
+    fi
+
+    # Build a JSON object of known values for node to consume
+    local known_json
+    known_json=$(echo "$known_pairs" | node -e "
+        const lines = require('fs').readFileSync(0, 'utf8').split('\n').filter(Boolean);
+        const obj = {};
+        for (const line of lines) {
+            const eq = line.indexOf('=');
+            if (eq > 0) obj[line.slice(0, eq)] = line.slice(eq + 1);
+        }
+        console.log(JSON.stringify(obj));
+    ")
+
+    node -e "
+        const known = $known_json;
+        const derived = {};
+
+        // Derive TICKET_PREFIX_LOWER if we have TICKET_PREFIX
+        if (known['TICKET_PREFIX']) {
+            derived['TICKET_PREFIX_LOWER'] = known['TICKET_PREFIX'].toLowerCase();
+        }
+        // Derive GITHUB_REPO_URL if we have both
+        if (known['GITHUB_ORG'] && known['PROJECT_REPO']) {
+            derived['GITHUB_REPO_URL'] = 'https://github.com/' + known['GITHUB_ORG'] + '/' + known['PROJECT_REPO'];
+        }
+
+        // Output derived values
+        for (const [key, val] of Object.entries(derived)) {
+            console.log(key + '=' + val);
+        }
+    "
+}
+
+# Read .sync-exclude and convert entries to protected patterns.
+# Returns one pattern per line (comments and empty lines stripped).
+read_sync_exclude_patterns() {
+    local exclude_file="$1"
+
+    if [ ! -f "$exclude_file" ]; then
+        return 0
+    fi
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip comments and empty lines
+        [[ "$line" =~ ^#.*$ ]] && continue
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^[[:space:]]*$ ]] && continue
+        # Trim whitespace
+        line=$(echo "$line" | xargs)
+        echo "$line"
+    done < "$exclude_file"
+}
+
+# Generate YAML manifest content from discovered values.
+# Arguments:
+#   $1 - newline-separated KEY=VALUE identity pairs
+#   $2 - newline-separated KEY=VALUE substitution pairs (identity + derived)
+#   $3 - newline-separated protected patterns
+# Outputs the complete YAML manifest to stdout.
+generate_manifest_yaml() {
+    local identity_pairs="$1"
+    local substitution_pairs="$2"
+    local protected_patterns="$3"
+
+    node -e "
+        const identity_lines = \`$identity_pairs\`.split('\n').filter(Boolean);
+        const sub_lines = \`$substitution_pairs\`.split('\n').filter(Boolean);
+        const protected_lines = \`$protected_patterns\`.split('\n').filter(Boolean);
+
+        // Parse KEY=VALUE pairs
+        function parsePairs(lines) {
+            const obj = {};
+            for (const line of lines) {
+                const eq = line.indexOf('=');
+                if (eq > 0) {
+                    obj[line.slice(0, eq)] = line.slice(eq + 1);
+                }
+            }
+            return obj;
+        }
+
+        const identity = parsePairs(identity_lines);
+        const subs = parsePairs(sub_lines);
+
+        // All identity fields from the schema (in order)
+        const allIdentityFields = [
+            'PROJECT_NAME', 'PROJECT_REPO', 'PROJECT_SHORT', 'PROJECT_DOMAIN',
+            'GITHUB_ORG', 'COMPANY_NAME',
+            'AUTHOR_NAME', 'AUTHOR_FIRST_NAME', 'AUTHOR_LAST_NAME',
+            'AUTHOR_HANDLE', 'AUTHOR_EMAIL', 'AUTHOR_WEBSITE',
+            'SECURITY_EMAIL', 'ARCHITECT_GITHUB_HANDLE',
+            'TICKET_PREFIX', 'LINEAR_WORKSPACE', 'MAIN_BRANCH',
+            'MCP_LINEAR_SERVER', 'MCP_CONFLUENCE_SERVER',
+            'DB_USER', 'DB_PASSWORD', 'DB_NAME',
+            'DB_CONTAINER', 'DEV_CONTAINER', 'STAGING_CONTAINER',
+            'CONTAINER_REGISTRY'
+        ];
+
+        // Build YAML output
+        let yaml = '';
+        yaml += '# =============================================================================\n';
+        yaml += '# Harness Manifest - Auto-generated by manifest init\n';
+        yaml += '# =============================================================================\n';
+        yaml += '#\n';
+        yaml += '# Generated from project state analysis. Review and adjust values as needed.\n';
+        yaml += '# Schema: .harness-manifest.schema.json\n';
+        yaml += '# Docs: docs/HARNESS_MANIFEST_SCHEMA.md\n';
+        yaml += '#\n';
+        yaml += '# Fields marked with \"{{...}}\" were not detected and should be filled manually.\n';
+        yaml += '# =============================================================================\n';
+        yaml += '\n';
+
+        // Schema version
+        yaml += 'manifest_version: \"1.0\"\n';
+        yaml += '\n';
+
+        // Identity section
+        yaml += '# Project identity values from team-config.json and project scan\n';
+        yaml += 'identity:\n';
+        for (const field of allIdentityFields) {
+            const val = identity[field] || subs[field];
+            if (val) {
+                yaml += '  ' + field + ': \"' + val.replace(/\"/g, '\\\\\"') + '\"\n';
+            } else {
+                yaml += '  ' + field + ': \"{{' + field + '}}\"\n';
+            }
+        }
+        yaml += '\n';
+
+        // Substitutions section: only include non-derived identity values
+        // that were actually detected (not placeholders)
+        yaml += '# Substitution map: upstream {{TOKEN}} -> fork value during sync\n';
+        yaml += '# Derived values (TICKET_PREFIX_LOWER, AUTHOR_INITIALS, GITHUB_REPO_URL,\n';
+        yaml += '# HARNESS_VERSION) are computed automatically and do not need listing.\n';
+        const subEntries = {};
+        for (const [key, val] of Object.entries(identity)) {
+            // Only include as substitution if it is a real (non-placeholder) value
+            if (val && !/^\{\{[A-Z_]+\}\}$/.test(val)) {
+                subEntries[key] = val;
+            }
+        }
+        // Also include derived values from scan
+        for (const [key, val] of Object.entries(subs)) {
+            if (val && !identity[key] && !/^\{\{[A-Z_]+\}\}$/.test(val)) {
+                subEntries[key] = val;
+            }
+        }
+
+        if (Object.keys(subEntries).length > 0) {
+            yaml += 'substitutions:\n';
+            for (const [key, val] of Object.entries(subEntries)) {
+                yaml += '  ' + key + ': \"' + val.replace(/\"/g, '\\\\\"') + '\"\n';
+            }
+        } else {
+            yaml += 'substitutions: {}\n';
+        }
+        yaml += '\n';
+
+        // Renames section (empty by default -- user adds manually)
+        yaml += '# Rename mappings: upstream path -> local path (relative to .claude/)\n';
+        yaml += '# Add entries if you have renamed files or directories from upstream.\n';
+        yaml += 'renames: {}\n';
+        yaml += '\n';
+
+        // Protected section from .sync-exclude
+        if (protected_lines.length > 0) {
+            yaml += '# Protected files: never overwritten during sync\n';
+            yaml += '# Imported from .sync-exclude\n';
+            yaml += 'protected:\n';
+            for (const pat of protected_lines) {
+                yaml += '  - \"' + pat.replace(/\"/g, '\\\\\"') + '\"\n';
+            }
+        } else {
+            yaml += '# Protected files: never overwritten during sync\n';
+            yaml += 'protected: []\n';
+        }
+        yaml += '\n';
+
+        // Replaced section (empty by default)
+        yaml += '# Replaced files: fork maintains independently, warn if upstream changes\n';
+        yaml += 'replaced: []\n';
+        yaml += '\n';
+
+        // Sync preferences
+        yaml += '# Sync behavior preferences\n';
+        yaml += 'sync:\n';
+        yaml += '  auto_substitute: true\n';
+        yaml += '  backup: true\n';
+        yaml += '  conflict_strategy: \"prompt\"\n';
+        yaml += '  substitution_extensions:\n';
+        yaml += '    - \".md\"\n';
+        yaml += '    - \".json\"\n';
+        yaml += '    - \".yml\"\n';
+        yaml += '    - \".yaml\"\n';
+        yaml += '    - \".sh\"\n';
+        yaml += '    - \".py\"\n';
+        yaml += '    - \".ts\"\n';
+        yaml += '    - \".mjs\"\n';
+        yaml += '    - \".txt\"\n';
+        yaml += '    - \".toml\"\n';
+
+        process.stdout.write(yaml);
+    "
+}
+
+# Main manifest init function.
+# Analyzes the project state and generates .claude/.harness-manifest.yml.
+do_manifest_init() {
+    local dry_run=false
+    local skip_confirm=false
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run)
+                dry_run=true
+                shift
+                ;;
+            --yes|-y)
+                skip_confirm=true
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    print_header "Manifest Init Wizard"
+
+    # Check if manifest already exists
+    if [ -f "$MANIFEST_FILE" ] && [ "$dry_run" = false ]; then
+        print_warning "Manifest already exists at $MANIFEST_FILE"
+        if [ "$skip_confirm" = false ]; then
+            echo ""
+            read -rp "Overwrite? (y/N): " confirm
+            if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+                print_info "Aborted. Existing manifest preserved."
+                return 0
+            fi
+        fi
+    fi
+
+    # --- Step 1: Read team-config.json for identity values ---
+    local team_config="$CLAUDE_DIR/team-config.json"
+    local identity_pairs=""
+
+    if [ -f "$team_config" ]; then
+        print_info "Reading team-config.json..."
+        identity_pairs=$(read_team_config_identity "$team_config")
+        local identity_count
+        identity_count=$(echo "$identity_pairs" | grep -c '.' 2>/dev/null || echo "0")
+        print_success "Found $identity_count identity value(s) in team-config.json"
+    else
+        print_warning "No team-config.json found at $team_config"
+        print_info "Identity section will use placeholder values"
+    fi
+
+    # --- Step 2: Scan for additional substitutions ---
+    print_info "Scanning for additional substitutions..."
+    local additional_pairs=""
+    additional_pairs=$(scan_for_additional_substitutions "$CLAUDE_DIR" "$identity_pairs")
+    if [ -n "$additional_pairs" ]; then
+        local add_count
+        add_count=$(echo "$additional_pairs" | grep -c '.' 2>/dev/null || echo "0")
+        print_success "Found $add_count derived substitution(s)"
+    fi
+
+    # Merge identity + additional pairs for substitutions
+    local all_sub_pairs=""
+    if [ -n "$identity_pairs" ]; then
+        all_sub_pairs="$identity_pairs"
+    fi
+    if [ -n "$additional_pairs" ]; then
+        if [ -n "$all_sub_pairs" ]; then
+            all_sub_pairs="$all_sub_pairs"$'\n'"$additional_pairs"
+        else
+            all_sub_pairs="$additional_pairs"
+        fi
+    fi
+
+    # --- Step 3: Read .sync-exclude for protected patterns ---
+    local protected_patterns=""
+    if [ -f "$EXCLUDE_FILE" ]; then
+        print_info "Reading .sync-exclude for protected patterns..."
+        protected_patterns=$(read_sync_exclude_patterns "$EXCLUDE_FILE")
+        if [ -n "$protected_patterns" ]; then
+            local prot_count
+            prot_count=$(echo "$protected_patterns" | grep -c '.' 2>/dev/null || echo "0")
+            print_success "Found $prot_count protected pattern(s) from .sync-exclude"
+        fi
+    else
+        print_info "No .sync-exclude found; protected section will be empty"
+    fi
+
+    # --- Step 4: Generate YAML ---
+    print_info "Generating manifest..."
+    local yaml_content
+    yaml_content=$(generate_manifest_yaml "$identity_pairs" "$all_sub_pairs" "$protected_patterns")
+
+    if [ -z "$yaml_content" ]; then
+        print_error "Failed to generate manifest YAML"
+        return 1
+    fi
+
+    # --- Step 5: Validate generated manifest ---
+    # Write to temp file for validation
+    local tmp_manifest="$TMP_DIR/manifest-init-check.yml"
+    mkdir -p "$TMP_DIR"
+    echo "$yaml_content" > "$tmp_manifest"
+
+    # Parse YAML to JSON for validation
+    local tmp_json="$TMP_DIR/manifest-init-check.json"
+    local parse_ok=true
+    python3 -c "
+import sys, json
+try:
+    import yaml
+except ImportError:
+    print('PyYAML not installed', file=sys.stderr)
+    sys.exit(1)
+try:
+    with open(sys.argv[1], 'r') as f:
+        data = yaml.safe_load(f)
+    if data is None:
+        data = {}
+    with open(sys.argv[2], 'w') as f:
+        json.dump(data, f, indent=2)
+except Exception as e:
+    print(str(e), file=sys.stderr)
+    sys.exit(2)
+" "$tmp_manifest" "$tmp_json" 2>/dev/null || parse_ok=false
+
+    if [ "$parse_ok" = true ]; then
+        # Validate required fields
+        local validation_ok=true
+        local val_output=""
+        val_output=$(node -e "
+            const fs = require('fs');
+            try {
+                const data = JSON.parse(fs.readFileSync('$tmp_json', 'utf8'));
+                const errors = [];
+                if (!data.manifest_version) errors.push('missing manifest_version');
+                if (!data.identity) errors.push('missing identity');
+                if (data.identity) {
+                    const required = ['PROJECT_NAME', 'PROJECT_REPO', 'PROJECT_SHORT', 'GITHUB_ORG', 'TICKET_PREFIX', 'MAIN_BRANCH'];
+                    for (const f of required) {
+                        const val = data.identity[f];
+                        if (!val || /^\{\{[A-Z_]+\}\}$/.test(val)) {
+                            errors.push('identity.' + f + ' is still a placeholder');
+                        }
+                    }
+                }
+                if (errors.length > 0) {
+                    console.log('WARN:' + errors.join('|'));
+                } else {
+                    console.log('OK');
+                }
+            } catch(e) {
+                console.log('WARN:parse error');
+            }
+        ")
+
+        if [[ "$val_output" == OK ]]; then
+            print_success "Generated manifest passes schema validation"
+        else
+            local warnings="${val_output#WARN:}"
+            print_warning "Generated manifest has incomplete fields (fill manually):"
+            echo "$warnings" | tr '|' '\n' | while IFS= read -r w; do
+                echo "  - $w"
+            done
+        fi
+    else
+        print_warning "Could not validate generated manifest (PyYAML unavailable)"
+    fi
+
+    # --- Output ---
+    if [ "$dry_run" = true ]; then
+        echo ""
+        print_header "Generated Manifest (dry-run)"
+        echo "$yaml_content"
+        echo ""
+        print_info "Dry run complete. No files written."
+        print_info "Run without --dry-run to write to $MANIFEST_FILE"
+        return 0
+    fi
+
+    # Confirm before writing (unless --yes)
+    if [ "$skip_confirm" = false ]; then
+        echo ""
+        echo "$yaml_content"
+        echo ""
+        read -rp "Write manifest to $MANIFEST_FILE? (y/N): " confirm
+        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+            print_info "Aborted. No files written."
+            return 0
+        fi
+    fi
+
+    # Write manifest
+    mkdir -p "$(dirname "$MANIFEST_FILE")"
+    echo "$yaml_content" > "$MANIFEST_FILE"
+    print_success "Manifest written to $MANIFEST_FILE"
+
+    # Load and validate the written manifest
+    load_manifest
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        validate_manifest || true  # Non-fatal; user can fix manually
+    fi
+
+    echo ""
+    print_info "Next steps:"
+    print_info "  1. Review the manifest: cat $MANIFEST_FILE"
+    print_info "  2. Fill any remaining {{...}} placeholders manually"
+    print_info "  3. Add renames if you have renamed upstream files"
+    print_info "  4. Validate: $0 manifest validate"
+}
+
+# Handle the manifest subcommand dispatcher.
+do_manifest_command() {
+    local subcmd="${1:-}"
+    shift 2>/dev/null || true
+
+    case "$subcmd" in
+        init)
+            do_manifest_init "$@"
+            ;;
+        validate)
+            load_manifest
+            if [ "$HAS_MANIFEST" != "true" ]; then
+                print_error "No manifest found at $MANIFEST_FILE"
+                print_info "Run '$0 manifest init' to generate one"
+                return 1
+            fi
+            validate_manifest
+            ;;
+        *)
+            echo "Usage: $0 manifest {init|validate} [options]"
+            echo ""
+            echo "Subcommands:"
+            echo "  init       Generate .harness-manifest.yml from project state"
+            echo "  validate   Validate existing manifest against schema"
+            echo ""
+            echo "Init options:"
+            echo "  --dry-run   Print manifest to stdout without writing"
+            echo "  --yes       Skip confirmation prompts"
+            return 1
+            ;;
+    esac
+}
+
+# =============================================================================
+# End Manifest Init Wizard
+# =============================================================================
+
 # Show help
 show_help() {
     cat <<EOF
@@ -2292,6 +2833,7 @@ COMMANDS:
     version           Show current harness version
     diff              Show detailed differences with upstream
     sync              Sync from upstream
+    manifest          Manifest management (init, validate)
     rollback          Restore from most recent backup
     conflicts         List unresolved conflicts
     releases          List available releases
@@ -2370,11 +2912,20 @@ MANIFEST:
     declares renames, substitutions, protected files, and sync preferences.
     Without a manifest, the script uses legacy file-level copy behavior.
 
-MANIFEST:
-    When .claude/.harness-manifest.yml is present, the sync script loads
-    and validates it on every command invocation (fail-fast). The manifest
-    declares renames, substitutions, protected files, and sync preferences.
-    Without a manifest, the script uses legacy file-level copy behavior.
+MANIFEST INIT (SAW-12):
+    The 'manifest init' command auto-generates a manifest by analyzing:
+      - .claude/team-config.json for identity values
+      - Replaced {{PLACEHOLDER}} tokens from setup-template.sh
+      - .sync-exclude for protected file patterns
+    Options:
+      --dry-run   Print generated manifest to stdout without writing
+      --yes       Skip confirmation prompts
+
+    Examples:
+      $0 manifest init               # Interactive generation
+      $0 manifest init --dry-run     # Preview without writing
+      $0 manifest init --yes         # Non-interactive generation
+      $0 manifest validate           # Validate existing manifest
 
 EOF
 }
@@ -2436,6 +2987,11 @@ case "${1:-}" in
         do_sync "$@"
         exit $?
         ;;
+    manifest)
+        shift
+        do_manifest_command "$@"
+        exit $?
+        ;;
     rollback)
         do_rollback
         exit $?
@@ -2454,7 +3010,7 @@ case "${1:-}" in
         exit 0
         ;;
     *)
-        echo "Usage: $0 {init|status|version|diff|sync|rollback|conflicts|releases|help}"
+        echo "Usage: $0 {init|status|version|diff|sync|manifest|rollback|conflicts|releases|help}"
         echo "Run '$0 help' for more information"
         exit 1
         ;;
