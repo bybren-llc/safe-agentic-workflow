@@ -5,60 +5,207 @@
 # Codex reads AGENTS.md at the project root for system instructions (walking
 # from Git root to CWD). This file configures Codex CLI behavior only.
 #
-# Documentation: https://developers.openai.com/docs/codex-cli
+# Documentation:
+#   - General config:   https://developers.openai.com/codex/config-sample
+#   - MCP integration:  https://developers.openai.com/codex/mcp
+#   - Advanced options:  https://developers.openai.com/codex/config-advanced
+#
 # Location: .codex/config.toml
 # =============================================================================
 
-# Model selection — override with `codex --model <model>`
+# Model selection -- override with `codex --model <model>`
 model = "o4-mini"
 
 # Approval policy controls how much autonomy Codex has:
-#   "untrusted"  — Codex cannot execute commands or write files without approval
-#   "on-request" — Codex can read files and run safe commands; asks before writes
-#   "never"      — Full autonomy within sandbox constraints (use with caution)
+#   "untrusted"  -- Codex cannot execute commands or write files without approval
+#   "on-request" -- Codex can read files and run safe commands; asks before writes
+#   "never"      -- Full autonomy within sandbox constraints (use with caution)
 approval_policy = "on-request"
 
 # Sandbox mode controls filesystem access:
-#   "workspace-write" — Can write within the workspace directory
-#   "workspace-read"  — Read-only access to the workspace
-#   "off"             — No sandbox restrictions (not recommended)
+#   "workspace-write" -- Can write within the workspace directory
+#   "workspace-read"  -- Read-only access to the workspace
+#   "off"             -- No sandbox restrictions (not recommended)
 sandbox_mode = "workspace-write"
 
 # Web search behavior:
-#   "cached" — Use cached search results when available
-#   "live"   — Always perform live searches
-#   "disabled" — No web search
+#   "cached"   -- Use cached search results when available
+#   "live"     -- Always perform live searches
+#   "disabled" -- No web search
 web_search = "cached"
 
 # Reasoning effort for the model (low, medium, high)
 model_reasoning_effort = "high"
 
 # Personality style:
-#   "friendly"  — Conversational, explains reasoning
-#   "pragmatic" — Concise, action-oriented
-#   "none"      — Minimal commentary
+#   "friendly"  -- Conversational, explains reasoning
+#   "pragmatic" -- Concise, action-oriented
+#   "none"      -- Minimal commentary
 personality = "pragmatic"
 
 # -----------------------------------------------------------------------------
+# Project Documentation Discovery
+# -----------------------------------------------------------------------------
+# Codex searches for project-level documentation files in the repository root.
+# These files are loaded as additional context alongside AGENTS.md.
+# The first file found in the list is used; max size prevents token overflow.
+project_doc_fallback_filenames = ["AGENTS.md", "CLAUDE.md", "CONTRIBUTING.md"]
+project_doc_max_bytes = 65536
+
+# =============================================================================
+# MCP Servers (Model Context Protocol)
+# =============================================================================
+#
+# MCP servers extend Codex with external tools via STDIO transport.
+# Each server runs as a local subprocess; Codex communicates over stdin/stdout.
+#
+# Configuration reference: https://developers.openai.com/codex/mcp
+#
+# Replace {{PLACEHOLDER}} tokens with your project-specific values:
+#   {{MCP_LINEAR_SERVER}}      -- Name for the Linear MCP server instance
+#   {{MCP_CONFLUENCE_SERVER}}  -- Name for the Confluence MCP server instance
+#
+# Environment variables referenced in env_vars must be set in the shell or
+# in the [shell_environment_policy] include_only list below.
+# -----------------------------------------------------------------------------
+
+# -- Linear: Ticket management (issues, comments, status updates) -------------
+[mcp_servers.{{MCP_LINEAR_SERVER}}]
+command = "npx"
+args = ["-y", "@anthropic/linear-mcp-server"]
+env_vars = ["LINEAR_API_KEY"]
+startup_timeout_sec = 15
+tool_timeout_sec = 60
+
+# -- Confluence: Documentation (pages, spaces, search) ------------------------
+[mcp_servers.{{MCP_CONFLUENCE_SERVER}}]
+command = "npx"
+args = ["-y", "@anthropic/confluence-mcp-server"]
+env_vars = ["ATLASSIAN_API_TOKEN", "ATLASSIAN_EMAIL", "CONFLUENCE_BASE_URL"]
+startup_timeout_sec = 15
+tool_timeout_sec = 60
+
+# -- Add additional MCP servers below as needed. Examples:
+#
+# [mcp_servers.github]
+# command = "npx"
+# args = ["-y", "@anthropic/github-mcp-server"]
+# env_vars = ["GITHUB_TOKEN"]
+# startup_timeout_sec = 15
+# tool_timeout_sec = 60
+#
+# [mcp_servers.postgres]
+# command = "npx"
+# args = ["-y", "@anthropic/postgres-mcp-server"]
+# env_vars = ["DATABASE_URL"]
+# startup_timeout_sec = 20
+# tool_timeout_sec = 120
+
+# =============================================================================
+# Agent Orchestration
+# =============================================================================
+#
+# Controls multi-agent behavior when Codex spawns sub-agents for parallel work.
+#
+# max_threads            -- Maximum concurrent agent threads (matches CPU cores)
+# max_depth              -- Maximum nesting depth for agent delegation (1 = no
+#                           sub-sub-agents; increase for complex decomposition)
+# job_max_runtime_seconds -- Hard timeout per agent job; prevents runaway tasks
+# -----------------------------------------------------------------------------
+[agents]
+max_threads = 6
+max_depth = 1
+job_max_runtime_seconds = 1800
+
+# =============================================================================
 # Feature Flags
+# =============================================================================
+#
+# Toggle capabilities on or off. Features disabled here cannot be used even
+# if the model supports them.
 # -----------------------------------------------------------------------------
 [features]
 # Shell snapshot captures terminal state for better context
 shell_snapshot = true
 
-# Multi-agent coordination support
+# Multi-agent coordination support -- enables parallel agent threads
 multi_agent = true
 
-# Enable web search capability
+# Enable web search capability -- allows Codex to search the web for context
 web_search = true
 
+# Shell tool -- allows Codex to execute shell commands per approval_policy
+shell_tool = true
+
+# Unified exec -- single execution environment for all agent threads
+unified_exec = true
+
+# =============================================================================
+# Notifications
+# =============================================================================
+#
+# Notification command receives JSON on stdin with task events (start, complete,
+# error). Useful for CI/CD integration, Slack alerts, or webhook forwarding.
+#
+# The command is invoked as a subprocess; event payload is piped to stdin.
+# Event schema: { "type": "task_start"|"task_complete"|"task_error",
+#                 "task_id": "...", "timestamp": "...", "details": {...} }
+#
+# Uncomment and point to your notification handler script:
+# notify = ["python3", "scripts/codex-notify.py"]
 # -----------------------------------------------------------------------------
+
+# =============================================================================
+# Agent Profiles
+# =============================================================================
+#
+# Profiles define per-role overrides for model, reasoning effort, and sandbox
+# permissions. Invoke a profile with `codex --profile <name>`.
+#
+# SAFe agent roles map to profiles:
+#   architect  -- System Architect: read-only analysis, high reasoning
+#   developer  -- Backend/Frontend Dev: workspace writes, medium reasoning
+#   reviewer   -- QAS/Code Review: read-only validation, efficient model
+#
+# Adjust model names to match your OpenAI subscription tier.
+# -----------------------------------------------------------------------------
+
+[profiles.architect]
+model = "o4-mini"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-read"
+approval_policy = "on-request"
+
+[profiles.developer]
+model = "o4-mini"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+
+[profiles.reviewer]
+model = "o4-mini"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-read"
+approval_policy = "untrusted"
+
+# =============================================================================
 # Shell Environment Policy
-# -----------------------------------------------------------------------------
+# =============================================================================
+#
 # Controls which environment variables are visible to Codex.
-# Use include_only for a whitelist approach (recommended for security).
+#
+# Two strategies:
+#   include_only -- Whitelist: only listed variables are visible (recommended)
+#   exclude      -- Blocklist: all variables visible except those matching
+#                   the listed glob patterns
+#
+# Choose ONE strategy. The include_only approach is safer -- it prevents
+# accidental exposure of secrets. The exclude approach is shown commented
+# out below for projects that need broad env access with targeted exclusions.
+# -----------------------------------------------------------------------------
 [shell_environment_policy]
 include_only = [
+  # System essentials
   "PATH",
   "HOME",
   "USER",
@@ -66,12 +213,29 @@ include_only = [
   "LANG",
   "TERM",
   "EDITOR",
+
+  # Git identity
   "GIT_AUTHOR_NAME",
   "GIT_AUTHOR_EMAIL",
   "GIT_COMMITTER_NAME",
   "GIT_COMMITTER_EMAIL",
+
+  # Codex / OpenAI
   "OPENAI_API_KEY",
+
+  # SAFe harness project tokens (used by {{PLACEHOLDER}} expansion)
   "TICKET_PREFIX",
   "PROJECT_NAME",
   "MAIN_BRANCH",
+
+  # MCP server credentials -- add these when using MCP integrations
+  "LINEAR_API_KEY",
+  "ATLASSIAN_API_TOKEN",
+  "ATLASSIAN_EMAIL",
+  "CONFLUENCE_BASE_URL",
 ]
+
+# -- Alternative: exclude-based policy (uncomment to use instead of include_only)
+# [shell_environment_policy]
+# inherit = "core"
+# exclude = ["AWS_*", "AZURE_*", "STRIPE_SECRET*", "DATABASE_URL", "PRIVATE_KEY*"]
