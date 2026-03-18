@@ -6,7 +6,7 @@
 ## Release Information
 
 - **Version**: _____________
-- **Release branch**: `template`
+- **Release branch**: `main`
 - **Previous version**: _____________
 - **Linear Epic/Stories**: _____________
 - **Release owner**: _____________
@@ -16,7 +16,7 @@
 
 ## 1. Code Quality Gates
 
-- [ ] All feature branches merged to `template`
+- [ ] All feature branches merged to `main`
 - [ ] `bash -n scripts/sync-claude-harness.sh` — syntax check passes
 - [ ] All test suites pass (list each with count):
   - [ ] `test-manifest-loader.sh`: ___/___
@@ -85,7 +85,7 @@
 ## 7. Release Artifacts
 
 - [ ] Git tag created: `git tag -a vX.Y.Z -m "..."`
-- [ ] Tag pushed: `git push origin template --tags`
+- [ ] Tag pushed: `git push origin main --tags`
 - [ ] GitHub Release created with:
   - [ ] Accurate feature list
   - [ ] Breaking changes section (if any)

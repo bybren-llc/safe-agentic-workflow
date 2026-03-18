@@ -161,7 +161,7 @@ setup_fork_project() {
     cat > "$proj_dir/.claude/.harness-sync.json" <<EOF
 {
   "upstream_repo": "ByBren-LLC/safe-agentic-workflow",
-  "upstream_branch": "template",
+  "upstream_branch": "main",
   "last_synced_commit": "abc1234",
   "last_synced_version": "v2.6.0",
   "last_synced_at": "2026-03-01T00:00:00Z",
