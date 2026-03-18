@@ -1,0 +1,117 @@
+---
+description: "Stripe payment integration: webhooks, checkout sessions, subscriptions, idempotency, test mode safety."
+globs: "core/**/billing/**,core/**/payments/**,core/**/stripe/**,**/webhook*stripe*"
+alwaysApply: false
+---
+
+# Stripe Payment Rules
+
+These rules apply when working on Stripe payment integration, webhooks, checkout flows, or subscription management.
+
+## Test Mode Safety (CHECK FIRST)
+
+Before ANY payment work:
+
+- [ ] Verify `STRIPE_SECRET_KEY` starts with `sk_test_`
+- [ ] Confirm test webhook secret (`whsec_...` from Stripe CLI)
+- [ ] Use test card numbers only (4242 4242 4242 4242)
+- [ ] Never use production keys in development
+
+## Webhook Handler Pattern
+
+**ALWAYS** verify webhook signatures and handle idempotency:
+
+```python
+import stripe
+from fastapi import Request, HTTPException
+
+async def handle_stripe_webhook(request: Request):
+    payload = await request.body()
+    signature = request.headers.get("stripe-signature")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, signature, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    # Idempotency: check if event already processed
+    existing = await get_webhook_event(event.id)
+    if existing:
+        return {"status": "already_processed"}
+
+    # Process event and record
+    await process_event(event)
+    await record_webhook_event(event.id, event.type)
+    return {"status": "processed"}
+```
+
+## Idempotency Checklist
+
+For ALL webhook handlers:
+
+- [ ] Store event ID before processing
+- [ ] Check for duplicate events before processing
+- [ ] Use database transactions for atomicity
+- [ ] Return 200 OK even on idempotency skip (Stripe retries on non-200)
+
+## Common Webhook Events
+
+```python
+SUBSCRIPTION_EVENTS = [
+    "customer.subscription.created",
+    "customer.subscription.updated",
+    "customer.subscription.deleted",
+    "invoice.payment_succeeded",
+    "invoice.payment_failed",
+]
+```
+
+## Local Webhook Testing
+
+Use the Stripe CLI to forward events locally:
+
+```bash
+# Start webhook forwarding
+stripe listen --forward-to localhost:8000/api/v1/webhooks/stripe
+
+# Trigger test events
+stripe trigger checkout.session.completed
+stripe trigger invoice.payment_succeeded
+stripe trigger customer.subscription.deleted
+```
+
+## FORBIDDEN
+
+- Hardcoding API keys (use environment variables)
+- Skipping webhook signature verification
+- Processing webhooks without idempotency checks
+- Using production Stripe keys in development or CI
+- Ignoring failed payment events (always handle `invoice.payment_failed`)
+
+## Evidence Template for Linear
+
+Attach this after completing payment work:
+
+```markdown
+**Payment Testing Evidence**
+
+- [ ] Test mode verified (`sk_test_` key)
+- [ ] Webhook signature verification tested
+- [ ] Idempotency tested (duplicate event handling)
+- [ ] Success flow tested (card 4242...)
+- [ ] Failure flow tested (card 4000 0000 0000 0002)
+- [ ] Subscription lifecycle tested (create/update/cancel)
+
+**Test Results:**
+- Webhook events processed: {count}
+- All flows: PASSED
+```
+
+## Key References
+
+- **Stripe Docs**: https://stripe.com/docs
+- **Webhook best practices**: https://stripe.com/docs/webhooks/best-practices
+- **Payment patterns**: `patterns_library/` (search for payment/billing patterns)
+- **Full skill docs**: `.claude/skills/stripe-patterns/SKILL.md`

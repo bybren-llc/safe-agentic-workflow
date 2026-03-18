@@ -1,0 +1,117 @@
+---
+description: "Deployment procedures: pre-deploy validation, post-deploy smoke tests, Coolify, Docker, rollback procedures."
+globs: "docker-compose*.yml,Dockerfile*,scripts/deploy*,scripts/dev-docker*,.coolify/**"
+alwaysApply: false
+---
+
+# Deployment Rules
+
+These rules apply when working on deployment configurations, Docker files, or executing deployments.
+
+## Authoritative SOPs (MUST READ before deploying)
+
+| Document                 | Location                                          | Purpose                     |
+|--------------------------|---------------------------------------------------|-----------------------------|
+| Semantic Release SOP     | `docs/ci-cd/Semantic-Release-Deployment-SOP.md`   | Release automation workflow |
+| Staging/UAT Release SOP  | `docs/sop/STAGING-UAT-RELEASE-SOP.md`             | UAT validation process      |
+| Linux Dev Machine Access | `docs/deployment/LINUX-DEV-MACHINE-ACCESS-SOP.md` | Dev server access           |
+| Production Server Access | `docs/deployment/PRODUCTION-SERVER-ACCESS-SOP.md` | Production deployment       |
+
+Always read the relevant SOP before proceeding. This rule provides checklists, not full procedures.
+
+## Pre-Deployment Checklist
+
+Before ANY deployment:
+
+- [ ] All CI checks pass (GitHub Actions green)
+- [ ] PR merged to target branch (`{{DEV_BRANCH}}` for staging, `{{MAIN_BRANCH}}` for prod)
+- [ ] No unresolved blockers in Linear
+- [ ] Database migrations tested locally
+- [ ] Environment variables verified
+
+```bash
+# Validate before deploy
+{{CI_VALIDATE_COMMAND}}
+docker compose build
+```
+
+## Post-Deployment Smoke Test
+
+After deployment completes:
+
+- [ ] Health endpoint responds: `curl https://{domain}/api/health`
+- [ ] Database connection verified (check health response)
+- [ ] Authentication flow works
+- [ ] Critical user flows functional
+- [ ] No new errors in logs
+
+```bash
+# Smoke test
+curl -s https://{domain}/api/health | jq .
+# Expected: {"status":"healthy","timestamp":"..."}
+```
+
+## Branch to Environment Mapping
+
+| Branch             | Environment          | Auto-Deploy |
+|--------------------|----------------------|-------------|
+| `{{DEV_BRANCH}}`   | Staging              | Manual pull |
+| `{{MAIN_BRANCH}}`  | Production (Coolify) | Automatic   |
+
+## Rollback Procedure
+
+If deployment fails:
+
+1. **Identify failure** -- Check Coolify logs, monitoring dashboards
+2. **Revert commit** -- `git revert {commit_sha}`
+3. **Push revert** -- Triggers automatic rollback deployment
+4. **Verify rollback** -- Run smoke tests again
+5. **Document incident** -- Update Linear ticket with evidence
+
+## FORBIDDEN
+
+- Deploying with failing CI checks
+- Skipping smoke tests on production
+- Deploying database migrations without local testing
+- Force-deploying over active incidents
+- Production deploys without prior staging validation
+
+## REQUIRED
+
+- Health check MUST pass within 5 minutes
+- Production deployments MUST have staging validation first
+- Rollback plan MUST be documented before production deploy
+
+## Deployment Evidence Template
+
+Attach this to the Linear ticket after deployment:
+
+```markdown
+## Deployment Evidence - {{TICKET_PREFIX}}-XXX
+
+### Environment
+- **Target**: Staging / Production
+- **Branch**: `{branch_name}`
+- **Commit**: `{commit_sha}`
+
+### Pre-Deployment
+- [x] CI checks passed
+- [x] PR merged
+- [x] Migrations verified
+
+### Post-Deployment
+- [x] Health check: PASSED
+- [x] Auth flow: PASSED
+- [x] Smoke tests: PASSED
+
+### Verification
+curl -s https://{domain}/api/health
+{"status":"healthy","timestamp":"..."}
+```
+
+## Key References
+
+- **Deployment SOPs**: `docs/deployment/`, `docs/sop/`, `docs/ci-cd/`
+- **Docker configs**: `docker-compose*.yml`
+- **Deploy scripts**: `scripts/`
+- **Full skill docs**: `.claude/skills/deployment-sop/SKILL.md`
