@@ -1,0 +1,77 @@
+# =============================================================================
+# Codex CLI Configuration
+# =============================================================================
+#
+# Codex reads AGENTS.md at the project root for system instructions (walking
+# from Git root to CWD). This file configures Codex CLI behavior only.
+#
+# Documentation: https://developers.openai.com/docs/codex-cli
+# Location: .codex/config.toml
+# =============================================================================
+
+# Model selection — override with `codex --model <model>`
+model = "o4-mini"
+
+# Approval policy controls how much autonomy Codex has:
+#   "untrusted"  — Codex cannot execute commands or write files without approval
+#   "on-request" — Codex can read files and run safe commands; asks before writes
+#   "never"      — Full autonomy within sandbox constraints (use with caution)
+approval_policy = "on-request"
+
+# Sandbox mode controls filesystem access:
+#   "workspace-write" — Can write within the workspace directory
+#   "workspace-read"  — Read-only access to the workspace
+#   "off"             — No sandbox restrictions (not recommended)
+sandbox_mode = "workspace-write"
+
+# Web search behavior:
+#   "cached" — Use cached search results when available
+#   "live"   — Always perform live searches
+#   "disabled" — No web search
+web_search = "cached"
+
+# Reasoning effort for the model (low, medium, high)
+model_reasoning_effort = "high"
+
+# Personality style:
+#   "friendly"  — Conversational, explains reasoning
+#   "pragmatic" — Concise, action-oriented
+#   "none"      — Minimal commentary
+personality = "pragmatic"
+
+# -----------------------------------------------------------------------------
+# Feature Flags
+# -----------------------------------------------------------------------------
+[features]
+# Shell snapshot captures terminal state for better context
+shell_snapshot = true
+
+# Multi-agent coordination support
+multi_agent = true
+
+# Enable web search capability
+web_search = true
+
+# -----------------------------------------------------------------------------
+# Shell Environment Policy
+# -----------------------------------------------------------------------------
+# Controls which environment variables are visible to Codex.
+# Use include_only for a whitelist approach (recommended for security).
+[shell_environment_policy]
+include_only = [
+  "PATH",
+  "HOME",
+  "USER",
+  "SHELL",
+  "LANG",
+  "TERM",
+  "EDITOR",
+  "GIT_AUTHOR_NAME",
+  "GIT_AUTHOR_EMAIL",
+  "GIT_COMMITTER_NAME",
+  "GIT_COMMITTER_EMAIL",
+  "OPENAI_API_KEY",
+  "TICKET_PREFIX",
+  "PROJECT_NAME",
+  "MAIN_BRANCH",
+]

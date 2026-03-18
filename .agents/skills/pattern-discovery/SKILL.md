@@ -1,3 +1,11 @@
+---
+name: pattern-discovery
+description: >
+  Pattern library discovery for pattern-first development. Use BEFORE
+  implementing any new feature, creating components, writing API routes,
+  or adding database operations. Ensures existing patterns are checked first.
+---
+
 # Pattern Discovery Skill
 
 ## Purpose

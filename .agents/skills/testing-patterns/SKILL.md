@@ -1,3 +1,11 @@
+---
+name: testing-patterns
+description: >
+  Testing patterns for unit, integration, and end-to-end tests. Use when
+  writing tests, setting up test fixtures, or validating RLS enforcement.
+  Routes to existing test conventions.
+---
+
 # Testing Patterns Skill
 
 ## Purpose

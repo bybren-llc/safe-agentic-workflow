@@ -1,3 +1,12 @@
+---
+name: safe-workflow
+description: >
+  SAFe development workflow guidance including branch naming conventions,
+  commit message format, rebase-first workflow, and CI validation. Use when
+  starting work on a Linear ticket, preparing commits, creating branches,
+  writing PR descriptions, or asking about contribution guidelines.
+---
+
 # SAFe Workflow Skill
 
 > **TEMPLATE**: This skill uses `{{TICKET_PREFIX}}` as a placeholder. Replace with your project's ticket prefix (e.g., `WOR`, `PROJ`, `FEAT`).
@@ -94,4 +103,4 @@ When closing a ticket, attach evidence:
 ## Reference
 
 - **CONTRIBUTING.md** - Full contributor guide
-- **CODEX.md** - Development commands and context
+- **AGENTS.md** - Development context and agent roles

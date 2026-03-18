@@ -21,134 +21,131 @@ This directory contains the configuration for [OpenAI Codex CLI](https://github.
    codex
    ```
 
-Codex CLI automatically detects `CODEX.md` in the project root for system instructions.
+Codex CLI automatically reads `AGENTS.md` at the project root for system instructions. It walks from the Git root to the current working directory, loading any `AGENTS.md` files it finds. **This harness already includes `AGENTS.md`** -- no additional instructions file is needed.
+
+## How Codex Discovers Context
+
+### System Instructions: AGENTS.md
+
+Codex reads `AGENTS.md` (not a Codex-specific file) at the project root. This is the same `AGENTS.md` used by all agents in the SAFe harness, providing:
+
+- Agent role definitions and responsibilities
+- SAFe workflow guidance
+- Pattern discovery protocol
+- Documentation references
+
+There is **no** `CODEX.md` file. If you see references to one, they are outdated.
+
+### Configuration: .codex/config.toml
+
+The `.codex/config.toml` file controls Codex CLI behavior:
+
+```toml
+model = "o4-mini"
+approval_policy = "on-request"  # "untrusted", "on-request", "never"
+sandbox_mode = "workspace-write"
+web_search = "cached"           # "cached", "live", "disabled"
+model_reasoning_effort = "high"
+personality = "pragmatic"       # "friendly", "pragmatic", "none"
+
+[features]
+shell_snapshot = true
+multi_agent = true
+web_search = true
+
+[shell_environment_policy]
+include_only = ["PATH", "HOME", "OPENAI_API_KEY"]
+```
+
+#### Approval Policies
+
+| Policy | Behavior |
+|--------|----------|
+| `untrusted` | Codex cannot execute commands or write files without approval |
+| `on-request` | Codex can read files and run safe commands; asks before writes |
+| `never` | Full autonomy within sandbox constraints (use with caution) |
+
+### Skills: .agents/skills/
+
+Codex discovers skills from `.agents/skills/` directories at multiple scopes:
+
+```
+.agents/skills/         # CWD (project-level)
+../.agents/skills/      # Parent directory
+$REPO_ROOT/.agents/skills/  # Git repository root
+$HOME/.agents/skills/   # User-level (personal skills)
+```
+
+Each skill follows this structure:
+
+```
+.agents/skills/my-skill/
+├── SKILL.md           # Required: YAML frontmatter (name, description) + instructions
+├── scripts/           # Optional: executable scripts
+├── references/        # Optional: reference documentation
+└── assets/            # Optional: templates, resources
+```
+
+Skills are **shared across all agents** (not Codex-specific). The same `.agents/skills/` directory is used by any tool that supports the convention.
+
+#### Available Skills
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `safe-workflow` | Branch naming, commits, PR workflow | Starting work, commits, PRs |
+| `pattern-discovery` | Pattern library discovery | Before implementing features |
+| `testing-patterns` | Unit, integration, E2E patterns | Writing tests |
+
+### MCP Support
+
+Codex CLI supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) natively. MCP servers provide additional tools and context to Codex sessions.
+
+To configure MCP servers, add them to your Codex session:
+
+```bash
+# Example: connect to a Linear MCP server
+codex --mcp-server linear
+
+# Example: connect to a Confluence MCP server
+codex --mcp-server confluence
+```
+
+MCP enables Codex to interact with external services like Linear (ticket management), Confluence (documentation), databases, and other APIs without custom scripts.
 
 ## Directory Structure
 
 ```
 .codex/
 ├── README.md           # This file - setup guide
-├── settings.json       # Configuration template
-├── commands/           # Instruction files for common workflows
-│   ├── start-work.md   # Start work on Linear ticket
-│   ├── pre-pr.md       # Pre-PR validation checklist
-│   ├── end-work.md     # Complete work session
-│   ├── search-pattern.md # Search codebase for patterns
-│   └── check-workflow.md # Quick workflow health check
-└── skills/             # Contextual knowledge packs
-    ├── safe-workflow/
-    │   ├── README.md
-    │   └── SKILL.md
+└── config.toml         # Codex CLI configuration (TOML format)
+
+.agents/
+└── skills/             # Shared skills (discovered by Codex and other agents)
     ├── pattern-discovery/
-    │   ├── README.md
-    │   └── SKILL.md
+    │   ├── SKILL.md
+    │   ├── scripts/
+    │   ├── references/
+    │   └── assets/
+    ├── safe-workflow/
+    │   ├── SKILL.md
+    │   ├── scripts/
+    │   ├── references/
+    │   └── assets/
     └── testing-patterns/
-        ├── README.md
-        └── SKILL.md
+        ├── SKILL.md
+        ├── scripts/
+        ├── references/
+        └── assets/
 ```
 
-## Using Commands
+## What Codex Does NOT Have
 
-Codex CLI commands are markdown instruction files. Pass them via the `--instructions` flag:
+- **No slash commands** -- Codex uses natural language instead of `/command` syntax. If you need structured workflows, describe them in conversation or load a skill.
+- **No `CODEX.md`** -- Codex reads `AGENTS.md`, which is already part of this harness.
+- **No `settings.json`** -- Configuration uses TOML format at `.codex/config.toml`.
+- **No `.codex/skills/`** -- Skills live in `.agents/skills/` and are shared across agents.
 
-```bash
-# Start work on a ticket
-codex --instructions .codex/commands/start-work.md "Start work on TICKET-123"
-
-# Run pre-PR validation
-codex --instructions .codex/commands/pre-pr.md
-
-# End work session
-codex --instructions .codex/commands/end-work.md
-
-# Search for patterns
-codex --instructions .codex/commands/search-pattern.md "withUserContext"
-
-# Check workflow status
-codex --instructions .codex/commands/check-workflow.md
-```
-
-You can also reference CODEX.md as the base instructions for any session:
-
-```bash
-codex --instructions CODEX.md "Implement the user profile API"
-```
-
-### Command Reference
-
-| Command | Purpose | Usage |
-|---------|---------|-------|
-| `start-work.md` | Begin work on Linear ticket | `codex --instructions .codex/commands/start-work.md` |
-| `pre-pr.md` | Run validation before PR | `codex --instructions .codex/commands/pre-pr.md` |
-| `end-work.md` | Complete work session | `codex --instructions .codex/commands/end-work.md` |
-| `search-pattern.md` | Search code patterns | `codex --instructions .codex/commands/search-pattern.md "pattern"` |
-| `check-workflow.md` | Check workflow status | `codex --instructions .codex/commands/check-workflow.md` |
-
-## Using Skills
-
-Skills provide deep contextual knowledge on specific topics. Load them as instructions when working in a specific area:
-
-```bash
-# When working on git workflow
-codex --instructions .codex/skills/safe-workflow/SKILL.md "Create a feature branch for TICKET-123"
-
-# When implementing a new feature (pattern-first)
-codex --instructions .codex/skills/pattern-discovery/SKILL.md "Build a new API endpoint"
-
-# When writing tests
-codex --instructions .codex/skills/testing-patterns/SKILL.md "Write tests for the user service"
-```
-
-### Skills Reference
-
-| Skill | Description | When to Use |
-|-------|-------------|-------------|
-| `safe-workflow` | Branch naming, commits, PR workflow | Starting work, commits, PRs |
-| `pattern-discovery` | Pattern library discovery | Before implementing features |
-| `testing-patterns` | Jest and Playwright patterns | Writing tests |
-
-## Configuration
-
-### settings.json
-
-The `settings.json` file contains project-level configuration:
-
-```json
-{
-  "model": "o4-mini",
-  "approval_mode": "suggest",
-  "sandbox": {
-    "enable": true,
-    "permissions": {
-      "read": [".", "~/.gitconfig"],
-      "write": ["."],
-      "net": false
-    }
-  },
-  "instructions": "CODEX.md"
-}
-```
-
-#### Key Settings
-
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `model` | OpenAI model to use | `o4-mini` |
-| `approval_mode` | `suggest`, `auto-edit`, or `full-auto` | `suggest` |
-| `sandbox.enable` | Enable sandboxed execution | `true` |
-| `sandbox.permissions.net` | Allow network access | `false` |
-| `instructions` | Path to system instructions file | `CODEX.md` |
-| `notify` | Desktop notifications on completion | `true` |
-
-#### Approval Modes
-
-| Mode | Behavior |
-|------|----------|
-| `suggest` | Codex suggests changes, you approve each one |
-| `auto-edit` | Codex auto-applies file edits, asks before commands |
-| `full-auto` | Codex runs autonomously within sandbox constraints |
-
-### Environment Variables
+## Environment Variables
 
 Set these in your environment or `.env` file:
 
@@ -156,19 +153,10 @@ Set these in your environment or `.env` file:
 # Required
 export OPENAI_API_KEY="your-api-key"
 
-# Optional - project-specific
+# Optional - project-specific (used by skills via {{PLACEHOLDER}} tokens)
 export TICKET_PREFIX=WOR
 export PROJECT_NAME=myproject
 export MAIN_BRANCH=main
-```
-
-## Combining Instructions
-
-You can combine the base CODEX.md with specific commands:
-
-```bash
-# Use CODEX.md as base context, then run a specific command
-codex --instructions CODEX.md --instructions .codex/commands/start-work.md "Start TICKET-123"
 ```
 
 ## Relationship to Other AI Tool Configs
@@ -177,73 +165,45 @@ This `.codex/` directory works alongside `.claude/` and `.gemini/` for teams usi
 
 | Feature | Codex CLI | Claude Code | Gemini CLI |
 |---------|-----------|-------------|------------|
-| System Instructions | `CODEX.md` | `CLAUDE.md` | `GEMINI.md` |
-| Settings | `.codex/settings.json` | `.claude/settings.local.json` | `.gemini/settings.json` |
-| Commands | `.codex/commands/*.md` | `.claude/commands/*.md` | `.gemini/commands/*.toml` |
-| Skills | `.codex/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | `.gemini/skills/*/SKILL.md` |
-| Agents | N/A | `.claude/agents/` | N/A (skills) |
-| Hooks | N/A | `.claude/hooks-config.json` | `settings.json` hooks |
-| MCP Servers | N/A | `settings.local.json` | `settings.json` mcpServers |
+| System Instructions | `AGENTS.md` (project root) | `CLAUDE.md` | `GEMINI.md` |
+| Configuration | `.codex/config.toml` | `.claude/settings.local.json` | `.gemini/settings.json` |
+| Commands | N/A (natural language) | `.claude/commands/*.md` | `.gemini/commands/*.toml` |
+| Skills | `.agents/skills/*/SKILL.md` | `.claude/skills/*/SKILL.md` | `.gemini/skills/*/SKILL.md` |
+| Agents | N/A | `.claude/agents/` | N/A |
+| MCP Servers | Native support | `settings.local.json` | `settings.json` mcpServers |
 
-All three tools can coexist in the same repository.
-
-## Customization
-
-### Adding New Commands
-
-Create a new markdown file in `.codex/commands/`:
-
-```markdown
-# My Command Name
-
-Instructions for what this command does.
-
-## Steps
-
-1. Step one
-2. Step two
-
-## Success Criteria
-
-- Criteria 1
-- Criteria 2
-```
-
-### Adding New Skills
-
-Create a new directory under `.codex/skills/` with `README.md` and `SKILL.md`:
-
-```
-.codex/skills/my-skill/
-├── README.md    # Quick reference and metadata
-└── SKILL.md     # Full skill definition
-```
+All tools can coexist in the same repository. `AGENTS.md` is the universal file read by Codex and useful to all agents.
 
 ## Troubleshooting
 
 ### Codex Not Finding Instructions
 
-1. Verify `CODEX.md` exists in the project root
-2. Check `settings.json` has correct `instructions` path
-3. Ensure `OPENAI_API_KEY` is set in your environment
+1. Verify `AGENTS.md` exists in the project root (or a parent directory)
+2. Ensure you are running Codex from within the Git repository
+3. Check that `OPENAI_API_KEY` is set in your environment
 
 ### Sandbox Permission Errors
 
 If Codex cannot read or write files:
-1. Check `sandbox.permissions` in `settings.json`
-2. Ensure the project directory is listed in `read` and `write` arrays
-3. For network access (API calls, etc.), set `net: true` (use with caution)
+1. Check `sandbox_mode` in `config.toml`
+2. Try `sandbox_mode = "workspace-write"` for development
+3. For network access, ensure relevant features are enabled in `[features]`
 
 ### Model Selection
 
-To use a different model:
 ```bash
-# Via command line
+# Via command line (overrides config.toml)
 codex --model o3
 
-# Or update settings.json
-# "model": "o3"
+# Or update config.toml
+# model = "o3"
 ```
+
+### Skills Not Loading
+
+1. Verify `.agents/skills/` exists at one of the discovery scopes
+2. Check that each skill has a `SKILL.md` with valid YAML frontmatter
+3. Ensure the `name` and `description` fields are present in frontmatter
 
 ## License
 
