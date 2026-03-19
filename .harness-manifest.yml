@@ -1,5 +1,5 @@
 # =============================================================================
-# Harness Manifest Schema - v1.0.0
+# Harness Manifest Schema - v1.1.0
 # =============================================================================
 #
 # This file declares how a downstream fork has customized the upstream
@@ -8,7 +8,7 @@
 # and never overwriting protected files.
 #
 # Location: .harness-manifest.yml (repository root)
-# Scope: .claude/ directory only (v2.7.0)
+# Scope: Multi-domain (v1.1 — sync_scope defines which directories sync)
 # Docs: docs/HARNESS_MANIFEST_SCHEMA.md
 #
 # If this file is absent, the sync script falls back to legacy behavior
@@ -20,7 +20,7 @@
 # -----------------------------------------------------------------------------
 # Allows the sync script to handle older manifest formats gracefully.
 # Bump only when the schema itself changes in a backward-incompatible way.
-manifest_version: "1.0"
+manifest_version: "1.1"
 
 # -----------------------------------------------------------------------------
 # Identity (REQUIRED)
@@ -78,21 +78,20 @@ substitutions: {}
 # -----------------------------------------------------------------------------
 # Renames (OPTIONAL)
 # -----------------------------------------------------------------------------
-# Map of upstream relative path -> local relative path.
-# All paths are relative to .claude/ (v2.7.0 scope).
+# Map of upstream path -> local path (repo-root-relative in v1.1+).
 #
 # Use this when a fork has renamed files or directories from their upstream
 # names. The sync script maps incoming upstream paths to local paths.
 #
 # File rename example:
-#   "agents/fe-developer.md": "agents/ui-engineer.md"
+#   ".claude/agents/fe-developer.md": ".claude/agents/ui-engineer.md"
 #
 # Directory rename example (trailing / is REQUIRED for directories):
-#   "skills/stripe-patterns/": "skills/payment-patterns/"
+#   ".gemini/skills/stripe-patterns/": ".gemini/skills/payment-patterns/"
 #
 # Rules:
-# - Source (left) is the upstream path relative to .claude/
-# - Target (right) is the local path relative to .claude/
+# - Source (left) is the upstream path (repo-root-relative)
+# - Target (right) is the local path (repo-root-relative)
 # - Trailing / distinguishes directory renames from file renames
 # - Directory renames apply recursively to all contained files
 # - If a file matches both a directory rename and a file rename,
@@ -102,7 +101,7 @@ renames: {}
 # -----------------------------------------------------------------------------
 # Protected (OPTIONAL)
 # -----------------------------------------------------------------------------
-# List of glob patterns (relative to .claude/) that the sync script must
+# Glob patterns (repo-root-relative in v1.1+) that the sync script must
 # NEVER overwrite. Protected files are completely skipped during sync.
 #
 # Use this for files with project-specific configuration that would break
@@ -112,15 +111,15 @@ renames: {}
 #
 # Example:
 #   protected:
-#     - "hooks-config.json"
-#     - "settings.local.json"
-#     - "agents/custom-*.md"
+#     - ".claude/hooks-config.json"
+#     - ".claude/settings.local.json"
+#     - ".codex/config.toml"
 protected: []
 
 # -----------------------------------------------------------------------------
 # Replaced (OPTIONAL)
 # -----------------------------------------------------------------------------
-# List of paths (relative to .claude/) that the fork has completely
+# Paths (repo-root-relative in v1.1+) that the fork has completely
 # rewritten. Unlike protected files, these still have an upstream
 # counterpart — but the fork's version is authoritative.
 #
@@ -136,8 +135,8 @@ protected: []
 #
 # Example:
 #   replaced:
-#     - "agents/system-architect.md"
-#     - "AGENT_OUTPUT_GUIDE.md"
+#     - ".claude/agents/system-architect.md"
+#     - ".claude/AGENT_OUTPUT_GUIDE.md"
 replaced: []
 
 # -----------------------------------------------------------------------------
@@ -145,15 +144,29 @@ replaced: []
 # -----------------------------------------------------------------------------
 # Tuning knobs for sync behavior. All have sensible defaults.
 sync:
+  # Sync scope: which directories to sync from upstream (v1.1+).
+  # Allowed domains:
+  #   Provider: .claude/, .gemini/, .codex/, .cursor/
+  #   Shared:   .agents/, dark-factory/
+  # Release domains (docs/, scripts/, patterns_library/) deferred to future version.
+  # Default: [".claude/"]
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+    - ".codex/"
+    - ".cursor/"
+    - ".agents/"
+    - "dark-factory/"
+
   # Automatically apply substitutions from the identity/substitutions
   # sections to incoming upstream files during sync.
   # Default: true
   # Set to false to sync raw upstream files without token replacement.
   auto_substitute: true
 
-  # Create a timestamped backup of .claude/ before each sync.
+  # Create a timestamped backup of synced domains before each sync.
   # Default: true
-  # Backups are stored in .claude/.harness-backup/<timestamp>/
+  # Backups are stored in .harness-backup/<domain>/<timestamp>/ (repo root)
   backup: true
 
   # Strategy for resolving conflicts when both upstream and local
