@@ -1,7 +1,7 @@
 # Harness Manifest Schema Reference
 
 **Schema version**: 1.1
-**File**: `.claude/.harness-manifest.yml` (current) — migrating to repository root in SAW-34
+**File**: `.claude/.harness-manifest.yml`
 **JSON Schema**: `.harness-manifest.schema.json`
 **Scope**: `.claude/` only (current sync engine) — multi-domain sync engine shipping in SAW-35
 

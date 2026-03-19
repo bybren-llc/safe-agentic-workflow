@@ -7,8 +7,8 @@
 # perform intelligent syncing: applying substitutions, respecting renames,
 # and never overwriting protected files.
 #
-# Location: .claude/.harness-manifest.yml (current), migrating to repo root in SAW-34
-# Scope: .claude/ only (current sync engine). sync_scope enables multi-domain in SAW-35
+# Location: .claude/.harness-manifest.yml
+# Scope: .claude/ only (current sync engine). sync_scope defined for future multi-domain
 # Docs: docs/HARNESS_MANIFEST_SCHEMA.md
 #
 # If this file is absent, the sync script falls back to legacy behavior
