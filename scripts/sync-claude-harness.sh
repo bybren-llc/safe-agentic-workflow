@@ -1628,10 +1628,10 @@ do_diff() {
 
         # Track directory rename file counts
         if [ "$rtype" = "directory" ]; then
-            # Find the directory rename key for this file
+            # Find the directory rename key — use manifest_path for v1.1 root-relative matching
             local dir_key=""
             while IFS='|' read -r src dst; do
-                if [[ "$rel_path" == "$src"* ]]; then
+                if [[ "$manifest_path" == "$src"* ]]; then
                     dir_key="${src}|${dst}"
                     break
                 fi
