@@ -1819,7 +1819,7 @@ SECTION_NEW
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`${CURRENT_DOMAIN}/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$new_entries_file"
         echo "" >> "$apply_order_file"
@@ -1844,7 +1844,7 @@ SECTION_UPDATED
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`${CURRENT_DOMAIN}/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$updated_entries_file"
         echo "" >> "$apply_order_file"
@@ -2288,7 +2288,7 @@ do_sync() {
             local total_patches
             total_patches=$(find "$patches_version_dir" -name "*.patch" 2>/dev/null | wc -l)
             if [ "$total_patches" -gt 0 ]; then
-                generate_apply_order "$patches_version_dir" "${ref:-unknown}"
+                generate_apply_order "$patches_version_dir" "$(basename "$patches_version_dir")"
                 print_success "Generated APPLY_ORDER.md with $total_patches patch(es) across ${#SYNC_SCOPE[@]} domain(s)"
                 print_info "Patches written to: $patches_version_dir"
             fi
