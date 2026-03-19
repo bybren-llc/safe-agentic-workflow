@@ -121,38 +121,40 @@ migrate_metadata_to_root() {
 get_sync_scope() {
     SYNC_SCOPE=()
     if [ "$HAS_MANIFEST" = "true" ]; then
-        # manifest_get outputs single-quoted JSON; normalize to double-quotes for python
-        local raw_scope
-        raw_scope=$(manifest_get "sync.sync_scope" "" 2>/dev/null | sed "s/'/\"/g")
-        if [ -n "$raw_scope" ] && [ "$raw_scope" != "null" ] && [ "$raw_scope" != "undefined" ]; then
-            while IFS= read -r domain; do
-                # Strip trailing / and whitespace
-                domain=$(echo "$domain" | tr -d '"' | sed 's|/$||' | xargs)
-                [ -z "$domain" ] && continue
-                # Validate against allowed domains
-                local valid=false
-                for allowed in "${ALLOWED_DOMAINS[@]}"; do
-                    if [ "$domain" = "$allowed" ]; then
-                        valid=true
-                        break
+        # Extract sync_scope array items directly from manifest YAML
+        # Avoids JSON parsing issues — reads YAML array items with simple grep/sed
+        local in_scope=false
+        while IFS= read -r line; do
+            # Detect sync_scope: array start
+            if echo "$line" | grep -q '^\s*sync_scope:'; then
+                in_scope=true
+                continue
+            fi
+            # Stop at next non-array line (not starting with -)
+            if [ "$in_scope" = true ]; then
+                if echo "$line" | grep -q '^\s*-'; then
+                    # Extract value: strip leading whitespace, dash, quotes, trailing /
+                    local domain
+                    domain=$(echo "$line" | sed 's/^\s*-\s*//; s/^["'"'"']//; s/["'"'"']$//; s|/$||; s/\s*$//')
+                    [ -z "$domain" ] && continue
+                    # Validate against allowed domains
+                    local valid=false
+                    for allowed in "${ALLOWED_DOMAINS[@]}"; do
+                        if [ "$domain" = "$allowed" ]; then
+                            valid=true
+                            break
+                        fi
+                    done
+                    if [ "$valid" = true ]; then
+                        SYNC_SCOPE+=("$domain")
+                    else
+                        echo -e "${YELLOW}[WARN]${NC} Ignoring unknown sync domain: $domain"
                     fi
-                done
-                if [ "$valid" = true ]; then
-                    SYNC_SCOPE+=("$domain")
                 else
-                    echo -e "${YELLOW}[WARN]${NC} Ignoring unknown sync domain: $domain"
+                    in_scope=false
                 fi
-            done < <(echo "$raw_scope" | python3 -c "
-import json, sys
-try:
-    data = json.load(sys.stdin)
-    if isinstance(data, list):
-        for item in data:
-            print(item)
-except:
-    pass
-" 2>/dev/null)
-        fi
+            fi
+        done < "$MANIFEST_FILE"
     fi
     # Default to .claude if no scope found
     if [ ${#SYNC_SCOPE[@]} -eq 0 ]; then
@@ -1173,7 +1175,7 @@ scan_unreplaced_tokens() {
 # entries representing what WOULD be written.
 #
 # Checks:
-#   (a) All target files are within .claude/ scope
+#   (a) All target files are within configured sync domains
 #   (b) No unreplaced manifest tokens remain post-substitution
 #   (c) No protected files being modified
 #
@@ -2115,12 +2117,9 @@ do_sync() {
     # --- Patch generation mode (SAW-4) ---
     if [ "$generate_patches" = true ]; then
         # patches_version_dir already created outside domain loop
-
-        # Create temp entry files for APPLY_ORDER.md
+        # Entry files initialized outside domain loop — append per domain
         local new_entries_file="$patches_version_dir/._new_entries.txt"
         local updated_entries_file="$patches_version_dir/._updated_entries.txt"
-        : > "$new_entries_file"
-        : > "$updated_entries_file"
 
         local patch_count=0 skipped=0 protected_count=0 new_patches=0 updated_patches=0
 
@@ -2184,27 +2183,9 @@ do_sync() {
             esac
         done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
 
-        # Generate APPLY_ORDER.md
-        if [ "$patch_count" -gt 0 ]; then
-            local apply_order
-            apply_order=$(generate_apply_order "$patches_version_dir" "$patch_version")
-            print_success "Generated APPLY_ORDER.md"
-        else
-            # Clean up temp entry files even when no patches
-            rm -f "$new_entries_file" "$updated_entries_file"
-        fi
-
         echo ""
-        local patch_summary="Summary: $patch_count patch(es) generated ($new_patches new, $updated_patches updated), $skipped skipped"
-        if [ "$protected_count" -gt 0 ]; then
-            patch_summary="$patch_summary, $protected_count protected"
-        fi
-        print_info "$patch_summary"
-        if [ "$patch_count" -gt 0 ]; then
-            print_info "Patches written to: $patches_version_dir"
-            print_info "Review APPLY_ORDER.md for application instructions"
-        fi
-        continue  # Process next domain (was return 0 — bug: exited loop after first domain)
+        print_info "[$CURRENT_DOMAIN] $patch_count patch(es), $skipped skipped"
+        continue  # Next domain
     fi
 
     # Create backup before sync (unless dry run)
@@ -2300,6 +2281,20 @@ do_sync() {
     print_info "$sync_summary"
 
     done  # End of SYNC_SCOPE domain loop
+
+    # Generate APPLY_ORDER.md AFTER all domains processed (so entries accumulate)
+    if [ "$generate_patches" = true ] && [ -n "$patches_version_dir" ]; then
+        if [ -f "$patches_version_dir/._new_entries.txt" ] || [ -f "$patches_version_dir/._updated_entries.txt" ]; then
+            local total_patches
+            total_patches=$(find "$patches_version_dir" -name "*.patch" 2>/dev/null | wc -l)
+            if [ "$total_patches" -gt 0 ]; then
+                generate_apply_order "$patches_version_dir" "${ref:-unknown}"
+                print_success "Generated APPLY_ORDER.md with $total_patches patch(es) across ${#SYNC_SCOPE[@]} domain(s)"
+                print_info "Patches written to: $patches_version_dir"
+            fi
+            rm -f "$patches_version_dir/._new_entries.txt" "$patches_version_dir/._updated_entries.txt"
+        fi
+    fi
 
     if [ "$dry_run" = true ]; then
         print_info "Run without --dry-run to apply changes"
@@ -3063,8 +3058,8 @@ show_help() {
     cat <<EOF
 Claude Code Harness Sync Script
 
-Syncs .claude/ directory from upstream repository while preserving
-project-specific customizations.
+Syncs harness domains from upstream repository while preserving
+project-specific customizations. Supports multi-domain sync via sync_scope.
 
 USAGE:
     $0 <command> [options]
@@ -3099,7 +3094,7 @@ SYNC OPTIONS:
 PREFLIGHT (SAW-2):
     A preflight safety check runs automatically before every sync.
     It validates:
-      (a) All files are within .claude/ scope (no path traversal)
+      (a) All files are within configured sync domains (no path traversal)
       (b) No manifest substitution tokens remain unreplaced
       (c) No protected files would be modified
     Use --skip-preflight to bypass (logged as warning).
