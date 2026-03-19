@@ -189,7 +189,7 @@ echo -e "\n${CYAN}=== Test 1: apply_substitutions -- basic {{PLACEHOLDER}} token
 # =============================================================================
 PROJ=$(setup_project "basic-subs")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -222,7 +222,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -248,7 +248,7 @@ echo -e "\n${CYAN}=== Test 2: apply_substitutions -- longest-match-first order =
 # =============================================================================
 PROJ=$(setup_project "longest-match")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -276,7 +276,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -296,7 +296,7 @@ echo -e "\n${CYAN}=== Test 3: apply_substitutions -- code examples not accidenta
 # =============================================================================
 PROJ=$(setup_project "code-examples")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -331,7 +331,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -356,7 +356,7 @@ echo -e "\n${CYAN}=== Test 4: apply_substitutions -- literal string substitution
 # =============================================================================
 PROJ=$(setup_project "literal-subs")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -387,7 +387,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -408,7 +408,7 @@ echo -e "\n${CYAN}=== Test 5: --no-placeholders flag skips substitution ===${NC}
 # =============================================================================
 PROJ=$(setup_project "no-placeholders")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -447,7 +447,7 @@ echo -e "\n${CYAN}=== Test 6: Backup retains upstream originals ===${NC}\n"
 # =============================================================================
 PROJ=$(setup_project "backup-originals")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -485,7 +485,7 @@ assert_file_not_contains "$PROJ/.claude/agents/existing.md" "{{PROJECT_NAME}}" "
 # Backup should retain the OLD local content (pre-sync)
 # The backup contains whatever was in .claude/ before the sync, not the upstream originals.
 # The key point is: backup is created BEFORE substitution runs on the new files.
-BACKUP_DIR="$PROJ/.claude/.harness-backup"
+BACKUP_DIR="$PROJ/.harness-backup"
 if [ -d "$BACKUP_DIR" ]; then
     latest_backup=$(ls -1dt "$BACKUP_DIR"/*/ 2>/dev/null | head -1)
     if [ -n "$latest_backup" ] && [ -f "${latest_backup}agents/existing.md" ]; then
@@ -509,7 +509,7 @@ echo -e "\n${CYAN}=== Test 7: Sync integration -- substitutions applied to synce
 # =============================================================================
 PROJ=$(setup_project "sync-integration")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -576,9 +576,10 @@ EOF
 MOCKED_SCRIPT4=$(create_mocked_script "$PROJ" "$MOCK_UPSTREAM4")
 output=$("$MOCKED_SCRIPT4" sync 2>&1 || true)
 
-# Placeholders should remain untouched (no manifest = no substitutions)
-assert_file_contains "$PROJ/.claude/agents/test-agent.md" "{{PROJECT_NAME}}" "no-manifest: {{PROJECT_NAME}} preserved"
-assert_file_contains "$PROJ/.claude/agents/test-agent.md" "{{TICKET_PREFIX}}" "no-manifest: {{TICKET_PREFIX}} preserved"
+# v2.10.0+: sync without manifest should FAIL (SA decision: manifest required)
+assert_contains "$output" "No manifest found" "no-manifest: sync fails with manifest required error"
+assert_contains "$output" "manifest init" "no-manifest: error message routes to manifest init"
+# File should NOT have been written (sync aborted)
 assert_not_contains "$output" "Applied substitutions" "no-manifest: no substitution summary"
 
 # =============================================================================
@@ -586,7 +587,7 @@ echo -e "\n${CYAN}=== Test 9: Empty substitutions section -- no error ===${NC}\n
 # =============================================================================
 PROJ=$(setup_project "empty-subs")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -611,7 +612,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -629,7 +630,7 @@ echo -e "\n${CYAN}=== Test 10: Substitutions with special characters ===${NC}\n"
 # =============================================================================
 PROJ=$(setup_project "special-chars")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "My.Special-Project"
@@ -657,7 +658,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -676,7 +677,7 @@ echo -e "\n${CYAN}=== Test 11: apply_substitutions -- non-existent file handled 
 # =============================================================================
 PROJ=$(setup_project "nonexistent")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -696,7 +697,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -713,7 +714,7 @@ echo -e "\n${CYAN}=== Test 12: apply_all_substitutions -- only processes text fi
 # =============================================================================
 PROJ=$(setup_project "text-only")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyProject"
@@ -739,7 +740,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)

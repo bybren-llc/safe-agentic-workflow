@@ -116,7 +116,7 @@ setup_project() {
 # Create a valid manifest with renames
 create_manifest_with_renames() {
     local proj_dir="$1"
-    cat > "$proj_dir/.claude/.harness-manifest.yml" <<'YAML'
+    cat > "$proj_dir/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -213,7 +213,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -239,7 +239,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -268,7 +268,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -293,7 +293,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -310,7 +310,7 @@ echo -e "\n${CYAN}=== Test 5: resolve_rename -- file rename takes precedence ove
 # =============================================================================
 PROJ=$(setup_project "resolve-precedence")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -331,7 +331,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -356,7 +356,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -512,7 +512,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR="$MOCK_UP_CMP"

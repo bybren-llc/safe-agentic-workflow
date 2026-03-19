@@ -210,7 +210,7 @@ create_mocked_script() {
 # Create a valid manifest with substitutions, renames, and protected entries
 create_full_manifest() {
     local proj_dir="$1"
-    cat > "$proj_dir/.claude/.harness-manifest.yml" <<'YAML'
+    cat > "$proj_dir/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MyForkProject"
@@ -235,7 +235,7 @@ YAML
 # Create a basic manifest (no renames)
 create_basic_manifest() {
     local proj_dir="$1"
-    cat > "$proj_dir/.claude/.harness-manifest.yml" <<'YAML'
+    cat > "$proj_dir/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -255,7 +255,7 @@ YAML
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 1: --generate-patches writes .patch files to correct directory ===${NC}\n"
-# AC: sync --generate-patches writes .patch files to .claude/.harness-patches/vX.Y.Z/
+# AC: sync --generate-patches writes .patch files to .harness-patches/vX.Y.Z/
 # =============================================================================
 PROJ=$(setup_project "basic-patches")
 create_basic_manifest "$PROJ"
@@ -284,11 +284,11 @@ MOCKED=$(create_mocked_script "$PROJ" "$MOCK_UP")
 
 OUTPUT=$("$MOCKED" sync --generate-patches --version v2.7.0 --skip-preflight 2>&1) || true
 
-assert_dir_exists "$PROJ/.claude/.harness-patches/v2.7.0" \
+assert_dir_exists "$PROJ/.harness-patches/v2.7.0" \
     "Patches directory created at .harness-patches/v2.7.0"
 
 # Check that .patch files exist
-PATCH_COUNT=$(find "$PROJ/.claude/.harness-patches/v2.7.0" -name "*.patch" 2>/dev/null | wc -l | tr -d ' ')
+PATCH_COUNT=$(find "$PROJ/.harness-patches/v2.7.0" -name "*.patch" 2>/dev/null | wc -l | tr -d ' ')
 TOTAL=$((TOTAL + 1))
 if [ "$PATCH_COUNT" -ge 2 ]; then
     echo -e "  ${GREEN}PASS${NC} At least 2 .patch files generated ($PATCH_COUNT found)"
@@ -296,7 +296,7 @@ if [ "$PATCH_COUNT" -ge 2 ]; then
 else
     echo -e "  ${RED}FAIL${NC} Expected at least 2 .patch files, got $PATCH_COUNT"
     echo "  Files in patches dir:"
-    find "$PROJ/.claude/.harness-patches/v2.7.0" -type f 2>/dev/null | sed 's/^/    /'
+    find "$PROJ/.harness-patches/v2.7.0" -type f 2>/dev/null | sed 's/^/    /'
     FAIL=$((FAIL + 1))
 fi
 
@@ -312,7 +312,7 @@ echo -e "\n${CYAN}=== Test 2: Patches are valid unified diffs ===${NC}\n"
 # =============================================================================
 
 # Check each .patch file for unified diff format
-for patch in "$PROJ/.claude/.harness-patches/v2.7.0"/*.patch; do
+for patch in "$PROJ/.harness-patches/v2.7.0"/*.patch; do
     [ -f "$patch" ] || continue
     pname=$(basename "$patch")
     assert_patch_valid "$patch" "$PROJ" \
@@ -325,7 +325,7 @@ echo -e "\n${CYAN}=== Test 3: APPLY_ORDER.md is generated ===${NC}\n"
 # AC: Summary file APPLY_ORDER.md lists patches in recommended order with categorization
 # =============================================================================
 
-APPLY_ORDER="$PROJ/.claude/.harness-patches/v2.7.0/APPLY_ORDER.md"
+APPLY_ORDER="$PROJ/.harness-patches/v2.7.0/APPLY_ORDER.md"
 
 assert_file_exists "$APPLY_ORDER" \
     "APPLY_ORDER.md exists"
@@ -378,7 +378,7 @@ OUTPUT2=$("$MOCKED2" sync --generate-patches --version v2.7.0 --skip-preflight 2
 
 # Check that patches use the fork's local path, not the upstream path
 # The file rename: agents/be-developer.md -> agents/backend-eng.md
-FILE_RENAME_PATCH="$PROJ2/.claude/.harness-patches/v2.7.0/agents__backend-eng.md.patch"
+FILE_RENAME_PATCH="$PROJ2/.harness-patches/v2.7.0/agents__backend-eng.md.patch"
 assert_file_exists "$FILE_RENAME_PATCH" \
     "Patch file named with fork's local path (agents__backend-eng.md.patch)"
 
@@ -390,7 +390,7 @@ if [ -f "$FILE_RENAME_PATCH" ]; then
 fi
 
 # Check directory rename: skills/rls-patterns/ -> skills/firestore-security/
-DIR_RENAME_PATCH="$PROJ2/.claude/.harness-patches/v2.7.0/skills__firestore-security__SKILL.md.patch"
+DIR_RENAME_PATCH="$PROJ2/.harness-patches/v2.7.0/skills__firestore-security__SKILL.md.patch"
 assert_file_exists "$DIR_RENAME_PATCH" \
     "Patch file named with fork's dir-renamed path (skills__firestore-security__SKILL.md.patch)"
 
@@ -444,7 +444,7 @@ MOCKED3=$(create_mocked_script "$PROJ3" "$MOCK_UP3")
 OUTPUT3=$("$MOCKED3" sync --generate-patches --version v2.7.0 --skip-preflight 2>&1) || true
 
 # Verify no patch generated for CLAUDE.md (protected)
-PROTECTED_PATCH="$PROJ3/.claude/.harness-patches/v2.7.0/CLAUDE.md.patch"
+PROTECTED_PATCH="$PROJ3/.harness-patches/v2.7.0/CLAUDE.md.patch"
 TOTAL=$((TOTAL + 1))
 if [ ! -f "$PROTECTED_PATCH" ]; then
     echo -e "  ${GREEN}PASS${NC} No patch generated for protected file CLAUDE.md"
@@ -458,7 +458,7 @@ assert_contains "$OUTPUT3" "Skipping protected" \
     "Output mentions skipping protected file"
 
 # Verify non-protected file DID get a patch
-NON_PROTECTED_PATCH="$PROJ3/.claude/.harness-patches/v2.7.0/README.md.patch"
+NON_PROTECTED_PATCH="$PROJ3/.harness-patches/v2.7.0/README.md.patch"
 assert_file_exists "$NON_PROTECTED_PATCH" \
     "Non-protected file (README.md) gets a patch"
 
@@ -517,7 +517,7 @@ EOF
 MOCKED5=$(create_mocked_script "$PROJ5" "$MOCK_UP5")
 OUTPUT5=$("$MOCKED5" sync --generate-patches --version v2.7.0 --skip-preflight 2>&1) || true
 
-NEW_FILE_PATCH="$PROJ5/.claude/.harness-patches/v2.7.0/commands__new-command.md.patch"
+NEW_FILE_PATCH="$PROJ5/.harness-patches/v2.7.0/commands__new-command.md.patch"
 assert_file_exists "$NEW_FILE_PATCH" \
     "Patch generated for new file"
 
@@ -538,7 +538,7 @@ echo -e "\n${CYAN}=== Test 9: Modified file patches show correct diff ===${NC}\n
 # =============================================================================
 
 # Reuse PROJ from Test 1 -- check the modified file patch
-MOD_PATCH="$PROJ/.claude/.harness-patches/v2.7.0/skills__pattern-discovery.md.patch"
+MOD_PATCH="$PROJ/.harness-patches/v2.7.0/skills__pattern-discovery.md.patch"
 assert_file_exists "$MOD_PATCH" \
     "Patch generated for modified file"
 
@@ -564,7 +564,7 @@ echo -e "\n${CYAN}=== Test 10: APPLY_ORDER.md categorization ===${NC}\n"
 # AC: APPLY_ORDER.md lists patches grouped by category with commands
 # =============================================================================
 
-APPLY_ORDER_1="$PROJ/.claude/.harness-patches/v2.7.0/APPLY_ORDER.md"
+APPLY_ORDER_1="$PROJ/.harness-patches/v2.7.0/APPLY_ORDER.md"
 
 if [ -f "$APPLY_ORDER_1" ]; then
     # Verify both sections exist and have entries
@@ -579,7 +579,7 @@ fi
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 11: Patches directory uses version from --version flag ===${NC}\n"
-# AC: .patch files are in .claude/.harness-patches/vX.Y.Z/
+# AC: .patch files are in .harness-patches/vX.Y.Z/
 # =============================================================================
 PROJ6=$(setup_project "version-dir")
 create_basic_manifest "$PROJ6"
@@ -592,7 +592,7 @@ echo "# Some file" > "$MOCK_UP6/.claude/test-file.md"
 MOCKED6=$(create_mocked_script "$PROJ6" "$MOCK_UP6")
 OUTPUT6=$("$MOCKED6" sync --generate-patches --version v3.0.0 --skip-preflight 2>&1) || true
 
-assert_dir_exists "$PROJ6/.claude/.harness-patches/v3.0.0" \
+assert_dir_exists "$PROJ6/.harness-patches/v3.0.0" \
     "Patches directory uses version v3.0.0 from flag"
 
 
@@ -602,7 +602,7 @@ echo -e "\n${CYAN}=== Test 12: Previous patches for same version are cleaned ===
 # =============================================================================
 
 # Add an extra marker file to the patches dir to verify cleanup
-touch "$PROJ6/.claude/.harness-patches/v3.0.0/STALE_MARKER.txt"
+touch "$PROJ6/.harness-patches/v3.0.0/STALE_MARKER.txt"
 
 # Recreate mock upstream (cleanup trap from previous run deleted it)
 MOCK_UP6B="$TEST_DIR/upstream-version-b"
@@ -614,7 +614,7 @@ OUTPUT6B=$("$MOCKED6B" sync --generate-patches --version v3.0.0 --skip-preflight
 
 # Verify stale marker was cleaned
 TOTAL=$((TOTAL + 1))
-if [ ! -f "$PROJ6/.claude/.harness-patches/v3.0.0/STALE_MARKER.txt" ]; then
+if [ ! -f "$PROJ6/.harness-patches/v3.0.0/STALE_MARKER.txt" ]; then
     echo -e "  ${GREEN}PASS${NC} Stale patches cleaned before regeneration"
     PASS=$((PASS + 1))
 else
@@ -623,7 +623,7 @@ else
 fi
 
 # Count patches - should be fresh
-PATCH_COUNT6=$(find "$PROJ6/.claude/.harness-patches/v3.0.0" -name "*.patch" 2>/dev/null | wc -l | tr -d ' ')
+PATCH_COUNT6=$(find "$PROJ6/.harness-patches/v3.0.0" -name "*.patch" 2>/dev/null | wc -l | tr -d ' ')
 TOTAL=$((TOTAL + 1))
 if [ "$PATCH_COUNT6" -ge 1 ]; then
     echo -e "  ${GREEN}PASS${NC} Patches regenerated for v3.0.0 ($PATCH_COUNT6 patches)"
@@ -677,7 +677,7 @@ EOF
 MOCKED8=$(create_mocked_script "$PROJ8" "$MOCK_UP8")
 OUTPUT8=$("$MOCKED8" sync --generate-patches --version v2.7.0 --skip-preflight 2>&1) || true
 
-SUB_PATCH="$PROJ8/.claude/.harness-patches/v2.7.0/README.md.patch"
+SUB_PATCH="$PROJ8/.harness-patches/v2.7.0/README.md.patch"
 assert_file_exists "$SUB_PATCH" \
     "Patch generated for file with substitutions"
 
@@ -726,9 +726,9 @@ echo -e "\n${CYAN}=== Test 16: Patch filename sanitization ===${NC}\n"
 # =============================================================================
 
 # Already validated in Test 1 and Test 4, but explicitly check naming pattern
-assert_file_exists "$PROJ/.claude/.harness-patches/v2.7.0/agents__new-agent.md.patch" \
+assert_file_exists "$PROJ/.harness-patches/v2.7.0/agents__new-agent.md.patch" \
     "agents/new-agent.md -> agents__new-agent.md.patch"
-assert_file_exists "$PROJ/.claude/.harness-patches/v2.7.0/skills__pattern-discovery.md.patch" \
+assert_file_exists "$PROJ/.harness-patches/v2.7.0/skills__pattern-discovery.md.patch" \
     "skills/pattern-discovery.md -> skills__pattern-discovery.md.patch"
 
 
@@ -738,7 +738,7 @@ echo -e "\n${CYAN}=== Test 17: No backup created in patch mode ===${NC}\n"
 # =============================================================================
 
 # Check that no backup was created in PROJ (used in Test 1)
-BACKUP_COUNT=$(find "$PROJ/.claude/.harness-backup" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+BACKUP_COUNT=$(find "$PROJ/.harness-backup" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
 TOTAL=$((TOTAL + 1))
 # The init command creates the backup dir, but patch mode should not add entries
 # (unless a previous sync run did). Since we only ran --generate-patches, there
