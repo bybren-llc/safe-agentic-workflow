@@ -7,7 +7,7 @@
 # perform intelligent syncing: applying substitutions, respecting renames,
 # and never overwriting protected files.
 #
-# Location: .claude/.harness-manifest.yml
+# Location: .harness-manifest.yml (repo root; v2.10.0+)
 # Scope: .claude/ only (current sync engine). sync_scope defined for future multi-domain
 # Docs: docs/HARNESS_MANIFEST_SCHEMA.md
 #
@@ -170,8 +170,8 @@ sync:
 
   # Create a timestamped backup before each sync.
   # Default: true
-  # Current: backups at .claude/.harness-backup/<timestamp>/
-  # Planned (SAW-34): migrate to .harness-backup/<domain>/<timestamp>/ at repo root
+  # Backups at .harness-backup/<timestamp>/ (repo root; v2.10.0+)
+  # Legacy location .claude/.harness-backup/ migrated automatically
   backup: true
 
   # Strategy for resolving conflicts when both upstream and local
