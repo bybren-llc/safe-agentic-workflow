@@ -171,7 +171,7 @@
         "minLength": 1
       },
       "propertyNames": {
-        "description": "Upstream path. Must not start with / or contain ..",
+        "description": "Upstream path (repo-root-relative). Must not start with / and must not contain path traversal (..). Runtime enforcement by sync script preflight check provides additional safety.",
         "pattern": "^[^/]"
       },
       "examples": [
@@ -204,7 +204,7 @@
       },
       "uniqueItems": true,
       "examples": [
-        ["agents/system-architect.md", "AGENT_OUTPUT_GUIDE.md"]
+        [".claude/agents/system-architect.md", ".claude/AGENT_OUTPUT_GUIDE.md"]
       ]
     },
     "sync": {
