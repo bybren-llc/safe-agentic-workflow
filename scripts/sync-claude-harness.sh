@@ -234,7 +234,7 @@ load_config() {
 # =============================================================================
 # Manifest Loading & Validation (SAW-6)
 # =============================================================================
-# When .claude/.harness-manifest.yml exists, parse it and make its data
+# When .harness-manifest.yml exists, parse it and make its data
 # available to all sync commands. Falls back to legacy behavior when absent.
 # =============================================================================
 
@@ -1601,7 +1601,7 @@ do_diff() {
 # Patch Generation Mode (SAW-4)
 # =============================================================================
 # Instead of overwriting files during sync, generate unified diff patches
-# into .claude/.harness-patches/<version>/. Patches are rename-aware
+# into .harness-patches/<version>/. Patches are rename-aware
 # (use fork's local paths in headers) and substitution-aware (use fork's
 # placeholder values). Each patch is valid for `git apply --check`.
 #
@@ -1702,13 +1702,13 @@ Review each patch, then apply:
 
 \`\`\`bash
 # Dry-run check (recommended first)
-git apply --check .claude/.harness-patches/${version}/<patch-file>.patch
+git apply --check .harness-patches/${version}/<patch-file>.patch
 
 # Apply a single patch
-git apply .claude/.harness-patches/${version}/<patch-file>.patch
+git apply .harness-patches/${version}/<patch-file>.patch
 
 # Apply all patches in order
-cat .claude/.harness-patches/${version}/APPLY_ORDER.md  # review this file first
+cat .harness-patches/${version}/APPLY_ORDER.md  # review this file first
 \`\`\`
 
 HEADER
@@ -1732,7 +1732,7 @@ SECTION_NEW
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .claude/.harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$new_entries_file"
         echo "" >> "$apply_order_file"
@@ -1757,7 +1757,7 @@ SECTION_UPDATED
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .claude/.harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$updated_entries_file"
         echo "" >> "$apply_order_file"
@@ -1777,13 +1777,13 @@ FOOTER
     if [ -f "$new_entries_file" ]; then
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "    .claude/.harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
+            echo "    .harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
         done < "$new_entries_file"
     fi
     if [ -f "$updated_entries_file" ]; then
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "    .claude/.harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
+            echo "    .harness-patches/${version}/${patch_name} \\" >> "$apply_order_file"
         done < "$updated_entries_file"
     fi
 
@@ -2342,7 +2342,7 @@ do_conflicts() {
 # =============================================================================
 # Manifest Init Wizard (SAW-12)
 # =============================================================================
-# Auto-generates .claude/.harness-manifest.yml by analyzing the current
+# Auto-generates .harness-manifest.yml by analyzing the current
 # project state: reads team-config.json for identity values, detects which
 # setup-template.sh placeholders have been replaced, reads .sync-exclude
 # for protected patterns, and outputs a valid manifest.
@@ -2629,7 +2629,7 @@ generate_manifest_yaml() {
 }
 
 # Main manifest init function.
-# Analyzes the project state and generates .claude/.harness-manifest.yml.
+# Analyzes the project state and generates .harness-manifest.yml (repo root).
 do_manifest_init() {
     local dry_run=false
     local skip_confirm=false
@@ -2969,7 +2969,7 @@ PATCH GENERATION (SAW-4):
     Output: .harness-patches/<version>/ with APPLY_ORDER.md
 
 MANIFEST:
-    When .claude/.harness-manifest.yml is present, the sync script loads
+    When .harness-manifest.yml is present, the sync script loads
     and validates it on every command invocation (fail-fast). The manifest
     declares renames, substitutions, protected files, and sync preferences.
     Without a manifest, the script uses legacy file-level copy behavior.
