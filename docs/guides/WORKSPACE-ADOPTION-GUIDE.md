@@ -316,7 +316,7 @@ preserving your project-specific customizations via the manifest:
 ./scripts/sync-claude-harness.sh sync --version v2.10.0
 
 # Or sync specific domains only
-./scripts/sync-claude-harness.sh sync --version v2.10.0 --scope .claude/ .gemini/
+./scripts/sync-claude-harness.sh sync --version v2.10.0 --scope .claude,.gemini
 
 # Or apply the latest release
 ./scripts/sync-claude-harness.sh sync --latest
