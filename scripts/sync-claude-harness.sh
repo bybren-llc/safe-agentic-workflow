@@ -1203,7 +1203,7 @@ run_preflight() {
         # --- Check (a): scope check -- no path traversal outside sync domain ---
         # The local_rel path is relative to the sync domain, check for escapes
         if [[ "$local_rel" == ../* ]] || [[ "$local_rel" == /* ]] || [[ "$local_rel" == */../* ]]; then
-            scope_violations="${scope_violations}  - $local_rel (path escapes .claude/ scope)\n"
+            scope_violations="${scope_violations}  - $local_rel (path traversal detected)\n"
             errors=$((errors + 1))
         fi
 
@@ -1449,7 +1449,7 @@ create_backup() {
     done < <(find "$domain_backup_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r)
 
     print_success "Backup created"
-    echo "$timestamp"
+    echo "$SYNC_TIMESTAMP"
 }
 
 # Restore from backup
@@ -1514,7 +1514,7 @@ do_rollback() {
         "
     fi
 
-    print_success "Rollback complete from $backup_name"
+    print_success "Rollback complete from $latest_timestamp"
 }
 
 # Show diff between local and upstream
@@ -2167,11 +2167,11 @@ do_sync() {
                         fi
                         if [ "$status" = "new" ]; then
                             print_success "Patch (NEW): $display_path -> $patch_basename"
-                            echo "${local_path}|${patch_basename}" >> "$new_entries_file"
+                            echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$new_entries_file"
                             new_patches=$((new_patches + 1))
                         else
                             print_success "Patch (UPD): $display_path -> $patch_basename"
-                            echo "${local_path}|${patch_basename}" >> "$updated_entries_file"
+                            echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$updated_entries_file"
                             updated_patches=$((updated_patches + 1))
                         fi
                         patch_count=$((patch_count + 1))
