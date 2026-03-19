@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/bybren-llc/safe-agentic-workflow/blob/main/.harness-manifest.schema.json",
   "title": "Harness Manifest",
-  "description": "Schema for .harness-manifest.yml — declares how a downstream fork customizes the SAFe Agentic Workflow harness. In v1.1+, all paths are repo-root-relative. In v1.0, paths are relative to .claude/ and normalized during load.",
+  "description": "Schema for .harness-manifest.yml — declares how a downstream fork customizes the SAFe Agentic Workflow harness. Current location: .claude/.harness-manifest.yml (migrating to repo root in SAW-34). In v1.1+, all paths in renames/protected/replaced are repo-root-relative. In v1.0, paths are .claude/-relative and normalized during load.",
   "type": "object",
   "required": ["manifest_version", "identity"],
   "additionalProperties": false,
@@ -231,7 +231,7 @@
         },
         "backup": {
           "type": "boolean",
-          "description": "Create a timestamped backup of synced domains before each sync. Backups stored at .harness-backup/ (repo root).",
+          "description": "Create a timestamped backup before each sync. Current: .claude/.harness-backup/. Planned (SAW-34): .harness-backup/ at repo root.",
           "default": true
         },
         "conflict_strategy": {
