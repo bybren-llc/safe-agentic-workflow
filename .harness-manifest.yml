@@ -11,8 +11,8 @@
 # Scope: Multi-domain (sync_scope controls which directories sync)
 # Docs: docs/HARNESS_MANIFEST_SCHEMA.md
 #
-# If this file is absent, the sync script falls back to legacy behavior
-# (file-level copy with .sync-exclude pattern matching).
+# If this file is absent, sync will fail (manifest required).
+# Only --dry-run is allowed without a manifest for inspection.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
