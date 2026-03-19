@@ -679,11 +679,13 @@ get_directory_renames() {
 
 # Compare an upstream file to a local file at a (possibly different) path.
 # Usage: compare_file_with_paths "upstream_rel_path" "local_rel_path"
+# Uses DOMAIN_TMP and DOMAIN_DIR globals (set by domain loop in do_sync)
+# Falls back to .claude paths when called outside domain loop (legacy compat)
 compare_file_with_paths() {
     local upstream_rel_path="$1"
     local local_rel_path="$2"
-    local upstream_file="$TMP_DIR/.claude/$upstream_rel_path"
-    local local_file="$CLAUDE_DIR/$local_rel_path"
+    local upstream_file="${DOMAIN_TMP:-$TMP_DIR/.claude}/$upstream_rel_path"
+    local local_file="${DOMAIN_DIR:-$CLAUDE_DIR}/$local_rel_path"
 
     if [ ! -f "$upstream_file" ]; then
         echo "deleted"
@@ -1416,21 +1418,24 @@ compare_file() {
 
 # Create backup before sync
 create_backup() {
+    local backup_target="${DOMAIN_DIR:-$CLAUDE_DIR}"
+    local domain_name
+    domain_name=$(basename "$backup_target")
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local backup_path="$BACKUP_DIR/$timestamp"
+    local backup_path="$BACKUP_DIR/$domain_name/$timestamp"
 
-    print_info "Creating backup at $backup_path"
+    print_info "Creating backup of $domain_name at $backup_path"
 
     mkdir -p "$backup_path"
 
     # Copy all files except metadata
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$CLAUDE_DIR/}"
+        local rel_path="${file#$backup_target/}"
         local dest="$backup_path/$rel_path"
         mkdir -p "$(dirname "$dest")"
         cp "$file" "$dest"
-    done < <(find "$CLAUDE_DIR" -type f ! -name ".harness-sync.json" ! -name ".sync-exclude" \
+    done < <(find "$backup_target" -type f ! -name ".harness-sync.json" ! -name ".sync-exclude" \
         ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
 
     # Prune old backups (keep last 3)
@@ -1469,11 +1474,11 @@ do_rollback() {
     backup_name=$(basename "$latest_backup")
     print_info "Restoring from backup: $backup_name"
 
-    # Restore files
+    # Restore files — backup contains domain subdirs (e.g., .claude/, .gemini/)
     local restored=0
     while IFS= read -r -d '' file; do
         local rel_path="${file#$latest_backup/}"
-        local dest="$CLAUDE_DIR/$rel_path"
+        local dest="$PROJECT_ROOT/$rel_path"
         mkdir -p "$(dirname "$dest")"
         cp "$file" "$dest"
         restored=$((restored + 1))
