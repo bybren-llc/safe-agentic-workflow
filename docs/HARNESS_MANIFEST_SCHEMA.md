@@ -27,7 +27,7 @@ upstream SAFe Agentic Workflow harness. When the sync script
 
 ### Backward Compatibility
 
-If `.harness-manifest.yml` is absent, the sync script falls back to legacy
+If `.claude/.harness-manifest.yml` is absent, the sync script falls back to legacy
 behavior: file-level copy with `.sync-exclude` pattern matching and no
 automatic substitution. This ensures existing forks continue to work
 without modification.
@@ -39,23 +39,27 @@ without modification.
 After running `scripts/setup-template.sh`, generate your manifest:
 
 ```bash
-# The setup wizard will create .harness-manifest.yml automatically
-# (planned for v2.7.0 setup-template.sh integration)
+# Auto-generate from project state (recommended):
+./scripts/sync-claude-harness.sh init
+./scripts/sync-claude-harness.sh manifest init
 
-# For existing forks, create manually:
-cp examples/manifests/rendertrust.harness-manifest.yml .harness-manifest.yml
+# Or create manually from an example:
+cp examples/manifests/rendertrust.harness-manifest.yml .claude/.harness-manifest.yml
 # Then edit identity values and customization sections
 ```
 
 Validate your manifest:
 
 ```bash
-# Using yq + jsonschema (Python)
-pip install check-jsonschema
-check-jsonschema --schemafile .harness-manifest.schema.json .harness-manifest.yml
+# Using the sync script (recommended):
+./scripts/sync-claude-harness.sh manifest validate
 
-# Using ajv (Node.js)
-npx ajv-cli validate -s .harness-manifest.schema.json -d .harness-manifest.yml
+# Using jsonschema (Python):
+pip install check-jsonschema
+check-jsonschema --schemafile .harness-manifest.schema.json .claude/.harness-manifest.yml
+
+# Using ajv (Node.js):
+npx ajv-cli validate -s .harness-manifest.schema.json -d .claude/.harness-manifest.yml
 ```
 
 ---
@@ -403,7 +407,7 @@ migrate to the manifest format:
 ### Step 1: Create the manifest
 
 ```bash
-cp examples/manifests/rendertrust.harness-manifest.yml .harness-manifest.yml
+cp examples/manifests/rendertrust.harness-manifest.yml .claude/.harness-manifest.yml
 ```
 
 ### Step 2: Fill in identity values
@@ -413,14 +417,14 @@ manifest's `identity` section.
 
 ### Step 3: Convert .sync-exclude to protected
 
-Each line in `.sync-exclude` becomes an entry in `protected`:
+Each line in `.claude/.sync-exclude` becomes an entry in `protected`:
 
 ```yaml
-# Before (.sync-exclude):
+# Before (.claude/.sync-exclude):
 # hooks-config.json
 # settings.local.json
 
-# After (.harness-manifest.yml):
+# After (.claude/.harness-manifest.yml):
 protected:
   - "hooks-config.json"
   - "settings.local.json"
@@ -435,7 +439,7 @@ shows more than 50% of lines changed, it is a replaced file.
 ### Step 5: Validate
 
 ```bash
-check-jsonschema --schemafile .harness-manifest.schema.json .harness-manifest.yml
+./scripts/sync-claude-harness.sh manifest validate
 ```
 
 ### Step 6: Keep .sync-exclude (transitional)
@@ -454,17 +458,20 @@ The `.harness-manifest.schema.json` file provides a JSON Schema (2020-12)
 for validating manifest files. Use any YAML-aware JSON Schema validator:
 
 ```bash
-# Python (check-jsonschema)
-pip install check-jsonschema
-check-jsonschema --schemafile .harness-manifest.schema.json .harness-manifest.yml
+# Using the sync script (recommended):
+./scripts/sync-claude-harness.sh manifest validate
 
-# Node.js (ajv-cli)
-npx ajv-cli validate -s .harness-manifest.schema.json -d .harness-manifest.yml
+# Python (check-jsonschema):
+pip install check-jsonschema
+check-jsonschema --schemafile .harness-manifest.schema.json .claude/.harness-manifest.yml
+
+# Node.js (ajv-cli):
+npx ajv-cli validate -s .harness-manifest.schema.json -d .claude/.harness-manifest.yml
 
 # VS Code / IDE
 # Add to .vscode/settings.json:
 # "yaml.schemas": {
-#   ".harness-manifest.schema.json": ".harness-manifest.yml"
+#   ".harness-manifest.schema.json": ".claude/.harness-manifest.yml"
 # }
 ```
 
