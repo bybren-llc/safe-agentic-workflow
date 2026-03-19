@@ -217,7 +217,7 @@ assert_contains "$output" "Manifest written" "success message present"
 
 # Verify the content is valid YAML
 content=$(cat "$PROJ/.harness-manifest.yml")
-assert_contains "$content" 'manifest_version: "1.0"' "written file has manifest_version"
+assert_contains "$content" 'manifest_version: "1.1"' "written file has manifest_version"
 assert_contains "$content" 'PROJECT_NAME: "RenderTrust"' "written file has PROJECT_NAME"
 
 # =============================================================================
