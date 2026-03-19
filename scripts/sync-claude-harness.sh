@@ -2716,6 +2716,7 @@ generate_manifest_yaml() {
     local identity_pairs="$1"
     local substitution_pairs="$2"
     local protected_patterns="$3"
+    local scope_yaml="${4:-}"
 
     node -e "
         const identity_lines = \`$identity_pairs\`.split('\n').filter(Boolean);
@@ -2766,7 +2767,7 @@ generate_manifest_yaml() {
         yaml += '\n';
 
         // Schema version
-        yaml += 'manifest_version: \"1.0\"\n';
+        yaml += 'manifest_version: \"1.1\"\n';
         yaml += '\n';
 
         // Identity section
@@ -2812,8 +2813,8 @@ generate_manifest_yaml() {
         yaml += '\n';
 
         // Renames section (empty by default -- user adds manually)
-        yaml += '# Rename mappings: upstream path -> local path (relative to .claude/)\n';
-        yaml += '# Add entries if you have renamed files or directories from upstream.\n';
+        yaml += '# Rename mappings: upstream path -> local path (repo-root-relative in v1.1)\n';
+        yaml += '# Example: ".claude/agents/fe-developer.md": ".claude/agents/ui-engineer.md"\n';
         yaml += 'renames: {}\n';
         yaml += '\n';
 
@@ -2839,6 +2840,17 @@ generate_manifest_yaml() {
         // Sync preferences
         yaml += '# Sync behavior preferences\n';
         yaml += 'sync:\n';
+
+        // sync_scope from detected domains
+        const scopeYaml = \`$scope_yaml\`;
+        if (scopeYaml.trim()) {
+            yaml += '  sync_scope:\n';
+            yaml += scopeYaml;
+        } else {
+            yaml += '  sync_scope:\n';
+            yaml += '    - \".claude/\"\n';
+        }
+
         yaml += '  auto_substitute: true\n';
         yaml += '  backup: true\n';
         yaml += '  conflict_strategy: \"prompt\"\n';
@@ -2948,10 +2960,46 @@ do_manifest_init() {
         print_info "No .sync-exclude found; protected section will be empty"
     fi
 
-    # --- Step 4: Generate YAML ---
+    # --- Step 4: Detect sync domains ---
+    print_info "Detecting harness domains..."
+    local detected_domains=()
+    for domain in "${ALLOWED_DOMAINS[@]}"; do
+        if [ -d "$PROJECT_ROOT/$domain" ]; then
+            detected_domains+=("$domain")
+            print_success "Found: $domain/"
+        fi
+    done
+
+    if [ ${#detected_domains[@]} -eq 0 ]; then
+        detected_domains=(".claude")
+        print_warning "No harness domains detected — defaulting to .claude/"
+    fi
+
+    # Present proposed scope and confirm
+    echo ""
+    echo -e "${CYAN}Proposed sync_scope:${NC}"
+    for d in "${detected_domains[@]}"; do
+        echo "  - $d/"
+    done
+    echo ""
+
+    if [ "$skip_confirm" = false ] && [ "$dry_run" = false ]; then
+        read -rp "Accept this scope? (Y/n): " scope_confirm
+        if [[ "$scope_confirm" == "n" || "$scope_confirm" == "N" ]]; then
+            print_info "You can edit sync_scope in the manifest after generation."
+        fi
+    fi
+
+    # Build sync_scope YAML fragment
+    local scope_yaml=""
+    for d in "${detected_domains[@]}"; do
+        scope_yaml="${scope_yaml}    - \"${d}/\"\n"
+    done
+
+    # --- Step 5: Generate YAML ---
     print_info "Generating manifest..."
     local yaml_content
-    yaml_content=$(generate_manifest_yaml "$identity_pairs" "$all_sub_pairs" "$protected_patterns")
+    yaml_content=$(generate_manifest_yaml "$identity_pairs" "$all_sub_pairs" "$protected_patterns" "$scope_yaml")
 
     if [ -z "$yaml_content" ]; then
         print_error "Failed to generate manifest YAML"
