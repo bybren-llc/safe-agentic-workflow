@@ -1206,8 +1206,8 @@ run_preflight() {
     while IFS='|' read -r action upstream_rel local_rel; do
         [ -z "$action" ] && continue
 
-        # --- Check (a): scope check -- all files must be within .claude/ ---
-        # The local_rel path is relative to .claude/, so check for path traversal
+        # --- Check (a): scope check -- no path traversal outside sync domain ---
+        # The local_rel path is relative to the sync domain, check for escapes
         if [[ "$local_rel" == ../* ]] || [[ "$local_rel" == /* ]] || [[ "$local_rel" == */../* ]]; then
             scope_violations="${scope_violations}  - $local_rel (path escapes .claude/ scope)\n"
             errors=$((errors + 1))
@@ -1229,7 +1229,7 @@ run_preflight() {
         # We scan the upstream copy (in TMP_DIR) post-substitution simulation
         # Skip this check when --no-placeholders is used (tokens are expected)
         if [ "$skip_token_check" != "true" ]; then
-            local upstream_file="$TMP_DIR/.claude/$upstream_rel"
+            local upstream_file="${DOMAIN_TMP:-$TMP_DIR/.claude}/$upstream_rel"
             if [ -f "$upstream_file" ] && [ "$action" != "skip" ]; then
                 local token_output
                 token_output=$(scan_unreplaced_tokens "$upstream_file" "$local_rel") || true
@@ -1694,7 +1694,7 @@ generate_patch() {
     local patches_dir="$4"
     local claude_dir="$5"
 
-    local upstream_file="$TMP_DIR/.claude/$upstream_rel"
+    local upstream_file="${DOMAIN_TMP:-$TMP_DIR/.claude}/$upstream_rel"
     local local_file="$claude_dir/$local_rel"
 
     # Create sanitized patch filename (replace / with __ for flat structure)
@@ -2163,7 +2163,7 @@ do_sync() {
             print_info "Patches written to: $patches_version_dir"
             print_info "Review APPLY_ORDER.md for application instructions"
         fi
-        return 0
+        continue  # Process next domain (was return 0 — bug: exited loop after first domain)
     fi
 
     # Create backup before sync (unless dry run)
