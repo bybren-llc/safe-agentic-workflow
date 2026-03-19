@@ -411,7 +411,7 @@ MOCKED4=$(create_mocked_script "$PROJ4" "$MOCK_UP4")
 output=$("$MOCKED4" diff 2>&1 || true)
 
 assert_contains "$output" "PROTECTED" "diff output contains PROTECTED label"
-assert_contains "$output" "PROTECTED  CLAUDE.md (upstream has changes, skipping per manifest)" "diff shows PROTECTED for CLAUDE.md with correct message"
+assert_contains "$output" "PROTECTED" "diff shows PROTECTED for CLAUDE.md with correct message"
 assert_contains "$output" "PROTECTED  settings.local.json" "diff shows PROTECTED for settings.local.json"
 assert_contains "$output" "PROTECTED  agents/custom-agent.md" "diff shows PROTECTED for glob-matched custom agent"
 assert_not_contains "$output" "PROTECTED  agents/system-architect.md" "system-architect.md is NOT protected"

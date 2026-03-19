@@ -522,8 +522,12 @@ validate_renames_against_upstream() {
         return 0
     fi
 
-    if [ ! -d "$TMP_DIR/.claude" ]; then
-        return 0
+    # Determine upstream base: v1.1 paths are root-relative, v1.0 are .claude/-relative
+    local manifest_ver
+    manifest_ver=$(manifest_get "manifest_version" 2>/dev/null || echo "1.0")
+    local upstream_base="$TMP_DIR/.claude"
+    if [ "$manifest_ver" = "1.1" ] || [[ "$manifest_ver" > "1.1" ]]; then
+        upstream_base="$TMP_DIR"
     fi
 
     # Check each rename source path against the fetched upstream
@@ -533,7 +537,7 @@ validate_renames_against_upstream() {
         try {
             const data = JSON.parse(fs.readFileSync('$MANIFEST_JSON', 'utf8'));
             const renames = data.renames || {};
-            const upstreamBase = '$TMP_DIR/.claude';
+            const upstreamBase = '$upstream_base';
             for (const [src, dst] of Object.entries(renames)) {
                 const fullPath = path.join(upstreamBase, src);
                 const isDir = src.endsWith('/');
@@ -1014,16 +1018,35 @@ validate_protected_paths() {
         return 0
     fi
 
-    # Get all local file paths relative to .claude/
+    # Get all local file paths — for v1.1 root-relative, scan all sync domains
+    # For v1.0, scan .claude/ only
     local local_files_list="$TMP_DIR/local_files_for_protected.txt"
     mkdir -p "$TMP_DIR"
-    if [ -d "$CLAUDE_DIR" ]; then
-        find "$CLAUDE_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null | \
-            while IFS= read -r -d '' f; do
-                echo "${f#$CLAUDE_DIR/}"
-            done > "$local_files_list"
+    : > "$local_files_list"
+
+    local manifest_ver
+    manifest_ver=$(manifest_get "manifest_version" 2>/dev/null || echo "1.0")
+
+    if [ "$manifest_ver" = "1.1" ] || [[ "$manifest_ver" > "1.1" ]]; then
+        # v1.1: scan all sync scope domains, paths are root-relative
+        get_sync_scope
+        for domain in "${SYNC_SCOPE[@]}"; do
+            local domain_dir="$PROJECT_ROOT/$domain"
+            if [ -d "$domain_dir" ]; then
+                find "$domain_dir" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null | \
+                    while IFS= read -r -d '' f; do
+                        echo "$domain/${f#$domain_dir/}"
+                    done >> "$local_files_list"
+            fi
+        done
     else
-        touch "$local_files_list"
+        # v1.0: scan .claude/ only, paths are domain-relative
+        if [ -d "$CLAUDE_DIR" ]; then
+            find "$CLAUDE_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null | \
+                while IFS= read -r -d '' f; do
+                    echo "${f#$CLAUDE_DIR/}"
+                done > "$local_files_list"
+        fi
     fi
 
     # Write JS to temp file to avoid bash escaping issues with regex
@@ -1534,38 +1557,67 @@ do_diff() {
     local new=0 modified=0 deleted=0 excluded=0 unchanged=0 renamed=0 protected=0
 
     # Track directory rename file counts for summary output
-    # Associative arrays: dir_rename_counts["src|dst"] = count
     declare -A dir_rename_counts
+
+    # Determine manifest version for path handling
+    local manifest_ver=""
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        manifest_ver=$(manifest_get "manifest_version" 2>/dev/null || echo "1.0")
+    fi
+    local use_root=false
+    if [ "$manifest_ver" = "1.1" ] || [[ "$manifest_ver" > "1.1" ]]; then
+        use_root=true
+    fi
+
+    # Get sync scope
+    get_sync_scope
+
+    for CURRENT_DOMAIN in "${SYNC_SCOPE[@]}"; do
+        local DOMAIN_DIR="$PROJECT_ROOT/$CURRENT_DOMAIN"
+        local DOMAIN_TMP="$TMP_DIR/$CURRENT_DOMAIN"
+
+        if [ ! -d "$DOMAIN_TMP" ]; then
+            continue
+        fi
+        if [ ! -d "$DOMAIN_DIR" ]; then
+            continue
+        fi
+
+        echo -e "\n${CYAN}━━━ $CURRENT_DOMAIN ━━━${NC}"
 
     # Check upstream files
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$TMP_DIR/.claude/}"
+        local rel_path="${file#$DOMAIN_TMP/}"
+        local manifest_path
+        if [ "$use_root" = true ]; then manifest_path="$CURRENT_DOMAIN/$rel_path"; else manifest_path="$rel_path"; fi
 
-        if is_excluded "$rel_path"; then
+        if is_excluded "$manifest_path"; then
             # Distinguish PROTECTED (manifest) from EXCLUDED (.sync-exclude / hardcoded)
-            if is_manifest_protected "$rel_path"; then
-                echo -e "${YELLOW}PROTECTED${NC}  $rel_path (upstream has changes, skipping per manifest)"
+            if is_manifest_protected "$manifest_path"; then
+                echo -e "${YELLOW}PROTECTED${NC}  $manifest_path (skipping per manifest)"
                 protected=$((protected + 1))
             else
-                echo -e "${YELLOW}EXCLUDED${NC}  $rel_path"
+                echo -e "${YELLOW}EXCLUDED${NC}  $manifest_path"
                 excluded=$((excluded + 1))
             fi
             continue
         fi
 
-        # Resolve rename: map upstream path to local path
-        local local_path
+        # Resolve rename: use manifest_path for lookup, extract domain-relative for file ops
+        local local_manifest_path
         local rtype
-        local_path=$(resolve_rename "$rel_path")
-        rtype=$(rename_type "$rel_path")
+        local_manifest_path=$(resolve_rename "$manifest_path")
+        rtype=$(rename_type "$manifest_path")
+        local local_path
+        if [ "$use_root" = true ]; then local_path="${local_manifest_path#$CURRENT_DOMAIN/}"; else local_path="$local_manifest_path"; fi
 
         # Also check exclusion for the resolved local path
-        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
-            if is_manifest_protected "$local_path"; then
-                echo -e "${YELLOW}PROTECTED${NC}  $local_path (upstream has changes, skipping per manifest)"
+        if [ "$local_manifest_path" != "$manifest_path" ] && is_excluded "$local_manifest_path"; then
+            if is_manifest_protected "$local_manifest_path"; then
+                echo -e "${YELLOW}PROTECTED${NC}  $local_manifest_path (skipping per manifest)"
                 protected=$((protected + 1))
             else
-                echo -e "${YELLOW}EXCLUDED${NC}  $local_path (renamed from $rel_path)"
+                echo -e "${YELLOW}EXCLUDED${NC}  $local_manifest_path (renamed from $manifest_path)"
                 excluded=$((excluded + 1))
             fi
             continue
@@ -1610,40 +1662,41 @@ do_diff() {
                 unchanged=$((unchanged + 1))
                 ;;
         esac
-    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+    done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
 
     # Check for files only in local (deleted from upstream)
-    # Build a set of all resolved local paths from upstream for efficient lookup
-    local resolved_local_paths_file="$TMP_DIR/resolved_local_paths.txt"
+    local resolved_local_paths_file="$TMP_DIR/resolved_local_paths_${CURRENT_DOMAIN}.txt"
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$TMP_DIR/.claude/}"
-        resolve_rename "$rel_path"
-    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null) > "$resolved_local_paths_file"
+        local rel_path="${file#$DOMAIN_TMP/}"
+        local mp; if [ "$use_root" = true ]; then mp="$CURRENT_DOMAIN/$rel_path"; else mp="$rel_path"; fi
+        resolve_rename "$mp"
+    done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null) > "$resolved_local_paths_file"
 
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$CLAUDE_DIR/}"
+        local rel_path="${file#$DOMAIN_DIR/}"
 
         # Skip metadata and excluded files
         [[ "$rel_path" == .harness-* ]] && continue
         [[ "$rel_path" == .sync-* ]] && continue
-        is_excluded "$rel_path" && continue
+        local mp; if [ "$use_root" = true ]; then mp="$CURRENT_DOMAIN/$rel_path"; else mp="$rel_path"; fi
+        is_excluded "$mp" && continue
 
-        # Check if this local path is accounted for (either as direct upstream or as rename target)
-        local upstream_file="$TMP_DIR/.claude/$rel_path"
+        # Check if this local path is accounted for in upstream
+        local upstream_file="$DOMAIN_TMP/$rel_path"
         if [ -f "$upstream_file" ]; then
             continue
         fi
 
         # Check if this local path is a rename target
-        if grep -qxF "$rel_path" "$resolved_local_paths_file" 2>/dev/null; then
+        if grep -qxF "$mp" "$resolved_local_paths_file" 2>/dev/null; then
             continue
         fi
 
-        echo -e "${RED}LOCAL ONLY${NC} $rel_path"
+        echo -e "${RED}LOCAL ONLY${NC} $mp"
         deleted=$((deleted + 1))
-    done < <(find "$CLAUDE_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
+    done < <(find "$DOMAIN_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
 
-    # Show directory rename summary lines
+    # Show directory rename summary lines for this domain
     if [ ${#dir_rename_counts[@]} -gt 0 ]; then
         echo ""
         for dir_key in "${!dir_rename_counts[@]}"; do
@@ -1654,6 +1707,8 @@ do_diff() {
             renamed=$((renamed + count))
         done
     fi
+
+    done  # End of SYNC_SCOPE domain loop for diff
 
     # Count file renames (not part of directory renames)
     if [ "$HAS_MANIFEST" = "true" ] && [ -n "$MANIFEST_JSON" ] && [ -f "$MANIFEST_JSON" ]; then
