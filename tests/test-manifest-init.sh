@@ -219,6 +219,10 @@ assert_contains "$output" "Manifest written" "success message present"
 content=$(cat "$PROJ/.harness-manifest.yml")
 assert_contains "$content" 'manifest_version: "1.1"' "written file has manifest_version"
 assert_contains "$content" 'PROJECT_NAME: "RenderTrust"' "written file has PROJECT_NAME"
+assert_contains "$content" 'sync_scope:' "written file has sync_scope section"
+assert_contains "$content" '.claude/' "sync_scope includes .claude"
+assert_contains "$output" "Detecting harness domains" "domain detection ran"
+assert_contains "$output" "Found:" "at least one domain detected"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 3: Reads .sync-exclude for protected patterns ===${NC}\n"
