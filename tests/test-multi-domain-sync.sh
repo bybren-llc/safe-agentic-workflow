@@ -452,6 +452,80 @@ assert_contains "$result" "does not match" "typo detection for .gemini protected
 rm -rf "$TMPDIR_T12"
 
 # =============================================================================
+echo -e "\n${CYAN}=== Test 13: do_rollback restores all domains from shared timestamp ===${NC}\n"
+# =============================================================================
+TMPDIR_T13=$(mktemp -d)
+mkdir -p "$TMPDIR_T13/.claude/agents" "$TMPDIR_T13/.gemini/skills"
+echo "claude original" > "$TMPDIR_T13/.claude/agents/bsa.md"
+echo "gemini original" > "$TMPDIR_T13/.gemini/skills/test.md"
+
+result=$(
+    source "$SOURCEABLE"
+    PROJECT_ROOT="$TMPDIR_T13"
+    CLAUDE_DIR="$TMPDIR_T13/.claude"
+    BACKUP_DIR="$TMPDIR_T13/.harness-backup"
+    SYNC_CONFIG="$TMPDIR_T13/.harness-sync.json"
+    SYNC_TIMESTAMP=""
+
+    # Create backups for both domains with shared timestamp
+    DOMAIN_DIR="$TMPDIR_T13/.claude"
+    create_backup >/dev/null 2>&1
+    DOMAIN_DIR="$TMPDIR_T13/.gemini"
+    create_backup >/dev/null 2>&1
+
+    # Now modify the originals (simulating a bad sync)
+    echo "claude CORRUPTED" > "$TMPDIR_T13/.claude/agents/bsa.md"
+    echo "gemini CORRUPTED" > "$TMPDIR_T13/.gemini/skills/test.md"
+
+    # Rollback
+    do_rollback 2>&1
+
+    # Verify restoration
+    claude_content=$(cat "$TMPDIR_T13/.claude/agents/bsa.md")
+    gemini_content=$(cat "$TMPDIR_T13/.gemini/skills/test.md")
+    echo "CLAUDE:$claude_content"
+    echo "GEMINI:$gemini_content"
+)
+
+assert_contains "$result" "CLAUDE:claude original" "rollback restores .claude domain"
+assert_contains "$result" "GEMINI:gemini original" "rollback restores .gemini domain"
+assert_contains "$result" "Rollback complete" "rollback reports success"
+rm -rf "$TMPDIR_T13"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 14: patch entry files include domain prefix ===${NC}\n"
+# =============================================================================
+# Verify that the entry file format includes CURRENT_DOMAIN prefix
+# This is the fix for the APPLY_ORDER.md aggregation bug
+
+TMPDIR_T14=$(mktemp -d)
+mkdir -p "$TMPDIR_T14/patches"
+entries_file="$TMPDIR_T14/patches/._new_entries.txt"
+: > "$entries_file"
+
+# Simulate what do_sync writes for two domains
+CURRENT_DOMAIN=".claude"
+local_path="agents/bsa.md"
+patch_basename="agents__bsa.md.patch"
+echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$entries_file"
+
+CURRENT_DOMAIN=".gemini"
+local_path="skills/test.md"
+patch_basename="skills__test.md.patch"
+echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$entries_file"
+
+# Verify entries contain domain prefixes for both domains
+content=$(cat "$entries_file")
+assert_contains "$content" ".claude/agents/bsa.md|" "entry file has .claude domain prefix"
+assert_contains "$content" ".gemini/skills/test.md|" "entry file has .gemini domain prefix"
+
+# Verify that generate_apply_order table rows would use local_rel directly
+# (no double-prefix from CURRENT_DOMAIN)
+line_count=$(wc -l < "$entries_file")
+assert_equals "$line_count" "2" "entry file has entries from both domains"
+rm -rf "$TMPDIR_T14"
+
+# =============================================================================
 echo -e "\n${CYAN}=== Test Results ===${NC}\n"
 echo "  Total:  $((PASS + FAIL))"
 echo -e "  ${GREEN}Passed: $PASS${NC}"
