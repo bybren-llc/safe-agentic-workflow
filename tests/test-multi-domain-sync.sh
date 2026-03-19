@@ -493,36 +493,133 @@ assert_contains "$result" "Rollback complete" "rollback reports success"
 rm -rf "$TMPDIR_T13"
 
 # =============================================================================
-echo -e "\n${CYAN}=== Test 14: patch entry files include domain prefix ===${NC}\n"
+echo -e "\n${CYAN}=== Test 14: real multi-domain patch generation + APPLY_ORDER.md ===${NC}\n"
 # =============================================================================
-# Verify that the entry file format includes CURRENT_DOMAIN prefix
-# This is the fix for the APPLY_ORDER.md aggregation bug
+# End-to-end: create mock upstream with .claude + .gemini files, run the actual
+# patch generation path, verify patches from BOTH domains survive and
+# APPLY_ORDER.md references both.
 
 TMPDIR_T14=$(mktemp -d)
-mkdir -p "$TMPDIR_T14/patches"
-entries_file="$TMPDIR_T14/patches/._new_entries.txt"
-: > "$entries_file"
+mkdir -p "$TMPDIR_T14/.claude/agents" "$TMPDIR_T14/.gemini/skills"
+echo "claude local v1" > "$TMPDIR_T14/.claude/agents/bsa.md"
+echo "gemini local v1" > "$TMPDIR_T14/.gemini/skills/test.md"
 
-# Simulate what do_sync writes for two domains
-CURRENT_DOMAIN=".claude"
-local_path="agents/bsa.md"
-patch_basename="agents__bsa.md.patch"
-echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$entries_file"
+cat > "$TMPDIR_T14/.harness-manifest.yml" <<'YAML'
+manifest_version: "1.1"
+identity:
+  PROJECT_NAME: "Test"
+  PROJECT_REPO: "test"
+  PROJECT_SHORT: "TST"
+  GITHUB_ORG: "test-org"
+  TICKET_PREFIX: "TST"
+  MAIN_BRANCH: "main"
+sync:
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+  auto_substitute: false
+YAML
 
-CURRENT_DOMAIN=".gemini"
-local_path="skills/test.md"
-patch_basename="skills__test.md.patch"
-echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$entries_file"
+result=$(
+    source "$SOURCEABLE"
+    PROJECT_ROOT="$TMPDIR_T14"
+    CLAUDE_DIR="$TMPDIR_T14/.claude"
+    MANIFEST_FILE="$TMPDIR_T14/.harness-manifest.yml"
+    MANIFEST_JSON=""
+    HAS_MANIFEST=false
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    SYNC_SCOPE=()
+    PATCHES_DIR="$TMPDIR_T14/.harness-patches"
+    BACKUP_DIR="$TMPDIR_T14/.harness-backup"
+    SYNC_TIMESTAMP=""
+    TMP_DIR=$(mktemp -d)
 
-# Verify entries contain domain prefixes for both domains
-content=$(cat "$entries_file")
-assert_contains "$content" ".claude/agents/bsa.md|" "entry file has .claude domain prefix"
-assert_contains "$content" ".gemini/skills/test.md|" "entry file has .gemini domain prefix"
+    load_manifest
+    get_sync_scope
 
-# Verify that generate_apply_order table rows would use local_rel directly
-# (no double-prefix from CURRENT_DOMAIN)
-line_count=$(wc -l < "$entries_file")
-assert_equals "$line_count" "2" "entry file has entries from both domains"
+    # Create mock upstream with modified files for both domains
+    mkdir -p "$TMP_DIR/.claude/agents" "$TMP_DIR/.gemini/skills"
+    echo "claude upstream v2 CHANGED" > "$TMP_DIR/.claude/agents/bsa.md"
+    echo "gemini upstream v2 CHANGED" > "$TMP_DIR/.gemini/skills/test.md"
+
+    # Determine manifest version for path handling
+    MANIFEST_VERSION=$(manifest_get "manifest_version" 2>/dev/null || echo "1.0")
+    USE_ROOT_PATHS=false
+    if [ "$MANIFEST_VERSION" = "1.1" ] || [[ "$MANIFEST_VERSION" > "1.1" ]]; then
+        USE_ROOT_PATHS=true
+    fi
+
+    # Pre-create patches directory (outside domain loop)
+    patches_version_dir="$PATCHES_DIR/test-v1"
+    mkdir -p "$patches_version_dir"
+    new_entries_file="$patches_version_dir/._new_entries.txt"
+    updated_entries_file="$patches_version_dir/._updated_entries.txt"
+    : > "$new_entries_file"
+    : > "$updated_entries_file"
+
+    # Run patch generation for each domain (mimics do_sync patch path)
+    for CURRENT_DOMAIN in "${SYNC_SCOPE[@]}"; do
+        DOMAIN_DIR="$PROJECT_ROOT/$CURRENT_DOMAIN"
+        DOMAIN_TMP="$TMP_DIR/$CURRENT_DOMAIN"
+
+        [ ! -d "$DOMAIN_TMP" ] && continue
+        [ ! -d "$DOMAIN_DIR" ] && continue
+
+        while IFS= read -r -d '' file; do
+            rel_path="${file#$DOMAIN_TMP/}"
+            if [ "$USE_ROOT_PATHS" = true ]; then manifest_path="$CURRENT_DOMAIN/$rel_path"; else manifest_path="$rel_path"; fi
+
+            local_manifest_path=$(resolve_rename "$manifest_path")
+            if [ "$USE_ROOT_PATHS" = true ]; then local_path="${local_manifest_path#$CURRENT_DOMAIN/}"; else local_path="$local_manifest_path"; fi
+
+            status=$(compare_file_with_paths "$rel_path" "$local_path")
+
+            if [ "$status" = "modified" ] || [ "$status" = "new" ]; then
+                patch_file=$(generate_patch "$rel_path" "$local_path" "$status" "$patches_version_dir" "$DOMAIN_DIR")
+                if [ -n "$patch_file" ]; then
+                    patch_basename=$(basename "$patch_file")
+                    if [ "$status" = "new" ]; then
+                        echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$new_entries_file"
+                    else
+                        echo "${CURRENT_DOMAIN}/${local_path}|${patch_basename}" >> "$updated_entries_file"
+                    fi
+                fi
+            fi
+        done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
+    done
+
+    # Generate APPLY_ORDER.md
+    generate_apply_order "$patches_version_dir" "test-v1" 2>/dev/null
+
+    # Verify results
+    patch_count=$(find "$patches_version_dir" -name "*.patch" | wc -l)
+    echo "PATCH_COUNT:$patch_count"
+
+    if [ -f "$patches_version_dir/APPLY_ORDER.md" ]; then
+        apply_content=$(cat "$patches_version_dir/APPLY_ORDER.md")
+        echo "HAS_APPLY_ORDER:yes"
+        # Check both domains appear in APPLY_ORDER
+        echo "$apply_content" | grep -q '\.claude/' && echo "APPLY_HAS_CLAUDE:yes" || echo "APPLY_HAS_CLAUDE:no"
+        echo "$apply_content" | grep -q '\.gemini/' && echo "APPLY_HAS_GEMINI:yes" || echo "APPLY_HAS_GEMINI:no"
+    else
+        echo "HAS_APPLY_ORDER:no"
+    fi
+
+    # Check patches from first domain weren't wiped by second
+    claude_patches=$(find "$patches_version_dir" -name "*bsa*.patch" | wc -l)
+    gemini_patches=$(find "$patches_version_dir" -name "*skills*.patch" | wc -l)
+    echo "CLAUDE_PATCHES:$claude_patches"
+    echo "GEMINI_PATCHES:$gemini_patches"
+
+    rm -rf "$TMP_DIR"
+)
+
+assert_contains "$result" "PATCH_COUNT:2" "2 patches generated across both domains"
+assert_contains "$result" "HAS_APPLY_ORDER:yes" "APPLY_ORDER.md generated"
+assert_contains "$result" "APPLY_HAS_CLAUDE:yes" "APPLY_ORDER.md references .claude"
+assert_contains "$result" "APPLY_HAS_GEMINI:yes" "APPLY_ORDER.md references .gemini"
+assert_contains "$result" "CLAUDE_PATCHES:1" ".claude patch not wiped by .gemini"
+assert_contains "$result" "GEMINI_PATCHES:1" ".gemini patch present"
 rm -rf "$TMPDIR_T14"
 
 # =============================================================================
