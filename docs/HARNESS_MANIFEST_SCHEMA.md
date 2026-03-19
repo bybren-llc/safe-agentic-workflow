@@ -63,7 +63,7 @@ npx ajv-cli validate -s .harness-manifest.schema.json -d .harness-manifest.yml
 ### `manifest_version` (REQUIRED)
 
 ```yaml
-manifest_version: "1.0"
+manifest_version: "1.1"
 ```
 
 Schema version string in `MAJOR.MINOR` format. The sync script uses this to
@@ -72,7 +72,8 @@ changes in a backward-incompatible way.
 
 | Version | Description |
 |---------|-------------|
-| `1.0`   | Initial schema (v2.7.0). Covers identity, substitutions, renames, protected, replaced, sync. |
+| `1.0`   | Initial schema (v2.7.0). `.claude/`-only scope. Paths relative to `.claude/`. |
+| `1.1`   | Multi-domain sync (v2.10.0). Adds `sync_scope`, root-relative paths. Backward compat with v1.0. |
 
 ---
 
@@ -179,14 +180,15 @@ with the corresponding value before writing to disk.
 
 ```yaml
 renames:
-  # File rename
-  "agents/fe-developer.md": "agents/ui-engineer.md"
+  # File rename (repo-root-relative in v1.1+)
+  ".claude/agents/fe-developer.md": ".claude/agents/ui-engineer.md"
 
   # Directory rename (trailing / required)
-  "skills/stripe-patterns/": "skills/payment-patterns/"
+  ".gemini/skills/stripe-patterns/": ".gemini/skills/payment-patterns/"
 ```
 
-Map of upstream path to local path. All paths are relative to `.claude/`.
+Map of upstream path to local path. In v1.1+, all paths are repo-root-relative.
+In v1.0, paths are relative to `.claude/` and normalized during load by prepending `.claude/`.
 
 **File renames:**
 
@@ -195,7 +197,7 @@ writes it to the target path instead.
 
 ```
 Upstream: .claude/agents/fe-developer.md
-Manifest: "agents/fe-developer.md" -> "agents/ui-engineer.md"
+Manifest: ".claude/agents/fe-developer.md" -> ".claude/agents/ui-engineer.md"
 Result:   .claude/agents/ui-engineer.md (with substitutions applied)
 ```
 
@@ -206,9 +208,9 @@ directory are mapped to the target directory, preserving subdirectory
 structure.
 
 ```
-Upstream: .claude/skills/stripe-patterns/webhook-handler.md
-Manifest: "skills/stripe-patterns/" -> "skills/payment-patterns/"
-Result:   .claude/skills/payment-patterns/webhook-handler.md
+Upstream: .gemini/skills/stripe-patterns/webhook-handler.md
+Manifest: ".gemini/skills/stripe-patterns/" -> ".gemini/skills/payment-patterns/"
+Result:   .gemini/skills/payment-patterns/webhook-handler.md
 ```
 
 **Precedence rules:**
@@ -223,12 +225,13 @@ Result:   .claude/skills/payment-patterns/webhook-handler.md
 
 ```yaml
 protected:
-  - "hooks-config.json"
-  - "settings.local.json"
-  - "agents/custom-*.md"
+  - ".claude/hooks-config.json"
+  - ".claude/settings.local.json"
+  - ".codex/config.toml"
+  - ".cursor/rules/custom-*.mdc"
 ```
 
-List of glob patterns (relative to `.claude/`) that the sync script must
+List of glob patterns (repo-root-relative in v1.1+) that the sync script must
 **never overwrite**. Protected files are completely skipped during sync.
 
 **Use cases:**
@@ -258,20 +261,20 @@ mapping). If a file has been renamed, use the local name in `protected`.
 
 ```yaml
 replaced:
-  - "agents/system-architect.md"
-  - "AGENT_OUTPUT_GUIDE.md"
+  - ".claude/agents/system-architect.md"
+  - ".claude/AGENT_OUTPUT_GUIDE.md"
 ```
 
-List of paths (relative to `.claude/`) that the fork has completely
+List of paths (repo-root-relative in v1.1+) that the fork has completely
 rewritten. These files exist in both upstream and the fork, but the fork's
 version is authoritative.
 
 **Behavior during sync:**
 
 1. The file is **not** overwritten
-2. The sync script logs: `Skipped (replaced): agents/system-architect.md`
+2. The sync script logs: `Skipped (replaced): .claude/agents/system-architect.md`
 3. If the upstream version has changed since last sync, the script emits a
-   warning: `WARNING: Upstream changed replaced file: agents/system-architect.md`
+   warning: `WARNING: Upstream changed replaced file: .claude/agents/system-architect.md`
 4. The maintainer can then manually review the upstream diff and decide
    whether to incorporate changes
 
@@ -289,6 +292,13 @@ version is authoritative.
 
 ```yaml
 sync:
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+    - ".codex/"
+    - ".cursor/"
+    - ".agents/"
+    - "dark-factory/"
   auto_substitute: true
   backup: true
   conflict_strategy: "prompt"
@@ -307,6 +317,30 @@ sync:
 
 Tuning knobs for sync behavior. All fields have sensible defaults.
 
+#### `sync_scope` (default: `[".claude/"]`) — NEW in v1.1
+
+Array of repo-root-relative directories to sync from upstream. Only domains in this list
+are synced; all others are skipped.
+
+**Allowed domains (v2.10.0):**
+
+| Tier | Domains | Description |
+|------|---------|-------------|
+| Provider | `.claude/`, `.gemini/`, `.codex/`, `.cursor/` | IDE-specific harness configs |
+| Shared | `.agents/`, `dark-factory/` | Cross-provider shared resources |
+
+Release domains (`docs/`, `scripts/`, `patterns_library/`) are not yet supported and will
+be rejected if listed. These will be added in a future version with separate gating.
+
+**Default behavior**: If `sync_scope` is absent (v1.0 manifests), defaults to `[".claude/"]`.
+
+**Manifest is authoritative**: The sync script will only sync domains listed in `sync_scope`.
+Auto-detection is used only during `manifest init` to propose an initial scope. After the
+manifest is written, it drives all sync behavior deterministically.
+
+**Important**: `sync` requires a manifest. Without a manifest, sync will fail (even with
+`--scope`), except for `--dry-run` which is allowed for inspection.
+
 #### `auto_substitute` (default: `true`)
 
 When `true`, the sync script automatically replaces `{{TOKEN}}` placeholders
@@ -318,8 +352,8 @@ substitution separately (e.g., via a post-sync hook).
 
 #### `backup` (default: `true`)
 
-When `true`, the sync script creates a timestamped backup of `.claude/`
-before each sync. Backups are stored at `.claude/.harness-backup/<timestamp>/`.
+When `true`, the sync script creates a timestamped backup of synced domains
+before each sync. Backups are stored at `.harness-backup/<domain>/<timestamp>/` (repo root).
 
 The three most recent backups are retained; older ones are pruned
 automatically.
@@ -435,7 +469,7 @@ The sync script performs runtime validation beyond what JSON Schema catches:
 - Rename targets do not collide (two sources mapping to the same target)
 - Protected patterns do not overlap with replaced paths
 - Identity values that are required for substitution are present
-- Paths do not escape `.claude/` scope (no `../` traversal)
+- Paths do not escape allowed sync domains (no `../` traversal — enforced at runtime by preflight check)
 
 ---
 
@@ -463,9 +497,10 @@ The sync script performs runtime validation beyond what JSON Schema catches:
 - Keeping them separate avoids redundancy: identity is always present,
   substitutions are only needed for overrides
 
-### Why paths relative to `.claude/`?
+### Why root-relative paths in v1.1?
 
-- v2.7.0 scope is `.claude/` only; this avoids scope creep
-- When future versions expand scope, `manifest_version` can introduce
-  a new path resolution mode
-- Relative paths prevent portability issues across machines
+- v1.0 used `.claude/`-relative paths because scope was `.claude/` only
+- v1.1 introduces multi-domain sync (`sync_scope`), so paths need a consistent root
+- Root-relative paths are unambiguous: `.claude/agents/bsa.md` vs `.gemini/skills/safe-workflow/SKILL.md`
+- Backward compat: v1.0 manifests have bare paths normalized by prepending `.claude/` during load
+- Path traversal (`../`) is rejected at runtime by the sync script's preflight check
