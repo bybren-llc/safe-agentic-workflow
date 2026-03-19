@@ -2986,7 +2986,8 @@ do_manifest_init() {
     if [ "$skip_confirm" = false ] && [ "$dry_run" = false ]; then
         read -rp "Accept this scope? (Y/n): " scope_confirm
         if [[ "$scope_confirm" == "n" || "$scope_confirm" == "N" ]]; then
-            print_info "You can edit sync_scope in the manifest after generation."
+            detected_domains=(".claude")
+            print_info "Scope set to .claude/ only. Edit sync_scope in the manifest to add more domains."
         fi
     fi
 
