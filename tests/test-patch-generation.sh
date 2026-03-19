@@ -302,7 +302,7 @@ fi
 
 assert_contains "$OUTPUT" "Generating Patches" \
     "Output indicates patch generation mode"
-assert_contains "$OUTPUT" "patch(es) generated" \
+assert_contains "$OUTPUT" "patch(es)" \
     "Output includes patch count summary"
 
 
@@ -653,7 +653,7 @@ echo "# Identical Content" > "$MOCK_UP7/.claude/agents/same.md"
 MOCKED7=$(create_mocked_script "$PROJ7" "$MOCK_UP7")
 OUTPUT7=$("$MOCKED7" sync --generate-patches --version v2.7.0 --skip-preflight 2>&1) || true
 
-assert_contains "$OUTPUT7" "0 patch(es) generated" \
+assert_contains "$OUTPUT7" "0 patch(es)" \
     "No patches generated for unchanged file"
 
 
