@@ -120,7 +120,7 @@ The sync script syncs only the directories declared in your manifest's
 safety check enforces that all target paths fall within a declared scope
 domain -- any file targeting a path outside the allowed domains causes
 the sync to abort. Use `--scope` to override the manifest scope for a
-single run (e.g., `--scope .claude/ .gemini/`).
+single run (e.g., `--scope .claude,.gemini`).
 
 Files that are always excluded from sync (hardcoded):
 
@@ -357,7 +357,7 @@ Renames are shown as `local-path (upstream: original-path)`.
 | `--version <tag>` | Sync to a specific release tag (e.g., `v2.7.0`) |
 | `--latest` | Sync to the most recent tagged release |
 | `--dry-run` | Preview changes without modifying any files |
-| `--scope <dirs...>` | Override manifest `sync_scope` for this run (e.g., `--scope .claude/ .gemini/`) |
+| `--scope <domains>` | Override manifest `sync_scope` for this run (e.g., `--scope .claude,.gemini`) |
 | `--no-placeholders` | Skip placeholder substitution (sync raw upstream files) |
 | `--skip-preflight` | Bypass preflight safety checks (advanced users only) |
 | `--generate-patches` | Generate `.patch` files instead of overwriting (see below) |
