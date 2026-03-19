@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# Claude Code Harness Sync Script
+# SAW Harness Sync Script
 #
-# Syncs .claude/ directory from upstream repository while preserving
-# project-specific customizations.
+# Syncs harness domains from upstream repository while preserving
+# project-specific customizations. Supports multi-domain sync (v2.10.0+).
 #
 # Usage:
 #   ./scripts/sync-claude-harness.sh init              # Initialize sync config
@@ -1457,32 +1457,50 @@ do_rollback() {
     print_header "Rollback"
 
     if [ ! -d "$BACKUP_DIR" ]; then
-        print_error "No backups found"
+        print_error "No backups found at $BACKUP_DIR"
         return 1
     fi
 
-    # Get most recent backup
-    local latest_backup
-    latest_backup=$(ls -1dt "$BACKUP_DIR"/*/ 2>/dev/null | head -1)
+    # Backup structure: .harness-backup/<domain>/<timestamp>/...
+    # Find the most recent timestamp across all domain subdirs
+    local latest_timestamp=""
+    local latest_epoch=0
+    while IFS= read -r ts_dir; do
+        local ts_name
+        ts_name=$(basename "$ts_dir")
+        # Parse ISO timestamp to epoch for comparison
+        local epoch
+        epoch=$(date -d "$ts_name" +%s 2>/dev/null || echo 0)
+        if [ "$epoch" -gt "$latest_epoch" ]; then
+            latest_epoch=$epoch
+            latest_timestamp="$ts_name"
+        fi
+    done < <(find "$BACKUP_DIR" -mindepth 2 -maxdepth 2 -type d 2>/dev/null)
 
-    if [ -z "$latest_backup" ]; then
+    if [ -z "$latest_timestamp" ]; then
         print_error "No backups available"
         return 1
     fi
 
-    local backup_name
-    backup_name=$(basename "$latest_backup")
-    print_info "Restoring from backup: $backup_name"
+    print_info "Restoring from backup timestamp: $latest_timestamp"
 
-    # Restore files — backup contains domain subdirs (e.g., .claude/, .gemini/)
+    # Restore files from all domain backups with this timestamp
     local restored=0
-    while IFS= read -r -d '' file; do
-        local rel_path="${file#$latest_backup/}"
-        local dest="$PROJECT_ROOT/$rel_path"
-        mkdir -p "$(dirname "$dest")"
-        cp "$file" "$dest"
-        restored=$((restored + 1))
-    done < <(find "$latest_backup" -type f -print0)
+    while IFS= read -r domain_dir; do
+        local domain_name
+        domain_name=$(basename "$domain_dir")
+        local ts_backup="$domain_dir/$latest_timestamp"
+        if [ -d "$ts_backup" ]; then
+            print_info "Restoring domain: $domain_name"
+            while IFS= read -r -d '' file; do
+                local rel_path="${file#$ts_backup/}"
+                local dest="$PROJECT_ROOT/$domain_name/$rel_path"
+                mkdir -p "$(dirname "$dest")"
+                cp "$file" "$dest"
+                restored=$((restored + 1))
+            done < <(find "$ts_backup" -type f -print0)
+        fi
+    done < <(find "$BACKUP_DIR" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
 
     # Update metadata
     if [ -f "$SYNC_CONFIG" ]; then
@@ -1710,7 +1728,7 @@ generate_patch() {
             # Use git-compatible header: a/dev/null -> b/.claude/<local_rel>
             diff -u /dev/null "$upstream_file" \
                 --label "a/dev/null" \
-                --label "b/.claude/$local_rel" \
+                --label "b/$CURRENT_DOMAIN/$local_rel" \
                 > "$patch_file" 2>/dev/null || true
             # diff returns 1 when files differ, which is expected
             if [ -s "$patch_file" ]; then
@@ -1721,8 +1739,8 @@ generate_patch() {
             # For modified files, diff between current local and substituted upstream
             if [ -f "$local_file" ]; then
                 diff -u "$local_file" "$upstream_file" \
-                    --label "a/.claude/$local_rel" \
-                    --label "b/.claude/$local_rel" \
+                    --label "a/$CURRENT_DOMAIN/$local_rel" \
+                    --label "b/$CURRENT_DOMAIN/$local_rel" \
                     > "$patch_file" 2>/dev/null || true
                 if [ -s "$patch_file" ]; then
                     echo "$patch_file"
@@ -1731,7 +1749,7 @@ generate_patch() {
                 # Local file missing but expected -- treat as new
                 diff -u /dev/null "$upstream_file" \
                     --label "a/dev/null" \
-                    --label "b/.claude/$local_rel" \
+                    --label "b/$CURRENT_DOMAIN/$local_rel" \
                     > "$patch_file" 2>/dev/null || true
                 if [ -s "$patch_file" ]; then
                     echo "$patch_file"
@@ -1801,7 +1819,7 @@ SECTION_NEW
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`${CURRENT_DOMAIN}/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$new_entries_file"
         echo "" >> "$apply_order_file"
@@ -1826,7 +1844,7 @@ SECTION_UPDATED
         local idx=1
         while IFS='|' read -r local_rel patch_name; do
             [ -z "$local_rel" ] && continue
-            echo "| ${idx} | \`.claude/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
+            echo "| ${idx} | \`${CURRENT_DOMAIN}/${local_rel}\` | \`${patch_name}\` | \`git apply .harness-patches/${version}/${patch_name}\` |" >> "$apply_order_file"
             idx=$((idx + 1))
         done < "$updated_entries_file"
         echo "" >> "$apply_order_file"
@@ -1993,6 +2011,19 @@ do_sync() {
     validate_protected_paths
 
     # --- Multi-domain sync loop (SAW-35) ---
+    # Determine manifest path style: v1.0 uses domain-relative, v1.1+ uses root-relative
+    local MANIFEST_VERSION=""
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        MANIFEST_VERSION=$(manifest_get "manifest_version" 2>/dev/null || echo "1.0")
+    fi
+    # For v1.0 manifests, paths in renames/protected/replaced are domain-relative (e.g., "agents/bsa.md")
+    # For v1.1+ manifests, paths are root-relative (e.g., ".claude/agents/bsa.md")
+    # We need to construct the correct lookup key for manifest functions
+    local USE_ROOT_PATHS=false
+    if [ "$MANIFEST_VERSION" = "1.1" ] || [[ "$MANIFEST_VERSION" > "1.1" ]]; then
+        USE_ROOT_PATHS=true
+    fi
+
     # Process each domain in SYNC_SCOPE sequentially
     local sha
     sha=$(get_upstream_sha "$ref")
@@ -2026,18 +2057,22 @@ do_sync() {
     local sync_plan=""
 
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$TMP_DIR/$CURRENT_DOMAIN/}"
+        local rel_path="${file#$DOMAIN_TMP/}"
+        # For manifest lookups (v1.1 root-relative): prepend domain
+        local manifest_path; if [ "$USE_ROOT_PATHS" = true ]; then manifest_path="$CURRENT_DOMAIN/$rel_path"; else manifest_path="$rel_path"; fi
 
-        if is_excluded "$rel_path"; then
+        if is_excluded "$manifest_path"; then
             continue
         fi
 
-        # Resolve rename: map upstream path to local path
-        local local_path
-        local_path=$(resolve_rename "$rel_path")
+        # Resolve rename: map root-relative upstream path to root-relative local path
+        local local_manifest_path
+        local_manifest_path=$(resolve_rename "$manifest_path")
+        # Extract domain-relative local path for file operations
+        local local_path; if [ "$USE_ROOT_PATHS" = true ]; then local_path="${local_manifest_path#$CURRENT_DOMAIN/}"; else local_path="$local_manifest_path"; fi
 
         # Also check exclusion for the resolved local path
-        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
+        if [ "$local_manifest_path" != "$manifest_path" ] && is_excluded "$local_manifest_path"; then
             continue
         fi
 
@@ -2087,24 +2122,26 @@ do_sync() {
 
         while IFS= read -r -d '' file; do
             local rel_path="${file#$DOMAIN_TMP/}"
+            local manifest_path; if [ "$USE_ROOT_PATHS" = true ]; then manifest_path="$CURRENT_DOMAIN/$rel_path"; else manifest_path="$rel_path"; fi
 
-            if is_excluded "$rel_path"; then
-                if is_manifest_protected "$rel_path"; then
-                    print_warning "Skipping protected: $rel_path"
+            if is_excluded "$manifest_path"; then
+                if is_manifest_protected "$manifest_path"; then
+                    print_warning "Skipping protected: $manifest_path"
                     protected_count=$((protected_count + 1))
                 else
-                    print_warning "Skipping excluded: $rel_path"
+                    print_warning "Skipping excluded: $manifest_path"
                 fi
                 skipped=$((skipped + 1))
                 continue
             fi
 
-            local local_path
-            local_path=$(resolve_rename "$rel_path")
+            local local_manifest_path
+            local_manifest_path=$(resolve_rename "$manifest_path")
+            local local_path; if [ "$USE_ROOT_PATHS" = true ]; then local_path="${local_manifest_path#$CURRENT_DOMAIN/}"; else local_path="$local_manifest_path"; fi
 
-            if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
-                if is_manifest_protected "$local_path"; then
-                    print_warning "Skipping protected: $local_path"
+            if [ "$local_manifest_path" != "$manifest_path" ] && is_excluded "$local_manifest_path"; then
+                if is_manifest_protected "$local_manifest_path"; then
+                    print_warning "Skipping protected: $local_manifest_path"
                     protected_count=$((protected_count + 1))
                 fi
                 skipped=$((skipped + 1))
@@ -2176,31 +2213,32 @@ do_sync() {
     # Process upstream files
     while IFS= read -r -d '' file; do
         local rel_path="${file#$DOMAIN_TMP/}"
+        local manifest_path; if [ "$USE_ROOT_PATHS" = true ]; then manifest_path="$CURRENT_DOMAIN/$rel_path"; else manifest_path="$rel_path"; fi
 
-        if is_excluded "$rel_path"; then
-            # Distinguish protected (manifest) from excluded (.sync-exclude / hardcoded)
-            if is_manifest_protected "$rel_path"; then
-                print_warning "Skipping protected: $rel_path (upstream has changes, skipping per manifest)"
+        if is_excluded "$manifest_path"; then
+            if is_manifest_protected "$manifest_path"; then
+                print_warning "Skipping protected: $manifest_path (upstream has changes, skipping per manifest)"
                 protected_count=$((protected_count + 1))
             else
-                print_warning "Skipping excluded: $rel_path"
+                print_warning "Skipping excluded: $manifest_path"
             fi
             skipped=$((skipped + 1))
             continue
         fi
 
-        # Resolve rename: map upstream path to local path
-        local local_path
-        local_path=$(resolve_rename "$rel_path")
+        # Resolve rename: root-relative manifest path → root-relative local path
+        local local_manifest_path
+        local_manifest_path=$(resolve_rename "$manifest_path")
+        local local_path; if [ "$USE_ROOT_PATHS" = true ]; then local_path="${local_manifest_path#$CURRENT_DOMAIN/}"; else local_path="$local_manifest_path"; fi
         local local_file="$DOMAIN_DIR/$local_path"
 
         # Also check exclusion for the resolved local path
-        if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
-            if is_manifest_protected "$local_path"; then
-                print_warning "Skipping protected: $local_path (upstream has changes, skipping per manifest)"
+        if [ "$local_manifest_path" != "$manifest_path" ] && is_excluded "$local_manifest_path"; then
+            if is_manifest_protected "$local_manifest_path"; then
+                print_warning "Skipping protected: $local_manifest_path (upstream has changes, skipping per manifest)"
                 protected_count=$((protected_count + 1))
             else
-                print_warning "Skipping excluded: $local_path (renamed from $rel_path)"
+                print_warning "Skipping excluded: $local_manifest_path (renamed from $manifest_path)"
             fi
             skipped=$((skipped + 1))
             continue
@@ -3041,11 +3079,18 @@ COMMANDS:
 
 SYNC OPTIONS:
     --dry-run           Preview changes without applying
-    --version <tag>     Sync to specific release tag (e.g., v2.2.0)
+    --version <tag>     Sync to specific release tag (e.g., v2.10.0)
     --latest            Sync to latest release
+    --scope <domains>   Override sync_scope for this command (comma-separated)
+                        Example: --scope .claude,.gemini,.codex
+                        Does NOT modify .harness-manifest.yml
     --no-placeholders   Skip placeholder substitution step
     --skip-preflight    Skip preflight safety checks (advanced users only)
     --generate-patches  Generate .patch files instead of overwriting
+
+    NOTE: sync requires a manifest (.harness-manifest.yml). Without one,
+    sync will fail. Run 'manifest init' first. Only --dry-run is allowed
+    without a manifest.
 
 PREFLIGHT (SAW-2):
     A preflight safety check runs automatically before every sync.
