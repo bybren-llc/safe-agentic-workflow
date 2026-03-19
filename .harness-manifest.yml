@@ -7,8 +7,8 @@
 # perform intelligent syncing: applying substitutions, respecting renames,
 # and never overwriting protected files.
 #
-# Location: .harness-manifest.yml (repository root)
-# Scope: Multi-domain (v1.1 — sync_scope defines which directories sync)
+# Location: .claude/.harness-manifest.yml (current), migrating to repo root in SAW-34
+# Scope: .claude/ only (current sync engine). sync_scope enables multi-domain in SAW-35
 # Docs: docs/HARNESS_MANIFEST_SCHEMA.md
 #
 # If this file is absent, the sync script falls back to legacy behavior
@@ -144,7 +144,11 @@ replaced: []
 # -----------------------------------------------------------------------------
 # Tuning knobs for sync behavior. All have sensible defaults.
 sync:
-  # Sync scope: which directories to sync from upstream (v1.1+).
+  # Sync scope: which directories to sync from upstream (v1.1 schema).
+  # NOTE: Multi-domain sync is defined in schema v1.1 but not yet implemented
+  # in the sync engine. Until SAW-35 lands, only .claude/ is actually synced
+  # regardless of this setting. This field is forward-declared so manifests
+  # are ready when the engine ships.
   # Allowed domains:
   #   Provider: .claude/, .gemini/, .codex/, .cursor/
   #   Shared:   .agents/, dark-factory/
@@ -164,9 +168,10 @@ sync:
   # Set to false to sync raw upstream files without token replacement.
   auto_substitute: true
 
-  # Create a timestamped backup of synced domains before each sync.
+  # Create a timestamped backup before each sync.
   # Default: true
-  # Backups are stored in .harness-backup/<domain>/<timestamp>/ (repo root)
+  # Current: backups at .claude/.harness-backup/<timestamp>/
+  # Planned (SAW-34): migrate to .harness-backup/<domain>/<timestamp>/ at repo root
   backup: true
 
   # Strategy for resolving conflicts when both upstream and local

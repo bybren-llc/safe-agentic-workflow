@@ -1,16 +1,18 @@
 # Harness Manifest Schema Reference
 
 **Schema version**: 1.1
-**File**: `.harness-manifest.yml` (repository root)
+**File**: `.claude/.harness-manifest.yml` (current) — migrating to repository root in SAW-34
 **JSON Schema**: `.harness-manifest.schema.json`
-**Scope**: Multi-domain (v1.1 — provider, shared, and future release domains)
+**Scope**: `.claude/` only (current sync engine) — multi-domain sync engine shipping in SAW-35
 
 ### What's New in v1.1
 
-- **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`)
-- **Root-relative paths**: All paths in `renames`, `protected`, `replaced` are now repo-root-relative
+- **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`) — schema-defined, engine implementation in SAW-35
+- **Root-relative paths**: All paths in `renames`, `protected`, `replaced` are now repo-root-relative in the schema
 - **Domain tiers**: Provider (`.claude/`, `.gemini/`, `.codex/`, `.cursor/`), Shared (`.agents/`, `dark-factory/`), Release (`docs/`, `scripts/` — deferred)
 - **Backward compat**: v1.0 manifests work unchanged — paths without scope prefix are normalized by prepending `.claude/` during load
+
+> **Implementation status**: SAW-33 defines the v1.1 schema. The sync engine still operates on `.claude/` only until SAW-34 (metadata migration) and SAW-35 (multi-domain engine) are merged. `sync_scope` is forward-declared so manifests are ready when the engine ships.
 
 ## Overview
 
@@ -334,12 +336,15 @@ be rejected if listed. These will be added in a future version with separate gat
 
 **Default behavior**: If `sync_scope` is absent (v1.0 manifests), defaults to `[".claude/"]`.
 
-**Manifest is authoritative**: The sync script will only sync domains listed in `sync_scope`.
-Auto-detection is used only during `manifest init` to propose an initial scope. After the
-manifest is written, it drives all sync behavior deterministically.
+**Planned behavior (SAW-35)**: The sync script will only sync domains listed in `sync_scope`.
+Auto-detection will be used only during `manifest init` to propose an initial scope. After
+the manifest is written, it will drive all sync behavior deterministically.
 
-**Important**: `sync` requires a manifest. Without a manifest, sync will fail (even with
-`--scope`), except for `--dry-run` which is allowed for inspection.
+**Planned (SAW-35)**: `sync` will require a manifest. Without a manifest, sync will fail
+(even with `--scope`), except for `--dry-run` which will be allowed for inspection.
+
+> **Current behavior**: The sync engine ignores `sync_scope` and syncs `.claude/` only.
+> Multi-domain sync ships in SAW-35.
 
 #### `auto_substitute` (default: `true`)
 
@@ -352,8 +357,9 @@ substitution separately (e.g., via a post-sync hook).
 
 #### `backup` (default: `true`)
 
-When `true`, the sync script creates a timestamped backup of synced domains
-before each sync. Backups are stored at `.harness-backup/<domain>/<timestamp>/` (repo root).
+When `true`, the sync script creates a timestamped backup before each sync.
+Current: backups at `.claude/.harness-backup/<timestamp>/`. Planned (SAW-34): migrate to
+`.harness-backup/<domain>/<timestamp>/` at repo root.
 
 The three most recent backups are retained; older ones are pruned
 automatically.
