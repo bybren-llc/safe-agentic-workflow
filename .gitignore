@@ -116,6 +116,16 @@ tmp/
 .github/workflows/*.local.yml
 
 # ============================================================================
+# Harness Sync Metadata (generated, not committed)
+# ============================================================================
+.harness-sync.json
+.harness-backup/
+.harness-patches/
+.claude/.harness-sync.json
+.claude/.harness-backup/
+.claude/.harness-patches/
+
+# ============================================================================
 # Project-Specific
 # ============================================================================
 # Add any project-specific files to ignore here
