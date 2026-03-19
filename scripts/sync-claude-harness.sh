@@ -121,22 +121,14 @@ migrate_metadata_to_root() {
 get_sync_scope() {
     SYNC_SCOPE=()
     if [ "$HAS_MANIFEST" = "true" ]; then
-        local scope_count
-        scope_count=$(manifest_get "sync.sync_scope" "" | python3 -c "
-import json, sys
-try:
-    data = json.load(sys.stdin)
-    if isinstance(data, list):
-        print(len(data))
-    else:
-        print(0)
-except:
-    print(0)
-" 2>/dev/null)
-        if [ "${scope_count:-0}" -gt 0 ]; then
+        # manifest_get outputs single-quoted JSON; normalize to double-quotes for python
+        local raw_scope
+        raw_scope=$(manifest_get "sync.sync_scope" "" 2>/dev/null | sed "s/'/\"/g")
+        if [ -n "$raw_scope" ] && [ "$raw_scope" != "null" ] && [ "$raw_scope" != "undefined" ]; then
             while IFS= read -r domain; do
-                # Strip trailing / and quotes
-                domain=$(echo "$domain" | tr -d '"' | sed 's|/$||')
+                # Strip trailing / and whitespace
+                domain=$(echo "$domain" | tr -d '"' | sed 's|/$||' | xargs)
+                [ -z "$domain" ] && continue
                 # Validate against allowed domains
                 local valid=false
                 for allowed in "${ALLOWED_DOMAINS[@]}"; do
@@ -150,7 +142,7 @@ except:
                 else
                     echo -e "${YELLOW}[WARN]${NC} Ignoring unknown sync domain: $domain"
                 fi
-            done < <(manifest_get "sync.sync_scope" "" | python3 -c "
+            done < <(echo "$raw_scope" | python3 -c "
 import json, sys
 try:
     data = json.load(sys.stdin)
@@ -1416,14 +1408,19 @@ compare_file() {
     fi
 }
 
+# Shared sync timestamp — set once per do_sync invocation so all domains share it
+SYNC_TIMESTAMP=""
+
 # Create backup before sync
 create_backup() {
     local backup_target="${DOMAIN_DIR:-$CLAUDE_DIR}"
     local domain_name
     domain_name=$(basename "$backup_target")
-    local timestamp
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local backup_path="$BACKUP_DIR/$domain_name/$timestamp"
+    # Use shared timestamp so rollback can find all domains from same sync
+    if [ -z "$SYNC_TIMESTAMP" ]; then
+        SYNC_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    fi
+    local backup_path="$BACKUP_DIR/$domain_name/$SYNC_TIMESTAMP"
 
     print_info "Creating backup of $domain_name at $backup_path"
 
@@ -1438,15 +1435,16 @@ create_backup() {
     done < <(find "$backup_target" -type f ! -name ".harness-sync.json" ! -name ".sync-exclude" \
         ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
 
-    # Prune old backups (keep last 3)
-    local count=0
-    for dir in $(ls -1dt "$BACKUP_DIR"/*/ 2>/dev/null); do
-        count=$((count + 1))
-        if [ $count -gt 3 ]; then
-            rm -rf "$dir"
-            print_info "Pruned old backup: $(basename "$dir")"
+    # Prune old backups for this domain (keep last 3 timestamps)
+    local domain_backup_dir="$BACKUP_DIR/$domain_name"
+    local prune_count=0
+    while IFS= read -r old_dir; do
+        prune_count=$((prune_count + 1))
+        if [ $prune_count -gt 3 ]; then
+            rm -rf "$old_dir"
+            print_info "Pruned old backup: $domain_name/$(basename "$old_dir")"
         fi
-    done
+    done < <(find "$domain_backup_dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort -r)
 
     print_success "Backup created"
     echo "$timestamp"
@@ -1980,6 +1978,9 @@ do_sync() {
 
     echo -e "${CYAN}Sync domains: ${SYNC_SCOPE[*]}${NC}"
 
+    # Reset shared timestamp so all domains in this sync get the same one
+    SYNC_TIMESTAMP=""
+
     # Determine ref to sync
     local ref="$UPSTREAM_BRANCH"
     if [ -n "$version" ]; then
@@ -2022,6 +2023,20 @@ do_sync() {
     local USE_ROOT_PATHS=false
     if [ "$MANIFEST_VERSION" = "1.1" ] || [[ "$MANIFEST_VERSION" > "1.1" ]]; then
         USE_ROOT_PATHS=true
+    fi
+
+    # Pre-create patches directory (outside domain loop so domains don't wipe each other)
+    local patches_version_dir=""
+    if [ "$generate_patches" = true ]; then
+        local patch_version="$ref"
+        if [ -z "$patch_version" ] || [ "$patch_version" = "$UPSTREAM_BRANCH" ]; then
+            patch_version="$(date -u +%Y%m%d-%H%M%S)"
+        fi
+        patches_version_dir="$PATCHES_DIR/$patch_version"
+        if [ -d "$patches_version_dir" ]; then
+            rm -rf "$patches_version_dir"
+        fi
+        mkdir -p "$patches_version_dir"
     fi
 
     # Process each domain in SYNC_SCOPE sequentially
@@ -2099,18 +2114,7 @@ do_sync() {
 
     # --- Patch generation mode (SAW-4) ---
     if [ "$generate_patches" = true ]; then
-        # Determine version label for patches directory
-        local patch_version="$ref"
-        if [ -z "$patch_version" ] || [ "$patch_version" = "$UPSTREAM_BRANCH" ]; then
-            patch_version="$(date -u +%Y%m%d-%H%M%S)"
-        fi
-        local patches_version_dir="$PATCHES_DIR/$patch_version"
-
-        # Clean previous patches for this version
-        if [ -d "$patches_version_dir" ]; then
-            rm -rf "$patches_version_dir"
-        fi
-        mkdir -p "$patches_version_dir"
+        # patches_version_dir already created outside domain loop
 
         # Create temp entry files for APPLY_ORDER.md
         local new_entries_file="$patches_version_dir/._new_entries.txt"
