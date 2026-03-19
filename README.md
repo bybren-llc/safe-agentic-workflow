@@ -5,7 +5,7 @@
 **A Production-Tested Three-Layer Architecture for Coordinated AI Teams**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v2.9.0-blue?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-v2.10.0-blue?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
   <img src="https://img.shields.io/badge/template-ready-brightgreen?style=flat-square" alt="Template Ready">
   <img src="https://img.shields.io/badge/tests-382%2F382-brightgreen?style=flat-square" alt="Tests">
@@ -142,29 +142,33 @@ cursor /your-project
 
 Already using the harness and a new version is out? You have two paths:
 
-**Automated** (`.claude/` directory only):
+**Automated** (multi-domain, manifest-based):
 ```bash
 # Initialize sync metadata (first time only)
 ./scripts/sync-claude-harness.sh init
 ./scripts/sync-claude-harness.sh manifest init --yes
 
-# Preview and apply
-./scripts/sync-claude-harness.sh sync --version v2.9.0 --dry-run
-./scripts/sync-claude-harness.sh sync --version v2.9.0
+# Preview and apply (syncs all domains in your manifest's sync_scope)
+./scripts/sync-claude-harness.sh sync --version v2.10.0 --dry-run
+./scripts/sync-claude-harness.sh sync --version v2.10.0
+
+# Sync specific domains only
+./scripts/sync-claude-harness.sh sync --version v2.10.0 --scope .claude,.gemini
 ```
 
 **Manual** (full release, all providers):
 ```bash
 git remote add harness https://github.com/bybren-llc/safe-agentic-workflow.git
 git fetch harness main --tags
-git diff v2.8.1..v2.9.0 --stat              # See what changed
-git checkout harness/main -- .codex/agents/  # Cherry-pick what you need
-bash scripts/setup-template.sh               # Re-apply your placeholders
+git diff v2.9.0..v2.10.0 --stat              # See what changed
+git checkout harness/main -- .codex/agents/   # Cherry-pick what you need
+bash scripts/setup-template.sh                # Re-apply your placeholders
 ```
 
-> The sync script protects your customizations via a manifest. It won't overwrite
-> files you've marked as protected. See the [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md)
-> for the full reference and [Upgrade Guide](docs/releases/v2.9.0-UPGRADE.md) for rollback options.
+> The sync script protects your customizations via a manifest (required since v2.10.0).
+> It won't overwrite files you've marked as protected. See the
+> [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md) for the full reference and
+> [Upgrade Guide](docs/releases/v2.10.0-UPGRADE.md) for rollback options.
 
 ---
 

@@ -600,6 +600,21 @@ This `.gemini/` directory works alongside `.claude/` for teams using both tools:
 
 Both tools can coexist in the same repository.
 
+## Upstream Sync
+
+This directory can be synced from the upstream SAFe Agentic Workflow harness
+using the multi-domain sync engine (v2.10.0+). Add `".gemini/"` to your
+manifest's `sync_scope` to include it in automated syncs:
+
+```yaml
+sync:
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+```
+
+See [Harness Sync Guide](../docs/HARNESS_SYNC_GUIDE.md) for details.
+
 ## License
 
 MIT License - See [LICENSE](../LICENSE) for details.

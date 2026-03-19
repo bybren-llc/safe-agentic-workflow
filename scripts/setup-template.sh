@@ -83,7 +83,7 @@ read -rp "Container registry (e.g., ghcr.io/acme-corp): " CONTAINER_REGISTRY
 TICKET_PREFIX_LOWER=$(echo "$TICKET_PREFIX" | tr '[:upper:]' '[:lower:]')
 AUTHOR_INITIALS="${AUTHOR_FIRST_NAME:0:1}. ${AUTHOR_LAST_NAME:0:1}."
 GITHUB_REPO_URL="https://github.com/${GITHUB_ORG}/${PROJECT_REPO}"
-HARNESS_VERSION="v2.9.0"
+HARNESS_VERSION="v2.10.0"
 
 echo ""
 echo "--- Review your values ---"

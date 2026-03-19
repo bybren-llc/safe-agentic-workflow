@@ -1,18 +1,16 @@
 # Harness Manifest Schema Reference
 
 **Schema version**: 1.1
-**File**: `.claude/.harness-manifest.yml`
+**File**: `.harness-manifest.yml` (repo root)
 **JSON Schema**: `.harness-manifest.schema.json`
-**Scope**: `.claude/` only (current sync engine) — multi-domain sync engine shipping in SAW-35
+**Scope**: Multi-domain (v2.10.0) — syncs any domain listed in `sync_scope`
 
 ### What's New in v1.1
 
-- **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`) — schema-defined, engine implementation in SAW-35
+- **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`)
 - **Root-relative paths**: All paths in `renames`, `protected`, `replaced` are now repo-root-relative in the schema
 - **Domain tiers**: Provider (`.claude/`, `.gemini/`, `.codex/`, `.cursor/`), Shared (`.agents/`, `dark-factory/`), Release (`docs/`, `scripts/` — deferred)
 - **Backward compat**: v1.0 manifests work unchanged — paths without scope prefix are normalized by prepending `.claude/` during load
-
-> **Implementation status**: SAW-33 defines the v1.1 schema. The sync engine still operates on `.claude/` only until SAW-34 (metadata migration) and SAW-35 (multi-domain engine) are merged. `sync_scope` is forward-declared so manifests are ready when the engine ships.
 
 ## Overview
 
@@ -27,10 +25,9 @@ upstream SAFe Agentic Workflow harness. When the sync script
 
 ### Backward Compatibility
 
-If `.claude/.harness-manifest.yml` is absent, the sync script falls back to legacy
-behavior: file-level copy with `.sync-exclude` pattern matching and no
-automatic substitution. This ensures existing forks continue to work
-without modification.
+If `.harness-manifest.yml` is absent, the sync script fails with an error
+(except when using `--dry-run`, which is allowed for inspection). Use
+`./scripts/sync-claude-harness.sh manifest init` to generate a manifest.
 
 ---
 
@@ -44,7 +41,7 @@ After running `scripts/setup-template.sh`, generate your manifest:
 ./scripts/sync-claude-harness.sh manifest init
 
 # Or create manually from an example:
-cp examples/manifests/rendertrust.harness-manifest.yml .claude/.harness-manifest.yml
+cp examples/manifests/rendertrust.harness-manifest.yml .harness-manifest.yml
 # Then edit identity values and customization sections
 ```
 
@@ -56,10 +53,10 @@ Validate your manifest:
 
 # Using jsonschema (Python):
 pip install check-jsonschema
-check-jsonschema --schemafile .harness-manifest.schema.json .claude/.harness-manifest.yml
+check-jsonschema --schemafile .harness-manifest.schema.json .harness-manifest.yml
 
 # Using ajv (Node.js):
-npx ajv-cli validate -s .harness-manifest.schema.json -d .claude/.harness-manifest.yml
+npx ajv-cli validate -s .harness-manifest.schema.json -d .harness-manifest.yml
 ```
 
 ---
@@ -340,15 +337,12 @@ be rejected if listed. These will be added in a future version with separate gat
 
 **Default behavior**: If `sync_scope` is absent (v1.0 manifests), defaults to `[".claude/"]`.
 
-**Planned behavior (SAW-35)**: The sync script will only sync domains listed in `sync_scope`.
-Auto-detection will be used only during `manifest init` to propose an initial scope. After
-the manifest is written, it will drive all sync behavior deterministically.
+The sync script only syncs domains listed in `sync_scope`. Auto-detection is used only
+during `manifest init` to propose an initial scope. After the manifest is written, it
+drives all sync behavior deterministically.
 
-**Planned (SAW-35)**: `sync` will require a manifest. Without a manifest, sync will fail
-(even with `--scope`), except for `--dry-run` which will be allowed for inspection.
-
-> **Current behavior**: The sync engine ignores `sync_scope` and syncs `.claude/` only.
-> Multi-domain sync ships in SAW-35.
+A manifest is required for sync. Without a manifest, sync fails (even with `--scope`),
+except for `--dry-run` which is allowed for inspection.
 
 #### `auto_substitute` (default: `true`)
 
@@ -362,8 +356,7 @@ substitution separately (e.g., via a post-sync hook).
 #### `backup` (default: `true`)
 
 When `true`, the sync script creates a timestamped backup before each sync.
-Current: backups at `.claude/.harness-backup/<timestamp>/`. Planned (SAW-34): migrate to
-`.harness-backup/<domain>/<timestamp>/` at repo root.
+Backups are stored at `.harness-backup/<domain>/<timestamp>/` at the repo root.
 
 The three most recent backups are retained; older ones are pruned
 automatically.
@@ -407,7 +400,7 @@ migrate to the manifest format:
 ### Step 1: Create the manifest
 
 ```bash
-cp examples/manifests/rendertrust.harness-manifest.yml .claude/.harness-manifest.yml
+cp examples/manifests/rendertrust.harness-manifest.yml .harness-manifest.yml
 ```
 
 ### Step 2: Fill in identity values
@@ -424,7 +417,7 @@ Each line in `.claude/.sync-exclude` becomes an entry in `protected`:
 # hooks-config.json
 # settings.local.json
 
-# After (.claude/.harness-manifest.yml):
+# After (.harness-manifest.yml):
 protected:
   - "hooks-config.json"
   - "settings.local.json"
@@ -444,9 +437,9 @@ shows more than 50% of lines changed, it is a replaced file.
 
 ### Step 6: Keep .sync-exclude (transitional)
 
-The `.sync-exclude` file can remain as a fallback during the v2.7.0
-transition period. The sync script checks the manifest first and only falls
-back to `.sync-exclude` if no manifest is found.
+The `.sync-exclude` file can remain during the transition period. When a
+manifest is present, its `protected` patterns are merged with `.sync-exclude`
+entries for backward compatibility.
 
 ---
 
@@ -463,15 +456,15 @@ for validating manifest files. Use any YAML-aware JSON Schema validator:
 
 # Python (check-jsonschema):
 pip install check-jsonschema
-check-jsonschema --schemafile .harness-manifest.schema.json .claude/.harness-manifest.yml
+check-jsonschema --schemafile .harness-manifest.schema.json .harness-manifest.yml
 
 # Node.js (ajv-cli):
-npx ajv-cli validate -s .harness-manifest.schema.json -d .claude/.harness-manifest.yml
+npx ajv-cli validate -s .harness-manifest.schema.json -d .harness-manifest.yml
 
 # VS Code / IDE
 # Add to .vscode/settings.json:
 # "yaml.schemas": {
-#   ".harness-manifest.schema.json": ".claude/.harness-manifest.yml"
+#   ".harness-manifest.schema.json": ".harness-manifest.yml"
 # }
 ```
 
@@ -497,7 +490,7 @@ The sync script performs runtime validation beyond what JSON Schema catches:
 ### Why a separate manifest file vs extending `.harness-sync.json`?
 
 - Separation of concerns: the manifest declares **what** the fork customized;
-  `.harness-sync.json` tracks **when** the last sync happened
+  `.harness-sync.json` (at repo root) tracks **when** the last sync happened
 - The manifest is committed to the repository; sync metadata is ephemeral
 - Different lifecycle: manifest changes rarely; sync metadata changes on
   every sync

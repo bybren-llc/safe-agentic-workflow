@@ -237,6 +237,21 @@ codex --model o3
 2. Check that each skill has a `SKILL.md` with valid YAML frontmatter
 3. Ensure the `name` and `description` fields are present in frontmatter
 
+## Upstream Sync
+
+This directory can be synced from the upstream SAFe Agentic Workflow harness
+using the multi-domain sync engine (v2.10.0+). Add `".codex/"` to your
+manifest's `sync_scope` to include it in automated syncs:
+
+```yaml
+sync:
+  sync_scope:
+    - ".claude/"
+    - ".codex/"
+```
+
+See [Harness Sync Guide](../docs/HARNESS_SYNC_GUIDE.md) for details.
+
 ## License
 
 MIT License - See [LICENSE](../LICENSE) for details.

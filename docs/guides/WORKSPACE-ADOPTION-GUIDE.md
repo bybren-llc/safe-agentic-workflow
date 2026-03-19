@@ -286,19 +286,22 @@ FACTORY_PROJECT_DIR="$(pwd)" ./dark-factory/scripts/factory-start.sh story {{TIC
 
 The harness has two update mechanisms:
 
-1. **`sync-claude-harness.sh`** — Syncs only the `.claude/` directory (skills,
-   commands, hooks, agents). This is the automated path.
-2. **Manual git checkout** — Updates everything else (docs, dark-factory,
-   scripts, patterns_library, Gemini harness). Required for full upgrades.
+1. **`sync-claude-harness.sh`** — Multi-domain sync (v2.10.0+). Syncs any
+   directories listed in your manifest's `sync_scope` (e.g., `.claude/`,
+   `.gemini/`, `.codex/`, `.cursor/`, `.agents/`, `dark-factory/`). A manifest
+   is required.
+2. **Manual git checkout** — Updates everything else (docs, scripts,
+   patterns_library). Required for full upgrades that include release-tier files.
 
-### Method 1: Sync Script (`.claude/` only)
+### Method 1: Sync Script (multi-domain)
 
-The sync script pulls upstream `.claude/` updates while preserving your
-project-specific customizations via `.claude/.sync-exclude`:
+The sync script pulls upstream updates for all declared scope domains while
+preserving your project-specific customizations via the manifest:
 
 ```bash
 # Initialize sync config (first time only)
 ./scripts/sync-claude-harness.sh init
+./scripts/sync-claude-harness.sh manifest init --yes
 
 # Check what version you're on
 ./scripts/sync-claude-harness.sh version
@@ -309,21 +312,18 @@ project-specific customizations via `.claude/.sync-exclude`:
 # Preview changes before applying
 ./scripts/sync-claude-harness.sh sync --dry-run
 
-# Apply a specific release
-./scripts/sync-claude-harness.sh sync --version v2.5.0
+# Apply a specific release (syncs all domains in sync_scope)
+./scripts/sync-claude-harness.sh sync --version v2.10.0
+
+# Or sync specific domains only
+./scripts/sync-claude-harness.sh sync --version v2.10.0 --scope .claude/ .gemini/
 
 # Or apply the latest release
 ./scripts/sync-claude-harness.sh sync --latest
 ```
 
-**Protect your customizations**: Edit `.claude/.sync-exclude` to list files
-that should never be overwritten:
-
-```
-# Example: keep your custom team config
-team-config.json
-settings.local.json
-```
+**Protect your customizations**: Use the `protected` section in your
+`.harness-manifest.yml` to list files that should never be overwritten.
 
 **If something breaks**: Roll back to the pre-sync backup:
 
