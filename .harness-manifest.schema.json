@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/ByBren-LLC/safe-agentic-workflow/blob/template/.harness-manifest.schema.json",
+  "$id": "https://github.com/bybren-llc/safe-agentic-workflow/blob/main/.harness-manifest.schema.json",
   "title": "Harness Manifest",
-  "description": "Schema for .harness-manifest.yml — declares how a downstream fork customizes the SAFe Agentic Workflow harness. All paths are relative to .claude/ (v2.7.0 scope).",
+  "description": "Schema for .harness-manifest.yml — declares how a downstream fork customizes the SAFe Agentic Workflow harness. In v1.1+, all paths are repo-root-relative. In v1.0, paths are relative to .claude/ and normalized during load.",
   "type": "object",
   "required": ["manifest_version", "identity"],
   "additionalProperties": false,
@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Schema version for forward compatibility. Must be a semver-compatible string (e.g., '1.0').",
       "pattern": "^[0-9]+\\.[0-9]+$",
-      "examples": ["1.0"]
+      "examples": ["1.0", "1.1"]
     },
     "identity": {
       "type": "object",
@@ -165,41 +165,41 @@
     },
     "renames": {
       "type": "object",
-      "description": "Map of upstream path (relative to .claude/) to local path (relative to .claude/). Use trailing '/' to indicate directory renames. File renames take precedence over directory renames when both match.",
+      "description": "Map of upstream path to local path. In v1.1+, paths are repo-root-relative (e.g., '.claude/agents/fe-developer.md'). In v1.0, paths are relative to .claude/ and normalized during load. Use trailing '/' for directory renames. File renames take precedence over directory renames.",
       "additionalProperties": {
         "type": "string",
         "minLength": 1
       },
       "propertyNames": {
-        "description": "Upstream path relative to .claude/. Must not start with / or contain ..",
+        "description": "Upstream path. Must not start with / or contain ..",
         "pattern": "^[^/]"
       },
       "examples": [
         {
-          "agents/fe-developer.md": "agents/ui-engineer.md",
-          "skills/stripe-patterns/": "skills/payment-patterns/"
+          ".claude/agents/fe-developer.md": ".claude/agents/ui-engineer.md",
+          ".gemini/skills/stripe-patterns/": ".gemini/skills/payment-patterns/"
         }
       ]
     },
     "protected": {
       "type": "array",
-      "description": "Glob patterns (relative to .claude/) that the sync script must NEVER overwrite. These files are completely skipped during sync.",
+      "description": "Glob patterns that the sync script must NEVER overwrite. In v1.1+, patterns are repo-root-relative (e.g., '.claude/hooks-config.json'). In v1.0, patterns are relative to .claude/ and normalized during load.",
       "items": {
         "type": "string",
-        "description": "Glob pattern relative to .claude/. Supports *, **, and ? wildcards.",
+        "description": "Glob pattern. Supports *, **, and ? wildcards.",
         "minLength": 1
       },
       "uniqueItems": true,
       "examples": [
-        ["hooks-config.json", "settings.local.json", "agents/custom-*.md"]
+        [".claude/hooks-config.json", ".claude/settings.local.json", ".codex/config.toml"]
       ]
     },
     "replaced": {
       "type": "array",
-      "description": "Paths (relative to .claude/) that the fork has completely rewritten. These are not overwritten during sync, but the sync script warns if the upstream version has changed since last sync.",
+      "description": "Paths that the fork has completely rewritten. In v1.1+, paths are repo-root-relative. In v1.0, paths are relative to .claude/ and normalized during load. These are not overwritten during sync, but the script warns if upstream changed.",
       "items": {
         "type": "string",
-        "description": "File path relative to .claude/.",
+        "description": "File path (repo-root-relative in v1.1+).",
         "minLength": 1
       },
       "uniqueItems": true,
@@ -212,6 +212,18 @@
       "description": "Sync behavior preferences. All fields have sensible defaults.",
       "additionalProperties": false,
       "properties": {
+        "sync_scope": {
+          "type": "array",
+          "description": "Repo-root-relative directories to sync from upstream. Added in v1.1. Defaults to [\".claude/\"] for v1.0 backward compatibility. Allowed domains: provider (.claude/, .gemini/, .codex/, .cursor/), shared (.agents/, dark-factory/). Release domains (docs/, scripts/, patterns_library/) are not yet supported and will be rejected.",
+          "items": {
+            "type": "string",
+            "enum": [".claude/", ".gemini/", ".codex/", ".cursor/", ".agents/", "dark-factory/"],
+            "description": "Sync domain directory (must be from the allowed domain list)."
+          },
+          "uniqueItems": true,
+          "default": [".claude/"],
+          "minItems": 1
+        },
         "auto_substitute": {
           "type": "boolean",
           "description": "Automatically apply substitutions from identity/substitutions to incoming upstream files during sync.",
@@ -219,7 +231,7 @@
         },
         "backup": {
           "type": "boolean",
-          "description": "Create a timestamped backup of .claude/ before each sync.",
+          "description": "Create a timestamped backup of synced domains before each sync. Backups stored at .harness-backup/ (repo root).",
           "default": true
         },
         "conflict_strategy": {

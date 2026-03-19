@@ -1,9 +1,16 @@
 # Harness Manifest Schema Reference
 
-**Schema version**: 1.0
+**Schema version**: 1.1
 **File**: `.harness-manifest.yml` (repository root)
 **JSON Schema**: `.harness-manifest.schema.json`
-**Scope**: `.claude/` directory only (v2.7.0)
+**Scope**: Multi-domain (v1.1 — provider, shared, and future release domains)
+
+### What's New in v1.1
+
+- **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`)
+- **Root-relative paths**: All paths in `renames`, `protected`, `replaced` are now repo-root-relative
+- **Domain tiers**: Provider (`.claude/`, `.gemini/`, `.codex/`, `.cursor/`), Shared (`.agents/`, `dark-factory/`), Release (`docs/`, `scripts/` — deferred)
+- **Backward compat**: v1.0 manifests work unchanged — paths without scope prefix are normalized by prepending `.claude/` during load
 
 ## Overview
 
