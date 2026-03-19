@@ -1,10 +1,10 @@
 # Harness Sync Guide
 
-Keep your project's `.claude/` harness directory synchronized with the
+Keep your project's harness directories synchronized with the
 upstream [SAFe Agentic Workflow](https://github.com/ByBren-LLC/safe-agentic-workflow)
 repository using the manifest-based sync system.
 
-**Version**: 2.7.0 | **Scope**: `.claude/` directory only
+**Version**: 2.10.0 | **Scope**: Multi-domain (v2.10.0)
 
 ---
 
@@ -26,8 +26,8 @@ chmod +x scripts/sync-claude-harness.sh
 ./scripts/sync-claude-harness.sh init
 ```
 
-This creates `.claude/.harness-sync.json` (tracks upstream version and sync
-history) and `.claude/.sync-exclude` (legacy exclusion patterns).
+This creates `.harness-sync.json` at the repo root (tracks upstream version
+and sync history) and `.claude/.sync-exclude` (legacy exclusion patterns).
 
 ### 3. Create your manifest
 
@@ -76,8 +76,8 @@ Done. Your harness is updated and your project identity is preserved.
 When you run `sync`, the script performs these steps in order:
 
 1. **Load manifest** -- Reads `.harness-manifest.yml` and validates it
-   against the JSON schema. If no manifest exists, falls back to legacy
-   `.sync-exclude` behavior.
+   against the JSON schema. If no manifest exists, sync fails with an
+   error (except `--dry-run`, which is allowed for inspection).
 2. **Fetch upstream** -- Downloads the upstream `.claude/` directory as a
    tarball from the specified version or branch.
 3. **Apply substitutions** -- Replaces `{{PLACEHOLDER}}` tokens in upstream
@@ -112,22 +112,24 @@ Upstream repo                    Your fork
 
 ## Scope Contract
 
-**v2.7.0 sync operates exclusively on `.claude/`.**
+**v2.10.0 sync operates on any domain listed in `sync_scope`.**
 
-The sync script will never create, modify, or delete files outside of the
-`.claude/` directory. All paths in the manifest (`renames`, `protected`,
-`replaced`) are relative to `.claude/`. The preflight safety check enforces
-this boundary -- any file targeting a path outside `.claude/` causes the
-sync to abort.
+The sync script syncs only the directories declared in your manifest's
+`sync_scope` array (default: `[".claude/"]`). All paths in the manifest
+(`renames`, `protected`, `replaced`) are repo-root-relative. The preflight
+safety check enforces that all target paths fall within a declared scope
+domain -- any file targeting a path outside the allowed domains causes
+the sync to abort. Use `--scope` to override the manifest scope for a
+single run (e.g., `--scope .claude/ .gemini/`).
 
 Files that are always excluded from sync (hardcoded):
 
-- `.harness-sync.json` (sync metadata)
-- `.harness-manifest.yml` (manifest itself, via `.sync-exclude` metadata)
-- `.sync-exclude` (exclusion patterns)
+- `.harness-sync.json` (sync metadata, repo root)
+- `.harness-manifest.yml` (manifest itself, repo root)
+- `.sync-exclude` (legacy exclusion patterns)
 - `.sync-exclude.default`
-- `.harness-backup/*` (backup directory)
-- `.harness-patches/*` (generated patches)
+- `.harness-backup/` (backup directory, repo root)
+- `.harness-patches/` (generated patches, repo root)
 
 ---
 
@@ -295,8 +297,8 @@ All commands are run from your project root.
 ./scripts/sync-claude-harness.sh init
 ```
 
-Creates `.claude/.harness-sync.json` and `.claude/.sync-exclude`. Run this
-once after installing the sync script.
+Creates `.harness-sync.json` (repo root) and `.claude/.sync-exclude`. Run
+this once after installing the sync script.
 
 ### `status` -- Show sync status
 
@@ -355,6 +357,7 @@ Renames are shown as `local-path (upstream: original-path)`.
 | `--version <tag>` | Sync to a specific release tag (e.g., `v2.7.0`) |
 | `--latest` | Sync to the most recent tagged release |
 | `--dry-run` | Preview changes without modifying any files |
+| `--scope <dirs...>` | Override manifest `sync_scope` for this run (e.g., `--scope .claude/ .gemini/`) |
 | `--no-placeholders` | Skip placeholder substitution (sync raw upstream files) |
 | `--skip-preflight` | Bypass preflight safety checks (advanced users only) |
 | `--generate-patches` | Generate `.patch` files instead of overwriting (see below) |
@@ -371,7 +374,7 @@ Renames are shown as `local-path (upstream: original-path)`.
 ./scripts/sync-claude-harness.sh conflicts
 ```
 
-Lists any `.upstream` or `.conflict` files remaining in `.claude/`.
+Lists any `.upstream` or `.conflict` files remaining in synced domains.
 
 ### `rollback` -- Restore from backup
 
@@ -380,8 +383,8 @@ Lists any `.upstream` or `.conflict` files remaining in `.claude/`.
 ```
 
 Restores from the most recent timestamped backup at
-`.claude/.harness-backup/<timestamp>/`. The three most recent backups are
-retained; older ones are pruned automatically.
+`.harness-backup/<domain>/<timestamp>/`. The three most recent backups per
+domain are retained; older ones are pruned automatically.
 
 ---
 
@@ -470,8 +473,9 @@ is emitted (possible typo).
 
 Before every sync, an automatic preflight check validates three conditions:
 
-**(a) Scope check** -- All target files are within `.claude/`. Any path
-containing `../` or targeting outside `.claude/` causes an abort.
+**(a) Scope check** -- All target files are within a declared `sync_scope`
+domain. Any path containing `../` or targeting outside the allowed domains
+causes an abort.
 
 **(b) Token check** -- After substitution, no manifest keys remain as
 unreplaced `{{KEY}}` tokens. Each violation is reported with file and line
@@ -498,7 +502,7 @@ To bypass preflight (not recommended for normal use):
 
 ### Provenance Tracking
 
-After each sync, `.harness-sync.json` records full provenance:
+After each sync, `.harness-sync.json` (at repo root) records full provenance:
 
 ```json
 {
@@ -534,7 +538,7 @@ manual review and selective application:
 ./scripts/sync-claude-harness.sh sync --generate-patches --version v2.7.0
 ```
 
-Patches are written to `.claude/.harness-patches/v2.7.0/` with an
+Patches are written to `.harness-patches/v2.7.0/` with an
 `APPLY_ORDER.md` summary that groups patches by category (`NEW`,
 `UPDATED`) and lists `git apply` commands in recommended order.
 
@@ -551,13 +555,13 @@ Apply patches selectively:
 
 ```bash
 # Dry-run check (recommended first)
-git apply --check .claude/.harness-patches/v2.7.0/0001-agents-ui-engineer.patch
+git apply --check .harness-patches/v2.7.0/0001-agents-ui-engineer.patch
 
 # Apply a single patch
-git apply .claude/.harness-patches/v2.7.0/0001-agents-ui-engineer.patch
+git apply .harness-patches/v2.7.0/0001-agents-ui-engineer.patch
 
 # Apply all patches in order
-for patch in .claude/.harness-patches/v2.7.0/*.patch; do
+for patch in .harness-patches/v2.7.0/*.patch; do
   git apply "$patch"
 done
 ```
@@ -702,10 +706,10 @@ Common issues:
 
 ### Do I need a manifest to use the sync script?
 
-No. Without a manifest, the script uses legacy behavior: file-level copy
-with `.sync-exclude` pattern matching and no automatic substitution. The
-manifest enables smart sync features (renames, substitution, protected
-files, preflight checks, patch generation).
+Yes. As of v2.10.0, a manifest is required. Without one, sync fails with
+an error (except `--dry-run`, which is allowed for inspection). Run
+`./scripts/sync-claude-harness.sh manifest init` to auto-generate one
+from your project state.
 
 ### What happens if upstream restructures files I have renamed?
 
@@ -740,14 +744,17 @@ to accept.
 
 ### Where are backups stored?
 
-At `.claude/.harness-backup/<timestamp>/`. The three most recent backups
-are kept; older ones are pruned automatically after each sync.
+At `.harness-backup/<domain>/<timestamp>/` (repo root). The three most
+recent backups per domain are kept; older ones are pruned automatically
+after each sync.
 
 ### Can the sync script modify files outside `.claude/`?
 
-No. The v2.7.0 scope contract limits all operations to `.claude/`. The
-preflight check enforces this -- any path traversal attempt (e.g., `../`)
-aborts the sync immediately.
+Yes, as of v2.10.0. The sync script operates on any domain listed in your
+manifest's `sync_scope` (e.g., `.claude/`, `.gemini/`, `.codex/`). The
+preflight check enforces that all paths fall within declared scope domains
+-- any path traversal attempt (e.g., `../`) or write to an undeclared
+domain aborts the sync immediately.
 
 ### How do I validate my manifest before syncing?
 
@@ -806,12 +813,12 @@ Validate manifest on every PR:
 | File | Location | Purpose |
 | --- | --- | --- |
 | Sync script | `scripts/sync-claude-harness.sh` | The sync tool itself |
-| Manifest | `.harness-manifest.yml` | Fork customization declaration |
+| Manifest | `.harness-manifest.yml` | Fork customization declaration (repo root) |
 | JSON Schema | `.harness-manifest.schema.json` | Manifest validation schema |
-| Sync metadata | `.claude/.harness-sync.json` | Provenance and sync history |
+| Sync metadata | `.harness-sync.json` | Provenance and sync history (repo root) |
 | Legacy exclusions | `.claude/.sync-exclude` | Pre-manifest exclusion patterns |
-| Backups | `.claude/.harness-backup/` | Timestamped pre-sync backups |
-| Patches | `.claude/.harness-patches/<version>/` | Generated patch files |
+| Backups | `.harness-backup/<domain>/` | Timestamped pre-sync backups (repo root) |
+| Patches | `.harness-patches/<version>/` | Generated patch files (repo root) |
 | Schema docs | `docs/HARNESS_MANIFEST_SCHEMA.md` | Full schema reference |
 | Example (minimal) | `examples/manifests/rendertrust.harness-manifest.yml` | No renames, REN prefix |
 | Example (advanced) | `examples/manifests/keryk-ai.harness-manifest.yml` | Renames, replaced files |

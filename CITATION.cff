@@ -4,11 +4,11 @@ authors:
   - family-names: "Graham"
     given-names: "J. Scott"
     alias: "cheddarfox"
-    email: "scott@wordstofilmby.com"
-  - name: "WTFB Development Team"
-title: "Claude Code Harness for Multi-Agent Team Workflows"
-version: 2.9.0
-date-released: 2026-03-18
+    email: "scott@cheddarfox.com"
+  - name: "ByBren, LLC"
+title: "SAW — SAFe Agentic Workflow"
+version: 2.10.0
+date-released: 2026-03-19
 url: "https://github.com/bybren-llc/safe-agentic-workflow"
 keywords:
   - multi-agent
