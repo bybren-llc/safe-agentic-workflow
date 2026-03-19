@@ -49,7 +49,12 @@ HAS_MANIFEST=false
 # Upstream configuration (defaults, can be overridden via config)
 UPSTREAM_REPO="{{GITHUB_ORG}}/{{PROJECT_REPO}}"
 UPSTREAM_BRANCH="main"
-UPSTREAM_PATH=".claude"
+UPSTREAM_PATH=".claude"  # Legacy default; overridden by SYNC_SCOPE when manifest has sync_scope
+
+# Multi-domain sync scope (v1.1+)
+# Allowed domains — hardcoded allowlist for v2.10.0
+ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+SYNC_SCOPE=()  # Populated by get_sync_scope() after manifest load
 
 # Colors
 GREEN='\033[0;32m'
@@ -109,6 +114,65 @@ migrate_metadata_to_root() {
     if [ "$migrated" = true ]; then
         echo -e "${BLUE}[MIGRATE]${NC} Legacy files preserved at .claude/ — safe to remove after verifying new locations."
     fi
+}
+
+# Read sync_scope from manifest. Falls back to [".claude"] if absent.
+# Must be called AFTER load_manifest.
+get_sync_scope() {
+    SYNC_SCOPE=()
+    if [ "$HAS_MANIFEST" = "true" ]; then
+        local scope_count
+        scope_count=$(manifest_get "sync.sync_scope" "" | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    if isinstance(data, list):
+        print(len(data))
+    else:
+        print(0)
+except:
+    print(0)
+" 2>/dev/null)
+        if [ "${scope_count:-0}" -gt 0 ]; then
+            while IFS= read -r domain; do
+                # Strip trailing / and quotes
+                domain=$(echo "$domain" | tr -d '"' | sed 's|/$||')
+                # Validate against allowed domains
+                local valid=false
+                for allowed in "${ALLOWED_DOMAINS[@]}"; do
+                    if [ "$domain" = "$allowed" ]; then
+                        valid=true
+                        break
+                    fi
+                done
+                if [ "$valid" = true ]; then
+                    SYNC_SCOPE+=("$domain")
+                else
+                    echo -e "${YELLOW}[WARN]${NC} Ignoring unknown sync domain: $domain"
+                fi
+            done < <(manifest_get "sync.sync_scope" "" | python3 -c "
+import json, sys
+try:
+    data = json.load(sys.stdin)
+    if isinstance(data, list):
+        for item in data:
+            print(item)
+except:
+    pass
+" 2>/dev/null)
+        fi
+    fi
+    # Default to .claude if no scope found
+    if [ ${#SYNC_SCOPE[@]} -eq 0 ]; then
+        SYNC_SCOPE=(".claude")
+    fi
+}
+
+# Enumerate upstream files for a given domain in the temp directory.
+# Usage: enumerate_upstream_files ".claude" | while read -r file; do ...
+enumerate_upstream_files() {
+    local domain="$1"
+    find "$TMP_DIR/$domain" -type f -print0 2>/dev/null
 }
 
 # Check for required dependencies
@@ -1813,6 +1877,7 @@ do_sync() {
     local no_placeholders=false
     local skip_preflight=false
     local generate_patches=false
+    local scope_override=""
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -1841,11 +1906,56 @@ do_sync() {
                 generate_patches=true
                 shift
                 ;;
+            --scope)
+                scope_override="$2"
+                shift 2
+                ;;
             *)
                 shift
                 ;;
         esac
     done
+
+    # Require manifest for non-legacy sync (SA decision: no manifest = fail)
+    if [ "$HAS_MANIFEST" != "true" ]; then
+        if [ "$dry_run" = true ]; then
+            print_warning "No manifest found. Dry-run preview uses legacy .claude/-only scope."
+        else
+            print_error "No manifest found. Run './scripts/sync-claude-harness.sh manifest init' first."
+            print_error "Sync requires a manifest for substitution, protection, and domain selection."
+            return 1
+        fi
+    fi
+
+    # Determine sync scope
+    get_sync_scope
+    if [ -n "$scope_override" ]; then
+        # --scope overrides manifest for this command only (does NOT rewrite manifest)
+        SYNC_SCOPE=()
+        IFS=',' read -ra scope_parts <<< "$scope_override"
+        for part in "${scope_parts[@]}"; do
+            part=$(echo "$part" | sed 's|/$||' | xargs)  # strip trailing / and whitespace
+            local valid=false
+            for allowed in "${ALLOWED_DOMAINS[@]}"; do
+                if [ "$part" = "$allowed" ]; then
+                    valid=true
+                    break
+                fi
+            done
+            if [ "$valid" = true ]; then
+                SYNC_SCOPE+=("$part")
+            else
+                print_warning "Ignoring unknown scope: $part"
+            fi
+        done
+        if [ ${#SYNC_SCOPE[@]} -eq 0 ]; then
+            print_error "No valid domains in --scope. Allowed: ${ALLOWED_DOMAINS[*]}"
+            return 1
+        fi
+        print_info "Scope override: ${SYNC_SCOPE[*]}"
+    fi
+
+    echo -e "${CYAN}Sync domains: ${SYNC_SCOPE[*]}${NC}"
 
     # Determine ref to sync
     local ref="$UPSTREAM_BRANCH"
@@ -1877,20 +1987,41 @@ do_sync() {
     # Validate protected patterns against local files (warn on typos)
     validate_protected_paths
 
+    # --- Multi-domain sync loop (SAW-35) ---
+    # Process each domain in SYNC_SCOPE sequentially
+    local sha
+    sha=$(get_upstream_sha "$ref")
+
+    for CURRENT_DOMAIN in "${SYNC_SCOPE[@]}"; do
+        local DOMAIN_DIR="$PROJECT_ROOT/$CURRENT_DOMAIN"
+        local DOMAIN_TMP="$TMP_DIR/$CURRENT_DOMAIN"
+
+        # Skip domains not present in upstream
+        if [ ! -d "$DOMAIN_TMP" ]; then
+            print_warning "Domain '$CURRENT_DOMAIN' not found in upstream — skipping"
+            continue
+        fi
+
+        # Skip domains not present locally (no auto-creation in v2.10.0)
+        if [ ! -d "$DOMAIN_DIR" ]; then
+            print_warning "Domain '$CURRENT_DOMAIN' not found locally — skipping (create manually to include)"
+            continue
+        fi
+
+        echo -e "\n${CYAN}━━━ Syncing domain: $CURRENT_DOMAIN ━━━${NC}"
+
     # Apply substitutions to upstream copies in TMP_DIR BEFORE preflight
     # so the token scanner checks post-substitution state (SAW-2)
     if [ "$no_placeholders" = false ] && [ "$HAS_MANIFEST" = "true" ]; then
-        apply_all_substitutions "$TMP_DIR/.claude"
+        apply_all_substitutions "$DOMAIN_TMP"
     fi
 
     # --- Build sync plan (SAW-2) ---
     # Enumerate what WOULD be written, for preflight validation
     local sync_plan=""
-    local sha
-    sha=$(get_upstream_sha "$ref")
 
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$TMP_DIR/.claude/}"
+        local rel_path="${file#$TMP_DIR/$CURRENT_DOMAIN/}"
 
         if is_excluded "$rel_path"; then
             continue
@@ -1913,7 +2044,7 @@ do_sync() {
                 sync_plan="${sync_plan}${status}|${rel_path}|${local_path}\n"
                 ;;
         esac
-    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+    done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
 
     # --- Run preflight (SAW-2) ---
     if [ "$skip_preflight" = true ]; then
@@ -1921,8 +2052,8 @@ do_sync() {
     else
         local plan_text
         plan_text=$(echo -e "$sync_plan")
-        if ! run_preflight "$plan_text" "$CLAUDE_DIR" "$no_placeholders"; then
-            return 1
+        if ! run_preflight "$plan_text" "$DOMAIN_DIR" "$no_placeholders"; then
+            continue  # Skip this domain, try next
         fi
     fi
 
@@ -1950,7 +2081,7 @@ do_sync() {
         local patch_count=0 skipped=0 protected_count=0 new_patches=0 updated_patches=0
 
         while IFS= read -r -d '' file; do
-            local rel_path="${file#$TMP_DIR/.claude/}"
+            local rel_path="${file#$DOMAIN_TMP/}"
 
             if is_excluded "$rel_path"; then
                 if is_manifest_protected "$rel_path"; then
@@ -1981,7 +2112,7 @@ do_sync() {
             case "$status" in
                 new|modified)
                     local patch_file
-                    patch_file=$(generate_patch "$rel_path" "$local_path" "$status" "$patches_version_dir" "$CLAUDE_DIR")
+                    patch_file=$(generate_patch "$rel_path" "$local_path" "$status" "$patches_version_dir" "$DOMAIN_DIR")
                     if [ -n "$patch_file" ]; then
                         local patch_basename
                         patch_basename=$(basename "$patch_file")
@@ -2005,7 +2136,7 @@ do_sync() {
                     # No patch needed
                     ;;
             esac
-        done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+        done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
 
         # Generate APPLY_ORDER.md
         if [ "$patch_count" -gt 0 ]; then
@@ -2039,7 +2170,7 @@ do_sync() {
 
     # Process upstream files
     while IFS= read -r -d '' file; do
-        local rel_path="${file#$TMP_DIR/.claude/}"
+        local rel_path="${file#$DOMAIN_TMP/}"
 
         if is_excluded "$rel_path"; then
             # Distinguish protected (manifest) from excluded (.sync-exclude / hardcoded)
@@ -2056,7 +2187,7 @@ do_sync() {
         # Resolve rename: map upstream path to local path
         local local_path
         local_path=$(resolve_rename "$rel_path")
-        local local_file="$CLAUDE_DIR/$local_path"
+        local local_file="$DOMAIN_DIR/$local_path"
 
         # Also check exclusion for the resolved local path
         if [ "$local_path" != "$rel_path" ] && is_excluded "$local_path"; then
@@ -2101,10 +2232,10 @@ do_sync() {
                 # No action needed
                 ;;
         esac
-    done < <(find "$TMP_DIR/.claude" -type f -print0 2>/dev/null)
+    done < <(find "$DOMAIN_TMP" -type f -print0 2>/dev/null)
 
     # Note: Substitutions were already applied to TMP_DIR copies before preflight.
-    # The substituted files are what get copied to CLAUDE_DIR above.
+    # The substituted files are what get copied to the domain directory above.
     if [ "$no_placeholders" = true ]; then
         print_info "Skipping placeholder substitutions (--no-placeholders)"
     fi
@@ -2115,11 +2246,13 @@ do_sync() {
     fi
 
     echo ""
-    local sync_summary="Summary: $updated updated ($new_files new), $skipped skipped, $conflicts conflicts"
+    local sync_summary="[$CURRENT_DOMAIN] Summary: $updated updated ($new_files new), $skipped skipped, $conflicts conflicts"
     if [ "$protected_count" -gt 0 ]; then
         sync_summary="$sync_summary, $protected_count protected"
     fi
     print_info "$sync_summary"
+
+    done  # End of SYNC_SCOPE domain loop
 
     if [ "$dry_run" = true ]; then
         print_info "Run without --dry-run to apply changes"

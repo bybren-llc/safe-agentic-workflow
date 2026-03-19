@@ -106,12 +106,12 @@ assert_contains "$output" "MANIFEST" "help mentions manifest section"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 2: Valid manifest detection and parsing ===${NC}\n"
-# AC: Script detects .claude/.harness-manifest.yml presence
+# AC: Script detects .harness-manifest.yml presence
 # AC: Parses YAML via python3 (already a project dependency)
 # =============================================================================
 PROJ=$(setup_project "valid-manifest")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -152,7 +152,7 @@ PROJ=$(setup_project "invalid-manifest")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
 # Missing manifest_version
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 identity:
   PROJECT_NAME: "TestProject"
   PROJECT_REPO: "test-project"
@@ -172,7 +172,7 @@ echo -e "\n${CYAN}=== Test 4: Manifest validation - invalid version format ===${
 PROJ=$(setup_project "bad-version")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "abc"
 identity:
   PROJECT_NAME: "TestProject"
@@ -192,7 +192,7 @@ echo -e "\n${CYAN}=== Test 5: Manifest validation - missing identity fields ===$
 PROJ=$(setup_project "missing-identity")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -208,7 +208,7 @@ echo -e "\n${CYAN}=== Test 6: Manifest validation - missing identity entirely ==
 PROJ=$(setup_project "no-identity")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 YAML
 
@@ -222,7 +222,7 @@ echo -e "\n${CYAN}=== Test 7: Summary report format ===${NC}\n"
 PROJ=$(setup_project "summary-report")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -253,7 +253,7 @@ echo -e "\n${CYAN}=== Test 8: Empty manifest sections (zero counts) ===${NC}\n"
 PROJ=$(setup_project "empty-sections")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "MinimalProject"
@@ -294,7 +294,7 @@ echo -e "\n${CYAN}=== Test 10: Manifest info in status output ===${NC}\n"
 PROJ=$(setup_project "status-manifest")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "StatusTest"
@@ -340,7 +340,7 @@ echo -e "\n${CYAN}=== Test 12: Invalid YAML fallback ===${NC}\n"
 PROJ=$(setup_project "bad-yaml")
 "$PROJ/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0
   bad: [yaml: {
 YAML

@@ -199,11 +199,11 @@ assert_contains "$output" "rendertrust" "output contains PROJECT_REPO from team-
 assert_contains "$output" "ByBren-LLC" "output contains GITHUB_ORG from team-config"
 assert_contains "$output" 'TICKET_PREFIX: "REN"' "output contains TICKET_PREFIX from team-config"
 assert_contains "$output" 'MAIN_BRANCH: "dev"' "output contains MAIN_BRANCH from team-config"
-assert_file_not_exists "$PROJ/.claude/.harness-manifest.yml" "manifest NOT written in dry-run mode"
+assert_file_not_exists "$PROJ/.harness-manifest.yml" "manifest NOT written in dry-run mode"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 2: manifest init --yes writes file ===${NC}\n"
-# AC: sync manifest init generates .claude/.harness-manifest.yml
+# AC: sync manifest init generates .harness-manifest.yml
 # AC: --yes skips confirmation prompts
 # =============================================================================
 PROJ=$(setup_project "write-yes")
@@ -212,11 +212,11 @@ create_team_config_replaced "$PROJ"
 output=$("$PROJ/scripts/sync-claude-harness.sh" manifest init --yes 2>&1)
 ec=$?
 assert_exit_code "$ec" 0 "manifest init --yes exits 0"
-assert_file_exists "$PROJ/.claude/.harness-manifest.yml" "manifest file created"
+assert_file_exists "$PROJ/.harness-manifest.yml" "manifest file created"
 assert_contains "$output" "Manifest written" "success message present"
 
 # Verify the content is valid YAML
-content=$(cat "$PROJ/.claude/.harness-manifest.yml")
+content=$(cat "$PROJ/.harness-manifest.yml")
 assert_contains "$content" 'manifest_version: "1.0"' "written file has manifest_version"
 assert_contains "$content" 'PROJECT_NAME: "RenderTrust"' "written file has PROJECT_NAME"
 
@@ -295,7 +295,7 @@ PROJ=$(setup_project "overwrite")
 create_team_config_replaced "$PROJ"
 
 # Create an existing manifest
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "ExistingProject"
@@ -312,7 +312,7 @@ assert_contains "$output" "already exists" "warns about existing manifest"
 assert_contains "$output" "Manifest written" "overwrites with --yes"
 
 # The content should now be the new generated one, not the old one
-content=$(cat "$PROJ/.claude/.harness-manifest.yml")
+content=$(cat "$PROJ/.harness-manifest.yml")
 assert_contains "$content" "RenderTrust" "overwritten with new values"
 assert_not_contains "$content" "ExistingProject" "old values replaced"
 

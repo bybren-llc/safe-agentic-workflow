@@ -152,13 +152,13 @@ setup_fork_project() {
         cp -r "$fixture_dir/.claude/".* "$proj_dir/.claude/" 2>/dev/null || true
     fi
 
-    # Copy fixture manifest into .claude/.harness-manifest.yml
+    # Copy fixture manifest into .harness-manifest.yml
     if [ -f "$fixture_dir/.harness-manifest.yml" ]; then
-        cp "$fixture_dir/.harness-manifest.yml" "$proj_dir/.claude/.harness-manifest.yml"
+        cp "$fixture_dir/.harness-manifest.yml" "$proj_dir/.harness-manifest.yml"
     fi
 
     # Initialize sync config
-    cat > "$proj_dir/.claude/.harness-sync.json" <<EOF
+    cat > "$proj_dir/.harness-sync.json" <<EOF
 {
   "upstream_repo": "ByBren-LLC/safe-agentic-workflow",
   "upstream_branch": "main",
@@ -677,7 +677,7 @@ UPSTREAM=$(setup_mock_upstream "$PROJ")
 STUBBED=$(create_stubbed_script "$PROJ" "$PROJ/_mock_upstream")
 
 # Write an invalid manifest (missing required fields)
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'EOF'
+cat > "$PROJ/.harness-manifest.yml" <<'EOF'
 manifest_version: "1.0"
 # Missing required identity section entirely
 renames: {}
@@ -695,7 +695,7 @@ PROJ=$(setup_fork_project "rendertrust" "bad-version")
 UPSTREAM=$(setup_mock_upstream "$PROJ")
 STUBBED=$(create_stubbed_script "$PROJ" "$PROJ/_mock_upstream")
 
-cat > "$PROJ/.claude/.harness-manifest.yml" <<'EOF'
+cat > "$PROJ/.harness-manifest.yml" <<'EOF'
 manifest_version: "abc"
 identity:
   PROJECT_NAME: "Test"

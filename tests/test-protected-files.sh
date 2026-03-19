@@ -184,7 +184,7 @@ create_mocked_script() {
 # Create a valid manifest with protected entries
 create_manifest_with_protected() {
     local proj_dir="$1"
-    cat > "$proj_dir/.claude/.harness-manifest.yml" <<'YAML'
+    cat > "$proj_dir/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -214,7 +214,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -241,7 +241,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -266,7 +266,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -300,7 +300,7 @@ output=$(
     source "$SOURCEABLE2"
     PROJECT_ROOT="$PROJ2"
     CLAUDE_DIR="$PROJ2/.claude"
-    MANIFEST_FILE="$PROJ2/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ2/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ2/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -337,7 +337,7 @@ output=$(
     source "$SOURCEABLE3"
     PROJECT_ROOT="$PROJ3"
     CLAUDE_DIR="$PROJ3/.claude"
-    MANIFEST_FILE="$PROJ3/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ3/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ3/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -368,7 +368,7 @@ output=$(
     source "$SOURCEABLE3"
     PROJECT_ROOT="$PROJ3"
     CLAUDE_DIR="$PROJ3/.claude"
-    MANIFEST_FILE="$PROJ3/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ3/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ3/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -469,7 +469,7 @@ echo -e "\n${CYAN}=== Test 11: Warning for non-existent protected path ===${NC}\
 PROJ6=$(setup_project "warn-nonexistent")
 "$PROJ6/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ6/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ6/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -529,7 +529,7 @@ output=$(
     source "$SOURCEABLE3"
     PROJECT_ROOT="$PROJ3"
     CLAUDE_DIR="$PROJ3/.claude"
-    MANIFEST_FILE="$PROJ3/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ3/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ3/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -556,7 +556,7 @@ echo -e "\n${CYAN}=== Test 14: Glob pattern ** (recursive) ===${NC}\n"
 PROJ8=$(setup_project "glob-recursive")
 "$PROJ8/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ8/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ8/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -576,7 +576,7 @@ output=$(
     source "$SOURCEABLE8"
     PROJECT_ROOT="$PROJ8"
     CLAUDE_DIR="$PROJ8/.claude"
-    MANIFEST_FILE="$PROJ8/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ8/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ8/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -605,7 +605,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -667,7 +667,7 @@ echo -e "\n${CYAN}=== Test 19: Empty protected section -- no interference ===${N
 PROJ10=$(setup_project "empty-protected")
 "$PROJ10/scripts/sync-claude-harness.sh" init >/dev/null 2>&1
 
-cat > "$PROJ10/.claude/.harness-manifest.yml" <<'YAML'
+cat > "$PROJ10/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"

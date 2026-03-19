@@ -245,7 +245,7 @@ create_mocked_script() {
 # Create a valid manifest with substitutions and protected entries
 create_manifest_with_subs() {
     local proj_dir="$1"
-    cat > "$proj_dir/.claude/.harness-manifest.yml" <<'YAML'
+    cat > "$proj_dir/.harness-manifest.yml" <<'YAML'
 manifest_version: "1.0"
 identity:
   PROJECT_NAME: "TestProject"
@@ -285,7 +285,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -317,7 +317,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -353,7 +353,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
     TMP_DIR=$(mktemp -d)
@@ -377,7 +377,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -408,7 +408,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -437,7 +437,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -467,7 +467,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -578,7 +578,7 @@ MOCKED5=$(create_mocked_script "$PROJ5" "$MOCK_DIR5")
 # Run sync
 output=$(bash "$MOCKED5" sync 2>&1) || true
 
-SYNC_JSON="$PROJ5/.claude/.harness-sync.json"
+SYNC_JSON="$PROJ5/.harness-sync.json"
 assert_file_exists "$SYNC_JSON" ".harness-sync.json exists after sync"
 
 # Check provenance fields
@@ -646,7 +646,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -671,7 +671,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
@@ -710,7 +710,7 @@ output=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$PROJ"
     CLAUDE_DIR="$PROJ/.claude"
-    MANIFEST_FILE="$PROJ/.claude/.harness-manifest.yml"
+    MANIFEST_FILE="$PROJ/.harness-manifest.yml"
     EXCLUDE_FILE="$PROJ/.claude/.sync-exclude"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
