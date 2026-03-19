@@ -2,9 +2,14 @@
 # =============================================================================
 # Multi-Domain Sync Tests (SAW-37)
 # =============================================================================
-# Tests multi-domain sync behavior: sync_scope reading, v1.1 root-relative
-# paths, multi-domain diff, protected paths across domains, --scope override,
-# manifest-required enforcement, and metadata migration.
+# Tests multi-domain sync behavior including:
+# - sync_scope reading from v1.0 and v1.1 manifests
+# - v1.1 root-relative protected-path enforcement across domains
+# - v1.1 root-relative rename resolution (file + directory)
+# - compare_file_with_paths domain context (DOMAIN_TMP/DOMAIN_DIR)
+# - Shared SYNC_TIMESTAMP across domain backups
+# - validate_protected_paths scanning multiple domains
+# - Manifest-required enforcement and metadata migration
 # =============================================================================
 
 set -euo pipefail
@@ -241,6 +246,210 @@ assert_contains "$result" ".codex" "allowed: .codex"
 assert_contains "$result" ".cursor" "allowed: .cursor"
 assert_contains "$result" ".agents" "allowed: .agents"
 assert_contains "$result" "dark-factory" "allowed: dark-factory"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 8: v1.1 protected-path enforcement outside .claude ===${NC}\n"
+# =============================================================================
+# Create a project with .gemini/ and a v1.1 manifest protecting .gemini/settings.json
+TMPDIR_T8=$(mktemp -d)
+mkdir -p "$TMPDIR_T8/.claude/agents" "$TMPDIR_T8/.gemini"
+echo '{"ticketPrefix":"TST"}' > "$TMPDIR_T8/.claude/team-config.json"
+echo "gemini settings" > "$TMPDIR_T8/.gemini/settings.json"
+
+cat > "$TMPDIR_T8/.harness-manifest.yml" <<'YAML'
+manifest_version: "1.1"
+identity:
+  PROJECT_NAME: "Test"
+  PROJECT_REPO: "test"
+  PROJECT_SHORT: "TST"
+  GITHUB_ORG: "test-org"
+  TICKET_PREFIX: "TST"
+  MAIN_BRANCH: "main"
+protected:
+  - ".gemini/settings.json"
+  - ".claude/hooks-config.json"
+sync:
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+YAML
+
+result=$(
+    source "$SOURCEABLE"
+    PROJECT_ROOT="$TMPDIR_T8"
+    CLAUDE_DIR="$TMPDIR_T8/.claude"
+    MANIFEST_FILE="$TMPDIR_T8/.harness-manifest.yml"
+    MANIFEST_JSON=""
+    HAS_MANIFEST=false
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    load_manifest
+    # Test: is .gemini/settings.json protected?
+    if is_excluded ".gemini/settings.json" 2>/dev/null; then
+        echo "PROTECTED:gemini-settings"
+    else
+        echo "NOT_PROTECTED:gemini-settings"
+    fi
+    # Test: is .claude/hooks-config.json protected?
+    if is_excluded ".claude/hooks-config.json" 2>/dev/null; then
+        echo "PROTECTED:claude-hooks"
+    else
+        echo "NOT_PROTECTED:claude-hooks"
+    fi
+    # Test: is .gemini/commands/test.toml NOT protected?
+    if is_excluded ".gemini/commands/test.toml" 2>/dev/null; then
+        echo "PROTECTED:gemini-commands"
+    else
+        echo "NOT_PROTECTED:gemini-commands"
+    fi
+)
+
+assert_contains "$result" "PROTECTED:gemini-settings" "v1.1 protects .gemini/settings.json"
+assert_contains "$result" "PROTECTED:claude-hooks" "v1.1 protects .claude/hooks-config.json"
+assert_contains "$result" "NOT_PROTECTED:gemini-commands" "unprotected .gemini file not blocked"
+rm -rf "$TMPDIR_T8"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 9: v1.1 root-relative rename resolution ===${NC}\n"
+# =============================================================================
+TMPDIR_T9=$(mktemp -d)
+mkdir -p "$TMPDIR_T9/.claude/agents" "$TMPDIR_T9/.gemini/skills"
+
+cat > "$TMPDIR_T9/.harness-manifest.yml" <<'YAML'
+manifest_version: "1.1"
+identity:
+  PROJECT_NAME: "Test"
+  PROJECT_REPO: "test"
+  PROJECT_SHORT: "TST"
+  GITHUB_ORG: "test-org"
+  TICKET_PREFIX: "TST"
+  MAIN_BRANCH: "main"
+renames:
+  ".claude/agents/fe-developer.md": ".claude/agents/ui-engineer.md"
+  ".gemini/skills/stripe-patterns/": ".gemini/skills/payment-patterns/"
+YAML
+
+result=$(
+    source "$SOURCEABLE"
+    PROJECT_ROOT="$TMPDIR_T9"
+    CLAUDE_DIR="$TMPDIR_T9/.claude"
+    MANIFEST_FILE="$TMPDIR_T9/.harness-manifest.yml"
+    MANIFEST_JSON=""
+    HAS_MANIFEST=false
+    load_manifest
+    # Test file rename
+    resolved=$(resolve_rename ".claude/agents/fe-developer.md")
+    echo "RENAME:$resolved"
+    # Test directory rename
+    resolved2=$(resolve_rename ".gemini/skills/stripe-patterns/webhook.md")
+    echo "DIR_RENAME:$resolved2"
+    # Test non-renamed file
+    resolved3=$(resolve_rename ".gemini/commands/test.toml")
+    echo "NO_RENAME:$resolved3"
+)
+
+assert_contains "$result" "RENAME:.claude/agents/ui-engineer.md" "v1.1 renames .claude file correctly"
+assert_contains "$result" "DIR_RENAME:.gemini/skills/payment-patterns/webhook.md" "v1.1 renames .gemini dir correctly"
+assert_contains "$result" "NO_RENAME:.gemini/commands/test.toml" "non-renamed file unchanged"
+rm -rf "$TMPDIR_T9"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 10: compare_file_with_paths uses domain context ===${NC}\n"
+# =============================================================================
+TMPDIR_T10=$(mktemp -d)
+mkdir -p "$TMPDIR_T10/.gemini/commands" "$TMPDIR_T10/upstream/.gemini/commands"
+echo "local content" > "$TMPDIR_T10/.gemini/commands/test.toml"
+echo "upstream content" > "$TMPDIR_T10/upstream/.gemini/commands/test.toml"
+echo "same" > "$TMPDIR_T10/.gemini/commands/same.toml"
+echo "same" > "$TMPDIR_T10/upstream/.gemini/commands/same.toml"
+
+result=$(
+    source "$SOURCEABLE"
+    # Set domain context as the sync loop would
+    DOMAIN_TMP="$TMPDIR_T10/upstream/.gemini"
+    DOMAIN_DIR="$TMPDIR_T10/.gemini"
+    status1=$(compare_file_with_paths "commands/test.toml" "commands/test.toml")
+    echo "MODIFIED:$status1"
+    status2=$(compare_file_with_paths "commands/same.toml" "commands/same.toml")
+    echo "UNCHANGED:$status2"
+    # For "new": file exists in upstream but not locally
+    mkdir -p "$DOMAIN_TMP/commands"
+    echo "new content" > "$DOMAIN_TMP/commands/new.toml"
+    status3=$(compare_file_with_paths "commands/new.toml" "commands/new.toml")
+    echo "NEW:$status3"
+)
+
+assert_contains "$result" "MODIFIED:modified" "compare detects modified .gemini file"
+assert_contains "$result" "UNCHANGED:unchanged" "compare detects unchanged .gemini file"
+assert_contains "$result" "NEW:new" "compare detects new .gemini file (exists upstream, not local)"
+rm -rf "$TMPDIR_T10"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 11: SYNC_TIMESTAMP shared across domains ===${NC}\n"
+# =============================================================================
+result=$(
+    source "$SOURCEABLE"
+    SYNC_TIMESTAMP=""
+    # First call sets timestamp
+    DOMAIN_DIR="/tmp/test-domain1"
+    DOMAIN_DIR="/tmp/fake/.claude"
+    mkdir -p "$DOMAIN_DIR"
+    BACKUP_DIR=$(mktemp -d)
+    create_backup 2>/dev/null
+    ts1="$SYNC_TIMESTAMP"
+    # Second call reuses same timestamp
+    DOMAIN_DIR="/tmp/fake/.gemini"
+    mkdir -p "$DOMAIN_DIR"
+    create_backup 2>/dev/null
+    ts2="$SYNC_TIMESTAMP"
+    echo "TS_MATCH:$([ "$ts1" = "$ts2" ] && echo 'yes' || echo 'no')"
+    echo "TS_SET:$([ -n "$ts1" ] && echo 'yes' || echo 'no')"
+    rm -rf "$BACKUP_DIR" /tmp/fake
+)
+
+assert_contains "$result" "TS_MATCH:yes" "both domains share same SYNC_TIMESTAMP"
+assert_contains "$result" "TS_SET:yes" "SYNC_TIMESTAMP is non-empty"
+
+# =============================================================================
+echo -e "\n${CYAN}=== Test 12: validate_protected scans multiple domains ===${NC}\n"
+# =============================================================================
+TMPDIR_T12=$(mktemp -d)
+mkdir -p "$TMPDIR_T12/.claude/agents" "$TMPDIR_T12/.gemini/skills"
+echo "test" > "$TMPDIR_T12/.claude/agents/bsa.md"
+echo "test" > "$TMPDIR_T12/.gemini/skills/safe-workflow.md"
+
+cat > "$TMPDIR_T12/.harness-manifest.yml" <<'YAML'
+manifest_version: "1.1"
+identity:
+  PROJECT_NAME: "Test"
+  PROJECT_REPO: "test"
+  PROJECT_SHORT: "TST"
+  GITHUB_ORG: "test-org"
+  TICKET_PREFIX: "TST"
+  MAIN_BRANCH: "main"
+protected:
+  - ".gemini/skills/nonexistent-pattern-*.md"
+sync:
+  sync_scope:
+    - ".claude/"
+    - ".gemini/"
+YAML
+
+result=$(
+    source "$SOURCEABLE"
+    PROJECT_ROOT="$TMPDIR_T12"
+    CLAUDE_DIR="$TMPDIR_T12/.claude"
+    MANIFEST_FILE="$TMPDIR_T12/.harness-manifest.yml"
+    MANIFEST_JSON=""
+    HAS_MANIFEST=false
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    SYNC_SCOPE=()
+    TMP_DIR=$(mktemp -d)
+    load_manifest
+    validate_protected_paths 2>&1 || true
+)
+
+assert_contains "$result" "does not match" "typo detection for .gemini protected pattern"
+rm -rf "$TMPDIR_T12"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test Results ===${NC}\n"
