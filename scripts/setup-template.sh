@@ -165,7 +165,9 @@ for pair in "${REPLACEMENTS[@]}"; do
   echo "  Replacing '$OLD' → '$NEW'"
 
   # Find all text files, excluding .git and node_modules
-  find "$REPO_ROOT" \
+  while IFS= read -r -d '' file; do
+    _sed_inplace "s|${OLD}|${NEW}|g" "$file"
+  done < <(find "$REPO_ROOT" \
     -type f \
     \( -name "*.md" -o -name "*.json" -o -name "*.yml" -o -name "*.yaml" \
        -o -name "*.sh" -o -name "*.py" -o -name "*.txt" -o -name "*.toml" \
@@ -174,7 +176,7 @@ for pair in "${REPLACEMENTS[@]}"; do
        -o -name ".env.template" -o -name ".gitignore" \) \
     ! -path "*/.git/*" \
     ! -path "*/node_modules/*" \
-    -print0 | xargs -0 _sed_inplace "s|${OLD}|${NEW}|g"
+    -print0)
 done
 
 echo ""
