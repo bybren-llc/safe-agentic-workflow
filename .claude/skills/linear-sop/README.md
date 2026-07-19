@@ -41,6 +41,7 @@ Guides consistent Linear ticket management with evidence templates for the manda
 
 - [orchestration-patterns](../orchestration-patterns/) - Evidence-based delivery
 - [agent-coordination](../agent-coordination/) - Ticket assignment
+- [safe-ai-dlc](../safe-ai-dlc/) - Program structure: initiatives, Units of Work, Bolts
 
 ## Maintenance
 

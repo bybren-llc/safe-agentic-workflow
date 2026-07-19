@@ -40,6 +40,7 @@ Linear ticket management best practices with evidence templates for dev/staging/
 
 - [spec-creation](../spec-creation/) - Spec templates
 - [safe-workflow](../safe-workflow/) - Workflow standards
+- [safe-ai-dlc](../safe-ai-dlc/) - Program structure: initiatives, Units of Work, Bolts
 
 ## Maintenance
 

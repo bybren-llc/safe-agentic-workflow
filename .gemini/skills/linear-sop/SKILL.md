@@ -55,6 +55,63 @@ linear issue update {{TICKET_PREFIX}}-XXX --state "Done"
 linear issue comment {{TICKET_PREFIX}}-XXX "**Dev Evidence**\n\n..."
 ```
 
+## Program Structure
+
+For work that spans many issues, Linear has objects **above** the issue. Use them; do not flatten a
+program into a flat list of tickets.
+
+### The Hierarchy
+
+```text
+Initiative          the program (one per program)
+  └── Project       a Unit of Work — one coherent outcome
+       ├── Milestone    an AI-DLC phase: Inception, Construction, Operations
+       └── Issue        a Story
+            └── Sub-issue   a Mob Elaboration task (created during Inception, not before)
+```
+
+### Prerequisite: labels must already exist
+
+Program build-out assumes these label namespaces are **pre-created in the workspace**. Create them
+before building the program, not during:
+
+- `bolt:0` … `bolt:N` — which Bolt an issue belongs to
+- `agent:*` — the lead role (must match an actual agent role defined for the project)
+
+Labels are workspace-scoped in Linear — do not create team-scoped duplicates.
+
+### Streams
+
+Linear **sub-initiatives require an Enterprise plan**. If your workspace has it, model program
+streams as sub-initiatives under the initiative. If it does not, encode the stream as **project
+priority** instead — highest-risk stream gets Urgent/High, follow-up stream gets Medium.
+
+### Building the Program (Manual Process)
+
+```bash
+# Create the initiative
+# Linear Web UI: Initiatives → New initiative
+
+# Add a project (Unit of Work) to the initiative
+# Linear Web UI: Initiative → Add project
+
+# Add the three AI-DLC phase milestones to each project
+# Linear Web UI: Project → Milestones → New milestone
+
+# Wire dependencies between issues
+# Linear Web UI: Issue → Add relation → "Blocks" / "Blocked by"
+```
+
+Use `relatedTo` ("Related") for soft links that inform but do not block.
+
+**Wire so the enforcement lands before the thing it enforces** — see the `safe-ai-dlc` skill for the
+four dependency-wiring heuristics.
+
+### Re-parenting existing issues
+
+When a program absorbs tickets that already exist, **update them into the project — never recreate
+them**. Duplicates break traceability and split the evidence trail.
+
 ## Evidence Policy (MUST)
 
 Every issue requires evidence at each phase:

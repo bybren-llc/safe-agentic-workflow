@@ -66,6 +66,60 @@ mcp__{{MCP_LINEAR_SERVER}}__create_comment({
 })
 ```
 
+## Program Structure
+
+For work that spans many issues, Linear has objects **above** the issue. Use them; do not flatten a
+program into a flat list of tickets.
+
+### The Hierarchy
+
+```text
+Initiative          the program (one per program)
+  └── Project       a Unit of Work — one coherent outcome
+       ├── Milestone    an AI-DLC phase: Inception, Construction, Operations
+       └── Issue        a Story
+            └── Sub-issue   a Mob Elaboration task (created during Inception, not before)
+```
+
+### Prerequisite: labels must already exist
+
+Program build-out assumes these label namespaces are **pre-created in the workspace**. Create them
+before building the program, not during:
+
+- `bolt:0` … `bolt:N` — which Bolt an issue belongs to
+- `agent:*` — the lead role (must match an actual agent name in `.claude/agents/`)
+
+Labels are workspace-scoped in Linear — do not create team-scoped duplicates.
+
+### Streams
+
+Linear **sub-initiatives require an Enterprise plan**. If your workspace has it, model program
+streams as sub-initiatives under the initiative. If it does not, encode the stream as **project
+priority** instead — highest-risk stream gets Urgent/High, follow-up stream gets Medium. Both are
+valid; pick based on your plan tier.
+
+### Dependency Wiring
+
+Build the dependency DAG with issue relations:
+
+```text
+mcp__{{MCP_LINEAR_SERVER}}__update_issue({
+  id: "{{TICKET_PREFIX}}-XXX",
+  blocks: ["{{TICKET_PREFIX}}-YYY"],       // this issue must land first
+  blockedBy: ["{{TICKET_PREFIX}}-ZZZ"],    // this issue waits on that one
+})
+```
+
+Use `relatedTo` for soft links that inform but do not block.
+
+**Wire so the enforcement lands before the thing it enforces** — see the `safe-ai-dlc` skill for the
+four dependency-wiring heuristics.
+
+### Re-parenting existing issues
+
+When a program absorbs tickets that already exist, **update them into the project — never recreate
+them**. Duplicates break traceability and split the evidence trail.
+
 ## Evidence Policy (MUST)
 
 Every issue requires evidence at each phase:
