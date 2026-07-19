@@ -61,7 +61,7 @@ starting; if a number has moved, use the new one.
 | Skills (`.claude/skills/*/SKILL.md`) | `skill` | 20 | `skills-a`, `skills-b` |
 | Portable skill mirrors (`.agents/skills/*/SKILL.md`) | folded into `skill` | 20 | `skills-a`, `skills-b` |
 | Claude slash commands (`.claude/commands/*.md`, excl. README) | `command` | 24 | `commands-a`, `commands-b` |
-| Gemini media commands (no Claude counterpart) | `command` | 10 | `commands-c` |
+| Gemini media commands (no Claude counterpart) | `command` | 11 | `commands-c` |
 | Cursor rules (`.cursor/rules/*.mdc`), grouped into families | `guide` | 4 | `providers` |
 | Claude hooks (`.claude/hooks/*.sh`) | `script` | 3 | `providers` |
 | Augment rules (`agent_providers/augment/rules/*.md`) | `guide` | 6 | `providers` |
@@ -72,7 +72,7 @@ Notes on folding:
   other providers' formats. One `agent-role` concept per role, carrying all three paths in
   `sources`. Do not write thirty-three role concepts.
 - Same for skills: `.claude/skills/<n>/SKILL.md` and `.agents/skills/<n>/SKILL.md` are one skill.
-- Gemini has 30 TOML commands. Twenty mirror Claude commands (fold them in); ten under
+- Gemini has 30 TOML commands. Nineteen mirror Claude commands (fold them in); eleven under
   `.gemini/commands/media/` have no Claude counterpart and get their own concepts.
 - Eighteen cursor rules grouped into four `guide` concepts by prefix family:
   core (`00`–`02`), methodology (`03`–`04`), stack (`10`–`16`), agent and background (`20`–`31`).
