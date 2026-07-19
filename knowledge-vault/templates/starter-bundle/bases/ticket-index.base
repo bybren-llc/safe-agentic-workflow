@@ -1,0 +1,16 @@
+filters:
+  and:
+    - file.inFolder("starter-bundle")
+    - ticket != null
+views:
+  - type: table
+    name: Concepts by Ticket
+    order:
+      - title
+      - type
+      - ticket
+      - domain
+      - timestamp
+    sort:
+      - property: ticket
+        direction: DESC

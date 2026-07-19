@@ -1,0 +1,10 @@
+{
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": true,
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": false,
+  "attachmentFolderPath": "starter-bundle/maps/assets",
+  "userIgnoreFilters": [
+    "starter-bundle/_meta/templates/"
+  ]
+}

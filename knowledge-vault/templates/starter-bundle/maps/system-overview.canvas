@@ -1,0 +1,22 @@
+{
+	"nodes":[
+		{"id":"lbl-entry","type":"text","text":"## Entry\n\nWhere requests or users arrive","x":-80,"y":-360,"width":320,"height":100},
+		{"id":"lbl-logic","type":"text","text":"## Logic\n\nHandlers, services, jobs","x":420,"y":-360,"width":320,"height":100},
+		{"id":"lbl-data","type":"text","text":"## Data\n\nStores and schemas","x":920,"y":-360,"width":320,"height":100},
+		{"id":"lbl-external","type":"text","text":"## External\n\nThird-party services","x":420,"y":420,"width":320,"height":100},
+
+		{"id":"n-entry","type":"text","text":"Replace with a `file` node pointing at your entry-point concept, e.g.\n\n`starter-bundle/architecture/request-lifecycle.md`","x":-80,"y":-200,"width":320,"height":180},
+		{"id":"n-logic","type":"text","text":"Replace with your handler or service concepts. One node per load-bearing concept — not every file.","x":420,"y":-200,"width":320,"height":180},
+		{"id":"n-data","type":"text","text":"Replace with your datastore concepts.","x":920,"y":-200,"width":320,"height":180},
+
+		{"id":"n-process","type":"file","file":"starter-bundle/process/vault-maintenance.md","x":420,"y":60,"width":400,"height":300},
+		{"id":"n-start","type":"file","file":"starter-bundle/start-here.md","x":-80,"y":60,"width":400,"height":300},
+
+		{"id":"note","type":"text","text":"**Architectural canvas.** Labelled columns at a fixed pitch (500px here), one card per load-bearing concept, edges showing real dependency or data flow.\n\nCanvas nodes are `file` references into real concepts — clicking one opens the note. This is a spatial layout over the vault, not a separate diagram to maintain.","x":920,"y":60,"width":400,"height":300}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"n-entry","fromSide":"right","toNode":"n-logic","toSide":"left","label":"every request"},
+		{"id":"e2","fromNode":"n-logic","fromSide":"right","toNode":"n-data","toSide":"left","label":"reads / writes"},
+		{"id":"e3","fromNode":"n-start","fromSide":"right","toNode":"n-process","toSide":"left","label":"then maintain it"}
+	]
+}

@@ -1,0 +1,27 @@
+filters:
+  and:
+    - file.inFolder("starter-bundle")
+    - type != null
+views:
+  - type: table
+    name: Staleness Radar (oldest first)
+    order:
+      - title
+      - type
+      - timestamp
+      - verified_against
+      - domain
+    sort:
+      - property: timestamp
+        direction: ASC
+  - type: table
+    name: Needs Attention (deprecated or planned)
+    filters:
+      or:
+        - status == "deprecated"
+        - status == "planned"
+    order:
+      - title
+      - type
+      - status
+      - timestamp

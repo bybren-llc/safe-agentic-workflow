@@ -1,0 +1,21 @@
+{
+	"nodes":[
+		{"id":"build","type":"text","text":"## 1. Build\n\nExtract → Generate → Navigate → **Adversarially verify**\n\nEvery concept stamped with `verified_against`","x":0,"y":0,"width":380,"height":220},
+		{"id":"drift","type":"text","text":"## 2. Code moves\n\nA merge changes a file some concept claims to describe.\n\nThe vault is now quietly wrong.","x":480,"y":0,"width":380,"height":220},
+		{"id":"detect","type":"text","text":"## 3. Detect\n\n`git diff baseline_sha..HEAD` over the watch-list.\n\nStale **iff** a changed path matches `resource` or `sources`.","x":960,"y":0,"width":380,"height":220},
+		{"id":"regen","type":"text","text":"## 4. Regenerate\n\nOnly what drifted. Re-derive from source — never patch prose without re-reading the code.","x":960,"y":300,"width":380,"height":220},
+		{"id":"gate","type":"text","text":"## 5. Gate\n\nValidator exits 0, lint passes, log entry prepended, `baseline_sha` bumped.","x":480,"y":300,"width":380,"height":220},
+
+		{"id":"n-maint","type":"file","file":"starter-bundle/process/vault-maintenance.md","x":0,"y":300,"width":380,"height":220},
+
+		{"id":"note","type":"text","text":"**Flow canvas.** Edge-dense, one node per step, tracing a single loop end to end.\n\nThe loop is what makes the vault trustworthy: staleness is computed, not felt.","x":480,"y":600,"width":380,"height":180}
+	],
+	"edges":[
+		{"id":"f1","fromNode":"build","fromSide":"right","toNode":"drift","toSide":"left"},
+		{"id":"f2","fromNode":"drift","fromSide":"right","toNode":"detect","toSide":"left"},
+		{"id":"f3","fromNode":"detect","fromSide":"bottom","toNode":"regen","toSide":"top"},
+		{"id":"f4","fromNode":"regen","fromSide":"left","toNode":"gate","toSide":"right"},
+		{"id":"f5","fromNode":"gate","fromSide":"left","toNode":"n-maint","toSide":"right"},
+		{"id":"f6","fromNode":"n-maint","fromSide":"top","toNode":"build","toSide":"bottom","label":"loop"}
+	]
+}

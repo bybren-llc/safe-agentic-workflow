@@ -1,0 +1,14 @@
+filters:
+  and:
+    - file.inFolder("starter-bundle")
+    - domain != null
+views:
+  - type: table
+    name: Concepts by Domain
+    group_by: domain
+    order:
+      - title
+      - type
+      - tags
+      - status
+      - timestamp

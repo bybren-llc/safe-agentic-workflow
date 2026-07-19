@@ -1,0 +1,22 @@
+filters:
+  and:
+    - file.inFolder("starter-bundle")
+    - type != null
+views:
+  - type: table
+    name: Coverage by Type
+    group_by: type
+    order:
+      - title
+      - domain
+      - status
+      - verified_against
+  - type: table
+    name: Missing a Verification SHA
+    filters:
+      and:
+        - verified_against == null
+    order:
+      - title
+      - type
+      - timestamp

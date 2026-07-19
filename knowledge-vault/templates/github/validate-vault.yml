@@ -1,0 +1,49 @@
+# Opt-in CI gate for an OKF knowledge vault.
+#
+# Copy to .github/workflows/validate-vault.yml and set VAULT_DIR below.
+#
+# Why this exists: in the project this method came from, the validator was written, passed
+# locally, and was wired into no workflow at all — so vault drift was invisible to CI and an
+# audit had to catch it. A gate that nothing runs is not a gate. Do not inherit that.
+
+name: Validate Knowledge Vault
+
+on:
+  pull_request:
+    paths:
+      # The vault itself
+      - "{{VAULT_DIR}}/**"
+      # The validator and its config
+      - "knowledge-vault/scripts/validate-vault.mjs"
+      # Add the source paths your concepts claim to describe, so a code change that
+      # invalidates a concept also trips this workflow. Mirror your vault-sync watch-list.
+      # - "src/**"
+      # - "docs/**"
+  push:
+    branches: ["{{MAIN_BRANCH}}"]
+    paths:
+      - "{{VAULT_DIR}}/**"
+      - "knowledge-vault/scripts/validate-vault.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Structural validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      # No install step: the validator uses node: builtins only.
+      - name: Validate vault structure
+        run: node knowledge-vault/scripts/validate-vault.mjs --vault "{{VAULT_DIR}}"
+
+      # Recommended: also lint the vault's markdown. Uncomment once you have a config.
+      # - name: Lint vault markdown
+      #   run: npx --yes markdownlint-cli2 "{{VAULT_DIR}}/**/*.md"

@@ -1,0 +1,70 @@
+---
+description: "OKF knowledge-vault conventions: the frontmatter contract, link rules, verified_against drift discipline, and the vault-sync loop. Activate when authoring or maintaining knowledge-vault concepts."
+alwaysApply: false
+---
+
+# Knowledge Vault Conventions
+
+Activate this rule when writing or maintaining concepts in an OKF knowledge vault.
+
+A vault is a **map, not the territory**. Source-of-truth docs stay where they live; code stays
+authoritative over everything, including the vault. A concept is a ~50-line map-card that
+summarizes and links — it never restates its source.
+
+## The Frontmatter Contract
+
+Required on every concept: `type`, `title`, `description` (≤160 chars), `tags`, `timestamp`,
+`status`.
+
+`timestamp` is **the date the concept was last verified against its sources** — not the date the
+file was edited. Optional: `resource`, `domain`, `ticket`, `sources`, `docs`, `verified_against`.
+
+**YAML subset only** — scalars, double-quoted strings, inline lists, and two-space block lists. No
+nested maps, no multiline scalars. This is what keeps the validator dependency-free.
+
+## Link Rules
+
+1. Relative markdown links only. **No wikilinks**, no leading-slash paths, no repo-host URLs for
+   files in this repo.
+2. Concept-to-concept links never leave the bundle.
+3. Links that leave the bundle appear only under `## Citations` (`index.md` and `guide` types are
+   exempt — they are navigation).
+4. **Link only to concept IDs listed in `_meta/manifest.json`.** If the concept does not exist,
+   name it in prose and report it as a suggestion. **Never invent a link.**
+
+Rule 4 is the one that matters most when several agents author in parallel. Without it you get a
+graph of plausible, confident, broken references.
+
+## Writing Rules
+
+- **Summarize, never duplicate.** If you are restating more than a paragraph, stop and link.
+- **Code wins.** Name the helper actually called, not the one the code *should* call. When code
+  contradicts docs, document the code and note the discrepancy.
+- Section H2s must exactly match the type's template, in order. Do not add, remove, or rename.
+- Environment variable names may be mentioned; values never.
+- No emoji in concept files.
+
+## Drift Discipline
+
+Staleness is computed, not felt: a concept is stale if and only if a path in its `resource` or
+`sources` changed since the manifest's `baseline_sha`.
+
+**A citation is not re-verification.** Linking a concept from somewhere new does not make its
+claims fresher. Only re-deriving it from source bumps `timestamp` and `verified_against`.
+
+Deleted source → `status: deprecated`, never a file deletion; inbound links must be cleaned first.
+
+## Before You Commit
+
+```bash
+node knowledge-vault/scripts/validate-vault.mjs --vault <vault>
+```
+
+Must exit 0. Prepend a dated entry to `log.md` and bump the `timestamp` of every concept you
+actually re-verified.
+
+## References
+
+- `knowledge-vault/docs/GUIDE.md` -- the method and why each rule exists
+- `knowledge-vault/docs/ADOPTION-PLAYBOOK.md` -- running your first build
+- `knowledge-vault/templates/starter-bundle/_meta/CONVENTIONS.md` -- the full constitution

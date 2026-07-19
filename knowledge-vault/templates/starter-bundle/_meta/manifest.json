@@ -1,0 +1,43 @@
+{
+  "okf_version": "0.1",
+  "generated": "2026-07-19",
+  "baseline_sha": "0000000",
+  "concept_count": 2,
+
+  "_readme": [
+    "The manifest has three jobs:",
+    "  1. ID REGISTRY — the allowlist of concept IDs. Generation agents may link ONLY to IDs",
+    "     listed here. This is what stops parallel agents inventing plausible-but-broken links.",
+    "  2. REVERSE INDEX — 'sources' maps source files back to the concepts that describe them,",
+    "     which is how drift detection knows what a given code change made stale.",
+    "  3. DRIFT BASELINE — 'baseline_sha' is the commit the whole vault was last verified against.",
+    "",
+    "'notes' carries the extraction-phase fact digest so generation agents get pre-digested facts",
+    "without re-reading source. 'batch' records which generation lane produced the concept.",
+    "",
+    "Set baseline_sha to a real short SHA on your first build."
+  ],
+
+  "concepts": [
+    {
+      "id": "start-here",
+      "type": "guide",
+      "title": "Start Here",
+      "path": "start-here.md",
+      "description": "The ordered path through this vault for someone new to the system.",
+      "tags": ["onboarding"],
+      "batch": "navigation"
+    },
+    {
+      "id": "process/vault-maintenance",
+      "type": "process",
+      "title": "Vault Maintenance",
+      "path": "process/vault-maintenance.md",
+      "description": "How this vault stays honest as the code moves.",
+      "tags": ["process", "okf"],
+      "domain": "platform",
+      "notes": "drift = git diff baseline_sha..HEAD over watch-list | stale iff changed path matches resource or sources | deleted source -> status: deprecated, never delete",
+      "batch": "process"
+    }
+  ]
+}
