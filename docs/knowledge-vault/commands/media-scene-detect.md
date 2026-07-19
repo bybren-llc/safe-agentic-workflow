@@ -35,7 +35,8 @@ is model inference: no ffmpeg, no PySceneDetect, nothing but `file` on the shell
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Scans for boundaries on significant frame-to-frame visual change, color palette, composition and
   content shifts, hard cuts and gradual transitions, and audio changes coinciding with visual ones.
 - Classifies every transition as Cut, Fade In, Fade Out, Dissolve, Wipe or Jump Cut.

@@ -25,8 +25,8 @@ The schema sets `additionalProperties: false`, requires `manifest_version` plus 
 declares seven top-level properties: those two plus `substitutions`, `renames`, `protected`,
 `replaced` and `sync`. `identity` holds 26 flat keys of which six are required — `PROJECT_NAME`,
 `PROJECT_REPO`, `PROJECT_SHORT`, `GITHUB_ORG`, `TICKET_PREFIX`, `MAIN_BRANCH` — the rest naming
-author, Linear, MCP, container and registry values. `validate_manifest` re-implements only a subset
-of that in bash and never opens the `.json` at all.
+author, Linear, MCP and container values. `validate_manifest` re-implements only a subset of that in
+bash and never opens the `.json` at all.
 
 ## Design
 
@@ -35,16 +35,16 @@ of that in bash and never opens the `.json` at all.
 | `manifest_version` | Version string; repo declares `"1.1"` | Regex in `validate_manifest` |
 | `identity` | 26 flat keys, 6 required | `validate_manifest` checks the 6 |
 | `substitutions`, `renames` | Free-form objects | Rename path structure only |
-| `protected`, `replaced` | String arrays | Glob-matched by `is_protected` |
+| `protected` | String array | Glob- and substring-matched by `is_protected` |
+| `replaced` | String array | Nowhere; `do_sync` overwrites these files silently |
 
 Path semantics turn on the version: `1.0` uses domain-relative paths, `1.1` and above root-relative,
-via `USE_ROOT_PATHS` — a lexicographic string compare, so `"1.10"` would sort below `"1.2"` and take
-the wrong branch. Because no runtime reader opens the schema, `additionalProperties: false` and both
-enums go unenforced during a sync; the only place it is genuinely applied is Test 7 of
-`tests/test-manifest-init.sh`. Three documented knobs are fiction too: `sync.auto_substitute`,
-`sync.backup` and `sync.substitution_extensions` are never read — substitution is always on, backup
-unconditional, the extension list hardcoded in `apply_all_substitutions`. `sync.conflict_strategy`
-is read only so `do_status` can print it.
+via `USE_ROOT_PATHS` — a lexicographic compare against the literal `"1.1"`, which branches correctly
+for every X.Y string `validate_manifest`'s regex admits, `1.10` included. Because no runtime reader
+opens the schema, `additionalProperties: false` and both enums go unenforced; the only place it is
+genuinely applied is Test 7 of `tests/test-manifest-init.sh`. Three documented knobs are fiction too:
+`sync.auto_substitute`, `sync.backup` and `sync.substitution_extensions` are never read — substitution
+is always on, backup unconditional, the extension list hardcoded; `conflict_strategy` only gets printed.
 
 ## Related Concepts
 

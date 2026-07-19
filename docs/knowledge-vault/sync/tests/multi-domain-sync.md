@@ -24,7 +24,7 @@ Fourteen numbered sections and 43 assertions exercise [scope parsing](../sync-sc
 resolution, per-domain protection and rename lookup, and legacy metadata migration, against functions sourced from
 `scripts/sync-claude-harness.sh` into throwaway `mktemp -d` trees. It is the only suite using `#!/usr/bin/env bash`
 with `set -euo pipefail`; the other eight use `#!/bin/bash` and `set -e`. **It runs in no workflow** —
-`.github/workflows/test-fork-sync.yml` invokes five of the nine suites and not this one, so it is manual-only.
+`.github/workflows/test-fork-sync.yml` invokes six of the nine suites and not this one, so it is manual-only.
 
 ## What It Proves
 

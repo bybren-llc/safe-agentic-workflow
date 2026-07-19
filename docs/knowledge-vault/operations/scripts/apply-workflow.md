@@ -23,15 +23,17 @@ into the wrong repository. This is a stub; the script is the source of truth.
 The harness has two entry points that are easy to confuse.
 [setup-template.sh](setup-template.md) bootstraps a new repository from the template; this one
 integrates the template into a project that already exists. It is a bash script under `set -e` at
-6664 bytes, and its only interactive step asks the operator to choose an AI agent provider,
-presenting Claude Code as the recommended fully-automated option. It carries unresolved
-`{{PROJECT_SHORT}}` placeholders in its own output strings, which makes it a substitution target of
-that script as well as a peer of it.
+6664 bytes, and it interrogates the operator through six prompts. The first picks the AI agent
+provider from exactly two branches — `1` for Claude Code into `.claude`, `2` for Augment into
+`.augment`, anything else fatal. It carries unresolved `{{PROJECT_SHORT}}` placeholders in its own
+output strings, which makes it a substitution target of that script as well as a peer of it.
 
 ## Inputs & Outputs
 
-- **In** — no flags or positional arguments; configuration comes from the interactive provider
-  prompt.
+- **In** — no flags or positional arguments; all configuration arrives through six `read -p`
+  prompts: provider, ticket prefix, primary dev branch, project git URL, project name (asked only
+  when derivation from the URL yields empty), and ticket URL prefix. A blank ticket prefix or dev
+  branch is fatal. The last five feed the matching `__TICKET_PREFIX__`-style token substitutions.
 - **In** `TARGET_DIR` — hardcoded to `.`, not overridable from the command line.
 - **In** `TEMPLATE_DIR` — derived as `dirname $0`, which resolves to the `scripts/` directory
   itself rather than the repo root.
@@ -46,8 +48,7 @@ that script as well as a peer of it.
   `bash scripts/apply-workflow.sh`.
 - Not referenced by any workflow, hook, or slash command.
 
-Two open questions remain from the source: the full list of providers the prompt offers and what
-each branch copies is UNKNOWN, as is whether the non-executable file mode is deliberate or an
+One open question remains from the source: whether the non-executable file mode is deliberate or an
 oversight.
 
 ## Citations

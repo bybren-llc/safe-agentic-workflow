@@ -24,9 +24,11 @@ It opens with a Linear Issue Reference block: the Epic ticket, plus the Confluen
 upstream initiative. Confluence is named as the source of initiatives, which makes this file the
 seam between the business record and the delivery record.
 
-The body is a nested work breakdown — Epic, then Feature, then User Story, then Enabler — with
-As-a / I-want / So-that blocks and a Linear ticket slot on every item. The ticket slot per item is
-the point: the breakdown is not finished until each leaf has somewhere to live in Linear.
+The body is a nested work breakdown — Epic, then Feature, then User Story, then Enabler. As-a /
+I-want / So-that blocks appear on the User Stories only; Enablers carry Description and
+Justification instead, and the Feature rows carry only Description and Business Value. The Linear
+ticket slot sits on the Epic and on every leaf, Story or Enabler, and that is the point: the
+breakdown is not finished until each leaf has somewhere to live in Linear.
 
 ## Practical Notes
 

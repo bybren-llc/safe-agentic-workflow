@@ -18,7 +18,8 @@ verified_against: "fd0fc6a"
 
 The script that turns a configured host into a running agent team. Usage is
 `factory-start.sh <story|feature|epic> [ticket-id]`; any other team size dies immediately. It is
-the only script that creates state, so everything the other four operate on originates here.
+the only script that creates *session* state — sessions, worktrees and pane logs. The
+`$HOME/.dark-factory` tree and its `env` come from [factory-setup.sh](factory-setup.md) first.
 
 ## Overview
 
@@ -48,10 +49,9 @@ failure to an INFO "may already exist". The session is `factory-<ticket-id>`, or
   is lowercased, spaces to dashes, then `tr -cd 'a-z0-9_-'`, so "TDM (lead)" becomes `tdm-lead`.
 - Attach — ends with `exec tmux attach` when `FACTORY_AUTO_ATTACH` is true.
 
-One subtlety: the script declares the associative array `FACTORY_PANE_WORKDIRS` and calls `export`
-on it, which bash cannot do; it works only because the layout is sourced into the same shell
-rather than executed. The companion `agent_workdir <pane_index>` is properly `export -f`'d and is
-what the layouts call.
+One subtlety: the script `export`s the associative array `FACTORY_PANE_WORKDIRS`, which bash cannot
+do; it works only because the layout is sourced into the same shell rather than executed. The
+companion `agent_workdir <pane_index>` is properly `export -f`'d, and is what the layouts call.
 
 ## Citations
 

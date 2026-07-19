@@ -38,7 +38,8 @@ pane 1 receives a `-p` prompt, phrased for "an epic-level effort".
 
 ## Procedure Map
 
-- Splits — eight splits, each launching `claude` in that pane's `agent_workdir` directory.
+- Splits — eight `split-window` calls taking no command, so they create bare shells.
+- Launch — a later `send-keys` pass sends `cd <agent_workdir N> && claude ${CLAUDE_FLAGS}` per pane.
 - Permissions — `CLAUDE_FLAGS` gains `--dangerously-skip-permissions` only when
   `FACTORY_AUTO_PERMISSIONS` is true.
 - Lead prompt — pane 1 only, carrying the same PR-and-merge-queue instructions as the smaller

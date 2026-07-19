@@ -19,7 +19,7 @@ verified_against: "fd0fc6a"
 
 `tests/test-fork-sync.sh` is the closest thing the sync engine has to a real customer: it builds two
 throwaway forks from fixtures, syncs them against a mocked upstream, and asserts the forks survived.
-It is the largest of the nine sync suites and the first one CI runs.
+It is the largest sync suite by file size and the first one CI runs.
 
 ## Overview
 
@@ -35,7 +35,7 @@ manifest, and writes a stub `.harness-sync.json`. CI runs it first, then chains 
 - Renames resolve on a fork that renamed agents and a skill directory — all five rename assertions
   pass, including a deliberate `assert_not_contains` that `fe-developer.md` is never created.
 - An invalid manifest is rejected: Section 3.1 strips `identity` entirely and asserts validation
-  fails — one of five non-zero `assert_exit_code` uses.
+  fails — but only two of the suite's five `assert_exit_code` calls expect non-zero at all.
 - Substitution fires — the mock upstream carries `{{PROJECT_NAME}}`, `{{TICKET_PREFIX}}` and
   `{{MAIN_BRANCH}}`, so an unsubstituted file would show.
 - **Does not prove** anything about real fetch, release resolution, or dependency checking — all

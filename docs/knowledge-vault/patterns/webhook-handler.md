@@ -43,8 +43,10 @@ a reference implementation the exemplar is the artifact. It reaches adopters who
 
 Discovery is the intended route in: `CLAUDE.md` names this file directly in its payments notes,
 the [pattern-discovery](../skills/pattern-discovery.md) skill points at `patterns_library/`, and
-the [stripe-patterns](../skills/stripe-patterns.md) skill arrives at the same place from the
-payments side. The library README indexes it under `api`.
+the library README indexes it under `api`. The [stripe-patterns](../skills/stripe-patterns.md)
+skill does *not* land here — its canonical references are application source paths
+(`lib/stripe-config.ts`, `app/api/payments/webhook/route.ts`), so the `CLAUDE.md` payments note is
+the only link that actually reaches this file.
 
 **Open question:** whether this code has ever been compiled or executed anywhere. Nothing in this
 repo exercises it, so correctness rests on review alone — which matters more here than elsewhere,

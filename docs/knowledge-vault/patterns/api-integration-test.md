@@ -42,8 +42,8 @@ The single exemplar is the library file itself, carried in `resource`. Agents ar
 find it through the Pattern Discovery Protocol rather than by browsing: both `CLAUDE.md` and the
 [pattern-discovery](../skills/pattern-discovery.md) skill point at `patterns_library/`, and the
 library's own README indexes it under the `testing` category. The
-[testing-patterns](../skills/testing-patterns.md) skill routes test-authoring work to the same
-place.
+[testing-patterns](../skills/testing-patterns.md) skill routes test-authoring work here on its
+`.agents` surface only — its `.claude` copy names no `patterns_library` path at all.
 
 An open question travels with it: whether this code was ever compiled or executed anywhere is
 unknown, because no test, fixture, or CI job in this repo references it. Its correctness rests on

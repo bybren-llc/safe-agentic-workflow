@@ -33,7 +33,8 @@ command does so only when multiple speakers happen to be detected, and offers no
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Identifies speakers by pitch, pace and accent, and flags overlapping speech.
 - Transcribes with attribution, preserving pauses and interruptions and noting non-verbal sounds
   such as laughter, applause and silence.

@@ -20,11 +20,10 @@ verified_against: "fd0fc6a"
 ## Overview
 
 The role independently verifies all implementation work before it can reach the release path. Its
-independence is structural rather than aspirational: it holds `Read`, `Bash`, and `Grep` with no
-write tools, and its Codex sandbox is read-only, so it physically cannot fix what it finds. It
-receives three narrowly scoped Linear tools rather than the wildcard grant BSA and TDM hold —
-enough to post evidence and nothing more. It is also the one role the collapsing rules forbid
-folding into another agent.
+independence is structural: it holds `Read`, `Bash`, and `Grep` with no write tools, and its Codex
+sandbox is read-only, so it physically cannot fix what it finds. Its three narrowly scoped Linear
+tools are enough to post evidence and nothing more. It is one of two roles the collapsing rules
+forbid folding into another agent — the [Security Engineer](security-engineer.md) is the other.
 
 ## Responsibilities
 
@@ -49,8 +48,9 @@ folding into another agent.
 - **Routes** pattern violations to [System Architect](system-architect.md), spec issues to
   [BSA](bsa.md), blockers to [TDM](tdm.md).
 
-The provider mirror is stale and self-contradictory: it grants no Linear tools, so the provider
-QAS cannot post the evidence its own exit protocol mandates.
+The provider mirror is barely a mirror: it drops the Ownership Model, the iteration authority, the
+Linear evidence mandate and the entire Exit Protocol, and grants no Linear tools — so the provider
+QAS has neither an evidence obligation nor an `Approved for RTE` exit state to reach.
 
 ## Citations
 

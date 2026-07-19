@@ -21,9 +21,9 @@ which makes this workflow far weaker than it reads.
 
 ## Overview
 
-One job, `validate-pr`, on `ubuntu-latest`, triggered by `pull_request` types `opened`,
-`synchronize`, `reopened`, and `edited`. Checkout uses `fetch-depth: 0` because every check reads
-history. The job is four `run` steps of shell; no actions beyond checkout are used.
+One job, `validate-pr`, `ubuntu-latest`, four shell `run` steps, no actions beyond checkout. Triggered
+by `pull_request` types `opened`, `synchronize`, `reopened`, `edited` with no `paths:` filter, so it
+runs on every PR. `fetch-depth: 0` serves the rebase and commit checks; title and ticket read the payload.
 
 ## Touchpoints
 

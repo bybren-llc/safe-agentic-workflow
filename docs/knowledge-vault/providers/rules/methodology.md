@@ -43,14 +43,15 @@ multiline scalars) explicitly so the validator can parse frontmatter without a Y
 rule 4 forbids linking any concept ID absent from `_meta/manifest.json` and requires naming the
 missing concept in prose instead.
 
-## Cross-check and one disagreement
+## Cross-check and two disagreements
 
-The contract in 04 matches `docs/knowledge-vault/_meta/vault-config.json` exactly on the six
-required fields, the six optional fields, and `max_description_length` 160.
+The contract in 04 matches `docs/knowledge-vault/_meta/vault-config.json` on the six required
+fields and `max_description_length` 160. Two things it does not match:
+
+DOC DRIFT: `vault-config.json` declares seven optional fields; 04 lists six, omitting `okf_version`.
 
 DOC DRIFT: 04's prose calls a concept a "~50-line map-card" while `vault-config.json` sets
-`max_concept_lines` to 60. The machine-enforced limit is 60; the prose is stricter advice, and the
-two have not been reconciled.
+`max_concept_lines` to 60. The machine-enforced limit is 60; the prose is stricter advice.
 
 ## Citations
 

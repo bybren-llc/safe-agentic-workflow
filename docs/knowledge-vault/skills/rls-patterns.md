@@ -50,7 +50,7 @@ Related: [User Context API](../patterns/user-context-api.md),
 | [Data Engineer](../roles/data-engineer.md) | schema and migration work that defines the policies |
 | [System Architect](../roles/system-architect.md) | reviewing that no path bypasses a helper |
 
-Three roles name it directly, the widest binding of any skill in this group.
+Three roles name it directly — behind safe-workflow's six and pattern-discovery's five.
 
 ## Citations
 

@@ -20,9 +20,9 @@ verified_against: "fd0fc6a"
 ## Overview
 
 Every non-help command runs `migrate_metadata_to_root` first, lifting `.harness-manifest.yml`, `.harness-sync.json`,
-`.harness-backup/` and `.harness-patches/` to the repo root unless a root copy already exists. `status`, `version`,
-`diff` and `sync` then chain `load_config`, `load_manifest` and `validate_manifest`, exiting on failure, while `init`
-treats validation as non-fatal. `load_manifest` never aborts: missing `python3` or PyYAML warns and returns 0.
+`.harness-backup/` and `.harness-patches/` to the repo root unless a root copy already exists. `status`, `diff` and
+`sync` then chain `load_config`, `load_manifest` and `validate_manifest`, exiting on failure; `version` chains only the
+latter two, and `init` treats validation as non-fatal. `load_manifest` never aborts: missing PyYAML warns, returns 0.
 
 ## Design
 
@@ -33,7 +33,7 @@ treats validation as non-fatal. `load_manifest` never aborts: missing `python3` 
 | `apply_substitutions` | Rewrite identity and explicit tokens | One `sed -i`; branches GNU versus BSD |
 | `is_protected` | Refuse to overwrite fork-owned files | Substring-matches too, so short patterns over-match |
 | `do_rollback` | Restore from `.harness-backup/` | One `SYNC_TIMESTAMP` rolls all domains back |
-| `do_diff` | Rename and protected summaries | Bash 4 only (`declare -A`, line 1560); silent on macOS bash 3.2 |
+| `do_diff` | Rename and protected summaries | Bash 4 only (`declare -A`, 1560); bash 3.2 errors, drops summaries |
 | `do_conflicts` | List `*.conflict` files | Scans only `$CLAUDE_DIR`; no writer for that suffix exists anywhere |
 | `manifest_count` | Count manifest entries | Emits `node` output; `FORCE_COLOR` ANSI-wraps it, breaking arithmetic |
 

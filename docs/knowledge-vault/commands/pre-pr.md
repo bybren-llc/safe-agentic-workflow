@@ -32,14 +32,14 @@ audits every commit message for the SAFe format. It follows [`/end-work`](end-wo
 ## What It Does
 
 - Runs `yarn ci:validate` — **BLOCKER**.
-- Runs `yarn lint:md:fix`, then `yarn lint:md` to confirm; requires a clean `git status` — **BLOCKER**.
+- Runs `yarn lint:md:fix`, then `yarn lint:md` to confirm — the one non-blocking step of the four.
+- Requires a clean `git status`, allowing no uncommitted changes into the PR — **BLOCKER**.
 - Runs `git fetch origin && git rebase origin/dev` — **BLOCKER**.
 - Audits the dev-to-HEAD log against `type(scope): description [PREFIX-XXX]` — **BLOCKER**.
 - Walks a doc-update checklist, confirms the six PR-template sections, reports PASS/WARNING/BLOCKER.
 
-Two drifts live in the file. Its Workflow section says "execute steps 1-6 in order" while the
-checklist defines seven, orphaning step 7. It also describes `ci:validate` as type-check, ESLint,
-unit tests and format checking, where [`/local-sync`](local-sync.md) omits format checking.
+Two drifts: the Workflow section says "execute steps 1-6 in order" while the checklist defines
+seven; and `ci:validate` is described here with format checking, which [`/local-sync`](local-sync.md) omits.
 
 ## Provider Parity
 

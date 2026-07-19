@@ -38,7 +38,7 @@ than one — `](FILE.md)`, backtick-quoted `` `FILE.md` ``, and `- FILE.md` list
   `docs/team/PLANNING-AGENT-META-PROMPT.md`, and `patterns_library/database/rls-migration.md`.
 - **Out** — the listed files, edited in place.
 - **Exit** `0` — including when every target is absent, since each entry is guarded by
-  `if [ -f "$file" ]` and missing paths are skipped silently.
+  `if [ -f "$file" ]` and missing paths are skipped with a `⚠ File not found` notice, not a failure.
 
 The placeholder sits inside a **filename**, and `scripts/setup-template.sh` substitutes file
 *contents* but never renames files — so that entry does not resolve merely because setup ran. It

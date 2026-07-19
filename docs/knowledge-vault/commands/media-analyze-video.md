@@ -33,7 +33,8 @@ boundary metadata, [/media:video-to-script](media-video-to-script.md) emits a fo
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Analyses scenes: transitions, visuals, objects, people, actions, settings, camera movement and
   composition, plus transcribed dialogue and on-screen text.
 - Analyses the audio track alongside the visual content, which is where the overlap with the two

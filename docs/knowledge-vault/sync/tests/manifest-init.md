@@ -22,16 +22,14 @@ assertions, and the only place in the repository where the JSON Schema is genuin
 ## Overview
 
 The surface under test is the `manifest` subcommand — dry run, `--yes` write, derived values,
-`.sync-exclude` ingestion, MCP server detection, and the help text — exercised through five assert
-helpers. At this baseline the suite reports 52 passed, 0 failed, exit 0, but only with
-`FORCE_COLOR` unset or 0; under `FORCE_COLOR=3` it aborts early on the ANSI-wrapped number bug in
-`manifest_count`. No `.github/workflows` file references it, so despite being the healthiest suite
-in the sync set it gates nothing.
+`.sync-exclude` ingestion, MCP server detection, and the help text. At this baseline it reports 52
+passed, 0 failed, exit 0, but only with `FORCE_COLOR` unset or 0; under `FORCE_COLOR=3` it aborts on
+the ANSI-wrapped number bug in `manifest_count`. No workflow references it, so it gates nothing.
 
 ## What It Proves
 
-- Generation is idempotent-safe: Test 8 proves the command refuses to clobber an existing
-  manifest, one of four deliberate non-zero exit assertions.
+- Overwrite is warned but never refused: Test 8 seeds a manifest naming `ExistingProject`, runs
+  `manifest init --yes`, and asserts the warning, the rewrite, and that the old values are gone.
 - Bad inputs are detected rather than papered over: Test 4 rejects an unreplaced template
   `team-config.json`, Test 5 handles its absence, Test 9 handles validating a manifest that is not
   there — two `assert_file_not_exists` checks confirm nothing was written in those paths.
@@ -42,6 +40,8 @@ in the sync set it gates nothing.
   computed, a partial `team-config.json` still works, and MCP server names are detected.
 - **Does not prove** that any of the emitted `sync.*` keys are honoured — `auto_substitute`,
   `backup` and `substitution_extensions` are written here and read nowhere by the engine.
+- **Does not prove** any failure behaviour: all four `assert_exit_code` calls expect 0, so the suite
+  asserts no non-zero exit anywhere.
 - **Does not gate anything**, since no workflow invokes it.
 
 ## Fixtures

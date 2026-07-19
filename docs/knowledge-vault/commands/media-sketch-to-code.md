@@ -34,8 +34,8 @@ confirmation gate anywhere in the file.
 
 ## What It Does
 
-- Detects the input with `ls -la {{args}} || echo "File not found"`, then identifies UI components,
-  layout structure, visual hierarchy, interactive elements, and data flow for flowchart inputs.
+- Detects the input with `!{ls -la {{args}} 2>/dev/null || echo "File not found"}`, then identifies
+  UI components, layout structure, visual hierarchy, interactive elements, and data flow.
 - Determines the target framework by asking, or by grepping `package.json` for react, next or vue.
 - Generates a component directory — `index.tsx`, `styles.css` when not Tailwind, `types.ts` — with
   semantic HTML, mobile-first responsive layout, ARIA attributes, sketch-matching placeholder

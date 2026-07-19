@@ -20,16 +20,16 @@ verified_against: "fd0fc6a"
 
 # Fork Sync Compatibility Workflow (test-fork-sync.yml)
 
-The only workflow here that runs real assertions and can fail a check, exercising the sync engine in
-`--dry-run` against fork fixtures. A path filter narrows its reach: a PR touching only `.claude/`
-or `docs/` triggers no gating workflow at all.
+The only workflow here that runs real test suites, exercising the sync engine in `--dry-run` against
+fork fixtures. A path filter narrows its reach: a PR touching only `.claude/` or `docs/` triggers no
+*test* workflow — `pr-validation.yml` has no path filter, so its rebase check still gates that PR.
 
 ## Overview
 
 One job, `fork-sync-compat`, `ubuntu-latest`, `timeout-minutes: 10`. Triggered by push and pull
 request to `main`, filtered to `scripts/sync-claude-harness.sh`, `.harness-manifest.schema.json`,
 `tests/fixtures/sync/**`, `tests/test-fork-sync.sh`, and itself: it guards the
-[Harness Sync Engine](../../sync/harness-sync-engine.md).
+[Harness Sync Engine](../../sync/harness-sync-engine.md) and nothing else.
 
 ## Touchpoints
 
@@ -48,7 +48,7 @@ request to `main`, filtered to `scripts/sync-claude-harness.sh`, `.harness-manif
 
 ## Failure Modes & Health
 
-- **Path filter miss** — the quietest failure: a change outside the filter passes silently.
+- **Path filter miss** — changes outside the filter go untested, though [PR Validation](pr-validation.md) runs.
 - The 10-minute timeout and a missing `pyyaml` both fail the job; suites chain with `|| exit 1`.
 - Never invoked here: `test-manifest-init.sh`, `test-multi-domain-sync.sh`, `test-patch-generation.sh`.
 - **UNKNOWN**: whether these are required status checks; branch protection is not declared in-repo.

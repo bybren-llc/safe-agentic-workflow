@@ -85,8 +85,8 @@ Obsidian Bases. Saved queries over the same 220 concepts.
 Every concept is one file with an exact frontmatter contract and a fixed section list for its type.
 Links are relative markdown only; links that leave the bundle appear only under `## Citations`, and
 concept links must resolve to an ID in `_meta/manifest.json` — never invent one. The rules are in
-[CONVENTIONS.md](_meta/CONVENTIONS.md); the machine-readable form is
-[vault-config.json](_meta/vault-config.json), enforced by the validator. Note what is *not*
+[CONVENTIONS.md](_meta/CONVENTIONS.md); the machine-readable form is `_meta/vault-config.json`,
+enforced by the validator. Note what is *not*
 enforced — CONVENTIONS.md says so explicitly, and a clean validator run is not proof the whole
 constitution was followed.
 

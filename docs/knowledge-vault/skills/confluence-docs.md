@@ -21,18 +21,20 @@ meant to land in.
 
 ## Overview
 
-Model-invocable, with no `user-invocable` key. It is one of only two skills in this lane granted
-`Write` and `Edit` alongside `Read`, `Grep`, and `Glob` — the other being spec-creation — because it
-produces files rather than advice. It embeds four templates: ADR, Runbook, Architecture Document, and
-Knowledge Transfer. Reach for it when a decision or an operational procedure needs a durable home;
-do not reach for it to write a spec, which belongs to spec-creation.
+Model-invocable, with no `user-invocable` key. Across all twenty skills it is the only one granted
+`Edit`, and one of only two granted `Write` — the other, spec-creation, gets `Write` without `Edit`.
+Its full grant is `Read`, `Write`, `Edit`, `Grep`, `Glob`: it produces files, not advice. It embeds
+four templates — ADR, Runbook, Architecture Document, Knowledge Transfer. Reach for it when a decision
+or an operational procedure needs a durable home, not to write a spec, which belongs to spec-creation.
 
 ## Routes To
 
-- `docs/adr/` — architectural decision records. This directory does NOT exist in the repository.
-- `docs/runbooks/` — operational procedures.
-- `docs/architecture/` — architecture documents.
-- `docs/agent-outputs/technical-docs/` — knowledge-transfer output.
+All four outputs are absent here: the skill routes nowhere that resolves, as deployment-sop does.
+
+- `docs/adr/` — architectural decision records. Absent.
+- `docs/runbooks/` — operational procedures. Absent.
+- `docs/architecture/` — architecture documents. Absent.
+- `docs/agent-outputs/technical-docs/` — knowledge transfer. The parent exists; this child does not.
 
 Related concepts: [Three-Layer Architecture](../methodology/three-layer-architecture.md) is the kind of
 subject an architecture document here would cover, and [Tech Writer](../roles/tech-writer.md) is the
@@ -45,12 +47,10 @@ role whose output this shapes.
   intended consumers by subject matter, but neither declares it.
 
 This is the widest structural gap in the lane. The Claude copy (277 lines) carries an "Existing ADRs
-(Reference)" section naming six project ADRs — ADR-002 constants-unification, ADR-003
-dependency-upgrade-typescript-fixes, ADR-004 server-component-data-access-pattern, ADR-005
-ci-infrastructure-services, ADR-006 bonus-pdf-private-bucket-security, and ADR-007
+(Reference)" section naming six project ADRs — ADR-002 through ADR-007, from constants-unification to
 rendertrust-marketing-pages. The `.agents` copy (220 lines) deletes that section and adds a `TEMPLATE`
-banner with `{{PLACEHOLDER}}` tokens. Since `docs/adr/` is absent here, that list points at nothing: it
-is inherited from the project this harness was extracted from, and a reader will find no files.
+banner with `{{PLACEHOLDER}}` tokens. Since `docs/adr/` is absent, that list points at nothing —
+inherited from the project this harness was extracted from, and a reader will find no files.
 
 ## Citations
 

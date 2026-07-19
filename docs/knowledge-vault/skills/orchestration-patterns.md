@@ -21,17 +21,18 @@ proven before a merge is allowed.
 
 ## Overview
 
-Model-invocable, and the only skill in this lane granted `Task` — alongside `Read`, `Bash`, `Grep`, and
-`Glob` — which means it can spawn subagents rather than merely advise about them. It implements what it
-calls Simon Willison's agent loop. Nine H2 sections cover evidence-based delivery, a QAS pre-merge
-gate, escalation patterns, long-running task checkpoints, a worked orchestration example, and
-anti-patterns to avoid. Its QA evidence is written to `docs/agent-outputs/qa-validations/`.
+Model-invocable, and one of only two skills granted `Task` — alongside `Read`, `Bash`, `Grep`, and
+`Glob` — which means it can spawn subagents rather than merely advise about them; the other holder,
+team-coordination, is user-invocable only. It implements what it calls Simon Willison's agent loop.
+Ten H2 sections cover evidence-based delivery, a QAS pre-merge gate, escalation patterns,
+long-running task checkpoints, a worked orchestration example, and anti-patterns to avoid. Its QA
+evidence is written to `docs/agent-outputs/qa-validations/`.
 
 ## Routes To
 
 - `docs/agent-outputs/qa-validations/` — where the QAS gate's evidence lands.
-- `docs/sop/AGENT_WORKFLOW_SOP.md` — routed to by the `.agents` copy ONLY; the Claude copy lacks this
-  reference, so the portable surface is better connected here than the vendor one.
+- `docs/sop/AGENT_WORKFLOW_SOP.md` — only the `.agents` copy gives a resolvable path. The Claude copy
+  names `AGENT_WORKFLOW_SOP.md` by filename alone at line 220, with no directory prefix to follow.
 
 Related concepts: [Evidence-Based Delivery](../methodology/evidence-based-delivery.md) is the principle
 it implements, [Stop-the-Line Gate](../methodology/stop-the-line-gate.md) the escalation it triggers,

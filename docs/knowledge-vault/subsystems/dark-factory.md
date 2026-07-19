@@ -40,10 +40,10 @@ sessions by the literal `^factory-` prefix, named `factory-<ticket-id>` or `fact
 
 The Claude Code path is pane-per-agent and fully scripted; the Codex path is window-per-agent and
 ships only as a token template (`{{PROJECT_PATH}}`, `{{TICKET_ID}}`, `{{TEAM_SIZE}}`) that
-`factory-start.sh` never calls. `scripts/apply-workflow.sh` does not distribute this subsystem —
-it copies only the pattern library, spec templates and linting configs — but `dark-factory/` is a
-shared path in `.harness-manifest.yml`. DOC DRIFT: the README tree labels the layouts "2-3", "4-5"
-and "6-9 agent" while the code hardcodes exactly 3, 5 and 9 panes.
+`factory-start.sh` never calls. `scripts/apply-workflow.sh` copies `AGENTS.md`, `project_workflow/`,
+`patterns_library/`, `specs_templates/`, `linting_configs/` and the provider's agent config — never
+`dark-factory/`, though that is a shared path in `.harness-manifest.yml`. DOC DRIFT: the README tree
+labels the layouts "2-3", "4-5" and "6-9 agent" while the code hardcodes exactly 3, 5 and 9 panes.
 
 ## Related Concepts
 

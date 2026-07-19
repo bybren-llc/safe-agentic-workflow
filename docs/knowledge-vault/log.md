@@ -33,7 +33,8 @@ Built per `knowledge-vault/docs/SAW-VAULT-BUILD.md` as epic SAW-53, stories SAW-
 
 ### Findings raised against the harness
 
-The build surfaced 86 `DOC DRIFT` and 52 `UNKNOWN` clauses. Two independently rediscovered known
+Of 221 concepts in the extraction manifest, 87 carry a `DOC DRIFT` clause and 55 carry an
+`UNKNOWN` clause — 151 and 57 occurrences respectively. Two independently rediscovered known
 open issues from source: the squash-versus-rebase contradiction (GH#33) and `replaced` not being
 enforced by the sync engine (GH#39).
 

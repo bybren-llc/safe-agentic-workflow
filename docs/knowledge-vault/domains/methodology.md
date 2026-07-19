@@ -31,8 +31,8 @@ prompt reaches Claude versus Codex belongs to [Providers](providers.md); what CI
   [Evidence-Based Delivery](../methodology/evidence-based-delivery.md) — the chain and its evidence.
 - [Role Collapsing](../methodology/role-collapsing.md) — RTE may collapse; QAS and SecEng never do.
 
-Framing: [SAFe x AI-DLC](../methodology/safe-ai-dlc.md) (Bolts as an alternative cadence, not a
-replacement), [Round Table Philosophy](../methodology/round-table-philosophy.md),
+Framing: [SAFe x AI-DLC](../methodology/safe-ai-dlc.md) (the Bolt replaces the sprint as the unit of
+cadence; gates unchanged), [Round Table Philosophy](../methodology/round-table-philosophy.md),
 [Three-Layer Architecture](../methodology/three-layer-architecture.md), and
 [Pattern Discovery Protocol](../methodology/pattern-discovery-protocol.md), whose two orderings
 disagree on what to search first. Every `roles/` and `skills/` card is a member too; the gate

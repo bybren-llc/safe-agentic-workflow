@@ -26,10 +26,10 @@ same wrapper plus mocked-network strategy as its siblings. Test 17 is `bash -n` 
 `.github/workflows/test-fork-sync.yml`, and is re-run as a regression gate by the
 [substitutions suite](substitutions.md), which asserts it exits 0.
 
-Executed here on macOS it exits 1: 38 pass, 12 fail. All 12 failures are `do_diff` assertions (Tests 7, 9, 10, 11, 15)
-and have one cause — `declare -A dir_rename_counts` at line 1560 of the sync script, which bash 3.2 rejects. This is a
-macOS portability defect (bash 3.2, BSD tooling), not a broken suite; a GNU/Linux CI runner with bash 4+ may pass all
-50. The failing assertion in the substitutions suite is inherited from this one.
+Executed here on macOS it exits 1: 38 pass, 12 fail. All 12 are `do_diff` assertions — seven in Test 7, two
+in Test 9, one in Test 11, two in Test 15; Test 10 passes. One cause: `declare -A dir_rename_counts` at line 1560
+of the sync script, which bash 3.2 rejects. This is a macOS portability defect (bash 3.2, BSD tooling), not a broken
+suite; a GNU/Linux CI runner with bash 4+ may pass all 50. The substitutions suite inherits the failing assertion.
 
 ## What It Proves
 

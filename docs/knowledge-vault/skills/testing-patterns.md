@@ -25,7 +25,7 @@ declared. The `Bash` grant lets it run the suites it describes rather than only 
 when writing tests, setting up fixtures, or validating that policies are actually enforced.
 
 This is the widest divergence in its group: the Claude copy is 273 lines against the portable
-copy's 94, a 66 percent shrink across 283 diff lines. The `.agents` copy deletes four whole
+copy's 94, a 66 percent shrink across 237 diff lines. The `.agents` copy deletes four whole
 sections — Configuration Files, RLS-Aware Testing, Common Patterns, Pre-Push Validation. A reader
 on that surface was never told how to test row-level security, which the harness treats as
 mandatory.

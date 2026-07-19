@@ -33,7 +33,8 @@ inference with no external ASR dependency.
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Transcribes with automatic language detection, attaching speaker labels when multiple speakers
   are present and flagging low-confidence segments.
 - Formats the result into the requested shape.

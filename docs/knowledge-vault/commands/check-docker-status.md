@@ -19,8 +19,9 @@ that preceded canonicalization, and what they get is a page telling them to run 
 
 ## Overview
 
-One of four deprecated aliases retired by the `-445` canonicalization on the `/remote-*` and
-`/local-*` prefixes. The canonical replacement is [`/remote-status`](remote-status.md), which
+One of five entries the commands README files under Deprecated Aliases, and one of the four that are
+pure prose redirects, retired by the `-445` canonicalization on the `/remote-*` and `/local-*`
+prefixes. The canonical replacement is [`/remote-status`](remote-status.md), which
 performs the actual Docker environment comparison. This file carries no executable steps at all.
 
 ## Invocation

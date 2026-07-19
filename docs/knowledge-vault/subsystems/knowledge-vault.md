@@ -40,12 +40,12 @@ every `.md`, `.canvas` and `.base` file, and exits 1 on any error. Other flags:
 - **Manifest sync** — a manifest id with no file errors; a file absent from the manifest *always*
   errors, which is what makes the manifest an allowlist against invented links.
 
-`tests/test-validator-gates.sh` proves the gates bite: 2 clean cases (the starter bundle, and it
-after the documented copy-and-rewrite) and 7 error cases — wikilink, repo-host URL, missing
-resource path, stub without citation, dangling canvas node, concept missing from the manifest, and
-a renamed section. DOC DRIFT: the shipped CI template's header warns that in the origin project the
-validator "was wired into no workflow at all", and that holds here — nothing in `.github/workflows`
-or `package.json` references it. UNKNOWN: whether this bundle held concepts or a manifest yet.
+`tests/test-validator-gates.sh` proves the gates bite: 2 clean cases (the starter bundle, and it after
+the documented copy-and-rewrite) and 7 error cases — wikilink, repo-host URL, missing resource path,
+stub without citation, dangling canvas node, concept missing from the manifest, and a renamed section.
+DOC DRIFT: the shipped CI template's header warns that in the origin project the validator "was wired
+into no workflow at all", and that holds here — nothing in `.github/workflows` references it, and the
+repo ships no `package.json` to hold a script entry. UNKNOWN: whether this bundle held a manifest yet.
 
 ## Related Concepts
 

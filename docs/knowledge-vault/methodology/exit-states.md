@@ -11,6 +11,7 @@ sources:
   - "AGENTS.md"
   - "CONTRIBUTING.md"
   - "docs/sop/AGENT_WORKFLOW_SOP.md"
+  - "docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md"
   - "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md"
   - "docs/onboarding/QAS-DAILY-WORKFLOW.md"
 verified_against: "fd0fc6a"
@@ -19,8 +20,7 @@ verified_against: "fd0fc6a"
 # Exit States and Handoff Statements
 
 No agent finishes by going quiet. Each role terminates in a named exit state and emits a handoff
-statement to the next role, so custody is explicitly transferred rather than assumed. It prevents
-the silent drop — work that stalls because nobody knows it is theirs.
+statement, so custody is transferred rather than assumed — no work stalls because nobody owns it.
 
 ## Overview
 
@@ -41,7 +41,7 @@ five files with no single source of truth marked — a standing drift risk.
   ARCHitect`, then ARCHitect-CLI at `Stage 2 Approved - Ready for HITL`.
 - **HITL terminates the chain.** `MERGED` — the only terminal state, and the only merge authority.
 
-The ARCHitect-CLI row appears only in README Appendix A.1; the four other copies omit it, so the
+The ARCHitect-CLI row appears only in README Appendix A.1; the five other copies omit it, so the
 canonical set is ambiguous between seven and eight states. Appendix A.1 is the fuller listing.
 
 ## Roles Involved

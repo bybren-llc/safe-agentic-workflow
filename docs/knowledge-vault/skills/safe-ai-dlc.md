@@ -26,9 +26,9 @@ initiative into projects, milestones, issues and sub-issues, wiring the dependen
 a Bolt swarm.
 
 Eleven H2s carry it, including The Fusion Model, Issue Template, Dependency-Wiring Rules, Running a
-Bolt, Human-Gate Checklist, and Anti-Patterns (Do NOT use). The anti-patterns section matters as
-much as the procedure: the skill is explicit about when the machinery is overkill. Both copies are
-exactly 146 lines — the closest-matched pair in this group after vault-sync.
+Bolt, Human-Gate Checklist, and Anti-Patterns (Do NOT use) — the last matters as much as the
+procedure, being explicit about when the machinery is overkill. Both copies are exactly 146 lines, the
+only exact line-count match across the twenty; vault-sync is tighter by diff size, 11 lines against 56.
 
 ## Routes To
 

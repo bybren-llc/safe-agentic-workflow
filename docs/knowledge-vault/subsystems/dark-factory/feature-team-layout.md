@@ -37,7 +37,8 @@ or the lead must direct. The file ends by selecting pane 1.
 
 ## Procedure Map
 
-- Splits — four splits, each launching `claude` in the pane's `agent_workdir` directory.
+- Splits — four `split-window` calls taking no command, so they create bare shells.
+- Launch — a later `send-keys` pass sends `cd <agent_workdir N> && claude ${CLAUDE_FLAGS}` per pane.
 - Permissions — `CLAUDE_FLAGS` becomes `--dangerously-skip-permissions` only when
   `FACTORY_AUTO_PERMISSIONS` is true; otherwise agents prompt and will block unattended.
 - Lead prompt — pane 1 only, instructing the TDM to open PRs with `gh pr create` and enqueue with

@@ -43,7 +43,7 @@ Related concepts: [authenticated-page](../patterns/authenticated-page.md),
   declared consumer of any skill in this lane apart from migration-patterns and pattern-discovery.
 
 This pair shows the widest textual gap in the lane: 491 lines on the Claude surface against 315 on the
-portable one, a 442-line diff. The divergence is deliberate de-vendoring. Claude headings name the
+portable one, a 342-line diff. The divergence is deliberate de-vendoring. Claude headings name the
 stack — "Next.js App Router Patterns", "Clerk Authentication Patterns", "shadcn/ui Component Patterns",
 "PostHog Analytics Patterns" — while `.agents` renames them to "Server vs Client Components",
 "Protected Pages", "Route Organization", "Authentication Patterns", "Component Library Patterns", and

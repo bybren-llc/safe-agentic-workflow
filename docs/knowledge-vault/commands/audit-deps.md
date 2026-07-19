@@ -45,8 +45,8 @@ size-facing counterpart to the routine validation commands. Its output is eviden
 - Claude — the full six steps plus the report and the Linear ticket creation.
 - Gemini (`.gemini/commands/audit-deps.toml`) — mirrors steps 1-6 and the report template, but
   omits Linear ticket creation and the Customization Guide entirely.
-- Gemini — wraps each command in `!{...}` shell substitution with `|| echo` fallbacks, so no step
-  can fail the run; the Claude version applies no such error suppression.
+- Gemini — pre-executes five of the six inspections in `!{...}`, three of them with `|| echo`
+  fallbacks; step 2's `ANALYZE=true yarn build` stays a plain fenced block with neither.
 - Gemini — truncates the icon grep with `head -10`; Claude leaves it unlimited.
 
 Open question: the Claude command specifies no failure handling, so whether it aborts or continues

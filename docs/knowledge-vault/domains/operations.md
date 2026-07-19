@@ -31,7 +31,7 @@ Automation that runs on push:
 
 Scripts, the release gate, and the commands an operator types:
 
-- [setup-template](../operations/scripts/setup-template.md) — replaces 31 placeholder tokens.
+- [setup-template](../operations/scripts/setup-template.md) — replaces 30 placeholder tokens.
 - [pre-release-check](../operations/scripts/pre-release-check.md) — runs every test suite; the only
   automation that blocks on one failing.
 - [generate-changelog](../operations/scripts/generate-changelog.md) — classifies `.claude/` only.

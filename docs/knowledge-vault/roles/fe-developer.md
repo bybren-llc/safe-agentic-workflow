@@ -48,8 +48,9 @@ is incomplete without visual evidence.
   green and visual evidence attached. Reporting the work as "done" is explicitly forbidden.
 - **Escalates** spec gaps to BSA and delivery blockers to [TDM](tdm.md).
 
-The provider mirror is stale: it drops the stop-the-line gate and ownership model (~38 lines) and
-declares a smaller model, so the provider variant of this role has no AC/DoD gate.
+The provider mirror is stale: it drops the stop-the-line gate, the ownership model and the
+auto-loaded skills block (~38 lines) plus the whole Exit Protocol — 74 lines missing in all — and
+declares a smaller model, leaving no AC/DoD gate and no `Ready for QAS` exit state.
 
 ## Citations
 

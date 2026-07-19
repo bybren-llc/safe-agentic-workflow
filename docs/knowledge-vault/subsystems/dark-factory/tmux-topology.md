@@ -32,23 +32,23 @@ holds no application data and no durability — a reboot ends it. Its job is to 
 | --- | --- | --- |
 | `$HOME/.dark-factory/env` | config, copied from `templates/env.template` | not versioned |
 | `.dark-factory/logs/<session>/` | one `<agent>.log` per pane | archived to `logs/archive/` on stop |
-| `.dark-factory/worktrees/<session>/agent-N` | git worktrees | Codex adds `.codex-yolo/audit.log` |
+| `.dark-factory/worktrees/<session>/agent-N` | git worktrees | one per pane, branch per agent |
+| `$HOME/.codex-yolo/audit.log` | codex-yolo approval audit trail | Codex path only, outside the tree |
 
 `tmux.conf` sets `default-terminal screen-256color`, `history-limit 50000`, `mouse on`,
 `status-interval 5`, `pane-border-status top` with `#{pane_title}`, `allow-rename off`,
-`automatic-rename off`, `monitor-activity on`, and `base-index 1` plus `pane-base-index 1` — that
-pair load-bearing, since every script addresses panes as `<session>:1.<pane>`. Alt+arrow switching
-binds with `-n`; `prefix + L` opens a `display-popup` tailing the logs. The Codex variant instead
-gives each agent its own tmux *window* plus a `Control` window — see [Codex Guide](codex-guide.md).
+`automatic-rename off`, `monitor-activity on`, and `base-index 1` plus `pane-base-index 1` — that pair
+load-bearing, since every script addresses panes as `<session>:1.<pane>`. Alt+arrow binds with `-n`;
+`prefix + L` tails the logs in a `display-popup`. The Codex variant gives each agent its own tmux
+*window* plus a `Control` window — see [Codex Guide](codex-guide.md).
 
 ## Access & Deployment
 
 - Remote access is SSH or Cursor Remote-SSH per [Cursor SSH Guide](cursor-ssh-guide.md); read-only
   observation is `tmux attach -r`, and [factory-attach](factory-attach.md) wraps the read-write path.
 - `env.template` declares key names only. Thirteen carry a `FACTORY_` prefix — PROJECT_DIR,
-  MAIN_BRANCH, TICKET_PREFIX, SSH_KEY, REMOTE_HOST, REMOTE_USER, LOG_DIR, WORKTREE_DIR,
-  USE_WORKTREES, AUTO_PERMISSIONS, AUTO_ATTACH, MERGE_METHOD and REQUIRE_QUEUE — plus one more,
-  `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`.
+  MAIN_BRANCH, TICKET_PREFIX, SSH_KEY, REMOTE_HOST, REMOTE_USER, LOG_DIR, WORKTREE_DIR, USE_WORKTREES,
+  AUTO_PERMISSIONS, AUTO_ATTACH, MERGE_METHOD, REQUIRE_QUEUE — plus `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`.
 - `factory-start.sh` reads PROJECT_DIR, LOG_DIR, USE_WORKTREES, WORKTREE_DIR and AUTO_ATTACH; the
   layouts read AUTO_PERMISSIONS; `factory-setup.sh` reads MAIN_BRANCH. SSH_KEY, REMOTE_HOST,
   REMOTE_USER and TICKET_PREFIX are read by nothing — documentation, not config.

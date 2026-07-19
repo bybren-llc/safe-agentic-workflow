@@ -30,12 +30,12 @@ prompts now differ from their originals, only `bsa.md` still matching.
 
 - `augment/` — starter kit, framed against the Claude "golden path"; `claude_code/` hooks are
   byte-identical to `.claude/hooks/`.
-- `claude_code/prompts/be-developer.md` — the divergence that matters. `.claude/` sets
-  `model: opus` and carries a Precondition (Stop-the-Line Gate) section plus a You Own / You Must /
-  You Must NOT ownership model; the mirror sets `model: sonnet` and omits all 38 of those lines, dropping
+- `claude_code/prompts/be-developer.md` — the divergence that matters. `.claude/` sets `model: opus`;
+  the mirror sets `model: sonnet` and drops 69 lines — the Precondition (Stop-the-Line Gate) section,
+  the You Own / You Must / You Must NOT ownership model, Available Skills, and Exit Protocol — losing
   [Stop-the-Line Gate](../methodology/stop-the-line-gate.md) authority without saying so.
 - `claude_code/permissions/settings.template.json` — inverted against `.claude/`, neither a
-  superset: ~90 `permissions.allow` entries with an empty deny, embedding `DATABASE_URL`
+  superset: 84 `permissions.allow` entries with an empty deny, embedding `DATABASE_URL`
   strings with `{{DB_USER}}` / `{{DB_PASSWORD}}` / `{{DB_NAME}}` tokens and permitting
   `prisma db push --force-reset`, which root `CLAUDE.md` forbids. `.claude/settings.template.json`
   leaves permissions a `_comment` placeholder but adds `teammateMode` and agent-teams env keys.

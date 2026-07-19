@@ -4,8 +4,8 @@ Thirty-five commands you invoke by name: 24 on the Claude surface and 11 Gemini-
 that have no counterpart anywhere else. Commands are explicit workflows with steps and side effects
 — unlike [skills](../skills/index.md), which the model chooses for you.
 
-Six commands are deprecated aliases kept alive for muscle memory; they are listed last, and each one
-names its replacement.
+Five commands are deprecated aliases kept alive for muscle memory; they are listed last, and each
+one names its replacement.
 
 ## The work session
 

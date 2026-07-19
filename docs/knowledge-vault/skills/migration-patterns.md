@@ -48,8 +48,8 @@ Related: [rls-migration](../patterns/rls-migration.md) and [Stop-the-Line Gate](
   human handshake, not a wired step.
 
 Unusually, the portable copy is the longer one: `.agents` runs 196 lines to Claude's 191, one of only
-three skills where de-vendoring grew the file. It renames "PROD Migration Requirements" to "Production
-Migration Requirements", drops `{{AUTHOR_HANDLE}}`, and adds `{{MIGRATIONS_DIR}}`.
+four skills de-vendoring grew (with release-patterns, stripe-patterns, vault-sync). It renames "PROD
+Migration Requirements" to "Production", drops `{{AUTHOR_HANDLE}}`, and adds `{{MIGRATIONS_DIR}}`.
 
 ## Citations
 

@@ -12,7 +12,7 @@ understand one of them, you want its concept and its sub-tree — not a tour of 
 - [Pattern Library](pattern-library.md) — eighteen reference implementations in seven categories,
   distributed to adopters rather than executed here. See [patterns/](../patterns/index.md) for the
   implementations themselves.
-- [Spec Templates](spec-templates.md) — the five planning scaffolds that make the workflow
+- [Spec Templates](spec-templates.md) — the four planning scaffolds that make the workflow
   spec-first. Detailed below.
 - [Linting Configs](linting.md) — shipped ESLint and Prettier configs whose `no-restricted-syntax`
   rules machine-enforce the RLS discipline. The interesting claim: a convention nobody checks is a

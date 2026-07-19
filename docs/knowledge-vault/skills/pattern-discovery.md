@@ -27,10 +27,11 @@ that search comes back empty.
 
 ## Overview
 
-Model-invocable, and one of only two skills across the twenty declaring a forked subagent context —
-`context: fork` with `agent: Explore`, tools limited to `Read`, `Grep`, and `Glob`. The fork is the
-design: the sweep runs in its own context so it does not crowd out the work that prompted it (the other
-forked skill is security-audit). Reach for it before any feature, route, component, or schema change.
+Model-invocable, one of three skills declaring `context: fork` and one of only two pairing it with
+`agent: Explore`, tools limited to `Read`, `Grep`, `Glob`. The fork is the design: the sweep runs in
+its own context so it does not crowd out the work that prompted it. The other `Explore` forker is
+security-audit; spec-creation forks without naming an agent. Reach for it before any feature, route,
+component, or schema change.
 
 ## Routes To
 
@@ -48,9 +49,8 @@ Related: [Pattern Discovery Protocol](../methodology/pattern-discovery-protocol.
 - [System Architect](../roles/system-architect.md) — judging whether a new pattern is warranted.
 
 Five declared roles make this the second-widest adoption in the harness, behind safe-workflow's six.
-The surfaces diverge most here proportionally: `.agents` is 62 lines against Claude's 155. It drops the
-`context`, `agent`, and `allowed-tools` frontmatter — so the fork does not happen at all there — and
-deletes "Pattern Library Structure", "Security Requirements", and "Validation Commands".
+The surfaces diverge most here proportionally: `.agents` is 62 lines against Claude's 155, dropping the
+`context`, `agent` and `allowed-tools` frontmatter — so no fork happens there — plus three sections.
 
 ## Citations
 

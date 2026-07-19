@@ -22,9 +22,8 @@ An executor, not a designer. "Execute, don't discover" is the whole posture.
 The role turns an approved spec into server-side code by locating an existing pattern and
 customising it — read spec, load pattern, copy the pattern code, customise per spec, validate.
 It holds the full file-editing tool set but no Linear MCP tools, so it cannot post its own
-evidence. The boundary that matters most is the precondition gate: if the ticket carries no
-Acceptance Criteria or Definition of Done, the role stops and routes back rather than filling
-the gap — "you are NOT responsible for inventing AC/DoD."
+evidence. The boundary that matters most is the precondition gate: a ticket with no Acceptance
+Criteria or Definition of Done stops the role — "you are NOT responsible for inventing AC/DoD."
 
 ## Responsibilities
 
@@ -49,8 +48,9 @@ the gap — "you are NOT responsible for inventing AC/DoD."
   green. Declaring the work "done" is explicitly forbidden; only QAS closes that judgement.
 - **Escalates** spec or pattern gaps to [BSA](bsa.md), and delivery blockers to [TDM](tdm.md).
 
-The provider mirror is stale: it drops the stop-the-line gate and ownership model (~38 lines)
-and declares a smaller model, so the provider variant of this role has no AC/DoD gate at all.
+The provider mirror is stale: it drops the stop-the-line gate, the ownership model and the
+auto-loaded skills block (~38 lines) plus the whole Exit Protocol — 69 lines missing in all — and
+declares a smaller model, leaving no AC/DoD gate and no `Ready for QAS` exit state.
 
 ## Citations
 

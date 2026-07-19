@@ -20,8 +20,7 @@ The entry point for ticketed work: less "make a branch" than "refuse to start un
 
 Runs a five-item pre-flight: confirm the ticket exists and is Todo or In Progress, apply the
 stop-the-line AC/DoD gate, derive the branch name, sync `dev`, then cut the branch. Only the gate
-can hard-block. The command supplies execution steps while `CONTRIBUTING.md` remains the northstar
-for conventions.
+can hard-block; `CONTRIBUTING.md` remains the northstar for conventions.
 
 ## Invocation
 
@@ -30,7 +29,7 @@ for conventions.
 - `/workflow:start-work` on the Gemini surface.
 
 Its Claude frontmatter grants a wildcard Linear MCP scope alongside the standard file and shell
-tools — the only command in its lane to request a wildcard MCP grant.
+tools — one of only two commands to do so, the other being [`/sync-linear`](sync-linear.md).
 
 ## What It Does
 
@@ -48,7 +47,7 @@ tools — the only command in its lane to request a wildcard MCP grant.
 | Claude | branches from `dev`; full Linear MCP verification |
 | Gemini | branches from `main`, not `dev` — a real divergence, not wording |
 | Gemini | no Linear MCP, so verification degrades to "check the web UI or CLI" |
-| Gemini | adds a status-inspection block but never issues checkout, pull, or branch |
+| Gemini | swaps Claude's `## Workflow` routing section for a pre-executed `!{git status}` block |
 
 The stop-the-line gate text is preserved verbatim across both providers — the part that most
 needed to survive the port.

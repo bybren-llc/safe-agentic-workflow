@@ -35,8 +35,8 @@ library and no parsing dependency in the file.
 
 ## What It Does
 
-- Detects the target with `ls -la {{args}} || echo "File not found"` — note this command uses
-  `ls -la` where the audio and video media commands use `file`.
+- Detects the target with `!{ls -la {{args}} 2>/dev/null || echo "File not found"}` — `ls -la` here
+  where the audio and video media commands use `file`; the redirect makes echo the failure path.
 - Identifies document type (invoice, form, report, contract) and detects tables, forms and
   structured content, extracting text with section awareness.
 - Maps invoices to a JSON shape with vendor, invoice number, date, an items array of description,

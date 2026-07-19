@@ -50,7 +50,7 @@ advice is for someone else's system. Fix the globs before wondering why no rule 
 Line counts run 74 to 117; `15-deployment.mdc` and `16-stripe-payments.mdc` are the surface's two
 largest rules at 117 each, still inside the README's under-200 principle.
 
-DOC DRIFT: the README's rule-index table abbreviates the globs for 11, 12, 13, 15, and 16 — listing
+DOC DRIFT: the README's rule-index table abbreviates the globs for 11, 12, 15, and 16 — listing
 11 as `.tsx`/`.ts` when the file also matches `.jsx` and `.js`. Frontmatter is authoritative.
 
 ## Citations

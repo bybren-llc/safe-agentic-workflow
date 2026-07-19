@@ -40,7 +40,7 @@ the gate cannot trip on its own text), then **executes** every `tests/test-*.sh`
 - **Exit** `1` — any FAIL, printed as `RELEASE BLOCKED` (verified at lines 200-202).
 - **Exit** `0` — `RELEASE READY WITH WARNINGS` or `ALL CHECKS PASSED`. Warnings never block; section
   5 fails only when the branch is not `main`, warning on a dirty tree and surviving feature branches.
-- **Caveat** the suites really are run — line 66 is `timeout 120 bash "$test_file"` — but a suite
+- **Caveat** the suites really are run — line 67 is `timeout 120 bash "$test_file"` — but a suite
   counts as passing **only** if its output matches `grep -q 'ALL.*PASS'`, so one that aborts early
   is reported FAILED rather than errored.
 - **Caveat — portability defect, not a missing gate** the loop depends on `timeout` and parses

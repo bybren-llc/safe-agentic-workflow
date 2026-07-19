@@ -20,10 +20,10 @@ The first of two review stages, and the custodian of everything the other roles 
 ## Overview
 
 The role validates patterns, makes architectural decisions, and prevents conflicting approaches
-from entering the codebase. It is the largest role definition in the team by some margin. It holds
-full file-editing tools but no Linear MCP grant, so it reviews and authors rather than administers
+from entering the codebase — the largest role definition in the team by some margin. It holds full
+file-editing tools but no Linear MCP grant, so it reviews and authors rather than administers
 tickets. Every PR passes its Stage 1 review before an ARCHitect-in-CLI Stage 2 review, and it may
-request changes and block progression until violations are fixed.
+block progression until violations are fixed.
 
 ## Responsibilities
 
@@ -48,9 +48,10 @@ request changes and block progression until violations are fixed.
   exit state `Stage 1 Approved - Ready for ARCHitect`.
 - **Approves** schema changes with the ARCHitect before [Data Engineer](data-engineer.md) migrates.
 
-The provider mirror is stale: it drops the declared skills block and the Stage 1 review sections,
-keeping an older governance heading in their place. It is one of only two roles whose provider
-copy does not also downgrade the model.
+The provider mirror is stale: it drops the declared skills block, the Ownership Model, the output
+location, the mandatory reading checklist and the whole Exit Protocol, so the exit state above does
+not exist on that surface at all. It is one of only two roles whose provider copy does not also
+downgrade the model.
 
 ## Citations
 

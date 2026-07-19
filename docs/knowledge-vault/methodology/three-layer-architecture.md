@@ -21,16 +21,16 @@ verified_against: "fd0fc6a"
 # Three-Layer Architecture (Hooks, Commands, Skills)
 
 The harness sorts everything it ships by *who invokes it*: hooks fire automatically, commands are
-typed by a person, skills are chosen by the model. The docs frame this as "process as service, not
-control," attributed to Anthropic's paper on effective harnesses for long-running agents.
+typed by a person, skills are chosen by the model. The harness's own whitepapers call this "process
+as service, not control"; README separately credits the layering to Anthropic's harnesses paper.
 
 ## Overview
 
 The layering exists so guardrails cannot be forgotten, workflows stay discoverable, and expertise
 loads only when relevant. On disk it is uneven — layer 1 is thin and advisory. Two discrepancies
 matter. README's Includes bullet says 18 model-invoked skills while its badge, research table,
-structure block, and the directory all say 20 — 20 is correct. And `.claude/hooks-config.json`
-blocks pushes to `main` while the workflow rebases onto `{{PRIMARY_DEV_BRANCH}}`; the hook wins.
+structure block, and the directory all say 20 — 20 is correct. And `.claude/hooks-config.json` blocks
+pushes to `main` while the workflow rebases onto `{{PRIMARY_DEV_BRANCH}}`; the hook wins.
 
 ## Design
 

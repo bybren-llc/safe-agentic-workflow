@@ -13,7 +13,7 @@ repository ships prompts and configuration, not a running service.
   `dev`. The template baseline an adopting project inherits.
 - [PR Validation Workflow (pr-validation.yml)](workflows/pr-validation.md) — process rather than
   code: rebase status, commit message format, PR title, and the presence of a Linear ticket
-  reference. This is the workflow that fails you for a missing `[SAW-XX]`.
+  reference. It only *warns* you for a missing `[SAW-XX]` — its one hard gate is the rebase check.
 - [Fork Sync Compatibility Workflow (test-fork-sync.yml)](workflows/test-fork-sync.md) —
   path-filtered; runs the fork-sync and sync unit suites against the fixture manifests. See
   [sync/](../sync/index.md) for what those suites currently prove.
@@ -64,9 +64,10 @@ repository is laid out the way it is, and because their placeholder conventions 
 files they touched.
 
 - [reorganize-docs.sh - One-Shot Docs Reorganization](scripts/reorganize-docs.md) — the migration
-  that `git mv`'d eight root docs into `docs/` subdirectories
+  that `git mv`'d seven root docs into `docs/` subdirectories, plus `apply-workflow.sh` into
+  `scripts/`
 - [update-doc-references.sh - Doc Link Rewriter](scripts/update-doc-references.md) — rewrote links to
-  the six moved docs, leaving a `.bak` beside every file it edited
+  the six moved docs, leaving a `.bak` beside each file it changed and then offering to delete them
 - [fix-remaining-doc-references.sh - Residual Link Fixer](scripts/fix-remaining-doc-references.md) —
   the second pass, for backtick and bare-list references the rewriter missed
 - [generalize_commands.py - Command Template Generalizer](scripts/generalize-commands.md) — injected

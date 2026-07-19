@@ -42,9 +42,9 @@ belongs to [Methodology](methodology.md), the CI that would run a config to
 [user-context-api](../patterns/user-context-api.md), the BSA writes it into a spec from the
 [spec template](../subsystems/spec-templates/spec-template.md) — and only ESLint catches deviation.
 
-**Distribution.** `apply-workflow.sh` copies `patterns_library`, `specs_templates` and
-`linting_configs` into an adopter repo, nothing else. Dark Factory is not copied; it travels as a
-`sync_scope` domain, so the two halves of this domain reach adopters by different routes.
+**Distribution.** `apply-workflow.sh` copies `AGENTS.md`, `project_workflow/`, `patterns_library`,
+`specs_templates`, `linting_configs` and the chosen `agent_providers/<provider>/` into an adopter
+repo. Dark Factory is not copied; it travels as a `sync_scope` domain, so the halves take two routes.
 
 **A factory session.** [factory-setup](../subsystems/dark-factory/factory-setup.md) refuses to run
 without GitHub merge queue enforcement; [factory-start](../subsystems/dark-factory/factory-start.md)

@@ -34,7 +34,8 @@ subtitle tooling is involved — the merge is model inference.
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Transcribes the audio track: all dialogue with speaker attribution, sound effects and ambient
   audio, music cues and transitions, and non-verbal vocalizations.
 - Analyses the visual track: interior and exterior scene locations, character actions and

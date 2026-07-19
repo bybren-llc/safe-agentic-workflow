@@ -1,6 +1,8 @@
 # Skills
 
-Twenty model-invoked skills. Nobody types these — the model loads one when the work in front of it
+Twenty skills — sixteen model-invoked, plus four that only a human can invoke by name
+(deployment-sop, migration-patterns, release-patterns, team-coordination, each carrying
+`disable-model-invocation: true`). For the sixteen, the model loads one when the work in front of it
 matches the skill's trigger, which makes the trigger description the most important line in each
 file. Skills carry procedure and standards; [commands](../commands/index.md) carry executable
 workflows you invoke by name.

@@ -30,8 +30,8 @@ the sync engine rebuilds its map from them — rename a token and fork sync sile
 `s|OLD|NEW|g`. 28 `read -rp` prompts feed them. Four values are derived, never prompted —
 `GITHUB_REPO_URL`, `TICKET_PREFIX_LOWER`, `AUTHOR_INITIALS`, `HARNESS_VERSION` — exactly the four
 absent from the manifest's 26 identity keys, which the schema confirms are computed automatically.
-`_sed_inplace` picks GNU `sed -i` versus BSD `sed -i ''` via `sed --version | grep GNU`, the one
-genuinely cross-platform script in this directory.
+`_sed_inplace` picks GNU `sed -i` versus BSD `sed -i ''` via `sed --version | grep GNU`, the only script
+here detecting the flavour explicitly; two others use the portable [`sed -i.tmp`](update-doc-references.md) form.
 
 ## Inputs & Outputs
 

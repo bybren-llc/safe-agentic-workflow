@@ -28,7 +28,7 @@ must actually run.
 Eight H2s carry it: Purpose, When This Skill Applies, Key Files, Procedure, Invariants (do not
 relax), Anti-Patterns (Do NOT use), Authoritative References, Routes To. Step one diffs
 `baseline_sha` against `HEAD` over a per-project watch-list of source paths; that watermark makes
-drift detection cheap instead of a full re-read. The two surfaces differ by only 15 lines.
+drift detection cheap instead of a full re-read. The two surfaces differ by only 11 lines: 5 removed, 6 added.
 
 ## Routes To
 

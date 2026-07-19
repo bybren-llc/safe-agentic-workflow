@@ -2,7 +2,7 @@
 
 Eleven SAFe agent roles. Each card states the role's mandate, the artifacts it owns, and — the part
 worth reading first — the authority it holds and the boundary it must not cross. Several roles can
-stop the line; two are read-only by design. The gates these roles enforce are described in the
+stop the line; four hold no file-editing tools at all. The gates these roles enforce are described in the
 [Methodology domain](../domains/methodology.md).
 
 Roles are grouped below by what they do to a piece of work as it moves.
@@ -19,14 +19,14 @@ Before anyone writes code, requirements become testable stories with pattern ref
 ## Build the work
 
 The four implementation roles. All of them start from an existing pattern rather than a blank file,
-and the two developers refuse to start a ticket that has no acceptance criteria.
+and all but the DPE refuse to start a ticket that has no acceptance criteria.
 
 - [BE Developer](be-developer.md) — API routes and server logic copied from `patterns_library`;
   stops the line if the ticket has no AC/DoD
 - [FE Developer](fe-developer.md) — UI components and pages from patterns; same AC/DoD gate, hands
   off to QAS when done
 - [Data Engineer](data-engineer.md) — schema changes and migrations; cannot apply a migration
-  without explicit System Architect approval
+  without explicit ARCHitect approval, and carries the same AC/DoD gate as the two developers
 - [DPE — Data Provisioning Engineer](data-provisioning-eng.md) — ETL pipelines and data-quality
   validation from BSA specs; the smallest and least-gated of the eleven
 

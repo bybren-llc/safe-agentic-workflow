@@ -49,9 +49,9 @@ build, deploy, verify health, tail logs, print a report. Container work is deleg
 | Gemini | drops the `--both` mode, port tables, mode-switching section and report template |
 
 Two drifts sit inside the Claude file. Its Deployment Modes table documents a `--both` flag the
-step-1 parser never reads, so `--both` falls through to dev mode. Its Related Commands list —
-`/local-health`, `/local-logs`, `/local-restart`, `/local-rollback` — names four files absent from
-`.claude/commands/`; only the rollback offer hedges with "(when available)".
+step-1 parser never reads, so `--both` falls through to dev mode. Its Related Commands list names
+three absent files — `/local-health`, `/local-logs`, `/local-restart`; a fourth, `/local-rollback`,
+is offered only in the failure-handling prose, hedged with "(when available)".
 
 ## Citations
 

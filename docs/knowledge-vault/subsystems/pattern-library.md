@@ -39,8 +39,8 @@ Protocol makes searching it step 1 before any feature, and the
 | database, testing, ci, config | 2 each | rls-migration, e2e-user-flow, deployment-pipeline |
 
 Two dialects coexist: eight files are concrete Next.js / Clerk / Prisma / Zod TypeScript, while six
-newer ones — input-sanitization, rate-limiting, secrets-management, environment-config and
-structured-logging — use `{{LANGUAGE}}` and `{{SOURCE_DIR}}` placeholders to stay stack-agnostic.
+newer ones — input-sanitization, rate-limiting, secrets-management, environment-config,
+structured-logging and deployment-pipeline — use `{{LANGUAGE}}` and `{{SOURCE_DIR}}` placeholders.
 
 DOC DRIFT, twice. The only executable mentioning the library, `session-start-pattern-check.sh`,
 sets `PATTERN_DIR=docs/patterns` and counts `*.md` there; that directory holds one redirect README,

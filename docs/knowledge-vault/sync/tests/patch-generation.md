@@ -25,7 +25,7 @@ including the flattened patch filename (`/` replaced by `__`) and the emitted `A
 The header states a two-tier strategy: unit tests source sync functions through a wrapper that
 strips the main entry point, while integration tests run a mocked copy of the script with
 `fetch_upstream` and `get_upstream_sha` stubbed, so no network is touched. It runs in no workflow
-— `.github/workflows/test-fork-sync.yml` invokes five of the nine suites and not this one.
+— `.github/workflows/test-fork-sync.yml` invokes six of the nine suites and not this one.
 
 Executed here it exits 0 with 50 pass, 0 fail, even on macOS bash 3.2: it never calls `do_diff`, so it sidesteps the
 `declare -A` bash 4 requirement that fails the rename-diff and protected-files suites on that shell.

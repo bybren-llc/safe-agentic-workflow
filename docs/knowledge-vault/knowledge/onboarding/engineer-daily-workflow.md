@@ -14,7 +14,7 @@ verified_against: "fd0fc6a"
 # Engineer Daily Workflow
 
 This is a map-card. `docs/onboarding/ENGINEER-DAILY-WORKFLOW.md` is the source of truth: 495 lines,
-10 H2 sections, scoped to the [FE Developer](../../roles/fe-developer.md) and
+11 H2 sections, scoped to the [FE Developer](../../roles/fe-developer.md) and
 [BE Developer](../../roles/be-developer.md) roles.
 
 ## What It Is Authoritative For

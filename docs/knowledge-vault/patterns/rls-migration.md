@@ -42,10 +42,11 @@ a reference implementation the exemplar is the artifact. It reaches adopters who
   `resource`; no second in-repo instance exists to compare it against.
 
 Agents are meant to arrive by discovery: `CLAUDE.md` and the
-[pattern-discovery](../skills/pattern-discovery.md) skill point at `patterns_library/`, the
-[migration-patterns](../skills/migration-patterns.md) and
-[rls-patterns](../skills/rls-patterns.md) skills both land here, and the library README indexes the
-file under `database`.
+[pattern-discovery](../skills/pattern-discovery.md) skill point at `patterns_library/`, and the
+library README indexes the file under `database`. The two adjacent skills do not route here —
+[rls-patterns](../skills/rls-patterns.md) mandates the same three context helpers from the other
+direction (21 mentions) but names no library path, and
+[migration-patterns](../skills/migration-patterns.md) inlines its own RLS policy templates instead.
 
 **Open question:** whether this schema and SQL have ever been applied anywhere. Nothing in this
 repo migrates against them, so correctness rests on review alone.

@@ -14,8 +14,8 @@ verified_against: "fd0fc6a"
 
 # Test: Protected File Enforcement
 
-Protection is what stops an upstream sync from overwriting a fork's local customisations. The largest of the nine sync
-suites — 19 sections, 54 assertions — and the one testing both polarities: what is protected, and what is not.
+Protection is what stops an upstream sync from overwriting a fork's local customisations. The largest sync suite by
+assertion count — 19 sections, 54 executed — and the one testing both polarities: protected and not.
 
 ## Overview
 
@@ -25,10 +25,10 @@ its siblings. It runs in CI through `.github/workflows/test-fork-sync.yml`, whos
 `tests/test-protected-files.sh`, so a change to this suite alone will not trigger the job. Test 16 is `bash -n` only;
 Test 17 shells out to `tests/test-manifest-loader.sh`, so a loader failure fails this suite too.
 
-Executed here on macOS it exits 1: 48 pass, 6 fail. All six are the `do_diff` tests (7, 8, 12) expecting
-`PROTECTED`/`EXCLUDED` labels, and all six trace to `declare -A dir_rename_counts` at line 1560 of the sync script,
-which bash 3.2 rejects. The assertions encode a real product requirement and the product is genuinely broken on that
-shell — but this is macOS portability (bash 3.2, BSD coreutils); GNU/Linux CI with bash 4+ may pass all 54.
+Executed here on macOS it exits 1: 48 pass, 6 fail. All six are `do_diff` assertions expecting `PROTECTED`/`EXCLUDED`
+labels — five in Test 7, one in Test 12; Test 8 passes. All six trace to `declare -A dir_rename_counts` at line 1560
+of the sync script, which bash 3.2 rejects. The assertions encode a real product requirement and the product is
+genuinely broken on that shell — but this is macOS portability; GNU/Linux CI with bash 4+ may pass all 54.
 
 ## What It Proves
 

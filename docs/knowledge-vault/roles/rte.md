@@ -19,17 +19,16 @@ The last agent to touch a change before a human does. A PR shepherd, not a devel
 
 ## Overview
 
-The role separates *preparing* a release from *authorizing* one. RTE owns everything up to the
+The role separates *preparing* a release from *authorizing* one: RTE owns everything up to the
 merge button and nothing past it. Its Claude surface grants `Read`, `Bash`, and `Grep` only — no
-`Write` or `Edit` — so PRs are created through `gh` rather than by editing files, which
-structurally stops the shepherd becoming an implementer. Entry is gated: RTE may not begin until
-QAS sets `Approved for RTE` and posts evidence.
+`Write` or `Edit` — so PRs are created through `gh` rather than by editing files, which stops the
+shepherd becoming an implementer. Entry is gated: RTE may not begin until QAS sets `Approved for
+RTE` and posts evidence.
 
 ## Responsibilities
 
 - Create the PR from template, assemble other roles' evidence, maintain PR metadata.
-- Monitor CI and route failures: structural issues to the System Architect, implementation bugs
-  back to the engineer who wrote them.
+- Monitor CI, routing structural failures to the System Architect and bugs back to their author.
 - Enforce rebase-first history; merge commits are never created.
 - Never merge, never implement product code, never approve its own work.
 
@@ -48,9 +47,10 @@ QAS sets `Approved for RTE` and posts evidence.
 | Out | Human (HITL) | exit state `Ready for HITL Review` |
 | Escalation | ARCHitect or [TDM](tdm.md) | blocked merge, unroutable CI failure |
 
-The provider mirrors disagree with the authoritative Claude surface: the `agent_providers/` copy
-omits the QAS-gate prerequisite, and the Codex mirror grants `workspace-write` where Claude grants
-no write tools.
+The provider mirrors contradict the Claude surface on the defining rule. The `agent_providers/` copy
+omits the QAS-gate prerequisite, replaces the HITL handoff with a "Merge Pull Request" step running
+`gh pr merge --rebase --delete-branch`, and drops the `Ready for HITL Review` exit state — the
+provider RTE merges, which Claude forbids. Codex likewise grants it `workspace-write`.
 
 ## Citations
 

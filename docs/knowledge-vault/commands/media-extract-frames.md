@@ -33,7 +33,8 @@ boundaries instead, use [/media:scene-detect](media-scene-detect.md).
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the only shell call.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Identifies key frames on five signals: scene changes, significant moments (key actions,
   reactions, events), composition shifts, text appearances (title cards, lower thirds, captions),
   and subject changes.

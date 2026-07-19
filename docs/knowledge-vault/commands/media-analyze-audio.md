@@ -33,7 +33,8 @@ is `file` — everything else is model multimodal inference, not a signal-proces
 
 ## What It Does
 
-- Verifies the target with `file {{args}} || echo "File not found"` — the sole failure path defined.
+- Verifies the target with a pre-executed `!{file {{args}} 2>/dev/null || echo "File not found"}`
+  — the stderr redirect is what makes the echo branch the observable failure path.
 - Classifies content type, then branches: speech yields language and dialect, pace in WPM,
   emotional tone and clarity; music yields genre, tempo, instrumentation and energy; ambient or
   mixed yields source identification, layering, and dominant versus background.

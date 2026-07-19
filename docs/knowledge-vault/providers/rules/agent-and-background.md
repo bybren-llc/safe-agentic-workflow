@@ -26,31 +26,31 @@ them into "Agent-Role Rules" (20-23) and "Advanced Features" (30-31) over one co
 
 ## The four personas are pointers, not definitions
 
-Each role rule is a summary delegating to a Claude agent file: 20 (72 lines) to
-`.claude/agents/system-architect.md`, 21 (73) to `.claude/agents/be-developer.md`, 22 (84) to
-`.claude/agents/qas.md`, 23 (84) to `.claude/agents/security-engineer.md`. Vault concepts:
-[System Architect](../../roles/system-architect.md), [BE Developer](../../roles/be-developer.md),
-[QAS](../../roles/qas.md), [Security Engineer](../../roles/security-engineer.md).
+Each role rule summarizes and delegates to a file in `.claude/agents/`: 20 (72 lines) to
+`system-architect.md`, 21 (73) to `be-developer.md`, 22 (84) to `qas.md`, 23 (84) to
+`security-engineer.md`. Vault: [System Architect](../../roles/system-architect.md), [QAS](../../roles/qas.md),
+[BE Developer](../../roles/be-developer.md), [Security Engineer](../../roles/security-engineer.md).
 
-All four targets exist on disk, so the thin-pointer pattern holds — and Cursor's personas break the
-moment the Claude surface is removed. Coverage is partial: 4 of 11 roles, with BSA, FE Developer,
-Data Engineer, Data Provisioning Engineer, RTE, TDM, and Tech Writer absent.
+All four targets exist, so the thin-pointer pattern holds — and Cursor's personas break the moment
+the Claude surface is removed. Coverage is 4 of 11 roles: BSA, FE Developer, Data Engineer, Data
+Provisioning Engineer, RTE, TDM, and Tech Writer have no Cursor rule.
 
 ## 30 — background agents, the Cursor-only capability
 
 `30-background-agents.mdc` (74 lines) describes agents in isolated Ubuntu VMs with internet access:
-clone from GitHub, branch, open PRs. The README is explicit that this buys no exemption — such work
-still passes the same gate chain ([Stop-the-Line](../../methodology/stop-the-line-gate.md), QAS,
-[three-stage review](../../methodology/three-stage-pr-review.md)), still needs a human to merge, and
-runs one ticket per agent. `.codex/README.md` marks it N/A for Gemini and Codex.
+clone, branch, open PRs. The README grants no exemption — [Stop-the-Line](../../methodology/stop-the-line-gate.md),
+QAS, and [three-stage review](../../methodology/three-stage-pr-review.md) all still apply, a human
+still merges, and it runs one ticket per agent. `.codex/README.md` marks it N/A for Gemini and Codex.
 
 ## 31 — MCP integration, and where it disagrees with itself
 
-`31-mcp-integration.mdc` (75 lines) points at `.cursor/mcp.json`, which the README says is
+`31-mcp-integration.mdc` (75 lines) points at `.cursor/mcp.json`, which the README calls
 interchangeable across providers. Two contradictions before you copy its example:
 
 - DOC DRIFT: 31 names the Linear package `@linear/mcp-server` where `.cursor/mcp.json` uses
-  `@anthropic/linear-mcp-server`, and inlines a placeholder key in `env` against README advice.
+  `@anthropic/linear-mcp-server`, so its example configures a server the repo does not.
+- DOC DRIFT: 31 inlines `LINEAR_API_KEY = "your-api-key"` in `env`, against the rules README's
+  "Never commit real API keys" — the shape it teaches is the one that leaks.
 
 ## Citations
 

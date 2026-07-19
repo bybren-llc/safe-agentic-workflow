@@ -21,9 +21,9 @@ The only role whose output is irreversible in production, and the only one gated
 
 The role implements schema changes and migrations from database patterns. Its distinguishing
 constraint is a hard approval gate: applying a migration without ARCHitect approval is an explicit
-must-not, and executing a production migration additionally requires the repository owner to be
-present. Everything else about the role — pattern-first execution, atomic commits, a green
-validation loop — is shared with the other implementation roles.
+must-not, and a production migration additionally requires the repository owner to be present.
+Everything else — the stop-the-line AC/DoD precondition it shares with the two developers,
+pattern-first execution, atomic commits, a green validation loop — is common to implementers.
 
 ## Responsibilities
 
@@ -46,10 +46,11 @@ validation loop — is shared with the other implementation roles.
 - **Hands off to** [QAS](qas.md) — exit state `Ready for QAS`, only after ARCHitect approval is
   recorded. The exit checklist requires the migration tested locally, RLS verified as enabled,
   type-check and lint green, migration files attached to Linear, and the data dictionary updated.
-- **Escalates** anything touching the security model or core schema shape to ARCHitect.
+- **Escalates** complex multi-table or data-migration changes, RLS doubts, index performance to ARCHitect.
 
-The provider mirror is stale: it drops the declared skills block and downgrades the model, so the
-provider variant loads none of the skills above automatically.
+The provider mirror is stale: it drops the declared skills block, the stop-the-line precondition,
+the Ownership Model (with its never-migrate-without-ARCHitect must-not), the mandatory reading
+checklist and the entire Exit Protocol, and downgrades the model — 110 lines lighter than source.
 
 ## Citations
 

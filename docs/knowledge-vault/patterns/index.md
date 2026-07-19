@@ -13,8 +13,11 @@ They are worth taking seriously anyway, because the [Pattern Discovery
 Protocol](../methodology/pattern-discovery-protocol.md) makes searching this library mandatory
 before any new implementation is written. An agent that skips it is out of contract.
 
-The stack assumed throughout is Next.js, Prisma, Clerk and shadcn/ui, with Row Level Security as the
-non-negotiable data-access discipline.
+The stack is not uniform. The api/, database/, ui/ and testing/ patterns assume Next.js, Prisma,
+Clerk and shadcn/ui, with Row Level Security as the non-negotiable data-access discipline. The
+security/ and config/ patterns — plus the deployment pipeline — are written language-agnostically
+with `{{LANGUAGE}}`, `{{SOURCE_DIR}}` and `{{EXT}}` tokens, and name Python and Go alternatives
+(Pydantic alongside Zod, for instance).
 
 ## Data access and RLS
 

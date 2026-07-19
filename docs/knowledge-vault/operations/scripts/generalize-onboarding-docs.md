@@ -23,7 +23,8 @@ de-configure those five documents. This is a stub; the script is the source of t
 Template-preparation tooling, not part of any routine workflow — it was applied once to make the
 onboarding set redistributable and has no reason to run again. It is bash under `set -euo pipefail`
 at 3405 bytes, needs only standard text tooling, and targets a fixed brace-expansion list rather
-than discovering files. Its one safety measure is a copy-before-edit.
+than discovering files. Its one safety measure is a copy-before-edit — which is also the only step
+that tolerates a missing file.
 
 ## Inputs & Outputs
 
@@ -33,8 +34,8 @@ than discovering files. Its one safety measure is a copy-before-edit.
 - **Out** — those files rewritten in place with placeholder tokens.
 - **Out** `<file>.bak` — a copy of each existing target, made before editing and never cleaned up
   by this script. Removing them is the operator's job.
-- **Exit** `0` — including when targets are missing, since each file is guarded by
-  `if [ -f "$file" ]` and absent paths are skipped without failing.
+- **Exit** `1` — the first missing target aborts the run. Only the pre-edit backup loop skips absent
+  files; `update_file()` prints `✗ File not found` and returns 1, fatal under `set -euo pipefail`.
 
 ## Invoked By
 

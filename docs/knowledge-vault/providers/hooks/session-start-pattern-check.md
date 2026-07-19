@@ -31,8 +31,9 @@ mirror at `agent_providers/claude_code/hooks/session-start-pattern-check.sh`.
 ## Inputs & Outputs
 
 - **In** no arguments; `PATTERN_DIR` is hardcoded to `docs/patterns`.
-- **In** the count comes from `find "$PATTERN_DIR" -name '*.md' -type f | wc -l`, computed before
-  the `-d` guard — so on a missing directory `find` writes to stderr and the count silently reads 0.
+- **In** the count comes from `find "$PATTERN_DIR" -name '*.md' -type f 2>/dev/null | wc -l`,
+  computed before the `-d` guard and with `2>/dev/null` swallowing find's error — so on a missing
+  directory the count silently reads 0.
 - **Out** `stdout` — location, pattern count, four subdirectory hints (`api/`, `ui/`, `database/`,
   `testing/`), a reminder to check patterns before implementing, and an agent banner.
 - **Exit** `0` — always; the else branch prints "Pattern library not found" and still exits 0.
