@@ -65,7 +65,18 @@ assert_not_contains() {
 make_sourceable() {
     local src="$1"
     local dst="$2"
-    sed -n '1,/^case "\${1:-}"/p' "$src" | head -n -3 > "$dst"
+    # Drop the trailing 3 lines of the extracted prefix. `head -n -3` is a GNU
+    # extension; BSD/macOS head rejects a negative count ("illegal line count"),
+    # which under `set -euo pipefail` aborted this entire suite before Test 1.
+    # Count first, then take an explicit positive head so both behave alike.
+    local extracted total
+    extracted=$(sed -n '1,/^case "\${1:-}"/p' "$src")
+    total=$(printf '%s\n' "$extracted" | wc -l | tr -d ' ')
+    if [ "$total" -gt 3 ]; then
+        printf '%s\n' "$extracted" | head -n "$((total - 3))" > "$dst"
+    else
+        : > "$dst"
+    fi
 }
 
 # =============================================================================
