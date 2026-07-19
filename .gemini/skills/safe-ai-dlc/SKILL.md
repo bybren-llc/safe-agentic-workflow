@@ -27,8 +27,7 @@ Do NOT use it for a single isolated ticket with no program context — use `safe
 ## The Fusion Model
 
 SAFe gives hierarchy, WSJF, roles, DoD, and dependencies. AI-DLC gives cadence (Bolts) and the
-human-in-the-loop. See the [methodology guide](/docs/guides/SAFE-AI-DLC-METHODOLOGY.md) for the full
-rationale.
+human-in-the-loop. See `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` for the full rationale.
 
 | SAFe              | AI-DLC                                | Linear                                  |
 | ----------------- | ------------------------------------- | --------------------------------------- |
@@ -137,8 +136,8 @@ Treating a green check as an exit          (verify the gate enforces, not that i
 
 ## Reference
 
-- **Methodology guide**: `/docs/guides/SAFE-AI-DLC-METHODOLOGY.md`
-- **Program template**: `/specs_templates/program_template.md`
+- `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` -- Methodology guide (rationale, worked example)
+- `specs_templates/program_template.md` -- Program document scaffolding
 - **AI-DLC source**: <https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/>
 - **Linear Documentation**: <https://linear.app/docs>
 

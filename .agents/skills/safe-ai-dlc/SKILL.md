@@ -134,8 +134,8 @@ Treating a green check as an exit          (verify the gate enforces, not that i
 
 ## Reference
 
-- **Methodology guide**: `/docs/guides/SAFE-AI-DLC-METHODOLOGY.md`
-- **Program template**: `/specs_templates/program_template.md`
+- `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` -- Methodology guide (rationale, worked example)
+- `specs_templates/program_template.md` -- Program document scaffolding
 - **AI-DLC source**: <https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/>
 
 ## Routes To

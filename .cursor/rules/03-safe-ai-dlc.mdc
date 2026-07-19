@@ -75,6 +75,6 @@ Never guess these — surface options with a recommendation and stop:
 
 ## References
 
-- `/docs/guides/SAFE-AI-DLC-METHODOLOGY.md`
-- `/specs_templates/program_template.md`
+- `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` -- Methodology guide (rationale, worked example)
+- `specs_templates/program_template.md` -- Program document scaffolding
 - AI-DLC source: <https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/>
