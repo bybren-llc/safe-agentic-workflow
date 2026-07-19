@@ -603,7 +603,7 @@ result=$(
     generate_apply_order "$patches_version_dir" "test-v1" 2>/dev/null
 
     # Verify results
-    patch_count=$(find "$patches_version_dir" -name "*.patch" | wc -l)
+    patch_count=$(find "$patches_version_dir" -name "*.patch" | wc -l | tr -d " ")
     echo "PATCH_COUNT:$patch_count"
 
     if [ -f "$patches_version_dir/APPLY_ORDER.md" ]; then
@@ -617,8 +617,8 @@ result=$(
     fi
 
     # Check patches from first domain weren't wiped by second
-    claude_patches=$(find "$patches_version_dir" -name "*bsa*.patch" | wc -l)
-    gemini_patches=$(find "$patches_version_dir" -name "*skills*.patch" | wc -l)
+    claude_patches=$(find "$patches_version_dir" -name "*bsa*.patch" | wc -l | tr -d " ")
+    gemini_patches=$(find "$patches_version_dir" -name "*skills*.patch" | wc -l | tr -d " ")
     echo "CLAUDE_PATCHES:$claude_patches"
     echo "GEMINI_PATCHES:$gemini_patches"
 

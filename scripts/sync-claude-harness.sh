@@ -126,16 +126,16 @@ get_sync_scope() {
         local in_scope=false
         while IFS= read -r line; do
             # Detect sync_scope: array start
-            if echo "$line" | grep -q '^\s*sync_scope:'; then
+            if echo "$line" | grep -q '^[[:space:]]*sync_scope:'; then
                 in_scope=true
                 continue
             fi
             # Stop at next non-array line (not starting with -)
             if [ "$in_scope" = true ]; then
-                if echo "$line" | grep -q '^\s*-'; then
+                if echo "$line" | grep -q '^[[:space:]]*-'; then
                     # Extract value: strip leading whitespace, dash, quotes, trailing /
                     local domain
-                    domain=$(echo "$line" | sed 's/^\s*-\s*//; s/^["'"'"']//; s/["'"'"']$//; s|/$||; s/\s*$//')
+                    domain=$(echo "$line" | sed 's/^[[:space:]]*-[[:space:]]*//; s/^["'"'"']//; s/["'"'"']$//; s|/$||; s/[[:space:]]*$//')
                     [ -z "$domain" ] && continue
                     # Validate against allowed domains
                     local valid=false
@@ -1493,7 +1493,14 @@ do_rollback() {
         ts_name=$(basename "$ts_dir")
         # Parse ISO timestamp to epoch for comparison
         local epoch
-        epoch=$(date -d "$ts_name" +%s 2>/dev/null || echo 0)
+        # GNU date understands -d; BSD/macOS date needs -j -f with an explicit
+        # input format. Try GNU first, then BSD, and only then give up. Without
+        # the BSD arm every epoch was 0 on macOS, so no backup ever ranked as
+        # latest and do_rollback reported "No backups available" with backups
+        # sitting on disk.
+        epoch=$(date -d "$ts_name" +%s 2>/dev/null \
+            || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$ts_name" +%s 2>/dev/null \
+            || echo 0)
         if [ "$epoch" -gt "$latest_epoch" ]; then
             latest_epoch=$epoch
             latest_timestamp="$ts_name"
@@ -1556,8 +1563,12 @@ do_diff() {
 
     local new=0 modified=0 deleted=0 excluded=0 unchanged=0 renamed=0 protected=0
 
-    # Track directory rename file counts for summary output
-    declare -A dir_rename_counts
+    # Track directory rename file counts for summary output.
+    # Parallel indexed arrays, not an associative array: `declare -A` requires
+    # bash 4, and macOS ships bash 3.2 where it aborts do_diff outright, so no
+    # patches were ever generated on a stock Mac.
+    local dir_rename_keys=()
+    local dir_rename_vals=()
 
     # Determine manifest version for path handling
     local manifest_ver=""
@@ -1637,7 +1648,20 @@ do_diff() {
                 fi
             done < <(get_directory_renames)
             if [ -n "$dir_key" ]; then
-                dir_rename_counts["$dir_key"]=$(( ${dir_rename_counts["$dir_key"]:-0} + 1 ))
+                local dr_i=0 dr_found=-1
+                while [ $dr_i -lt ${#dir_rename_keys[@]} ]; do
+                    if [ "${dir_rename_keys[$dr_i]}" = "$dir_key" ]; then
+                        dr_found=$dr_i
+                        break
+                    fi
+                    dr_i=$((dr_i + 1))
+                done
+                if [ $dr_found -ge 0 ]; then
+                    dir_rename_vals[$dr_found]=$(( ${dir_rename_vals[$dr_found]} + 1 ))
+                else
+                    dir_rename_keys+=("$dir_key")
+                    dir_rename_vals+=(1)
+                fi
             fi
         fi
 
@@ -1697,14 +1721,17 @@ do_diff() {
     done < <(find "$DOMAIN_DIR" -type f ! -path "$BACKUP_DIR/*" -print0 2>/dev/null)
 
     # Show directory rename summary lines for this domain
-    if [ ${#dir_rename_counts[@]} -gt 0 ]; then
+    if [ ${#dir_rename_keys[@]} -gt 0 ]; then
         echo ""
-        for dir_key in "${!dir_rename_counts[@]}"; do
+        local dr_j=0
+        while [ $dr_j -lt ${#dir_rename_keys[@]} ]; do
+            dir_key="${dir_rename_keys[$dr_j]}"
             local src_dir="${dir_key%%|*}"
             local dst_dir="${dir_key##*|}"
-            local count="${dir_rename_counts[$dir_key]}"
+            local count="${dir_rename_vals[$dr_j]}"
             echo -e "${CYAN}RENAMED${NC}  ${src_dir} -> ${dst_dir} ($count files)"
             renamed=$((renamed + count))
+            dr_j=$((dr_j + 1))
         done
     fi
 
