@@ -95,9 +95,14 @@ Expected output:
 
 🤖 Agent System Ready
    11 agents available in .claude/agents/
-   Tool restrictions: ✅ Configured
-   Model selection: ✅ Opus (planning), Sonnet (execution)
+   Models in use: opus
 ```
+
+The `Models in use:` line lists the distinct `model:` values actually declared across
+`.claude/agents/*.md`, so it tracks the files rather than asserting a taxonomy. If you change an
+agent's model it changes here on the next session start. See
+[Agent Configuration SOP](../sop/AGENT_CONFIGURATION_SOP.md#model-selection) for the valid values
+and how to evaluate a different model across the whole team.
 
 ---
 
