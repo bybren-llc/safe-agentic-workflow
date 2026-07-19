@@ -112,7 +112,7 @@ grep -c '{{' CLAUDE.md AGENTS.md CONTRIBUTING.md .claude/team-config.json
 
 # Confirm harness structure
 ls .claude/agents/ | wc -l  # 11 agents
-ls .claude/skills/ | wc -l  # 19 skills
+ls .claude/skills/ | wc -l  # 20 skills
 ls .claude/commands/ | wc -l  # 23+ commands
 ```
 

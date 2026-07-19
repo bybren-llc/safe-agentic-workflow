@@ -14,12 +14,13 @@ The skill system architecture and {{PROJECT_SHORT}} harness methodology are the 
 
 SAFe® is a registered trademark of Scaled Agile, Inc.
 
-## Skills Included (18)
+## Skills Included (19)
 
 | Skill | Purpose |
 |-------|---------|
 | safe-workflow | Branch naming, commits, PR workflow |
 | safe-ai-dlc | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
+| vault-sync | Knowledge-vault drift detection and repair |
 | release-patterns | PR creation, CI/CD validation |
 | pattern-discovery | Search patterns before implementing |
 | agent-coordination | Agent assignment, blockers |

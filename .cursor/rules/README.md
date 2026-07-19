@@ -27,6 +27,7 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 | File | Purpose |
 | --- | --- |
 | `03-safe-ai-dlc.mdc` | SAFe x AI-DLC program cadence: Bolts, Units of Work, Mob Elaboration, human-gate checklist |
+| `04-knowledge-vault.mdc` | OKF knowledge-vault conventions: frontmatter contract, link rules, drift discipline |
 
 ### Auto-Attached Tech Rules (active when matching files are open)
 
@@ -129,7 +130,7 @@ Reference these when working with background agents or MCP:
 1. **DRY**: Rules reference existing docs (CLAUDE.md, AGENTS.md, patterns_library/) rather than duplicating content
 2. **Concise**: Each rule stays under 200 lines to respect Cursor's context limits
 3. **Template-Ready**: Uses `{{TICKET_PREFIX}}`, `{{MAIN_BRANCH}}`, and other placeholders for project customization
-4. **Hierarchical**: Numbering (00-02, 10-16, 20-23, 30-31) groups rules by activation type
+4. **Hierarchical**: Numbering (00-02 core, 03-04 methodology, 10-16 tech, 20-23 roles, 30-31 advanced) groups rules by activation type
 
 ## Relationship to Other Configurations
 

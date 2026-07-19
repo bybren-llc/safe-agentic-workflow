@@ -18,13 +18,13 @@
     <img src="https://img.shields.io/badge/agents-11%20SAFe%20roles-red?style=flat-square" alt="Agents">
   </a>
   <a href=".claude/skills/">
-    <img src="https://img.shields.io/badge/skills-19%20model--invoked-purple?style=flat-square" alt="Skills">
+    <img src="https://img.shields.io/badge/skills-20%20model--invoked-purple?style=flat-square" alt="Skills">
   </a>
   <a href=".claude/commands/">
     <img src="https://img.shields.io/badge/commands-24%20workflows-orange?style=flat-square" alt="Commands">
   </a>
   <a href=".cursor/rules/">
-    <img src="https://img.shields.io/badge/cursor%20rules-17-00D084?style=flat-square" alt="Cursor Rules">
+    <img src="https://img.shields.io/badge/cursor%20rules-18-00D084?style=flat-square" alt="Cursor Rules">
   </a>
 </p>
 
@@ -67,6 +67,7 @@ Includes:
 - **Three-Layer Architecture** - Hooks → Commands → Skills
 - **Agent Teams** - Multi-agent orchestration with SAFe quality gates (experimental)
 - **Dark Factory** - Persistent autonomous agent teams via tmux on remote servers ([guide](dark-factory/README.md))
+- **Knowledge Vault** - Evidence-verified knowledge base with a drift-detecting validator ([guide](knowledge-vault/README.md))
 
 > **Origin**: 5 months production use, 169 issues, 2,193 commits. Implements patterns from
 > [6 Anthropic engineering papers](#implementing-anthropics-research) and [SAFe methodology](https://scaledagileframework.com/).
@@ -204,6 +205,7 @@ bash scripts/setup-template.sh                # Re-apply your placeholders
 **Upgrading from a previous version?** See [Keeping the Harness Updated](docs/guides/WORKSPACE-ADOPTION-GUIDE.md#keeping-the-harness-updated).
 **Syncing your fork with upstream?** See the [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md).
 **Planning a multi-issue program?** See the [SAFe x AI-DLC Methodology](docs/guides/SAFE-AI-DLC-METHODOLOGY.md).
+**Building a knowledge base?** See the [Knowledge Vault](knowledge-vault/README.md).
 
 ### Key Commands
 
@@ -355,7 +357,7 @@ This harness directly implements patterns from Anthropic's engineering papers:
 | ----------------------------------------------------------------------------------------------------------- | -------------------------- |
 | [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)                | 11-agent team structure    |
 | [Effective Harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)    | Three-layer architecture   |
-| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 19 model-invoked skills    |
+| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 20 model-invoked skills    |
 | [Skills Announcement](https://www.anthropic.com/news/skills)                                                | Skills 2.0 frontmatter, trigger patterns |
 | [Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp)                    | Tool restrictions per role |
 
@@ -424,6 +426,48 @@ Use it when work spans **many issues and needs cadence** — turning an audit, e
 an executable program. For a single ticket, the standard `safe-workflow` path is correct. And if the
 problem space is still unclear, run a **spike** instead: forcing an ambiguous epic into one Bolt just
 relocates the ambiguity into the code.
+
+---
+
+## Knowledge Vault
+
+Agent teams need a shared map of the system, and a map nobody can prove is current will quietly
+become wrong. The `knowledge-vault/` subsystem is an **evidence-verified knowledge base**: every
+concept records the commit its claims were checked against, so staleness is something you
+**compute**, not something you feel.
+
+Built on [Open Knowledge Format v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+(Google, Apache-2.0), which gives portability. This harness adds the rigor layer that gives trust:
+a strict frontmatter contract, a zero-dependency validator, an anti-hallucination link rule, and a
+drift mechanism.
+
+In the project this method came from, an independent architecture audit called the vault _"the
+single strongest KT asset in the repo"_ and told new developers to trust it **over** the project's
+own canonical context file — because the vault's claims were verified against a SHA and the
+canonical file's had silently drifted.
+
+### Run It
+
+| Prompt | Who it is for |
+| --- | --- |
+| [BUILD-PROMPT.md](knowledge-vault/docs/BUILD-PROMPT.md) | **Every adopter** — the generic multi-agent build prompt. Fill in your project, taxonomy, and watch-list, then run it. |
+| [SAW-VAULT-BUILD.md](knowledge-vault/docs/SAW-VAULT-BUILD.md) | **This repo's maintainers** — pre-scoped to {{PROJECT_SHORT}} and runnable as-is, with a ready-to-file ticket breakdown. |
+
+```bash
+# Prove the tooling works before you trust it
+node knowledge-vault/scripts/validate-vault.mjs --vault knowledge-vault/templates/starter-bundle
+```
+
+| Resource | Purpose |
+| --- | --- |
+| [Knowledge Vault README](knowledge-vault/README.md) | Start here — 30-second quickstart |
+| [Guide](knowledge-vault/docs/GUIDE.md) | The method, and why each rule exists |
+| [Adoption Playbook](knowledge-vault/docs/ADOPTION-PLAYBOOK.md) | Steps, taxonomy choice, CI gating, ticket breakdown |
+| [Obsidian Guide](knowledge-vault/docs/OBSIDIAN-GUIDE.md) | Graph, canvases, Bases, and the config treaty |
+| `vault-sync` skill | Drift detection and repair, all four providers |
+
+Obsidian is optional — no community plugins required, and the vault degrades to plain markdown in
+any editor.
 
 ---
 
@@ -1303,14 +1347,14 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 ```text
 .claude/                 # Claude Code harness (primary provider)
 ├── commands/            # 24 slash commands for workflow automation
-├── skills/              # 19 model-invoked skills for domain expertise
+├── skills/              # 20 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
 ├── team-config.json     # Agent Teams settings (optional, experimental)
 └── SETUP.md             # Installation and customization guide
 
 .gemini/                 # Gemini CLI harness (secondary provider)
 ├── commands/            # 30 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
-├── skills/              # 18 model-invoked skills (team-coordination is Claude-only)
+├── skills/              # 19 model-invoked skills (team-coordination is Claude-only)
 ├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
@@ -1323,12 +1367,19 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 └── rules/               # .mdc rule files with YAML frontmatter activation
     ├── 00-02            # Always-apply core rules (SAFe, git, patterns)
     ├── 03               # SAFe x AI-DLC program cadence (manual activation)
+    ├── 04               # Knowledge-vault conventions (manual activation)
     ├── 10-13            # Auto-attached tech rules (Python, React, SQL, tests)
     ├── 20-23            # Agent-role rules (Architect, Backend, QAS, Security)
     └── 30-31            # Background agents and MCP integration
 
 .agents/                 # Shared agent skills (discovered by Codex and other agents)
-└── skills/              # 19 cross-provider skills (api-patterns, safe-workflow, etc.)
+└── skills/              # 20 cross-provider skills (api-patterns, safe-workflow, etc.)
+
+knowledge-vault/         # OKF knowledge-base subsystem (optional)
+├── docs/                # Method, playbook, build prompts, Obsidian guide
+├── templates/           # Starter bundle, Obsidian config, CI workflow
+├── scripts/             # validate-vault.mjs (zero dependencies)
+└── tests/               # Proof that each validator gate fails when broken
 
 dark-factory/            # tmux Agent Teams infrastructure (optional)
 ├── scripts/             # factory-setup, start, stop, status, attach

@@ -20,6 +20,7 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 |-------|---------|
 | safe-workflow | Branch naming, commits, PR workflow |
 | safe-ai-dlc | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
+| vault-sync | Knowledge-vault drift detection and repair |
 | release-patterns | PR creation, CI/CD validation |
 | pattern-discovery | Search patterns before implementing |
 | agent-coordination | Agent assignment, blockers |

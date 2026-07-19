@@ -455,7 +455,7 @@ Check PR #324 or subsequent PRs for full diff and review discussion.
 ├── .claude/
 │   ├── settings.json          # Hooks configuration
 │   ├── commands/              # 24 slash commands
-│   ├── skills/                # 19 model-invoked skills
+│   ├── skills/                # 20 model-invoked skills
 │   └── agents/                # 12 agent profiles
 ├── AGENTS.md                  # Quick reference
 ├── CONTRIBUTING.md            # Workflow documentation

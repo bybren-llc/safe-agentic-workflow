@@ -1,0 +1,11 @@
+{
+  "extends": "../.markdownlint.json",
+
+  "MD025": {
+    "front_matter_title": ""
+  },
+
+  "MD024": {
+    "siblings_only": true
+  }
+}

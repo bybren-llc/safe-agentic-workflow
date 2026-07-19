@@ -24,6 +24,7 @@ This is a **SAFe multi-agent development project** with 11 specialized AI agents
 - [docs/onboarding/](docs/onboarding/) - Setup guides and daily workflows
 - [docs/guides/ROUND-TABLE-PHILOSOPHY.md](docs/guides/ROUND-TABLE-PHILOSOPHY.md) - Collaboration principles
 - [patterns_library/](patterns_library/) - Reusable code patterns (18+ patterns, 7 categories)
+- [knowledge-vault/](knowledge-vault/README.md) - Evidence-verified knowledge base. To build this repo's own vault, run [SAW-VAULT-BUILD.md](knowledge-vault/docs/SAW-VAULT-BUILD.md)
 
 ---
 

@@ -65,7 +65,7 @@ Skills provide contextual knowledge that auto-loads when relevant. View availabl
 gemini /skills
 ```
 
-### Included Skills (18)
+### Included Skills (19)
 
 | Skill | Description |
 |-------|-------------|

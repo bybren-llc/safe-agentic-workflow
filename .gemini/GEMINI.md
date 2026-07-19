@@ -26,12 +26,13 @@ All work requires verifiable evidence attached to Linear tickets:
 
 ## Available Skills
 
-Skills auto-load when context matches. All 18 skills:
+Skills auto-load when context matches. All 19 skills:
 
 | Skill | Trigger When |
 |-------|--------------|
 | `safe-workflow` | Starting work, commits, branches, PRs |
 | `safe-ai-dlc` | Planning or running a multi-issue program |
+| `vault-sync` | Knowledge vault drift or staleness |
 | `pattern-discovery` | Before implementing features |
 | `rls-patterns` | Database operations, RLS policies |
 | `api-patterns` | Creating API endpoints |
