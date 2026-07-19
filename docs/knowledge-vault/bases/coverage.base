@@ -1,0 +1,61 @@
+filters:
+  and:
+    - file.inFolder("docs/knowledge-vault")
+    - type != null
+views:
+  - type: table
+    name: Coverage by Status
+    group_by: status
+    order:
+      - title
+      - type
+      - domain
+      - verified_against
+      - timestamp
+    sort:
+      - property: title
+        direction: ASC
+  - type: table
+    name: Not Active
+    filters:
+      or:
+        - status == "deprecated"
+        - status == "experimental"
+        - status == "planned"
+    order:
+      - title
+      - status
+      - type
+      - domain
+      - timestamp
+    sort:
+      - property: status
+        direction: ASC
+  - type: table
+    name: Missing a Status
+    filters:
+      and:
+        - status == null
+    order:
+      - title
+      - type
+      - domain
+      - timestamp
+  - type: table
+    name: Coverage by Type
+    group_by: type
+    order:
+      - title
+      - domain
+      - status
+      - verified_against
+  - type: table
+    name: Missing a Verification SHA
+    filters:
+      and:
+        - verified_against == null
+    order:
+      - title
+      - type
+      - domain
+      - timestamp

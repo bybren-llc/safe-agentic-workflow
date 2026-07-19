@@ -1,0 +1,51 @@
+{
+	"nodes":[
+		{"id":"g-hooks","type":"group","label":"Layer 1 - Hooks (deterministic, non-negotiable)","x":-40,"y":-320,"width":480,"height":800},
+		{"id":"g-commands","type":"group","label":"Layer 2 - Commands (invoked workflows)","x":460,"y":-320,"width":480,"height":800},
+		{"id":"g-skills","type":"group","label":"Layer 3 - Skills (model-selected knowledge)","x":960,"y":-320,"width":480,"height":800},
+		{"id":"g-roles","type":"group","label":"11 Agent Roles (consume all three layers)","x":1560,"y":-320,"width":480,"height":1160},
+		{"id":"g-providers","type":"group","label":"5 Provider Surfaces (each carries agents + skills + commands)","x":-40,"y":980,"width":2480,"height":440},
+
+		{"id":"n-arch","type":"file","file":"docs/knowledge-vault/methodology/three-layer-architecture.md","x":460,"y":-620,"width":480,"height":220},
+
+		{"id":"n-hook-session","type":"file","file":"docs/knowledge-vault/providers/hooks/session-start-pattern-check.md","x":0,"y":-200,"width":400,"height":280},
+		{"id":"n-hook-bash","type":"file","file":"docs/knowledge-vault/providers/hooks/pre-bash-rls-validation.md","x":0,"y":140,"width":400,"height":280},
+
+		{"id":"n-cmd-start","type":"file","file":"docs/knowledge-vault/commands/start-work.md","x":500,"y":-200,"width":400,"height":280},
+		{"id":"n-cmd-prepr","type":"file","file":"docs/knowledge-vault/commands/pre-pr.md","x":500,"y":140,"width":400,"height":280},
+
+		{"id":"n-skill-pattern","type":"file","file":"docs/knowledge-vault/skills/pattern-discovery.md","x":1000,"y":-200,"width":400,"height":280},
+		{"id":"n-skill-safe","type":"file","file":"docs/knowledge-vault/skills/safe-workflow.md","x":1000,"y":140,"width":400,"height":280},
+
+		{"id":"n-role-bsa","type":"file","file":"docs/knowledge-vault/roles/bsa.md","x":1600,"y":-200,"width":400,"height":280},
+		{"id":"n-role-qas","type":"file","file":"docs/knowledge-vault/roles/qas.md","x":1600,"y":140,"width":400,"height":280},
+		{"id":"n-role-rte","type":"file","file":"docs/knowledge-vault/roles/rte.md","x":1600,"y":480,"width":400,"height":280},
+
+		{"id":"n-portable","type":"file","file":"docs/knowledge-vault/providers/agents-portable.md","x":2140,"y":140,"width":400,"height":280},
+
+		{"id":"n-p-claude","type":"file","file":"docs/knowledge-vault/providers/claude-code.md","x":0,"y":1060,"width":400,"height":280},
+		{"id":"n-p-codex","type":"file","file":"docs/knowledge-vault/providers/codex.md","x":500,"y":1060,"width":400,"height":280},
+		{"id":"n-p-cursor","type":"file","file":"docs/knowledge-vault/providers/cursor.md","x":1000,"y":1060,"width":400,"height":280},
+		{"id":"n-p-gemini","type":"file","file":"docs/knowledge-vault/providers/gemini-cli.md","x":1500,"y":1060,"width":400,"height":280},
+		{"id":"n-p-legacy","type":"file","file":"docs/knowledge-vault/providers/agent-providers.md","x":2000,"y":1060,"width":400,"height":280}
+	],
+	"edges":[
+		{"id":"a1","fromNode":"n-arch","fromSide":"bottom","toNode":"n-cmd-start","toSide":"top","label":"defines the layering"},
+
+		{"id":"l1","fromNode":"n-hook-session","fromSide":"right","toNode":"n-cmd-start","toSide":"left","label":"fires before"},
+		{"id":"l2","fromNode":"n-cmd-start","fromSide":"right","toNode":"n-skill-pattern","toSide":"left","label":"routes into"},
+		{"id":"l3","fromNode":"n-hook-bash","fromSide":"right","toNode":"n-cmd-prepr","toSide":"left","label":"blocks unsafe calls"},
+		{"id":"l4","fromNode":"n-cmd-prepr","fromSide":"right","toNode":"n-skill-safe","toSide":"left","label":"routes into"},
+
+		{"id":"r1","fromNode":"n-skill-pattern","fromSide":"right","toNode":"n-role-bsa","toSide":"left","label":"used by"},
+		{"id":"r2","fromNode":"n-skill-safe","fromSide":"right","toNode":"n-role-qas","toSide":"left","label":"used by"},
+		{"id":"r3","fromNode":"n-role-qas","fromSide":"bottom","toNode":"n-role-rte","toSide":"top","label":"gate passed"},
+
+		{"id":"p1","fromNode":"n-p-claude","fromSide":"top","toNode":"n-hook-bash","toSide":"bottom","label":"only surface with hooks"},
+		{"id":"p2","fromNode":"n-p-codex","fromSide":"top","toNode":"n-portable","toSide":"bottom","label":"reads .agents mirror"},
+		{"id":"p3","fromNode":"n-p-cursor","fromSide":"top","toNode":"n-skill-safe","toSide":"bottom","label":"carries skills"},
+		{"id":"p4","fromNode":"n-p-gemini","fromSide":"top","toNode":"n-cmd-prepr","toSide":"bottom","label":"carries commands"},
+		{"id":"p5","fromNode":"n-p-legacy","fromSide":"top","toNode":"n-role-rte","toSide":"bottom","label":"unsynced legacy mirror"},
+		{"id":"p6","fromNode":"n-portable","fromSide":"left","toNode":"n-skill-pattern","toSide":"right","label":"vendor-neutral copy"}
+	]
+}

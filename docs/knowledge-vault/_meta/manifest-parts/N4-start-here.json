@@ -1,0 +1,16 @@
+{
+  "lane": "N4",
+  "concepts": [
+    {
+      "id": "start-here",
+      "type": "guide",
+      "title": "Start Here",
+      "path": "start-here.md",
+      "description": "The ordered path into this harness for someone new, where each step states why it comes where it does.",
+      "tags": ["onboarding", "methodology", "workflow"],
+      "domain": "methodology",
+      "batch": "navigation",
+      "notes": "the learning door, paired with index.md as the reference door | 6 ordered steps each carrying an explicit WHY clause | ends in one traced vertical slice from /start-work through pr-validation.yml to HITL merge, every hop a real concept | claims verified against source at fd0fc6a: RTE tools are Read/Bash/Grep only, exit states are the literal strings 'Ready for QAS' and 'Approved for RTE', QAS performs independent verification"
+    }
+  ]
+}

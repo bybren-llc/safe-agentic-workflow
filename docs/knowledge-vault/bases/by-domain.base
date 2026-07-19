@@ -1,0 +1,77 @@
+filters:
+  and:
+    - file.inFolder("docs/knowledge-vault")
+    - domain != null
+views:
+  - type: table
+    name: Concepts by Domain
+    group_by: domain
+    order:
+      - title
+      - type
+      - status
+      - tags
+      - verified_against
+      - timestamp
+    sort:
+      - property: title
+        direction: ASC
+  - type: table
+    name: Methodology
+    filters:
+      and:
+        - domain == "methodology"
+    order:
+      - title
+      - type
+      - status
+      - timestamp
+  - type: table
+    name: Providers
+    filters:
+      and:
+        - domain == "providers"
+    order:
+      - title
+      - type
+      - resource
+      - status
+  - type: table
+    name: Sync
+    filters:
+      and:
+        - domain == "sync"
+    order:
+      - title
+      - type
+      - resource
+      - status
+  - type: table
+    name: Subsystems
+    filters:
+      and:
+        - domain == "subsystems"
+    order:
+      - title
+      - type
+      - resource
+      - status
+  - type: table
+    name: Operations
+    filters:
+      and:
+        - domain == "operations"
+    order:
+      - title
+      - type
+      - resource
+      - status
+  - type: table
+    name: Missing a Domain
+    filters:
+      and:
+        - domain == null
+    order:
+      - title
+      - type
+      - timestamp

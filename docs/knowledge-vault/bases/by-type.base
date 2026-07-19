@@ -1,0 +1,70 @@
+filters:
+  and:
+    - file.inFolder("docs/knowledge-vault")
+    - type != null
+views:
+  - type: table
+    name: Concepts by Type
+    group_by: type
+    order:
+      - title
+      - domain
+      - status
+      - resource
+      - timestamp
+    sort:
+      - property: title
+        direction: ASC
+  - type: table
+    name: Harness Surface (roles, skills, commands)
+    filters:
+      or:
+        - type == "agent-role"
+        - type == "skill"
+        - type == "command"
+    order:
+      - title
+      - type
+      - resource
+      - domain
+      - status
+  - type: table
+    name: Structural (architecture, provider, integration, environment)
+    filters:
+      or:
+        - type == "architecture"
+        - type == "provider"
+        - type == "integration"
+        - type == "environment"
+    order:
+      - title
+      - type
+      - domain
+      - resource
+      - status
+  - type: table
+    name: Procedural (process, sop, runbook, guide)
+    filters:
+      or:
+        - type == "process"
+        - type == "sop"
+        - type == "runbook"
+        - type == "guide"
+    order:
+      - title
+      - type
+      - domain
+      - status
+  - type: table
+    name: Executable (script, test-suite, pattern)
+    filters:
+      or:
+        - type == "script"
+        - type == "test-suite"
+        - type == "pattern"
+    order:
+      - title
+      - type
+      - resource
+      - domain
+      - status

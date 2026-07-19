@@ -1,0 +1,60 @@
+{
+  "lane": "N3",
+  "concepts": [
+    {
+      "id": "domains/methodology",
+      "type": "domain",
+      "title": "Methodology Domain",
+      "path": "domains/methodology.md",
+      "description": "The SAFe plus AI-DLC method: eleven roles, five blocking gates, and evidence as the currency of progress.",
+      "tags": ["methodology", "workflow", "gates", "process", "agents"],
+      "domain": "methodology",
+      "batch": "navigation",
+      "notes": "semantic entry point for the delivery method | boundary: owns roles, handoff states, gates, evidence, cadence; explicitly NOT provider surfaces (providers), NOT what CI asserts (operations), NOT the pattern library artifact (subsystems) | central claim: the whole contract is prose, no shipped validator enforces it | members curated: vnext-workflow-contract, stop-the-line-gate, exit-states, three-stage-pr-review, evidence-based-delivery, role-collapsing, safe-ai-dlc, round-table-philosophy, three-layer-architecture, pattern-discovery-protocol, roles/bsa, roles/qas, roles/rte | flows: (1) ticket to merge traced BSA -> stop-the-line -> Ready for QAS -> Approved for RTE -> Ready for HITL Review -> three stages -> human rebase-and-merge; (2) exercising stop-the-line authority; (3) Bolt cadence substituting for the sprint without moving gates | notes AI-DLC Bolts are an ALTERNATIVE cadence, not a replacement for SAFe | citations: AGENTS.md, docs/sop/AGENT_WORKFLOW_SOP.md, docs/guides/SAFE-AI-DLC-METHODOLOGY.md | TDM and skills/spec-creation were dropped from Members under the 58-line cap"
+    },
+    {
+      "id": "domains/providers",
+      "type": "domain",
+      "title": "Providers Domain",
+      "path": "domains/providers.md",
+      "description": "The five AI-tool surfaces the harness ships to, what each expresses natively, and where parity breaks.",
+      "tags": ["providers", "agents", "skills", "commands", "hooks"],
+      "domain": "providers",
+      "batch": "navigation",
+      "notes": "semantic entry point for multi-provider parity | the five surfaces: .claude (11 agents, 24 commands, 20 skills), .gemini (19 skills, 30 TOML commands, unique media/ namespace), .codex (11 agent TOMLs, no skills of its own), .cursor (18 .mdc rules), .agents (portable skills), plus the legacy agent_providers mirror | boundary: owns file shape, discovery rules, activation modes, hook wiring; NOT the content encoded (methodology), NOT the copy machinery (sync) | VERIFIED DRIFT surfaced: all 11 Claude agent prompts declare model: opus while docs still claim an Opus-plans / Sonnet-executes split, and the agent_providers copy of be-developer sets model: sonnet and drops the Stop-the-Line section | flows: (1) adding a skill and mirroring it by hand across four surfaces; (2) a role definition reaching an agent across Claude, Codex and the legacy mirror; (3) five of six sync_scope domains being provider surfaces | citations: AGENTS.md, docs/guides/SKILL_AUTHORING_GUIDE.md, docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md"
+    },
+    {
+      "id": "domains/sync",
+      "type": "domain",
+      "title": "Sync Domain",
+      "path": "domains/sync.md",
+      "description": "The engine, manifest, and tests that let a fork pull upstream harness releases without losing its edits.",
+      "tags": ["sync", "testing", "ci", "workflow", "okf"],
+      "domain": "sync",
+      "batch": "navigation",
+      "notes": "semantic entry point for the harness update path | members: harness-sync-engine (3366-line bash, ten subcommands), manifest-schema (seven sections, validated by hand-rolled bash rather than the JSON Schema), sync-scope (six allowed domains, unknown ones silently dropped), fixtures, harness-sync-and-fork-workflow, all nine test-suite cards, operations/workflows/test-fork-sync | boundary: owns the update path only; the surfaces being synced belong to providers, the tag being synced to operations | flows: (1) a sync run traced scope resolution -> tarball fetch -> substitution in TMP before preflight -> plan by exclusion/rename/compare -> preflight -> backup -> copy, with one SYNC_TIMESTAMP so rollback undoes every domain together; (2) customization survival, noting `replaced` is documented but NOT enforced while only `protected` holds and no suite exercises replaced; (3) 5 of 9 suites red on macOS from bash 3.2 declare -A and BSD head -n -3, a portability signal not a regression | citations: docs/HARNESS_SYNC_GUIDE.md, docs/HARNESS_MANIFEST_SCHEMA.md"
+    },
+    {
+      "id": "domains/subsystems",
+      "type": "domain",
+      "title": "Subsystems Domain",
+      "path": "domains/subsystems.md",
+      "description": "The self-contained units the harness ships: dark factory, patterns, spec templates, linting, this vault.",
+      "tags": ["subsystems", "patterns", "orchestration", "testing", "okf"],
+      "domain": "subsystems",
+      "batch": "navigation",
+      "notes": "semantic entry point for the five shipped units | members: pattern-library (18 exemplars, 7 categories, documentation not code), spec-templates plus spec-template (two placeholder dialects coexist), linting (the only machine-enforcing member via no-restricted-syntax on RLS), dark-factory with tmux-topology / merge-queue-policy / factory-setup / factory-start, knowledge-vault, operations/scripts/apply-workflow | boundary: owns the artifact, not the discipline it encodes (methodology), not the CI that would run it (operations), not the surfaces routing agents to it (providers) | flows: (1) a pattern reaching code via pattern-discovery or /search-pattern to an exemplar to a filled spec template, with ESLint the only mechanical check; (2) distribution split — apply-workflow.sh copies patterns_library, specs_templates and linting_configs while dark-factory travels as a sync_scope domain instead; (3) a factory session gated on GitHub merge queue enforcement and exiting only through gh pr merge --auto --squash | citations: patterns_library/README.md, dark-factory/README.md, knowledge-vault/README.md"
+    },
+    {
+      "id": "domains/operations",
+      "type": "domain",
+      "title": "Operations Domain",
+      "path": "domains/operations.md",
+      "description": "Running the harness day to day: four CI workflows, the release gate, maintenance scripts, commands.",
+      "tags": ["operations", "ci", "release", "commands", "onboarding"],
+      "domain": "operations",
+      "batch": "navigation",
+      "notes": "semantic entry point for what actually executes | members: the four workflow cards (ci.yml unparseable as shipped so it never runs, pr-validation.yml where only the rebase check can fail, test-fork-sync.yml the only asserting workflow, docker-build.yml opt-in by label), project-workflow scaffold (inert), scripts setup-template / pre-release-check / generate-changelog, operations/release/release-process and pre-release-checklist, and the command cards headed by /start-work, /pre-pr and /release | boundary: owns enforcement — methodology declares gates, this domain says which fire; does not own provider surfaces or the sync suites it merely runs | flows: (1) a working day from /start-work through /pre-pr into pr-validation.yml; (2) a release, manual checklist then pre-release-check re-running all nine sync suites and exiting 1 on failure before a tag is cut; (3) what truly gates — a PR touching only .claude/ or docs/ fires no asserting workflow at all | citations: docs/ci-cd/CI-CD-Pipeline-Guide.md (names two nonexistent workflows), docs/release/PRE-RELEASE-CHECKLIST.md"
+    }
+  ]
+}

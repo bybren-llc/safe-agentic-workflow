@@ -1,0 +1,39 @@
+{
+	"nodes":[
+		{"id":"g-lane","type":"group","label":"Delivery lane - one ticket, left to right","x":-40,"y":-80,"width":3600,"height":380},
+		{"id":"g-gates","type":"group","label":"Gates, skills and evidence attached to each step","x":-40,"y":320,"width":3600,"height":380},
+
+		{"id":"s1","type":"file","file":"docs/knowledge-vault/commands/start-work.md","x":0,"y":0,"width":380,"height":220},
+		{"id":"s2","type":"file","file":"docs/knowledge-vault/roles/bsa.md","x":460,"y":0,"width":380,"height":220},
+		{"id":"s3","type":"file","file":"docs/knowledge-vault/roles/be-developer.md","x":920,"y":0,"width":380,"height":220},
+		{"id":"s4","type":"file","file":"docs/knowledge-vault/roles/qas.md","x":1380,"y":0,"width":380,"height":220},
+		{"id":"s5","type":"file","file":"docs/knowledge-vault/roles/rte.md","x":1840,"y":0,"width":380,"height":220},
+		{"id":"s6","type":"file","file":"docs/knowledge-vault/subsystems/dark-factory/merge-queue-policy.md","x":2300,"y":0,"width":380,"height":220},
+		{"id":"s7","type":"file","file":"docs/knowledge-vault/operations/workflows/pr-validation.md","x":2760,"y":0,"width":380,"height":220},
+		{"id":"s8","type":"file","file":"docs/knowledge-vault/commands/end-work.md","x":3120,"y":0,"width":380,"height":220},
+
+		{"id":"g1","type":"file","file":"docs/knowledge-vault/methodology/stop-the-line-gate.md","x":0,"y":400,"width":380,"height":220},
+		{"id":"g2","type":"file","file":"docs/knowledge-vault/skills/spec-creation.md","x":460,"y":400,"width":380,"height":220},
+		{"id":"g3","type":"file","file":"docs/knowledge-vault/skills/pattern-discovery.md","x":920,"y":400,"width":380,"height":220},
+		{"id":"g4","type":"file","file":"docs/knowledge-vault/methodology/evidence-based-delivery.md","x":1380,"y":400,"width":380,"height":220},
+		{"id":"g5","type":"file","file":"docs/knowledge-vault/commands/pre-pr.md","x":1840,"y":400,"width":380,"height":220},
+		{"id":"g6","type":"file","file":"docs/knowledge-vault/methodology/three-stage-pr-review.md","x":2300,"y":400,"width":380,"height":220}
+	],
+	"edges":[
+		{"id":"f1","fromNode":"s1","fromSide":"right","toNode":"s2","toSide":"left","label":"branch + ticket claimed"},
+		{"id":"f2","fromNode":"s2","fromSide":"right","toNode":"s3","toSide":"left","label":"spec handed off"},
+		{"id":"f3","fromNode":"s3","fromSide":"right","toNode":"s4","toSide":"left","label":"implementation ready"},
+		{"id":"f4","fromNode":"s4","fromSide":"right","toNode":"s5","toSide":"left","label":"QAS gate passed"},
+		{"id":"f5","fromNode":"s5","fromSide":"right","toNode":"s6","toSide":"left","label":"PR opened"},
+		{"id":"f6","fromNode":"s6","fromSide":"right","toNode":"s7","toSide":"left","label":"HITL merge approved"},
+		{"id":"f7","fromNode":"s7","fromSide":"right","toNode":"s8","toSide":"left","label":"CI green"},
+
+		{"id":"v1","fromNode":"g1","fromSide":"top","toNode":"s1","toSide":"bottom","label":"blocks on missing AC/DoD"},
+		{"id":"v2","fromNode":"g2","fromSide":"top","toNode":"s2","toSide":"bottom","label":"skill used"},
+		{"id":"v3","fromNode":"g3","fromSide":"top","toNode":"s3","toSide":"bottom","label":"search first, reuse always"},
+		{"id":"v4","fromNode":"g4","fromSide":"top","toNode":"s4","toSide":"bottom","label":"evidence attached"},
+		{"id":"v5","fromNode":"g5","fromSide":"top","toNode":"s5","toSide":"bottom","label":"local validation gate"},
+		{"id":"v6","fromNode":"g6","fromSide":"top","toNode":"s6","toSide":"bottom","label":"review stages"},
+		{"id":"v7","fromNode":"g1","fromSide":"right","toNode":"g2","toSide":"left","label":"gate cleared"}
+	]
+}

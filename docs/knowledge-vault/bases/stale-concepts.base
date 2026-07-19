@@ -1,0 +1,72 @@
+filters:
+  and:
+    - file.inFolder("docs/knowledge-vault")
+    - type != null
+views:
+  - type: table
+    name: DRIFT - Behind Baseline fd0fc6a
+    filters:
+      and:
+        - verified_against != "fd0fc6a"
+    order:
+      - title
+      - verified_against
+      - type
+      - domain
+      - resource
+      - timestamp
+    sort:
+      - property: timestamp
+        direction: ASC
+  - type: table
+    name: DRIFT - Never Verified
+    filters:
+      and:
+        - verified_against == null
+    order:
+      - title
+      - type
+      - domain
+      - resource
+      - timestamp
+    sort:
+      - property: timestamp
+        direction: ASC
+  - type: table
+    name: Staleness Radar (oldest first)
+    order:
+      - title
+      - type
+      - timestamp
+      - verified_against
+      - domain
+    sort:
+      - property: timestamp
+        direction: ASC
+  - type: table
+    name: Watch-List Concepts (claim a resource)
+    filters:
+      and:
+        - resource != null
+    order:
+      - title
+      - resource
+      - verified_against
+      - type
+      - domain
+    sort:
+      - property: resource
+        direction: ASC
+  - type: table
+    name: Verified at Current Baseline
+    filters:
+      and:
+        - verified_against == "fd0fc6a"
+    order:
+      - title
+      - type
+      - domain
+      - timestamp
+    sort:
+      - property: title
+        direction: ASC
