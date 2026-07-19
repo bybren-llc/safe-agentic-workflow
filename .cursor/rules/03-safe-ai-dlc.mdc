@@ -1,0 +1,80 @@
+---
+description: "SAFe x AI-DLC fusion for running programs: Bolts replace sprints, Units of Work replace Features, Mob Elaboration, and the human-in-the-loop validation gate. Activate when planning or running multi-issue programs."
+alwaysApply: false
+---
+
+# SAFe x AI-DLC (Program Cadence)
+
+Use this rule when work spans **multiple issues and needs cadence** — turning an audit, epic, or
+initiative into an executable program. For a single isolated ticket, use `@01-git-workflow` instead.
+
+SAFe supplies the hierarchy and guardrails. AI-DLC supplies the cadence and the human checkpoint.
+The **sprint is replaced by the Bolt** — an hours-to-days swarm — because agent teams elaborate,
+build, and verify far faster than a week-long sprint assumes.
+
+## Vocabulary
+
+- **Bolt** — the unit of cadence. A short swarm (hours to a few days) with an entry gate, a handful
+  of issues, and a hard exit. Numbered `bolt:0`, `bolt:1`, and so on.
+- **Unit of Work** — an AI-DLC Feature. One coherent outcome. A project in the tracker.
+- **Mob Elaboration** — the Inception activity: read the issue, break it into sub-issues, list
+  unknowns, and ask clarifying questions **before writing any code**.
+- **Mob Construction** — the Construction activity: implement against the elaborated plan.
+- **The three phases** — Inception, Construction, Operations.
+- **The loop** — AI plans → AI asks → **human validates business context** → AI executes.
+
+## The Fusion Mapping
+
+| SAFe              | AI-DLC                                | Linear                              |
+| ----------------- | ------------------------------------- | ----------------------------------- |
+| Portfolio Epic    | The Program                           | Initiative                          |
+| Epic/value stream | Program stream                        | Sub-initiative, or project priority |
+| Feature           | Unit of Work                          | Project                             |
+| PI increment      | Bolt                                  | `bolt:N` label + target date        |
+| Phase gate        | Inception / Construction / Operations | Project Milestone                   |
+| Story/Enabler     | Story                                 | Issue                               |
+| Task              | Mob task                              | Sub-issue                           |
+
+## Dependency-Wiring Rules
+
+Wire `blocks` / `blockedBy` so the enforcement lands **before** the thing it enforces:
+
+- **Fix the gate before the fix it verifies**
+- **Rotate before scrub** (credentials)
+- **Capture before alert** (observability)
+- **Upgrades before re-baseline** (supply chain)
+
+Chains are usually rooted at CI hardening. Find that keystone and sequence its Bolt first.
+
+## Running a Bolt
+
+1. Open and elaborate every issue (Mob Elaboration)
+2. **Validate with the human** before Construction begins
+3. Construct in dependency order, rebase-first
+4. Verify the gates are **real** — a green check that masks a failure is not an exit
+5. Post evidence to the tracker
+6. RTE prepares the PR; the human (HITL) merges
+
+## Human-Gate Checklist
+
+Never guess these — surface options with a recommendation and stop:
+
+- Secret or credential actions
+- Security policy (CSP allow-list, auth behavior, headers)
+- CI or branch-protection decisions
+- Severity or risk policy, fix-vs-suppress budget
+- SOP exceptions
+- Signing the Definition of Done
+
+## Anti-Patterns
+
+- Forcing an ambiguous epic into one Bolt — run a **spike** instead
+- Creating sub-issues before Inception
+- Treating a Bolt as a calendar sprint (it exits on evidence, not a date)
+- Skipping human validation to move faster
+
+## References
+
+- `/docs/guides/SAFE-AI-DLC-METHODOLOGY.md`
+- `/specs_templates/program_template.md`
+- AI-DLC source: <https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/>
