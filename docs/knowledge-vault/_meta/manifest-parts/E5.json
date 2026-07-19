@@ -1,322 +1,457 @@
 {
-  "lane": "E5",
-  "concepts": [
-    {
-      "id": "sync/harness-sync-engine",
-      "type": "architecture",
-      "title": "Harness Sync Engine",
-      "path": "sync/harness-sync-engine.md",
-      "description": "Bash engine that syncs harness domains from upstream while preserving fork renames, substitutions, and protected files.",
-      "tags": ["sync", "operations", "workflow"],
-      "domain": "sync",
-      "sources": [
-        "scripts/sync-claude-harness.sh",
-        ".harness-manifest.yml",
-        ".harness-manifest.schema.json"
-      ],
-      "batch": "sync",
-      "notes": "scripts/sync-claude-harness.sh | 3366 lines, bash, set -e | 10 subcommands dispatched by case on $1: init status version diff sync manifest rollback conflicts releases help | check_dependencies requires curl + node, exits 1 if missing; help path skips dependency check | migrate_metadata_to_root runs before every non-help command: copies .claude/.harness-manifest.yml/.harness-sync.json/.harness-backup/.harness-patches to repo root when root copy absent, else repoints vars back to legacy paths | root paths: .harness-sync.json .harness-backup .harness-patches .harness-manifest.yml .harness-manifest.schema.json | TMP_DIR=/tmp/claude-harness-sync-$$ removed by cleanup() on EXIT trap | load_manifest parses YAML via python3 + PyYAML into $TMP_DIR/manifest.json; missing python3 or PyYAML or YAML parse error sets HAS_MANIFEST=false and prints 'Falling back to legacy sync' (never fatal) | validate_manifest requires manifest_version matching ^[0-9]+\\.[0-9]+$ and identity sub-fields; status/version/diff/sync exit 1 on validation failure, init treats it non-fatal | do_sync flags: --dry-run --version <tag> --latest --scope <csv> --no-placeholders --skip-preflight --generate-patches; unknown args silently shifted (no error) | do_sync returns 1 when HAS_MANIFEST!=true unless --dry-run (dry-run warns and uses legacy .claude-only scope) | manifest_version 1.1 or greater sets USE_ROOT_PATHS=true (root-relative rename/protected paths); 1.0 uses domain-relative | JSON access via node -e inline scripts (json_get/json_set/json_update/json_array_prepend); YAML only via python3 | apply_substitutions builds sed commands from identity ({{KEY}}->value) merged with explicit substitutions (explicit wins), sorted longest-key-first, applied in one sed -i invocation; GNU vs BSD sed branch on `sed --version | grep GNU` | resolve_rename checks exact file rename first, then directory renames by trailing-slash prefix match (file rename wins) | is_protected hardcodes .harness-sync.json .harness-manifest.yml .sync-exclude .sync-exclude.default .harness-backup* then glob-matches merged manifest protected[] + .claude/.sync-exclude, and ALSO substring-matches every pattern (*pattern*) for .sync-exclude back-compat | .claude/.sync-exclude and .claude/.sync-exclude.default do not exist in this repo; merged pattern set comes from manifest only | run_preflight checks (a) path traversal in local_rel, (b) unreplaced manifest tokens via scan_unreplaced_tokens, (c) protected-file collisions on both upstream and local paths; returns 1 and aborts sync on any error | generate_patch emits unified diffs with git-style a//b/$CURRENT_DOMAIN/<local_rel> labels, new files diffed against /dev/null; patch filenames flatten / to __ ; APPLY_ORDER.md written per version dir | update_sync_metadata records last_sync_commit, last_sync_version, last_sync_timestamp and prepends to sync_history capped at 10 | do_diff uses `declare -A dir_rename_counts` (line 1560) which requires bash 4+; fails on macOS system bash 3.2 with 'declare: -A: invalid option' | DOC DRIFT: show_help says 'Without a manifest, the script uses legacy file-level copy behavior' while do_sync returns 1 without a manifest for any non-dry-run invocation | DOC DRIFT: manifest sync.substitution_extensions and schema default list .md .json .yml .yaml .sh .py .ts .mjs .txt .toml, but apply_all_substitutions never reads that key and uses a hardcoded case list that adds *.bib and *.cff | DOC DRIFT: run_preflight scope-violation error message says 'files outside .claude/ would be modified' although sync is multi-domain | UNKNOWN: whether sync.auto_substitute, sync.backup, and sync.conflict_strategy are read anywhere — no reference to those keys was found outside the manifest and schema"
-    },
-    {
-      "id": "sync/manifest-schema",
-      "type": "architecture",
-      "title": "Harness Manifest Schema",
-      "path": "sync/manifest-schema.md",
-      "description": "JSON Schema and repo manifest declaring fork identity, renames, protected paths, and sync preferences.",
-      "tags": ["sync", "subsystems", "operations"],
-      "domain": "sync",
-      "sources": [
-        ".harness-manifest.schema.json",
-        ".harness-manifest.yml",
-        "scripts/sync-claude-harness.sh"
-      ],
-      "batch": "sync",
-      "notes": ".harness-manifest.schema.json | JSON Schema, additionalProperties false at root | root required: manifest_version, identity | top-level properties: manifest_version, identity, substitutions, renames, protected, replaced, sync (7) | identity.required: PROJECT_NAME PROJECT_REPO PROJECT_SHORT GITHUB_ORG TICKET_PREFIX MAIN_BRANCH (6) | .harness-manifest.yml declares 28 identity keys, all unresolved {{TOKEN}} values in this upstream repo | sync object (additionalProperties false) has 5 keys: sync_scope, auto_substitute, backup, conflict_strategy, substitution_extensions | sync_scope items enum: .claude/ .gemini/ .codex/ .cursor/ .agents/ dark-factory/ ; minItems 1, uniqueItems | conflict_strategy enum: upstream-wins, local-wins, prompt, three-way | schema is NOT executed against the manifest at runtime — validate_manifest in scripts/sync-claude-harness.sh reimplements a subset of the checks in bash (manifest_version pattern + identity required fields); MANIFEST_SCHEMA var is assigned but no JSON-Schema validator is invoked | protected/replaced are string arrays; replaced files are skipped with a 'Skipped (replaced)' notice per manifest comments | DOC DRIFT: schema describes sync.backup as 'Current: .claude/.harness-backup/. Planned (SAW-34): .harness-backup/ at repo root' but scripts/sync-claude-harness.sh already defaults BACKUP_DIR to repo-root .harness-backup with .claude/ only as legacy fallback | DOC DRIFT: schema says release domains docs/, scripts/, patterns_library/ 'will be rejected'; get_sync_scope and the --scope parser only emit a [WARN] 'Ignoring unknown sync domain' and continue | .harness-manifest.yml header points to docs/HARNESS_MANIFEST_SCHEMA.md (file exists) | UNKNOWN: whether any tooling validates the manifest against this schema outside the bash reimplementation"
-    },
-    {
-      "id": "sync/sync-scope",
-      "type": "process",
-      "title": "Multi-Domain Sync Scope Resolution",
-      "path": "sync/sync-scope.md",
-      "description": "How the sync engine resolves which harness domains to process from the manifest, CLI override, and allowlist.",
-      "tags": ["sync", "process", "operations"],
-      "domain": "sync",
-      "sources": [
-        "scripts/sync-claude-harness.sh",
-        ".harness-manifest.yml",
-        ".harness-manifest.schema.json",
-        "tests/test-multi-domain-sync.sh"
-      ],
-      "batch": "sync",
-      "notes": "get_sync_scope() in scripts/sync-claude-harness.sh, called by do_sync after load_manifest | ALLOWED_DOMAINS hardcoded array: .claude .gemini .codex .cursor .agents dark-factory (6) | get_sync_scope does NOT use the parsed manifest JSON — it re-reads .harness-manifest.yml line by line with grep/sed, entering on /^\\s*sync_scope:/ and consuming following lines starting with '-' | each item is stripped of quotes and trailing slash then matched exactly against ALLOWED_DOMAINS; non-matches print [WARN] 'Ignoring unknown sync domain: <d>' and are dropped | empty result falls back to SYNC_SCOPE=(.claude) | --scope <csv> in do_sync replaces SYNC_SCOPE for that invocation only and does not rewrite the manifest; invalid entries warn 'Ignoring unknown scope'; if every entry is invalid do_sync prints 'No valid domains in --scope' and returns 1 | domains processed sequentially in a loop; per-domain globals DOMAIN_TMP and DOMAIN_DIR and CURRENT_DOMAIN drive compare_file_with_paths, generate_patch, and preflight token lookups | SYNC_TIMESTAMP reset to empty before the loop so every domain in one run shares one backup timestamp | patches version directory created once outside the domain loop so later domains do not wipe earlier domains' patches | manifest_version 1.1+ makes renames/protected/replaced root-relative so one manifest can address every domain | this repo's .harness-manifest.yml enumerates all six domains in sync_scope | UNKNOWN: behavior when a domain listed in sync_scope is absent from the fetched upstream tree — enumerate_upstream_files suppresses find errors with 2>/dev/null and returns nothing"
-    },
-    {
-      "id": "sync/tests/fork-sync",
-      "type": "test-suite",
-      "title": "Test: Fork Sync Compatibility",
-      "path": "sync/tests/fork-sync.md",
-      "description": "Runs the sync script against rendertrust and keryk-ai fork fixtures; currently aborts before reporting results.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": [
-        "tests/test-fork-sync.sh",
-        "tests/fixtures/sync/rendertrust/.harness-manifest.yml",
-        "tests/fixtures/sync/keryk-ai/.harness-manifest.yml",
-        "scripts/sync-claude-harness.sh"
-      ],
-      "batch": "sync",
-      "notes": "tests/test-fork-sync.sh | SAW-9 | 30221 bytes, set -e, mktemp workdir removed by EXIT trap | 4 sections: 1 RenderTrust fork, 2 Keryk AI fork, 3 Cross-Fork Validation, 4 Schema & Fixture Integrity | 56 assert_ call sites; helpers assert_contains and assert_exit_code | PROVES FAILURE: it is one of only two suites asserting a non-zero exit — assert_exit_code 1 for `status` on a manifest missing identity, and assert_exit_code 1 for a malformed manifest_version | PROVES SUCCESS: init creates config, manifest counts (rendertrust 0 renames / 2 protected; keryk-ai 4 renames / 4 protected), dry-run exits 0, rename resolution writes ui-engineer.md and api-engineer.md and payment-patterns/ instead of upstream names, 'Skipping protected' emitted | STATUS: FAILS on this machine. Two independent causes observed. (1) do_diff uses `declare -A` (scripts/sync-claude-harness.sh:1560) which bash 3.2 rejects with 'declare: -A: invalid option', so 7 diff-related assertions FAIL (PROTECTED label, hooks-config.json, team-config.json, ui-engineer, api-engineer, payment-patterns). (2) Test 2.5 cats <tmp>/ka-protected/.claude/settings.local.json, which does not exist — tests/fixtures/sync/keryk-ai/.claude/ contains no settings.local.json although the keryk-ai manifest lists it under protected — and `set -e` aborts the script there, so the Results block never prints | recorded as a known fixture/environment gap, not a defect to repair | invoked by scripts/pre-release-check.sh in its tests/test-*.sh loop, where the missing 'ALL...PASS' string makes it report 'FAILED'"
-    },
-    {
-      "id": "sync/tests/manifest-init",
-      "type": "test-suite",
-      "title": "Test: Manifest Init Wizard",
-      "path": "sync/tests/manifest-init.md",
-      "description": "Covers manifest init generation from team-config, .sync-exclude, and domain detection; success paths only.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-manifest-init.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-manifest-init.sh | SAW-12 | 17127 bytes, set -e, mktemp workdir + EXIT trap | 14 numbered test sections, 57 assert_ call sites | exercises do_manifest_init, read_team_config_identity, scan_for_additional_substitutions, read_sync_exclude_patterns, generate_manifest_yaml | PROVES SUCCESS ONLY: every assert_exit_code in this file expects 0 — `manifest init --dry-run` exits 0, `manifest init --yes` exits 0, and init exits 0 even with no team-config.json | no assertion in this suite expects a non-zero exit or an aborted run | degraded paths are checked by OUTPUT TEXT rather than exit status: 'No team-config.json' warning, 'incomplete fields' warning, and unresolved {{PROJECT_NAME}}/{{TICKET_PREFIX}} being written through as literal placeholders | asserts generated manifest_version is \"1.1\", identity values are lifted from team-config.json, sync_scope section is emitted and includes .claude/, 'Detecting harness domains' and 'Found:' appear | asserts protected[] absorbs settings.local.json, hooks-config.json, and the glob agents/custom-*.md from .sync-exclude | asserts substitutions section carries GITHUB_ORG | config VALUES for the fixture project are asserted literally in the test file"
-    },
-    {
-      "id": "sync/tests/manifest-loader",
-      "type": "test-suite",
-      "title": "Test: Manifest Loader and Validator",
-      "path": "sync/tests/manifest-loader.md",
-      "description": "Covers manifest parsing, validation error text, and graceful fallback when the manifest is absent or malformed.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-manifest-loader.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-manifest-loader.sh | SAW-6 | 13131 bytes, smallest of the nine suites, set -e, mktemp + EXIT trap | 12 numbered test sections, 28 assert_ call sites (assert_pass/assert_contains/assert_exit_code) | PROVES FAILURE BY MESSAGE, NOT BY EXIT CODE: asserts validator strings 'missing required field: manifest_version', 'must match pattern X.Y', 'missing required field: PROJECT_REPO', 'missing required field: TICKET_PREFIX', 'missing required field: identity' | the only assert_exit_code in the file is `assert_exit_code 0 0` for help in legacy mode — no non-zero exit is ever asserted here, so it does not prove that an invalid manifest actually blocks a command | PROVES GRACEFUL DEGRADATION: invalid YAML asserts output contains 'Falling back to legacy', and init/help are asserted to work with no manifest at all | asserts summary formatting exactly: 'Manifest found: 1 renames, 3 substitutions, 3 protected patterns' and the all-zero variant for empty sections | asserts protected count folds protected[] + replaced[] into one number (3 = protected + replaced) | asserts .harness-manifest.yml itself shows as EXCLUDED in diff | re-run for regression by tests/test-substitutions.sh, which asserts this suite exits 0"
-    },
-    {
-      "id": "sync/tests/multi-domain-sync",
-      "type": "test-suite",
-      "title": "Test: Multi-Domain Sync",
-      "path": "sync/tests/multi-domain-sync.md",
-      "description": "Covers sync_scope parsing, root-relative paths, cross-domain protection and renames, and metadata migration.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-multi-domain-sync.sh", "scripts/sync-claude-harness.sh", ".harness-manifest.yml"],
-      "batch": "sync",
-      "notes": "tests/test-multi-domain-sync.sh | SAW-37 | 23721 bytes | only suite using #!/usr/bin/env bash and set -euo pipefail (the other eight use #!/bin/bash and set -e) | 14 numbered test sections, 43 assert_ call sites, assert_contains only — this suite defines no assert_exit_code helper | PROVES FAILURE BY SENTINEL STRING: asserts 'BLOCKED:manifest required' for sync without a manifest and 'Ignoring unknown sync domain' for an out-of-allowlist domain; both are checked as text emitted by a harness wrapper, not as process exit status | asserts all six allowed domains parse from sync_scope: .claude .gemini .codex .cursor .agents dark-factory | asserts 'SCOPE:.claude .gemini' — valid domains kept while invalid ones are dropped rather than aborting | asserts ROOT_PATHS:true for a v1.1 manifest (root-relative path mode) | asserts cross-domain protection: PROTECTED:gemini-settings, PROTECTED:claude-hooks, NOT_PROTECTED:gemini-commands | asserts root-relative rename resolution across domains: RENAME:.claude/agents/ui-engineer.md, DIR_RENAME:.gemini/skills/payment-patterns/webhook.md, NO_RENAME:.gemini/commands/test.toml | asserts compare_file_with_paths honors DOMAIN_TMP/DOMAIN_DIR: MODIFIED/UNCHANGED/NEW | asserts both domains share one SYNC_TIMESTAMP (TS_MATCH:yes, TS_SET:yes) | asserts validate_protected_paths emits 'does not match' for a .gemini typo pattern | asserts 'MIGRATE' appears when legacy .claude/ metadata is present"
-    },
-    {
-      "id": "sync/tests/patch-generation",
-      "type": "test-suite",
-      "title": "Test: Patch Generation Mode",
-      "path": "sync/tests/patch-generation.md",
-      "description": "Covers --generate-patches output, rename and substitution awareness, and git apply --check validity.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-patch-generation.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-patch-generation.sh | SAW-4 | 28993 bytes | 17 numbered test sections, 51 assert_ call sites | two-tier strategy stated in header: unit tests source sync functions through a wrapper that strips the main entry point; integration tests run a mocked copy of the script with fetch_upstream/get_upstream_sha stubbed so no network is used | PROVES SUCCESS: the single assert_exit_code in the file expects 0 from `git apply --check` on a generated patch — the load-bearing claim that emitted patches are applicable | asserts 'Generating Patches' header, 'patch(es)' count line, 'Patch (NEW)' and 'Patch (UPD)' labels | asserts protected files are skipped in patch mode too ('Skipping protected') | asserts '0 patch(es)' when nothing differs — the closest thing to a negative case | DOES NOT ASSERT FAILURE: no assertion expects a non-zero exit, a rejected patch, or an aborted patch run; malformed-patch and unwritable-output-dir paths are uncovered | covers generate_patch and generate_apply_order in scripts/sync-claude-harness.sh, including the flattened patch filename (/ replaced by __) and APPLY_ORDER.md"
-    },
-    {
-      "id": "sync/tests/preflight",
-      "type": "test-suite",
-      "title": "Test: Preflight Safety Check",
-      "path": "sync/tests/preflight.md",
-      "description": "Covers preflight scope, protected, and unreplaced-token violations plus provenance recording; strongest negative coverage.",
-      "tags": ["testing", "sync", "operations", "gates"],
-      "domain": "sync",
-      "sources": ["tests/test-preflight.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-preflight.sh | SAW-2 | 28849 bytes | 18 numbered test sections, 50 assert_ call sites | same two-tier strategy: function-sourcing wrapper for units, mocked script with stubbed network for integration | PROVES FAILURE MOST THOROUGHLY OF THE NINE: five distinct violation cases each assert 'PREFLIGHT_RESULT: fail' — relative path traversal (scope), absolute path (scope), protected-file collision, unreplaced token, and a combined multi-violation case that asserts both 'Scope violation' and 'Protected file violation' appear together | failure is asserted via the harness sentinel PREFLIGHT_RESULT and the human error strings, not via the sync process exit code | asserts token scan precision: SCAN_RESULT dirty with per-line locations 'dirty.md:1: unreplaced token {{PROJECT_NAME}}', ':2: {{GITHUB_ORG}}', ':4: {{TICKET_PREFIX}}' | asserts SCAN_RESULT clean for a clean file AND for {{...}} tokens not present in the manifest (no false positives) | asserts PREFLIGHT_RESULT pass on an empty sync plan | asserts --skip-preflight logs 'Preflight check SKIPPED' rather than silently bypassing | asserts --no-placeholders suppresses only the token check while preflight still passes | asserts help text contains '--skip-preflight', 'PREFLIGHT', and 'PROVENANCE' sections | exercises scan_unreplaced_tokens and run_preflight in scripts/sync-claude-harness.sh"
-    },
-    {
-      "id": "sync/tests/protected-files",
-      "type": "test-suite",
-      "title": "Test: Protected File Enforcement",
-      "path": "sync/tests/protected-files.md",
-      "description": "Covers manifest and .sync-exclude protection merging, glob matching, de-duplication, and skip reporting.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-protected-files.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-protected-files.sh | SAW-3 | 29426 bytes | 19 numbered test sections (most of the nine), 59 assert_ call sites (most of the nine) | same wrapper + mocked-network strategy | PROVES BOTH POLARITIES BUT NEVER A FAILING EXIT: asserts positive matches (PROTECTED_CLAUDE/SETTINGS/HOOKS: yes) and explicit negatives (PROTECTED_SYSARCH: no, GLOB_NOMATCH: no, MERGED_NONE: no, LEGACY_NOEXCL: no, EXCLUDED_SYSARCH: no) — every assertion is a string comparison; no assert_exit_code expects non-zero and no test asserts sync aborts because of a protected collision | asserts glob semantics for agents/custom-*.md matching custom-agent.md and custom-devops.md but not fe-developer.md | asserts the merged pattern set spans manifest protected[] and .claude/.sync-exclude, with MERGED_MANIFEST/MERGED_SYNCEXCL/MERGED_BOTH all yes | asserts de-duplication: DEDUP_COUNT: 1 for settings.local.json present in both sources | asserts diff renders 'PROTECTED  settings.local.json' and 'PROTECTED  agents/custom-agent.md' and a protected count in the summary | asserts sync emits 'Skipping protected: CLAUDE.md' and 'Skipping protected: settings.local.json' | asserts validate_protected_paths warns 'Protected pattern does not match any local file' for nonexistent-file.json and missing-dir/config.yml | covers get_protected_patterns, is_protected, is_manifest_protected, is_excluded, validate_protected_paths | the substring fallback in is_protected (matching *pattern* in addition to globs) is not directly asserted"
-    },
-    {
-      "id": "sync/tests/rename-diff",
-      "type": "test-suite",
-      "title": "Test: Rename-Aware Diff and Status",
-      "path": "sync/tests/rename-diff.md",
-      "description": "Covers file and directory rename resolution, precedence, and rename-aware diff and status output.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-rename-diff.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-rename-diff.sh | SAW-5 | 26746 bytes | 18 numbered test sections, 55 assert_ call sites | same wrapper + mocked-network strategy | PROVES SUCCESS AND PASSTHROUGH, NOT FAILURE: no assertion expects a non-zero exit or an aborted run; the negative-shaped cases are all benign passthroughs — PASSTHROUGH for unrenamed agents/system-architect.md and commands/pr-review.md, NO_MANIFEST returning agents/fe-developer.md unchanged, and TYPE_NONE from rename_type | asserts file renames: FILE_RENAME agents/ui-engineer.md, FILE_RENAME2 agents/api-engineer.md | asserts directory renames apply recursively including nested paths: skills/firestore-security/SKILL.md, README.md, sub/nested.md, and skills/payment-patterns/webhook.md | asserts precedence rule directly: FILE_WINS skills/custom-skill.md proves an exact file rename beats an overlapping directory rename, while DIR_APPLIES proves the directory rename still covers its other files | asserts rename_type returns file / directory / none | asserts diff prints local path with upstream in parentheses, e.g. 'agents/ui-engineer.md (upstream: agents/fe-developer.md)' | asserts RENAMED summary lines with per-directory file counts '(3 files)' and '(1 files)' | asserts status prints 'Renames:       4' and 'Rename mappings (upstream -> local):' | covers resolve_rename, rename_type, get_directory_renames, do_diff, do_status | note: do_diff paths here exercise the same `declare -A` at scripts/sync-claude-harness.sh:1560 that fails under bash 3.2 | re-run for regression by tests/test-substitutions.sh, which asserts this suite exits 0"
-    },
-    {
-      "id": "sync/tests/substitutions",
-      "type": "test-suite",
-      "title": "Test: Placeholder Substitution Engine",
-      "path": "sync/tests/substitutions.md",
-      "description": "Covers token replacement, longest-match ordering, non-manifest token preservation, and special-character escaping.",
-      "tags": ["testing", "sync", "operations"],
-      "domain": "sync",
-      "sources": ["tests/test-substitutions.sh", "scripts/sync-claude-harness.sh"],
-      "batch": "sync",
-      "notes": "tests/test-substitutions.sh | SAW-10 | 28371 bytes | 15 numbered test sections, 55 assert_ call sites | same wrapper + mocked-network strategy | PROVES A FAILURE PATH BY MESSAGE: asserts sync without a manifest emits 'No manifest found' and routes the operator to 'manifest init' — the manifest-required guard in do_sync — but checks the strings, not the return code | its three assert_exit_code calls all expect 0: `bash -n` syntax check of scripts/sync-claude-harness.sh, and re-running tests/test-manifest-loader.sh and tests/test-rename-diff.sh as regression gates | this is the only suite that invokes other suites | asserts identity-derived and explicit substitutions both apply ({{PROJECT_NAME}}, {{TICKET_PREFIX}}, {{GITHUB_ORG}}, {{PROJECT_REPO}}, {{PROJECT_SHORT}}) | asserts longest-match-first ordering: {{GITHUB_REPO_URL}} resolves fully while the shorter {{GITHUB_ORG}} still works | asserts NON-manifest tokens survive untouched — {{CHECKOUT_SESSION_ID}}, {{UNKNOWN_PLACEHOLDER}}, and Mustache {{#items}} / {{/items}} — the key safety property | asserts literal (unbraced) substitutions replace bare strings, turning SAW-123 into MYP-123 and [SAW-XXX] into [MYP-XXX] | asserts --no-placeholders reports 'Skipping placeholder substitutions' | asserts sed-escaping survives URLs with ~, emails with @, and names with dots and dashes | asserts empty substitutions{} still applies identity values | asserts apply_substitutions on a non-existent file returns cleanly (EXIT_OK)"
-    },
-    {
-      "id": "sync/fixtures",
-      "type": "guide",
-      "title": "Sync Test Fixtures and Example Manifests",
-      "path": "sync/fixtures.md",
-      "description": "Mock fork trees and example manifests used by the sync test suites and shipped as downstream references.",
-      "tags": ["testing", "sync", "operations", "onboarding"],
-      "domain": "sync",
-      "sources": [
-        "tests/fixtures/sync/rendertrust/.harness-manifest.yml",
-        "tests/fixtures/sync/rendertrust/.claude/team-config.json",
-        "tests/fixtures/sync/rendertrust/.claude/hooks-config.json",
-        "tests/fixtures/sync/rendertrust/.claude/README.md",
-        "tests/fixtures/sync/rendertrust/.claude/AGENT_OUTPUT_GUIDE.md",
-        "tests/fixtures/sync/rendertrust/.claude/agents/fe-developer.md",
-        "tests/fixtures/sync/rendertrust/.claude/agents/be-developer.md",
-        "tests/fixtures/sync/rendertrust/.claude/skills/stripe-patterns/SKILL.md",
-        "tests/fixtures/sync/keryk-ai/.harness-manifest.yml",
-        "tests/fixtures/sync/keryk-ai/.claude/team-config.json",
-        "tests/fixtures/sync/keryk-ai/.claude/hooks-config.json",
-        "tests/fixtures/sync/keryk-ai/.claude/README.md",
-        "tests/fixtures/sync/keryk-ai/.claude/AGENT_OUTPUT_GUIDE.md",
-        "tests/fixtures/sync/keryk-ai/.claude/agents/ui-engineer.md",
-        "tests/fixtures/sync/keryk-ai/.claude/agents/api-engineer.md",
-        "tests/fixtures/sync/keryk-ai/.claude/agents/ml-engineer.md",
-        "tests/fixtures/sync/keryk-ai/.claude/agents/ml-ops-engineer.md",
-        "tests/fixtures/sync/keryk-ai/.claude/agents/system-architect.md",
-        "tests/fixtures/sync/keryk-ai/.claude/skills/payment-patterns/SKILL.md",
-        "examples/manifests/rendertrust.harness-manifest.yml",
-        "examples/manifests/keryk-ai.harness-manifest.yml",
-        "tests/test-fork-sync.sh"
-      ],
-      "batch": "sync",
-      "notes": "two fixture forks under tests/fixtures/sync/: rendertrust (8 files) and keryk-ai (11 files), 19 files total across 11 directories | each fork has .harness-manifest.yml at its root plus a mock .claude/ tree (team-config.json, hooks-config.json, README.md, AGENT_OUTPUT_GUIDE.md, agents/, skills/) | rendertrust fixture: no renames, protected covers hooks-config.json and team-config.json, agents are upstream-named fe-developer.md and be-developer.md, skill dir skills/stripe-patterns/ | keryk-ai fixture: 4 renames (3 file + 1 directory), protected lists hooks-config.json, team-config.json, settings.local.json, agents/ml-ops-engineer.md; replaced lists agents/system-architect.md, AGENT_OUTPUT_GUIDE.md, README.md; agents are already fork-named ui-engineer.md / api-engineer.md / ml-engineer.md / ml-ops-engineer.md and the skill dir is skills/payment-patterns/ | FIXTURE GAP: keryk-ai lists settings.local.json under protected but tests/fixtures/sync/keryk-ai/.claude/settings.local.json does not exist; tests/test-fork-sync.sh Test 2.5 cats that path and, under set -e, aborts the run before the Results block | examples/manifests/ holds 2 reference manifests consumed by humans and checked for existence by scripts/pre-release-check.sh section 4 | the fixture manifests are DERIVED from the examples but are NOT identical: the fixture headers state 'from examples/manifests/' while the examples carry a fuller commented preamble, and examples/manifests/rendertrust.harness-manifest.yml lists five extra substitution_extensions (.py .ts .mjs .txt .toml) absent from the fixture copy — the two can drift independently | manifest identity VALUES in these fixtures are project identifiers for the two named forks and are asserted literally in tests/test-fork-sync.sh and tests/test-manifest-init.sh"
-    },
-    {
-      "id": "operations/scripts/setup-template",
-      "type": "script",
-      "title": "setup-template.sh",
-      "path": "operations/scripts/setup-template.md",
-      "description": "Interactive wizard that replaces template placeholders repo-wide when a new project is created from the template.",
-      "tags": ["operations", "onboarding", "sync"],
-      "domain": "operations",
-      "sources": ["scripts/setup-template.sh", ".harness-manifest.yml"],
-      "batch": "operations",
-      "notes": "scripts/setup-template.sh | 8571 bytes, #!/usr/bin/env bash, set -euo pipefail | run once after creating a repo from the template: bash scripts/setup-template.sh | prompts interactively, prints a summary, then requires a y/Y answer to 'Proceed? (y/N)' — any other answer prints 'Aborted.' and exits 1 | _sed_inplace helper branches on `sed --version | grep GNU` to pick GNU `sed -i` vs BSD `sed -i ''` | REPLACEMENTS is a declare -a of 30 OLD|NEW pairs applied in order, longest/most-specific first, and a pair is skipped when OLD equals NEW | 4 of the 30 are derived rather than prompted: GITHUB_REPO_URL, TICKET_PREFIX_LOWER, AUTHOR_INITIALS, HARNESS_VERSION | replacement targets are found by `find` over these names: *.md *.json *.yml *.yaml *.sh *.py *.txt *.toml *.bib *.cff *.mjs *.ts NOTICE LICENSE CODEOWNERS .env.template .gitignore, excluding */.git/* and */node_modules/* | files are rewritten via xargs -0 _sed_inplace with an unanchored s|OLD|NEW|g, so a placeholder occurring inside another string is also rewritten | after the pass it greps for surviving {{[A-Z_]*}} tokens across a NARROWER include set (*.md *.json *.yml *.yaml *.sh *.cff *.bib) and reports them; .toml .ts .mjs .txt .py NOTICE LICENSE CODEOWNERS .env.template .gitignore are substituted but never re-scanned, so leftovers there are not reported | this script is the origin of the placeholder names that .harness-manifest.yml identity must mirror; the manifest documents 28 identity keys against these 30 replacements | scripts/pre-release-check.sh section 3 asserts this file exists | this repo is still in template state — its own sources contain unresolved {{...}} tokens"
-    },
-    {
-      "id": "operations/scripts/pre-release-check",
-      "type": "script",
-      "title": "pre-release-check.sh",
-      "path": "operations/scripts/pre-release-check.md",
-      "description": "Automates the pre-release checklist across code quality, docs, template compatibility, compatibility, and git state.",
-      "tags": ["operations", "release", "ci", "gates"],
-      "domain": "operations",
-      "sources": ["scripts/pre-release-check.sh", "docs/release/PRE-RELEASE-CHECKLIST.md", "scripts/sync-claude-harness.sh"],
-      "batch": "operations",
-      "notes": "scripts/pre-release-check.sh | 7655 bytes, set -euo pipefail, cds to PROJECT_ROOT | usage: ./scripts/pre-release-check.sh [version]; version defaults to the literal UNSET and is only echoed, never validated | automates docs/release/PRE-RELEASE-CHECKLIST.md | 5 sections: 1 Code Quality Gates, 2 Documentation Completeness, 3 Template Compatibility, 4 Backward Compatibility, 5 Git State | three outcome counters via check_pass / check_fail / check_warn | exit contract: any FAIL prints 'RELEASE BLOCKED' and exits 1; zero fails with warnings prints 'RELEASE READY WITH WARNINGS' and exits 0; clean prints 'ALL CHECKS PASSED' and exits 0 — warnings never block | section 1 runs `bash -n scripts/sync-claude-harness.sh`, greps for '<<<<<<' conflict markers, then loops every tests/test-*.sh | a suite counts as passing ONLY if its output matches grep -q 'ALL.*PASS'; anything else is check_fail, so a suite that aborts early is reported as FAILED | tests/test-fork-sync.sh currently aborts before printing results and therefore fails this gate | PORTABILITY: the test loop calls `timeout 120` and `grep -oP`, both GNU-only — neither is present on stock macOS, so the loop misbehaves there (timeout: command not found) | section 3 greps harness files for hardcoded project values (warn only) and requires scripts/setup-template.sh to exist | section 4 checks .harness-manifest.schema.json and the examples/manifests entries, all as warnings not failures | section 5 fails when not on main, warns on a dirty working tree, warns when SAW feature branches remain"
-    },
-    {
-      "id": "operations/scripts/generate-changelog",
-      "type": "script",
-      "title": "generate-changelog.sh",
-      "path": "operations/scripts/generate-changelog.md",
-      "description": "Generates a structured changelog between two git refs, categorizing harness file changes for release notes.",
-      "tags": ["operations", "release", "ci"],
-      "domain": "operations",
-      "sources": ["scripts/generate-changelog.sh"],
-      "batch": "operations",
-      "notes": "scripts/generate-changelog.sh | 18695 bytes, second-largest script in scripts/, set -euo pipefail | usage: ./scripts/generate-changelog.sh --from <ref> --to <ref> [OPTIONS] | flags: --from, --to, --format (yaml default, or markdown), --version, --summary, --help | when --version is omitted it is derived from the --to ref by stripping a leading 'v' | emits output matching the HARNESS_CHANGELOG.yml schema, SCHEMA_VERSION pinned to 1.0.0 in the script | categorizes .claude/ file changes into 5 buckets: NEW_FILE, UPDATED_FILE, METHODOLOGY, BREAKING, CONFIG | reads history through git only; no network calls | consumed by the release workflow rather than by the sync engine | UNKNOWN: whether any command, hook, or CI workflow invokes this script — no caller was found within scripts/ or tests/ | UNKNOWN: whether HARNESS_CHANGELOG.yml is produced and committed anywhere in this repo"
-    },
-    {
-      "id": "operations/scripts/install-prompts",
-      "type": "script",
-      "title": "install-prompts.sh",
-      "path": "operations/scripts/install-prompts.md",
-      "description": "Installs the agent prompt files for Claude Code or Augment Code, either per-user or in-project for team sharing.",
-      "tags": ["operations", "agents", "onboarding"],
-      "domain": "operations",
-      "sources": ["scripts/install-prompts.sh"],
-      "batch": "operations",
-      "notes": "scripts/install-prompts.sh | 7880 bytes, set -e | three modes parsed from argv: default per-user Claude Code install, --team for in-project shared agents, --augment for Augment Code; --help prints usage | header states it installs 11 agent prompts | copies with `cp -v \"$CLAUDE_AGENTS_DIR\"/*.md` into the user agents dir for the Claude path and `cp -v \"$AUGMENT_AGENTS_DIR\"/*.md` for the Augment path | also copies .claude/hooks/*.sh into a user hooks dir, suppressed with `2>/dev/null || true` so a missing hooks directory is silent and non-fatal | destination directories are user-scoped paths derived inside the script; source is the repo's .claude/ tree via SCRIPT_DIR/REPO_ROOT | contains unresolved {{PROJECT_SHORT}} placeholders in its own header, so it is itself a setup-template.sh substitution target | overwrites existing agent files in the destination without a diff or backup step | UNKNOWN: whether the count of agent .md files actually shipped matches the 11 stated in the header — the copy is a wildcard, not an enumerated list"
-    },
-    {
-      "id": "operations/scripts/apply-workflow",
-      "type": "script",
-      "title": "apply-workflow.sh",
-      "path": "operations/scripts/apply-workflow.md",
-      "description": "Integrates the SAFe agentic workflow template into an existing project, prompting for the AI agent provider.",
-      "tags": ["operations", "onboarding", "workflow"],
-      "domain": "operations",
-      "sources": ["scripts/apply-workflow.sh"],
-      "batch": "operations",
-      "notes": "scripts/apply-workflow.sh | 6664 bytes, set -e | NOT executable — mode 644, unlike the other 9 shell scripts in scripts/ which are 755; must be invoked as `bash scripts/apply-workflow.sh` | integrates the harness template into an existing target project rather than bootstrapping a new repo from the template | TEMPLATE_DIR is `dirname $0` (the scripts/ directory itself, not the repo root) and TARGET_DIR is hardcoded to '.' — the current working directory is the install target | log_error echoes and then exits 1, so any error path is fatal | prompts the operator to choose an AI agent provider, presenting Claude Code as the recommended fully-automated option | carries unresolved {{PROJECT_SHORT}} placeholders in its own strings, so it is a setup-template.sh substitution target | overlaps in purpose with scripts/setup-template.sh (new repo from template) — this one targets an already-existing project | UNKNOWN: the full provider list offered and what each branch copies, and whether the non-executable mode is intentional"
-    },
-    {
-      "id": "operations/scripts/reorganize-docs",
-      "type": "script",
-      "title": "reorganize-docs.sh",
-      "path": "operations/scripts/reorganize-docs.md",
-      "description": "One-time migration that restructures repository documentation per the repository reorganization plan.",
-      "tags": ["operations", "process"],
-      "domain": "operations",
-      "sources": ["scripts/reorganize-docs.sh", "docs/REPOSITORY-REORGANIZATION-PLAN.md"],
-      "batch": "operations",
-      "notes": "scripts/reorganize-docs.sh | 11100 bytes, largest of the doc-maintenance scripts, set -e | implements docs/REPOSITORY-REORGANIZATION-PLAN.md (file exists) | guards on being run from the repository root: exits with an error unless both README.md and .git are present in the working directory | moves documentation files into their reorganized locations under docs/ | one-time historical migration, already applied to this repo — re-running is not part of any routine workflow | paired with scripts/update-doc-references.sh and scripts/fix-remaining-doc-references.sh, which repair inbound links after the moves | UNKNOWN: whether the script is idempotent if re-run after the migration has already landed | UNKNOWN: whether it uses git mv or plain mv, and therefore whether rename history is preserved"
-    },
-    {
-      "id": "operations/scripts/update-doc-references",
-      "type": "script",
-      "title": "update-doc-references.sh",
-      "path": "operations/scripts/update-doc-references.md",
-      "description": "Rewrites links to documentation files that moved during the repository reorganization.",
-      "tags": ["operations", "process"],
-      "domain": "operations",
-      "sources": ["scripts/update-doc-references.sh", "docs/REPOSITORY-REORGANIZATION-PLAN.md"],
-      "batch": "operations",
-      "notes": "scripts/update-doc-references.sh | 5904 bytes, set -e | companion to scripts/reorganize-docs.sh; part of docs/REPOSITORY-REORGANIZATION-PLAN.md | defines an update_file_references() helper taking a file path and rewriting the old documentation paths to their new locations | runs after the moves, so it depends on reorganize-docs.sh having already executed | leaves residue that scripts/fix-remaining-doc-references.sh exists specifically to clean up — the two form a sequence, not alternatives | one-time historical migration script, not part of a routine workflow | UNKNOWN: the full mapping of old to new paths it applies | UNKNOWN: whether it is idempotent on already-updated files"
-    },
-    {
-      "id": "operations/scripts/fix-remaining-doc-references",
-      "type": "script",
-      "title": "fix-remaining-doc-references.sh",
-      "path": "operations/scripts/fix-remaining-doc-references.md",
-      "description": "Cleanup pass fixing documentation references missed by the main reorganization update script.",
-      "tags": ["operations", "process"],
-      "domain": "operations",
-      "sources": ["scripts/fix-remaining-doc-references.sh"],
-      "batch": "operations",
-      "notes": "scripts/fix-remaining-doc-references.sh | 3145 bytes, smallest script in scripts/, set -e | third and last stage of the doc reorganization sequence, after reorganize-docs.sh and update-doc-references.sh | operates on a HARDCODED FILES array of 8 paths rather than discovering files: AGENTS.md, CONTRIBUTING.md, docs/onboarding/DAY-1-CHECKLIST.md, docs/onboarding/META-PROMPTS-FOR-USERS.md, docs/onboarding/USER-JOURNEY-VALIDATION-REPORT.md, docs/onboarding/{{TICKET_PREFIX}}-326-COMPLETION-SUMMARY.md, docs/team/PLANNING-AGENT-META-PROMPT.md, patterns_library/database/rls-migration.md | each entry is guarded by `if [ -f \"$file\" ]`, so missing paths are skipped silently and the run still succeeds | one array entry embeds the literal {{TICKET_PREFIX}} placeholder in its path, so that entry only resolves after scripts/setup-template.sh has substituted the repo — in template state it never matches and is always skipped | one-time historical migration script | UNKNOWN: which specific reference strings it rewrites inside each file"
-    },
-    {
-      "id": "operations/scripts/generalize-onboarding-docs",
-      "type": "script",
-      "title": "generalize-onboarding-docs.sh",
-      "path": "operations/scripts/generalize-onboarding-docs.md",
-      "description": "Replaces hardcoded project references in onboarding docs with template placeholders, backing up each file first.",
-      "tags": ["operations", "onboarding", "process"],
-      "domain": "operations",
-      "sources": ["scripts/generalize-onboarding-docs.sh"],
-      "batch": "operations",
-      "notes": "scripts/generalize-onboarding-docs.sh | 3405 bytes, #!/usr/bin/env bash, set -euo pipefail | runs the INVERSE of scripts/setup-template.sh: turns concrete project values back into {{PLACEHOLDER}} tokens so the docs are template-ready | operates on a fixed brace-expansion list of 5 files under docs/onboarding/: DAY-1-CHECKLIST.md, SOCIAL-MEDIA-SETUP.md, AGENT-SETUP-GUIDE.md, META-PROMPTS-FOR-USERS.md, USER-JOURNEY-VALIDATION-REPORT.md | before editing it copies each existing file to <file>.bak; the .bak files are left on disk and never cleaned up by this script | each file is guarded by `if [ -f \"$file\" ]`, so missing targets are skipped without failing | one-time template-preparation script, already applied — not part of a routine workflow | UNKNOWN: the exact set of hardcoded strings mapped to which placeholder tokens | UNKNOWN: whether re-running over already-generalized files is a no-op or double-substitutes"
-    },
-    {
-      "id": "operations/scripts/generalize-commands",
-      "type": "script",
-      "title": "generalize_commands.py",
-      "path": "operations/scripts/generalize-commands.md",
-      "description": "Python utility that adds template notices and placeholder syntax to Claude Code command markdown files.",
-      "tags": ["operations", "commands", "process"],
-      "domain": "operations",
-      "sources": ["scripts/generalize_commands.py"],
-      "batch": "operations",
-      "notes": "scripts/generalize_commands.py | 6659 bytes, #!/usr/bin/env python3, imports os, re, pathlib | the ONLY non-shell file in scripts/ and the only one using snake_case rather than kebab-case | mode 644, not executable | rewrites .claude/commands/*.md to use template placeholders instead of hardcoded values | BROKEN AS SHIPPED: COMMANDS_DIR is a hardcoded absolute path built from unresolved template tokens — Path(\"/home/{{AUTHOR_HANDLE}}/Projects/{{PROJECT_REPO}}/.claude/commands\") — so in template state it points at a literal directory containing brace tokens and cannot resolve; it is not derived from __file__ or any CLI argument | add_template_notice() inserts a TEMPLATE_NOTICE banner after the frontmatter, locating it by content.split(\"---\", 2), and returns the content unchanged if the marker is already present (idempotent on that step) | the frontmatter split assumes the file opens with a --- delimited block; a command file without frontmatter would have its first two --- occurrences treated as the block | one-time template-preparation utility, superseded in practice by scripts/setup-template.sh which handles substitution repo-wide | UNKNOWN: whether this script was ever run against a resolved path, and whether the {{...}} tokens in COMMANDS_DIR are intended to be substituted by setup-template.sh (which does include *.py in its find list, so they would be)"
-    }
-  ]
+ "lane": "E5",
+ "concepts": [
+  {
+   "id": "sync/harness-sync-engine",
+   "type": "architecture",
+   "title": "Harness Sync Engine",
+   "path": "sync/harness-sync-engine.md",
+   "description": "3366-line bash engine that pulls upstream harness domains via GitHub tarball while preserving fork renames, substitutions, and protected files.",
+   "tags": [
+    "sync",
+    "subsystems",
+    "workflow",
+    "gates",
+    "operations"
+   ],
+   "domain": "sync",
+   "sources": [
+    "scripts/sync-claude-harness.sh",
+    ".harness-manifest.yml",
+    ".harness-manifest.schema.json"
+   ],
+   "batch": "sync",
+   "notes": "scripts/sync-claude-harness.sh, 3366 lines, 57 functions, set -e | 10 commands dispatched by case on $1: init|status|version|diff|sync|manifest|rollback|conflicts|releases|help | check_dependencies + migrate_metadata_to_root run for every command except help | hard deps: curl, node, python3 (python3 only for YAML->JSON via PyYAML; missing python3 or PyYAML => print_warning + HAS_MANIFEST=false, silent degrade to legacy) | metadata at repo root (v2.10.0+): .harness-sync.json, .harness-backup/, .harness-patches/, .harness-manifest.yml, .harness-manifest.schema.json; legacy .claude/ copies auto-copied forward by migrate_metadata_to_root and left in place | .sync-exclude and .sync-exclude.default stay under .claude/ (legacy fallback only) | tmp workspace /tmp/claude-harness-sync-$$, rm -rf on EXIT trap | fetch_upstream: curl -sL https://api.github.com/repos/$UPSTREAM_REPO/tarball/$ref piped to tar xz --strip-components=1; ABORTS if $TMP_DIR/.claude absent even when sync_scope excludes .claude | get_upstream_sha / get_latest_release / list_releases hit api.github.com unauthenticated | do_sync pipeline per domain: apply_all_substitutions(DOMAIN_TMP) -> build sync_plan (is_excluded -> resolve_rename -> compare_file_with_paths) -> run_preflight -> create_backup -> cp substituted TMP file over local | substitution happens in TMP_DIR BEFORE preflight so the token scanner sees post-substitution state | create_backup writes .harness-backup/<domain>/<SYNC_TIMESTAMP>/, prunes to last 3 timestamps per domain; SYNC_TIMESTAMP shared across all domains in one run so do_rollback can restore every domain from one timestamp | do_rollback picks newest timestamp via date -d (GNU-only flag; returns 0 epoch on BSD date) and copies back into $PROJECT_ROOT/<domain>/ | update_sync_metadata writes BOTH key families: last_synced_commit/last_synced_version/last_synced_at AND last_sync_commit/last_sync_version/last_sync_timestamp, plus sync_history capped at 10 | flags: --dry-run --version <tag> --latest --scope <csv> --no-placeholders --skip-preflight --generate-patches; unknown args silently shifted, never error | no manifest + no --dry-run => print_error + return 1; with --dry-run => warns and previews with legacy .claude-only scope | REQUIRES BASH 4: do_diff line 1560 'declare -A dir_rename_counts' + line 1702 ${!arr[@]}; on macOS /bin/bash 3.2 do_diff dies with 'declare: -A: invalid option' and produces no output - this is the single root cause of 12/50 failures in tests/test-rename-diff.sh, 6/54 in tests/test-protected-files.sh, and 7 failures in tests/test-fork-sync.sh | DOC DRIFT: manifest sync.conflict_strategy (upstream-wins|local-wins|prompt|three-way) is only READ for display in do_status line 2453; no branch anywhere implements it - do_sync unconditionally cp's upstream over local (de-facto upstream-wins) and the conflicts counter passed to update_sync_metadata is hardcoded 0 | DOC DRIFT: manifest sync.auto_substitute documented as 'Set to false to sync raw upstream files' is never read; only --no-placeholders suppresses substitution | DOC DRIFT: manifest sync.substitution_extensions is never read; apply_all_substitutions hardcodes .md .json .yml .yaml .sh .py .txt .toml .ts .mjs .bib .cff (.bib/.cff extra vs the manifest list) | DOC DRIFT: manifest 'replaced' section documented to skip files and log 'Skipped (replaced): <path>' - that string does not exist in the script; get_protected_patterns reads only data.protected, so 'replaced' entries are counted in status/validate output and otherwise OVERWRITTEN | DOC DRIFT: show_help says both 'sync requires a manifest ... sync will fail' and 'Without a manifest, the script uses legacy file-level copy behavior' | is_protected falls back to substring match after glob match, so a short protected pattern silently protects unrelated paths | do_conflicts only scans $CLAUDE_DIR for *.conflict, ignoring other sync domains | UNKNOWN: is any *.conflict file ever written? no writer for that suffix found in the script"
+  },
+  {
+   "id": "sync/manifest-schema",
+   "type": "architecture",
+   "title": "Harness Manifest Schema",
+   "path": "sync/manifest-schema.md",
+   "description": "JSON Schema plus template YAML declaring how a downstream fork customizes the harness: identity, substitutions, renames, protected, replaced, sync prefs.",
+   "tags": [
+    "sync",
+    "subsystems",
+    "patterns",
+    "workflow"
+   ],
+   "domain": "sync",
+   "sources": [
+    ".harness-manifest.schema.json",
+    ".harness-manifest.yml",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "schema draft 2020-12, additionalProperties:false at root, required [manifest_version, identity] | 7 top-level sections: manifest_version, identity, substitutions, renames, protected, replaced, sync | repo's own .harness-manifest.yml is manifest_version 1.1 with 27 identity keys all still {{PLACEHOLDER}} values, empty substitutions/renames/protected/replaced, sync_scope listing all 6 allowed domains | schema required identity subset: PROJECT_NAME PROJECT_REPO PROJECT_SHORT GITHUB_ORG TICKET_PREFIX MAIN_BRANCH (6 of 27) | identity key names mirror scripts/setup-template.sh {{...}} tokens exactly | v1.0 = paths relative to .claude/, v1.1+ = repo-root-relative; do_sync sets USE_ROOT_PATHS=true when manifest_version is 1.1 or lexically greater and prefixes $CURRENT_DOMAIN/ onto every manifest lookup key | renames: trailing / marks a directory rename; resolve_rename checks exact file match first, then directory prefix match, then passthrough (file wins over directory) | ENFORCEMENT GAP vs schema: validate_manifest is hand-rolled bash+node, NOT a JSON Schema validator - it checks only manifest_version regex ^[0-9]+\\.[0-9]+$, presence of identity plus the 6 required subkeys, and emits WARNINGS (never errors) for absolute or .. rename paths; schema patterns for TICKET_PREFIX (^[A-Z][A-Z0-9]{1,9}$), PROJECT_REPO, substitutions propertyNames, sync_scope enum, additionalProperties:false, and format:email/uri are NEVER enforced at runtime | malformed YAML is not fatal: load_manifest prints 'Falling back to legacy sync' and sets HAS_MANIFEST=false | sync_scope enum in schema is duplicated as bash ALLOWED_DOMAINS=(.claude .gemini .codex .cursor .agents dark-factory) at line 57 - two hardcoded copies that must be kept in step | DOC DRIFT: schema $id and description both say the manifest lives at '.claude/.harness-manifest.yml'; the script's MANIFEST_FILE is $PROJECT_ROOT/.harness-manifest.yml with .claude/ only a legacy fallback | DOC DRIFT: schema sync.backup description says 'Current: .claude/.harness-backup/. Planned (SAW-34): .harness-backup/ at repo root'; BACKUP_DIR is already the repo root and .harness-manifest.yml's own comment says repo root | DOC DRIFT: schema documents sync.backup, sync.auto_substitute, sync.conflict_strategy, sync.substitution_extensions with defaults; none of the four is read by the sync engine (only sync_scope, and conflict_strategy for display only)"
+  },
+  {
+   "id": "sync/sync-scope",
+   "type": "process",
+   "title": "Multi-Domain Sync Scope Resolution",
+   "path": "sync/sync-scope.md",
+   "description": "How the sync engine resolves which harness directories to sync, from manifest sync_scope, a --scope override, or the .claude default.",
+   "tags": [
+    "sync",
+    "process",
+    "workflow",
+    "operations"
+   ],
+   "domain": "sync",
+   "sources": [
+    "scripts/sync-claude-harness.sh",
+    ".harness-manifest.yml",
+    ".harness-manifest.schema.json",
+    "tests/test-multi-domain-sync.sh"
+   ],
+   "batch": "sync",
+   "notes": "resolution order: get_sync_scope() reads manifest -> optional --scope <csv> override replaces it wholesale -> empty result falls back to SYNC_SCOPE=(.claude) | get_sync_scope does NOT use the parsed manifest JSON; it re-reads the raw YAML line-by-line with grep/sed looking for '^\\s*sync_scope:' then consuming following '-' lines, stripping quotes and trailing slash - so a sync_scope in JSON-style flow syntax or unusual indentation is silently missed and the default applies | 6 ALLOWED_DOMAINS hardcoded at line 57: .claude .gemini .codex .cursor .agents dark-factory; anything else prints '[WARN] Ignoring unknown sync domain: X' and is dropped, not an error | --scope validates against the same allowlist; if every entry is invalid it is the ONE scope path that hard-fails (print_error + return 1); --scope never rewrites .harness-manifest.yml | domains are processed sequentially in a for loop; a domain is SKIPPED with a warning when absent from the fetched upstream tarball OR absent locally (v2.10.0 does not auto-create local domain dirs) | preflight failure inside the loop does `continue` - it skips only that domain and the sync proceeds to the next one; the process still exits 0 | per-domain state carried by globals DOMAIN_DIR / DOMAIN_TMP / CURRENT_DOMAIN, consumed by compare_file_with_paths, generate_patch, run_preflight and create_backup | SYNC_TIMESTAMP is reset once per do_sync and shared by every domain backup so rollback restores the whole set together | patches dir is created once outside the loop; APPLY_ORDER.md is generated after the loop so entries from all domains accumulate | release domains (docs/, scripts/, patterns_library/) are explicitly not in the allowlist | DOC DRIFT: fetch_upstream hard-errors 'No .claude directory found in upstream repository' regardless of sync_scope, so a fork scoped to only .gemini/ still cannot sync if upstream lacks .claude | DOC DRIFT: run_preflight's scope-violation error string is hardcoded 'files outside .claude/ would be modified' even in multi-domain runs"
+  },
+  {
+   "id": "sync/tests/preflight",
+   "type": "test-suite",
+   "title": "Test Suite - Preflight and Provenance",
+   "path": "sync/tests/preflight.md",
+   "description": "18 tests, 45 assertions covering preflight scope, protected and token checks plus sync provenance; asserts real failure paths.",
+   "tags": [
+    "sync",
+    "testing",
+    "gates"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-preflight.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-2 | 18 numbered tests, 45 assertions, observed result exit 0 / 45 pass 0 fail on bash 3.2 | PROVES FAILURE: yes, the strongest negative suite in the repo - Test 5 scope violation, Test 6 protected violation, Test 7 unreplaced token, Test 15 absolute path, Test 17 all three at once, each asserting 'PREFLIGHT_RESULT: fail' plus the specific error string | positive controls: Test 4 clean plan passes, Test 14 empty plan passes, Test 3 non-manifest {{tokens}} are ignored | Test 8 --skip-preflight bypass, Test 10 --no-placeholders suppresses only the token check, Test 9 asserts preflight runs on real sync not just --dry-run | Tests 11-13 assert provenance in .harness-sync.json via assert_json_field/assert_json_not_null: sync_history capped at 10, ISO 8601 timestamp | strategy: unit tests source the script through a wrapper that strips the trailing case dispatch; integration tests run a mocked copy with fetch_upstream/get_upstream_sha stubbed - no network | helpers: strip_ansi, assert_contains, assert_not_contains, assert_exit_code, assert_file_exists, assert_file_content, assert_json_field, assert_json_not_null | does NOT exercise do_diff, so it never hits the bash-4 declare -A defect"
+  },
+  {
+   "id": "sync/tests/protected-files",
+   "type": "test-suite",
+   "title": "Test Suite - Protected File Enforcement",
+   "path": "sync/tests/protected-files.md",
+   "description": "19 tests, 54 assertions on is_protected, is_manifest_protected and .sync-exclude merging; 6 fail on bash 3.2 via do_diff.",
+   "tags": [
+    "sync",
+    "testing",
+    "gates"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-protected-files.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-3 | 19 numbered tests, 54 assertions, observed result exit 1 / 48 pass 6 FAIL on bash 3.2 | the 6 failures are all do_diff tests (Tests 7, 8, 12) expecting PROTECTED/EXCLUDED labels; root cause is 'declare -A dir_rename_counts' at sync-claude-harness.sh line 1560 which bash 3.2 rejects - the tests assert a real product requirement and the product is genuinely broken on that shell | PROVES FAILURE: partially - Test 9 asserts protected files are byte-identical after a real do_sync (a true negative outcome), Test 11 asserts the 'Protected pattern does not match any local file' typo warning; the remaining assertions are positive is_protected/is_excluded returns | coverage: manifest patterns (T1), globs incl. ** recursive (T2, T14), is_excluded delegation (T3), .sync-exclude-only fallback (T4), merged sources (T5), de-duplication (T6), manifest-vs-exclude distinction (T13), hardcoded exclusions always apply (T15), empty protected section is inert (T19), no-manifest backward compat (T12) | Test 16 is bash -n syntax only; Test 17 shells out to tests/test-manifest-loader.sh - a nested-suite dependency that makes this suite fail if the loader suite fails | does NOT test the 'replaced' section at all, which is why the unenforced-replaced gap is invisible here"
+  },
+  {
+   "id": "sync/tests/rename-diff",
+   "type": "test-suite",
+   "title": "Test Suite - Rename Resolution and Diff",
+   "path": "sync/tests/rename-diff.md",
+   "description": "18 tests, 50 assertions on resolve_rename, rename_type and rename-aware diff; 12 fail on bash 3.2 because do_diff cannot run.",
+   "tags": [
+    "sync",
+    "testing"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-rename-diff.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "18 numbered tests, 50 assertions, observed result exit 1 / 38 pass 12 FAIL on bash 3.2 | all 12 failures are do_diff assertions (Tests 7, 9, 10, 11, 15) - RENAMED summary lines, 'local (upstream: X)' display paths, directory file counts, LOCAL ONLY detection; single root cause 'declare -A dir_rename_counts' at sync-claude-harness.sh line 1560 under bash 3.2 | the passing 38 are pure-function tests: file rename exact match (T1), directory prefix rename (T2), passthrough (T3), no-manifest passthrough (T4), file-beats-directory precedence (T5), rename_type classification (T6), compare_file_with_paths across differing paths (T14), do_sync placing files at renamed targets (T16), do_status rename listing (T12, T13) | PROVES FAILURE: weakly - assert_not_contains x7 and assert_file_not_exists x3 assert that the pre-rename upstream name is NOT created, which is a genuine negative; no test asserts a nonzero exit code or an error message | Test 17 is bash -n only; Test 18 shells out to tests/test-manifest-loader.sh (nested dependency)"
+  },
+  {
+   "id": "sync/tests/substitutions",
+   "type": "test-suite",
+   "title": "Test Suite - Placeholder Substitution",
+   "path": "sync/tests/substitutions.md",
+   "description": "15 tests on apply_substitutions ordering, literals and text-file filtering; aborts mid-run under set -e when its nested rename-diff suite fails.",
+   "tags": [
+    "sync",
+    "testing"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-substitutions.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-10 | 15 numbered tests, observed result exit 1 - the suite ABORTS inside Test 14 'Existing tests still pass', which shells out to tests/test-manifest-loader.sh (passes) then tests/test-rename-diff.sh (fails on bash 3.2); set -e at the top kills the run before Test 15 and before any results summary is printed | so on bash 3.2 this suite produces NO pass/fail totals at all - its failure is inherited from the nested suite, not from a substitution defect | PROVES FAILURE: yes for the manifest gate - Test 8 asserts sync without a manifest emits 'No manifest found' and routes the user to 'manifest init'; assert_file_not_contains x4 and assert_not_contains x6 assert tokens are ABSENT after substitution | coverage: {{PLACEHOLDER}} tokens (T1), longest-match-first ordering so {{GITHUB_REPO_URL}} beats {{GITHUB_ORG}} (T2), code examples not clobbered (T3), literal-string substitutions (T4), --no-placeholders skip (T5), backup retains pre-substitution upstream originals (T6), full sync integration (T7), empty substitutions section is inert (T9), special characters (T10), missing file handled gracefully (T11), apply_all_substitutions text-extension filter (T12) | Test 13 is bash -n only; Test 15 greps help text for --no-placeholders | does NOT test that sync.auto_substitute is honoured, which is why the unread-auto_substitute gap is invisible here"
+  },
+  {
+   "id": "sync/tests/patch-generation",
+   "type": "test-suite",
+   "title": "Test Suite - Patch Generation Mode",
+   "path": "sync/tests/patch-generation.md",
+   "description": "17 tests, 50 assertions on --generate-patches output, rename and substitution awareness, and git apply compatibility; all pass.",
+   "tags": [
+    "sync",
+    "testing",
+    "ci"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-patch-generation.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-4 | 17 numbered tests, 50 assertions, observed result exit 0 / 50 pass 0 fail on bash 3.2 | PROVES FAILURE: weakly - no test asserts a nonzero exit code or an error string; the negative evidence is behavioural: Test 6 asserts protected files produce NO patch, Test 7 asserts no local file is overwritten in patch mode, Test 13 asserts unchanged files produce no patch, Test 17 asserts no backup directory is created; plus assert_file_not_content x5 for absent tokens | Test 15 is the only externally-validated assertion: it initialises a real git repo and runs 'git apply --check' on a generated patch, so patch validity is proven rather than string-matched | other coverage: patch files land in .harness-patches/<version>/ (T1, T11), unified-diff shape (T2, assert_patch_valid), APPLY_ORDER.md generated and categorised NEW vs UPDATED (T3, T10), rename-aware headers using the fork's local path (T4), substitution-aware content (T5, T14), new files diff against /dev/null (T8), modified diff correctness (T9), stale patches for the same version are rm -rf'd first (T12), filename sanitisation slash to __ (T16) | strategy: mocked sync script with network stubs; no network | does NOT exercise do_diff, so it avoids the bash-4 declare -A defect"
+  },
+  {
+   "id": "sync/tests/manifest-loader",
+   "type": "test-suite",
+   "title": "Test Suite - Manifest Loader and Validator",
+   "path": "sync/tests/manifest-loader.md",
+   "description": "12 tests, 24 assertions on load_manifest and validate_manifest; asserts every required-field error message and the invalid-YAML fallback.",
+   "tags": [
+    "sync",
+    "testing",
+    "gates"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-manifest-loader.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-6 | 12 numbered tests, 24 assertions, observed result exit 0 / 24 pass 0 fail on bash 3.2 | PROVES FAILURE: yes - Test 3 asserts 'missing required field: manifest_version', Test 4 asserts 'must match pattern X.Y', Test 5 asserts 'missing required field: PROJECT_REPO' and 'missing required field: TICKET_PREFIX', Test 6 asserts 'missing required field: identity', Test 12 asserts invalid YAML produces 'Falling back to legacy' | Test 12 therefore LOCKS IN the silent-degrade behaviour: a corrupt manifest is treated as no manifest rather than as an error | other coverage: no-manifest legacy fallback (T1, T9), valid manifest parse (T2), summary report format (T7), zero counts for empty sections (T8), manifest block in status output (T10), .harness-manifest.yml is always excluded from sync (T11) | the required-identity assertions cover only 2 of the 6 required keys (PROJECT_REPO, TICKET_PREFIX); PROJECT_NAME, PROJECT_SHORT, GITHUB_ORG, MAIN_BRANCH are not individually asserted | this suite is invoked as a nested dependency by tests/test-protected-files.sh, tests/test-rename-diff.sh and tests/test-substitutions.sh | does NOT assert any schema constraint that validate_manifest omits (TICKET_PREFIX pattern, enum values, additionalProperties), so the validator/schema divergence is untested"
+  },
+  {
+   "id": "sync/tests/manifest-init",
+   "type": "test-suite",
+   "title": "Test Suite - Manifest Init Wizard",
+   "path": "sync/tests/manifest-init.md",
+   "description": "14 tests, 52 assertions on manifest init generation from team-config, .sync-exclude and detected domains; all pass.",
+   "tags": [
+    "sync",
+    "testing",
+    "onboarding"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-manifest-init.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-12 | 14 numbered tests, 52 assertions, observed result exit 0 / 52 pass 0 fail on bash 3.2 | PROVES FAILURE: weakly - Test 5 asserts the 'No team-config.json' warning, Test 9 asserts 'No manifest found' from manifest validate on a missing file, Test 8 asserts overwrite protection prompts; assert_file_not_exists x2 and assert_not_contains x2 are the only other negatives; no nonzero-exit assertion anywhere | coverage: --dry-run prints without writing (T1), --yes writes the file (T2), .sync-exclude becomes the protected section (T3), unreplaced {{...}} team-config values are recognised as placeholders (T4, T13), substitutions populated (T6), generated manifest re-validates (T7), manifest subcommand help (T10), derived values TICKET_PREFIX_LOWER/AUTHOR_INITIALS/GITHUB_REPO_URL/HARNESS_VERSION computed (T11), sync preferences block emitted (T12), MCP server names detected (T14) | Test 7 'validates against schema' actually re-runs the script's own validate_manifest, not a JSON Schema validator - it proves self-consistency, not schema conformance | domain auto-detection (do_manifest_init step 4 scanning ALLOWED_DOMAINS for existing directories) has no dedicated test | the wizard reads .claude/team-config.json for identity - one of the few places it is coupled to the .claude domain specifically"
+  },
+  {
+   "id": "sync/tests/multi-domain-sync",
+   "type": "test-suite",
+   "title": "Test Suite - Multi-Domain Sync",
+   "path": "sync/tests/multi-domain-sync.md",
+   "description": "14 tests on sync_scope, root-relative paths, shared timestamps and cross-domain rollback; aborts at Test 1 on BSD head.",
+   "tags": [
+    "sync",
+    "testing",
+    "operations"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-multi-domain-sync.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "sync",
+   "notes": "SAW-37 | 14 numbered tests, observed result exit 1 - ABORTS inside Test 1 with 'head: illegal line count -- -3' | root cause: make_sourceable() at line 68 uses 'head -n -3' (GNU-only negative line count) to strip the script's case dispatch; BSD/macOS head rejects it and set -euo pipefail kills the run immediately, so ZERO tests execute on macOS | this is an environment defect in the test harness, not in sync_scope | PROVES FAILURE (by source inspection, unverified by execution here): Test 3 asserts invalid domains are dropped with 'Ignoring unknown sync domain' while valid ones survive; Test 4 asserts manifest-required enforcement | intended coverage: get_sync_scope reads v1.1 sync_scope (T1), defaults to .claude for v1.0 (T2), invalid-domain rejection (T3), manifest-required (T4), USE_ROOT_PATHS flag for v1.1 (T5), metadata migration .claude to root (T6), ALLOWED_DOMAINS list contents (T7), v1.1 protected-path enforcement outside .claude (T8), root-relative file+directory rename resolution (T9), compare_file_with_paths domain context (T10), SYNC_TIMESTAMP shared across domain backups (T11), validate_protected_paths across multiple domains (T12), do_rollback restoring all domains from one timestamp (T13), real multi-domain patch generation with APPLY_ORDER.md (T14) | only 43 assertions total (39 assert_contains, 3 assert_equals, 1 assert_not_contains) - a single negative assertion for 14 tests, so even when it runs it is overwhelmingly a positive-path suite | UNKNOWN: does this suite pass on a GNU-coreutils Linux runner? not verifiable from this machine"
+  },
+  {
+   "id": "sync/tests/fork-sync",
+   "type": "test-suite",
+   "title": "Test Suite - Fork Compatibility",
+   "path": "sync/tests/fork-sync.md",
+   "description": "18 sub-tests running real sync commands against the rendertrust and keryk-ai fixtures; currently fails and aborts on a missing fixture file.",
+   "tags": [
+    "sync",
+    "testing",
+    "gates"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/test-fork-sync.sh",
+    "tests/fixtures/sync/rendertrust/.harness-manifest.yml",
+    "tests/fixtures/sync/keryk-ai/.harness-manifest.yml",
+    "examples/manifests/rendertrust.harness-manifest.yml",
+    "examples/manifests/keryk-ai.harness-manifest.yml"
+   ],
+   "batch": "sync",
+   "notes": "SAW-9 | 18 sub-tests in 4 groups (1.x RenderTrust, 2.x Keryk AI, 3.x error handling, 4.x fixture integrity) | OBSERVED STATE: exit 1, 28 PASS then hard ABORT at line 596 - 'cat: .../ka-protected/.claude/settings.local.json: No such file or directory' under set -e; the keryk-ai fixture directory has no settings.local.json but Test 2.5 cats it as a baseline; Tests 2.6, 3.1-3.4 and all of group 4 never execute | SECOND independent defect: 7 assertions in Tests 1.2 and 2.2 already FAIL before the abort because do_diff dies on 'declare: -A: invalid option' (bash 3.2 vs the bash-4 associative array at sync-claude-harness.sh line 1560) | PROVES FAILURE: yes, group 3 is the only fixture-driven negative group - Test 3.1 asserts status exits 1 on an invalid manifest and names the missing identity, Test 3.2 asserts the manifest_version error; both are currently UNREACHABLE because of the abort | what still passes: manifest loading/validation for both forks, dry-run exit codes, rename resolution during real sync (fe-developer to ui-engineer, be-developer to api-engineer, data-engineer to ml-engineer, stripe-patterns/ to payment-patterns/), identity substitution, RenderTrust protected-file preservation | mechanism: setup_fork_project copies a fixture into a mktemp dir, setup_mock_upstream builds a fake upstream tree, create_stubbed_script rewrites fetch_upstream to copy from the local mock so nothing touches the network | group 4 (unreached) checks fixture manifests parse as YAML, that fixture PROJECT_NAME matches the corresponding examples/manifests/ file, and that renamed fixture files exist"
+  },
+  {
+   "id": "sync/fixtures",
+   "type": "guide",
+   "title": "Sync Test Fixtures and Example Manifests",
+   "path": "sync/fixtures.md",
+   "description": "Two synthetic fork snapshots and their published example manifests, used as the sync engine's fork-compatibility contract.",
+   "tags": [
+    "sync",
+    "testing",
+    "patterns",
+    "onboarding"
+   ],
+   "domain": "sync",
+   "sources": [
+    "tests/fixtures/sync/rendertrust/.harness-manifest.yml",
+    "tests/fixtures/sync/keryk-ai/.harness-manifest.yml",
+    "examples/manifests/rendertrust.harness-manifest.yml",
+    "examples/manifests/keryk-ai.harness-manifest.yml",
+    "tests/test-fork-sync.sh"
+   ],
+   "batch": "sync",
+   "notes": "19 fixture files total: rendertrust 8 (7 under .claude/ plus .harness-manifest.yml), keryk-ai 11 (10 under .claude/ plus .harness-manifest.yml) | rendertrust = the no-rename fork: agents/be-developer.md, agents/fe-developer.md, skills/stripe-patterns/SKILL.md keep upstream names; renames: {} | keryk-ai = the rename fork: agents/ui-engineer.md, agents/api-engineer.md, agents/ml-engineer.md, skills/payment-patterns/SKILL.md, plus custom agents/ml-ops-engineer.md and a rewritten agents/system-architect.md | 2 example manifests under examples/manifests/, named <fork>.harness-manifest.yml; fixture copies differ from the examples only in leading comment blocks and inline comments - identity/renames/protected/replaced bodies match, which is what test-fork-sync group 4.2 checks (on PROJECT_NAME only) | ALL FOUR manifests are manifest_version 1.0, i.e. .claude-relative paths; nothing in the fixture set exercises the v1.1 root-relative path mode that the repo's own manifest and the current engine default to | none of the four declares sync_scope, so every fixture run resolves to the default [.claude] - there is no multi-domain fixture | keryk-ai declares conflict_strategy 'three-way' and rendertrust 'prompt'; neither is implemented by the engine, so the fixtures encode a promise the code does not keep | FIXTURE GAP: tests/fixtures/sync/keryk-ai/.claude/settings.local.json is named in that manifest's protected patterns and is cat'd by tests/test-fork-sync.sh line 596, but the file does not exist on disk - this is the abort that kills the fork-sync suite | fixture .claude/ trees contain no hooks/, commands/ or settings.json, so hook and command sync is never fixture-covered"
+  },
+  {
+   "id": "operations/scripts/setup-template",
+   "type": "script",
+   "title": "setup-template.sh - Template Setup Wizard",
+   "path": "operations/scripts/setup-template.md",
+   "description": "Interactive one-time wizard that replaces every {{PLACEHOLDER}} token across the repo with the operator's project values.",
+   "tags": [
+    "operations",
+    "onboarding",
+    "workflow",
+    "sync"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/setup-template.sh",
+    ".harness-manifest.yml"
+   ],
+   "batch": "operations",
+   "notes": "scripts/setup-template.sh, 233 lines, bash, set -euo pipefail | run once after creating a repo from the template: bash scripts/setup-template.sh | 27 interactive `read -rp` prompts grouped as Project Identity / Organization / Author / Workflow / MCP Server Names / Infrastructure; MAIN_BRANCH, MCP_LINEAR_SERVER and MCP_CONFLUENCE_SERVER offer bracketed defaults | 4 derived values computed, never prompted: TICKET_PREFIX_LOWER, AUTHOR_INITIALS, GITHUB_REPO_URL, HARNESS_VERSION | REPLACEMENTS array holds 31 token-to-value pairs, hand-ordered longest/most-specific first so {{GITHUB_REPO_URL}} is consumed before {{GITHUB_ORG}} and {{AUTHOR_FIRST_NAME}} before {{AUTHOR_NAME}}; pairs where old equals new are skipped | applies via find over 17 name patterns (*.md *.json *.yml *.yaml *.sh *.py *.txt *.toml *.bib *.cff *.mjs *.ts NOTICE LICENSE CODEOWNERS .env.template .gitignore) excluding .git and node_modules, piped through xargs -0 into _sed_inplace | _sed_inplace probes `sed --version | grep GNU` and uses `sed -i` vs `sed -i ''` - genuinely cross-platform, unlike the other doc scripts in this directory | echoes a review block and requires an explicit y at 'Proceed?' before touching anything; no backup is taken and no dry-run flag exists - the only undo is git | THIS SCRIPT IS THE SOURCE OF TRUTH FOR TOKEN NAMES: .harness-manifest.yml identity keys and .harness-manifest.schema.json both state they must match setup-template.sh exactly, and the sync engine rebuilds its substitution map from them | prompts for the DB_PASSWORD key in cleartext and writes it into tracked files | no --yes / non-interactive mode, so it cannot run in CI"
+  },
+  {
+   "id": "operations/scripts/apply-workflow",
+   "type": "script",
+   "title": "apply-workflow.sh - Workflow Integration Installer",
+   "path": "operations/scripts/apply-workflow.md",
+   "description": "Copies the workflow template into an existing project and substitutes a second, incompatible __TOKEN__ placeholder family.",
+   "tags": [
+    "operations",
+    "onboarding",
+    "workflow"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/apply-workflow.sh",
+    "scripts/setup-template.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/apply-workflow.sh, 176 lines, bash, set -e, mode 0644 (NOT executable - must be invoked as `bash scripts/apply-workflow.sh`) | prompts for provider (1 Claude Code to .claude, 2 Augment to .augment), then TICKET_PREFIX, PRIMARY_DEV_BRANCH, PROJECT_GIT_URL, PROJECT_NAME, TICKET_URL_PREFIX; the first two are hard-required via log_error, the rest only warn | copies AGENTS.md and the directories project_workflow/, patterns_library/, specs_templates/, linting_configs/ into TARGET_DIR (hardcoded '.'), then agent_providers/<provider>/ into the provider config dir | all six referenced source directories exist on disk | substitutes FIVE tokens of a completely different family: __TICKET_PREFIX__, __PRIMARY_DEV_BRANCH__, __PROJECT_GIT_URL__, __PROJECT_NAME__, __TICKET_URL_PREFIX__ | those __TOKEN__ markers are real and live in agent_providers/augment/rules/project-guidelines.md, agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md, specs_templates/planning_template.md, specs_templates/spec_template.md, project_workflow/CONTRIBUTING.md | DOC DRIFT: this is a SECOND parallel templating system - scripts/setup-template.sh uses {{TOKEN}} and the sync manifest's substitution engine only ever matches {{...}}, so __TOKEN__ placeholders are invisible to sync and to run_preflight's unreplaced-token check | uses bare GNU `sed -i` with no backup suffix, which fails on BSD/macOS sed - unlike setup-template.sh which has a _sed_inplace shim | merges ci:validate / ci:build / ci:test into package.json with jq; when jq is absent it only prints the scripts for manual entry and continues | TEMPLATE_DIR is $(dirname $0) i.e. scripts/, so the cp sources resolve one level below the repo root - UNKNOWN: is this script expected to be copied to the repo root before running?"
+  },
+  {
+   "id": "operations/scripts/install-prompts",
+   "type": "script",
+   "title": "install-prompts.sh - Agent Prompt Installer",
+   "path": "operations/scripts/install-prompts.md",
+   "description": "Installs the agent prompts for Claude Code at user or team scope, or for Augment Code.",
+   "tags": [
+    "operations",
+    "agents",
+    "onboarding",
+    "providers"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/install-prompts.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/install-prompts.sh, 285 lines, bash, set -e, executable | 3 modes selected by flag, MODE defaults to 'user': --user / --team / --augment, plus --help | install_claude_user copies .claude/agents/*.md into the user-level agents dir and .claude/hooks/*.sh into the user hooks dir with `|| true` so a missing hooks dir is non-fatal | install_claude_team uses the in-project .claude/agents as-is for team sharing (no copy out) | install_augment sources agent_providers/augment | source dirs: CLAUDE_AGENTS_DIR=$REPO_ROOT/.claude/agents, AUGMENT_AGENTS_DIR=$REPO_ROOT/agent_providers/augment | REPO_ROOT derived from BASH_SOURCE so it is safe to call from any cwd | uses `cp -v` so the transcript is the evidence of what was installed | header and help text still contain {{PROJECT_SHORT}} - this file is itself template-substituted by setup-template.sh (.sh is in its find pattern list) | no dry-run, no uninstall, no idempotency check beyond cp overwrite | the header comment claims '11 agent prompts' but the copy is a wildcard glob with no count check, so the number is a comment not an assertion"
+  },
+  {
+   "id": "operations/scripts/pre-release-check",
+   "type": "script",
+   "title": "pre-release-check.sh - Release Gate",
+   "path": "operations/scripts/pre-release-check.md",
+   "description": "Automates the verifiable items of the pre-release checklist across five gate categories before a release tag is cut.",
+   "tags": [
+    "operations",
+    "release",
+    "ci",
+    "gates",
+    "testing"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/pre-release-check.sh",
+    "scripts/sync-claude-harness.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/pre-release-check.sh, 209 lines, bash, set -euo pipefail, executable | usage: ./scripts/pre-release-check.sh [version]; VERSION defaults to the literal string UNSET, so forgetting the argument does not abort | cd's to PROJECT_ROOT first, so it always evaluates the repo not the cwd | 5 gate sections: 1 Code Quality Gates (line 44), 2 Documentation Completeness (85), 3 Template Compatibility (124), 4 Backward Compatibility (145), 5 Git State (167) | three-way tally check_pass / check_fail / check_warn incrementing PASS/FAIL/WARN counters | section 1 runs `bash -n scripts/sync-claude-harness.sh` (syntax only, NOT the tests/ suites) and greps for '<<<<<<' merge markers across *.sh *.md *.json *.toml *.yml *.mdc excluding node_modules, .git and the checklist docs themselves | automates docs/release/PRE-RELEASE-CHECKLIST.md | section 2 DOES execute every tests/test-*.sh suite via `timeout 120 bash \"$test_file\"` (line 66) and calls check_fail for any suite whose output lacks an ALL...PASS marker, so failing suites do block the gate | verified exit logic: FAIL>0 prints RELEASE BLOCKED and exits 1; WARN>0 exits 0 with warnings; otherwise exits 0"
+  },
+  {
+   "id": "operations/scripts/generate-changelog",
+   "type": "script",
+   "title": "generate-changelog.sh - Structured Changelog Generator",
+   "path": "operations/scripts/generate-changelog.md",
+   "description": "Diffs two git refs and emits a schema-v1.0.0 changelog in YAML or Markdown, classifying .claude/ changes into five categories.",
+   "tags": [
+    "operations",
+    "release",
+    "ci",
+    "workflow"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/generate-changelog.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/generate-changelog.sh, 601 lines, bash, set -euo pipefail, executable, 15 functions | usage: --from <ref> --to <ref> [--format yaml|markdown] [--version X.Y.Z] [--help]; OUTPUT_FORMAT defaults to yaml, FROM_REF/TO_REF default empty | emits SCHEMA_VERSION 1.0.0 matching the HARNESS_CHANGELOG.yml schema | pipeline: parse_args -> validate_ref (both refs) -> collect_changes (git diff --name-status) -> classify_file per path -> emit_yaml or emit_markdown, driven by main | classify_file returns one of 5 categories, first match wins: renames (R*) and deletions (D) are ALWAYS BREAKING and override every path rule; .claude/agents/*.md and .claude/skills/*/SKILL.md to METHODOLOGY; .claude/commands/*.md to NEW_FILE if added else UPDATED_FILE; .claude/<top-level>.json and .claude/hooks/* to CONFIG; .claude/<top-level>.md to UPDATED_FILE; any other added file to NEW_FILE; default UPDATED_FILE | classification is .claude/-ONLY: files under .gemini/, .codex/, .cursor/, .agents/ and dark-factory/ - all legal sync domains - fall through to the generic NEW_FILE/UPDATED_FILE default and can never be tagged METHODOLOGY or CONFIG | status_to_change_type maps A/M/D/R* to added/modified/deleted/renamed; is_breaking duplicates the D/R* rule | disables ANSI colours when stdout is not a tty | no test suite covers this script - there is no tests/test-changelog*.sh"
+  },
+  {
+   "id": "operations/scripts/reorganize-docs",
+   "type": "script",
+   "title": "reorganize-docs.sh - One-Shot Docs Reorganization",
+   "path": "operations/scripts/reorganize-docs.md",
+   "description": "Historical migration that git-mv'd eight root docs into docs/ subdirectories and rewrote every reference to them.",
+   "tags": [
+    "operations",
+    "workflow",
+    "process"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/reorganize-docs.sh",
+    "scripts/update-doc-references.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/reorganize-docs.sh, 344 lines, bash, set -e, executable, no functions - straight-line procedure | ONE-SHOT MIGRATION, already applied: implements docs/REPOSITORY-REORGANIZATION-PLAN.md | preflight refuses to run unless README.md and .git/ are both present in the cwd (must be repo root); warns and prompts on uncommitted changes via git diff-index; a second explicit y/N confirmation is required before proceeding | creates docs/database, docs/security, docs/ci-cd, docs/archive | 8 git mv operations: DATA_DICTIONARY.md, RLS_IMPLEMENTATION_GUIDE.md, RLS_POLICY_CATALOG.md, RLS_DATABASE_MIGRATION_SOP.md to docs/database/; SECURITY_FIRST_ARCHITECTURE.md to docs/security/; CI-CD-Pipeline-Guide.md to docs/ci-cd/; README-TEMPLATE.md to docs/archive/; apply-workflow.sh to scripts/ | each move is guarded by an existence test so a re-run is a no-op | deliberately leaves AGENTS.md and CLAUDE.md in the root per AI-assistant convention | then writes README.md index files for the new directories and rewrites references, overlapping heavily with scripts/update-doc-references.sh and scripts/fix-remaining-doc-references.sh - three scripts editing the same link set | uses git mv, so the moves are staged but not committed; the operator must commit | no dry-run flag"
+  },
+  {
+   "id": "operations/scripts/update-doc-references",
+   "type": "script",
+   "title": "update-doc-references.sh - Doc Link Rewriter",
+   "path": "operations/scripts/update-doc-references.md",
+   "description": "Rewrites markdown links to the six docs moved by the reorganization, taking a .bak backup of every file it edits.",
+   "tags": [
+    "operations",
+    "workflow",
+    "process"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/update-doc-references.sh",
+    "scripts/reorganize-docs.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/update-doc-references.sh, 177 lines, bash, set -e, executable | companion to scripts/reorganize-docs.sh, cited as part of docs/REPOSITORY-REORGANIZATION-PLAN.md | update_file_references() copies each target to <file>.bak, runs one `sed -i.tmp` with 6 -e expressions, removes the .tmp, then diffs against the .bak to report whether anything actually changed | rewrites exactly 6 markdown-link forms: ](DATA_DICTIONARY.md), ](RLS_IMPLEMENTATION_GUIDE.md), ](RLS_POLICY_CATALOG.md), ](RLS_DATABASE_MIGRATION_SOP.md), ](SECURITY_FIRST_ARCHITECTURE.md), ](CI-CD-Pipeline-Guide.md) to their docs/database, docs/security and docs/ci-cd targets | uses `sed -i.tmp` (a suffix is supplied) so it is portable across GNU and BSD sed, unlike apply-workflow.sh and generalize-onboarding-docs.sh | an inline comment notes AGENTS.md and CLAUDE.md stay in the root | leaves .bak files behind for the operator to clean up | handles ONLY the ](...) markdown-link form - the backtick-quoted `FILE.md` and bare '- FILE.md' list forms are the job of scripts/fix-remaining-doc-references.sh, which is why two scripts exist for one migration"
+  },
+  {
+   "id": "operations/scripts/fix-remaining-doc-references",
+   "type": "script",
+   "title": "fix-remaining-doc-references.sh - Residual Link Fixer",
+   "path": "operations/scripts/fix-remaining-doc-references.md",
+   "description": "Second-pass cleanup that rewrites backtick and bare-list doc references missed by the main reference updater.",
+   "tags": [
+    "operations",
+    "workflow",
+    "process"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/fix-remaining-doc-references.sh",
+    "scripts/update-doc-references.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/fix-remaining-doc-references.sh, 84 lines, bash, set -e, executable - the smallest script in scripts/ | operates on a hardcoded FILES array of 8 paths: AGENTS.md, CONTRIBUTING.md, docs/onboarding/DAY-1-CHECKLIST.md, docs/onboarding/META-PROMPTS-FOR-USERS.md, docs/onboarding/USER-JOURNEY-VALIDATION-REPORT.md, docs/onboarding/{{TICKET_PREFIX}}-326-COMPLETION-SUMMARY.md, docs/team/PLANNING-AGENT-META-PROMPT.md, patterns_library/database/rls-migration.md | one entry contains an unsubstituted {{TICKET_PREFIX}} inside a FILENAME - setup-template.sh substitutes file CONTENTS via sed but never renames files, so this path only resolves in a fork whose docs were renamed by hand; guarded by `if [ -f \"$file\" ]` so it silently skips otherwise | rewrites the same 6 documents as scripts/update-doc-references.sh but in three additional syntactic forms: ](FILE.md), backtick-quoted `FILE.md`, and '- FILE.md' list items | takes a .bak copy per file, uses portable `sed -i.tmp`, cleans up the .tmp | third of three overlapping link-rewriting scripts (with reorganize-docs.sh and update-doc-references.sh) | one-shot historical cleanup, already applied"
+  },
+  {
+   "id": "operations/scripts/generalize-onboarding-docs",
+   "type": "script",
+   "title": "generalize-onboarding-docs.sh - Onboarding Doc Generalizer",
+   "path": "operations/scripts/generalize-onboarding-docs.md",
+   "description": "Replaces hardcoded project references in five onboarding docs with template placeholders; uses GNU-only sed.",
+   "tags": [
+    "operations",
+    "onboarding",
+    "workflow"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/generalize-onboarding-docs.sh",
+    "scripts/setup-template.sh"
+   ],
+   "batch": "operations",
+   "notes": "scripts/generalize-onboarding-docs.sh, 85 lines, bash, set -euo pipefail, executable | targets 5 files via brace expansion under docs/onboarding/: DAY-1-CHECKLIST.md, SOCIAL-MEDIA-SETUP.md, AGENT-SETUP-GUIDE.md, META-PROMPTS-FOR-USERS.md, USER-JOURNEY-VALIDATION-REPORT.md | backs each up to <file>.bak before editing; update_file() returns 1 with a red 'File not found' message for missing targets | direction is the INVERSE of setup-template.sh: it turns concrete values back INTO {{...}} placeholders, e.g. github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}} becomes {{GITHUB_REPO_URL}}, and '{{PROJECT_SHORT}} SAFe' becomes 'SAFe multi-agent' | ordering matters and is hand-tuned: the longer '{{PROJECT_SHORT}} SAFe Multi-Agent Development' rule runs before the shorter '{{PROJECT_SHORT}} SAFe' rule to avoid a partial rewrite | PORTABILITY DEFECT: uses bare `sed -i 's/.../.../g'` with no backup suffix - GNU-only; on BSD/macOS sed this consumes the next argument as the suffix and errors, and set -euo pipefail then aborts the run mid-file | contrast: scripts/setup-template.sh has a _sed_inplace GNU/BSD shim and update-doc-references.sh uses sed -i.tmp; this script has neither | one-shot maintenance script, not part of any workflow or CI path"
+  },
+  {
+   "id": "operations/scripts/generalize-commands",
+   "type": "script",
+   "title": "generalize_commands.py - Command Template Generalizer",
+   "path": "operations/scripts/generalize-commands.md",
+   "description": "Python utility that injects a template notice, placeholder substitutions, and a customization guide into slash-command markdown.",
+   "tags": [
+    "operations",
+    "commands",
+    "onboarding"
+   ],
+   "domain": "operations",
+   "sources": [
+    "scripts/generalize_commands.py"
+   ],
+   "batch": "operations",
+   "notes": "scripts/generalize_commands.py, 175 lines, python3, mode 0644 (NOT executable despite the #!/usr/bin/env python3 shebang - must be run as `python3 scripts/generalize_commands.py`) | the ONLY non-bash file in scripts/ | 3 helper functions plus a driver: add_template_notice, replace_patterns, add_customization_guide | BROKEN AS SHIPPED: COMMANDS_DIR is the absolute literal Path('/home/{{AUTHOR_HANDLE}}/Projects/{{PROJECT_REPO}}/.claude/commands') - an author-machine path that setup-template.sh will substitute (.py is in its find pattern list) into a still-absolute /home/<handle>/Projects/<repo> path, which only resolves on a Linux box with that exact layout; there is no repo-root derivation and no CLI argument | add_template_notice splits content on '---' with maxsplit 2 to insert a '> TEMPLATE' banner after the YAML frontmatter, and is idempotent (returns unchanged when the banner marker is already present) | add_customization_guide appends a '## Customization Guide' markdown table of placeholder/description/example rows, also idempotent via a heading check | column padding uses fixed widths (17, 30, 32) with naive `' ' * (N - len(x))`, so any placeholder or description longer than its budget yields a negative repeat count and an unaligned row | operates on .claude/commands/*.md only - no other provider's command directory | one-shot authoring tool, not referenced by any test or workflow"
+  }
+ ]
 }

@@ -141,13 +141,11 @@
     },
     "script": {
       "sections": ["Overview", "Inputs & Outputs", "Invoked By", "Citations"],
-      "resource_required": true,
-      "stub": true
+      "resource_required": true
     },
     "test-suite": {
       "sections": ["Overview", "What It Proves", "Fixtures", "Citations"],
-      "resource_required": true,
-      "stub": true
+      "resource_required": true
     },
     "guide": {
       "sections": [],
