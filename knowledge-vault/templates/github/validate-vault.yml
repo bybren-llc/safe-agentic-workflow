@@ -36,9 +36,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # If your repo has no .nvmrc, drop node-version-file and keep node-version.
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
+          node-version: "20"
 
       # No install step: the validator uses node: builtins only.
       - name: Validate vault structure

@@ -35,7 +35,7 @@ The CLI will automatically detect and load skills from `.gemini/skills/` and com
 ├── GEMINI.md           # System instructions (auto-loaded)
 ├── README.md           # This file
 ├── settings.json       # Configuration template
-├── skills/             # Auto-loaded skills (17 total)
+├── skills/             # Auto-loaded skills (19 total)
 │   ├── safe-workflow/
 │   │   └── SKILL.md
 │   ├── pattern-discovery/

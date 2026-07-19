@@ -12,7 +12,15 @@ status: active
 This bundle conforms to the [Open Knowledge Format v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 and doubles as an Obsidian vault. **Every rule here exists to keep hundreds of files written by
 many agents indistinguishable from files written by one mind.** The machine-readable form of this
-document is `vault-config.json`, enforced by `validate-vault.mjs`.
+document is `vault-config.json`.
+
+**What enforces what.** `validate-vault.mjs` enforces the structural rules: the frontmatter
+contract, section order, link legality, path existence, the stub contract, and manifest agreement.
+Markdown lint enforces the formatting rules (line length, table pipes, fenced-block languages).
+A handful of rules below are **conventions only** — kebab-case filenames, no emoji, one-sentence
+descriptions, `verified_against` actually being a SHA, and newest-first log ordering. Nothing
+checks those; they rely on review. Do not assume a clean validator run means every rule here was
+followed.
 
 ## Concept files
 
@@ -21,7 +29,8 @@ document is `vault-config.json`, enforced by `validate-vault.mjs`.
 - Exactly one H1: the concept title. All sections are H2. (OKF suggests `#` headings for
   sections; we use H2 so markdown linters that forbid multiple H1s stay happy. Heading level is
   soft guidance in OKF.)
-- Every concept ends with `## Citations`.
+- Every sectioned concept ends with `## Citations`. (Free-form types such as `guide` declare no
+  fixed sections and are exempt — see Section templates.)
 
 ## Frontmatter contract
 

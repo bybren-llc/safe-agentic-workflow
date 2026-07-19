@@ -9,7 +9,11 @@ enumerated against this working tree and is meant to be executed as written.
 is the stack-neutral version. This document does not repeat either; it supplies the parameters they
 leave blank.
 
-**Enumerated against**: commit `f03e213`, branch `SAW-45-okf-knowledge-vault-subsystem`.
+**Enumerated against**: the tip of branch `SAW-45-okf-knowledge-vault-subsystem`.
+
+The counts below are a snapshot and the branch tip moves. Before you start, **re-run
+[Appendix A](#appendix-a--enumeration-commands) and stamp the SHA it prints** — that value becomes
+your `baseline_sha`. If a number here disagrees with what Appendix A returns, Appendix A wins.
 
 ---
 
@@ -141,7 +145,7 @@ Each cites the documents that carry it.
 ### Source-of-truth document stubs
 
 The repo holds 68 files under `docs/`. Not all warrant a concept: `docs/archive/` (5 files),
-`docs/agent-outputs/qa-validations/` (9 files), and the four `REORGANIZATION-*` reports are
+`docs/agent-outputs/qa-validations/` (9 files), and the three `REORGANIZATION-*` reports are
 historical records, not live knowledge. Skip them and say so in the log.
 
 | Directory | Files | Concept type | Count | Batch lane |
@@ -151,7 +155,7 @@ historical records, not live knowledge. Skip them and say so in the log.
 | `docs/onboarding/` | 6 | `guide` | 6 | `docs-a` |
 | `docs/workflow/` | 6 | `process` | 6 | `docs-b` |
 | `docs/whitepapers/` | 6 | `guide` | 6 | `docs-b` |
-| `docs/database/` | 4 | `guide` | 4 | `docs-b` |
+| `docs/database/` | 5 | `guide` | 5 | `docs-b` |
 | `docs/security/` | 2 | `guide` | 2 | `docs-b` |
 | `docs/ci-cd/` | 2 | `guide` | 2 | `operations` |
 | `docs/team/`, `docs/templates/`, `docs/patterns/` | 3 | `guide` | 3 | `docs-b` |
@@ -403,7 +407,7 @@ docs/knowledge-vault/
 │
 ├── roles/                      # STRUCTURAL — 11 agent-role concepts
 ├── skills/                     # STRUCTURAL — 20 skill concepts
-├── commands/                   # STRUCTURAL — 34 command concepts
+├── commands/                   # STRUCTURAL — 35 command concepts
 │
 ├── sync/                       # STRUCTURAL — the sync engine
 │   ├── index.md
@@ -532,7 +536,7 @@ concept files.
 - **E1** reads `.claude/agents/*.md`, `.codex/agents/*.toml`,
   `agent_providers/claude_code/prompts/*.md` — produces notes for 11 roles.
 - **E2** reads `.claude/skills/*/SKILL.md`, `.agents/skills/*/SKILL.md` — 20 skills.
-- **E3** reads `.claude/commands/*.md`, `.gemini/commands/**/*.toml` — 34 commands.
+- **E3** reads `.claude/commands/*.md`, `.gemini/commands/**/*.toml` — 35 commands.
 - **E4** reads `.cursor/rules/*.mdc`, `.claude/hooks/*.sh`, `agent_providers/augment/**` —
   5 providers, 4 rule families, 3 hooks, 6 augment rules.
 - **E5** reads `scripts/*`, `.harness-manifest*`, `tests/test-*.sh`, `tests/fixtures/**`,
@@ -555,7 +559,7 @@ One agent per batch lane, each carrying the four-part prompt.
 | --- | --- | --- |
 | `roles` | 2 | 11 agent-role |
 | `skills-a`, `skills-b` | 2 | 20 skill |
-| `commands-a`, `commands-b`, `commands-c` | 3 | 34 command |
+| `commands-a`, `commands-b`, `commands-c` | 3 | 35 command |
 | `providers` | 2 | 5 provider, 4 rule families, 3 hooks, 6 augment rules, 1 architecture |
 | `sync` | 3 | 2 architecture, 1 process, 9 test-suite, 2 guide, 1 process |
 | `subsystems` | 3 | dark factory (14), spec templates (5), linting (1), vault (1) |

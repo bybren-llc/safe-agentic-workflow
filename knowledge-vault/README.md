@@ -60,7 +60,9 @@ cp -r knowledge-vault/templates/starter-bundle docs/knowledge-vault
 
 # 3. Repoint canvas nodes at the new folder name.
 #    Canvas paths are Obsidian-vault-root-relative, so they move with the bundle.
-sed -i 's|"starter-bundle/|"knowledge-vault/|g' docs/knowledge-vault/maps/*.canvas
+#    (-i.bak keeps this portable: BSD/macOS sed requires a backup suffix.)
+sed -i.bak 's|"starter-bundle/|"knowledge-vault/|g' docs/knowledge-vault/maps/*.canvas \
+  && rm -f docs/knowledge-vault/maps/*.bak
 
 # 4. Update bundle_root and obsidian_vault_root in _meta/vault-config.json, then re-validate
 node knowledge-vault/scripts/validate-vault.mjs --vault docs/knowledge-vault
