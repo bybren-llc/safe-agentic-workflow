@@ -39,7 +39,7 @@ human-in-the-loop.
 | Epic/value stream | Program stream                        | Sub-initiative, or project priority     |
 | Feature           | Unit of Work                          | Project                                 |
 | PI increment      | Bolt                                  | `bolt:N` label + target date            |
-| Phase gate        | Inception / Construction / Operations | Project milestone (3 per project)       |
+| Phase gate        | Inception / Construction / Operations | Project Milestone (3 per project)       |
 | Story/Enabler     | Story                                 | Issue                                   |
 | Task              | Mob task                              | Sub-issue                               |
 | WSJF/Role/DoD     | prioritization / mob role / gate      | description + `agent:*` labels + AC/DoD |

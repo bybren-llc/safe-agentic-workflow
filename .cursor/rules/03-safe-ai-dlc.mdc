@@ -6,7 +6,7 @@ alwaysApply: false
 # SAFe x AI-DLC (Program Cadence)
 
 Use this rule when work spans **multiple issues and needs cadence** — turning an audit, epic, or
-initiative into an executable program. For a single isolated ticket, use `@01-git-workflow` instead.
+initiative into an executable program. For a single isolated ticket, use `.cursor/rules/01-git-workflow.mdc` instead.
 
 SAFe supplies the hierarchy and guardrails. AI-DLC supplies the cadence and the human checkpoint.
 The **sprint is replaced by the Bolt** — an hours-to-days swarm — because agent teams elaborate,
@@ -31,9 +31,10 @@ build, and verify far faster than a week-long sprint assumes.
 | Epic/value stream | Program stream                        | Sub-initiative, or project priority |
 | Feature           | Unit of Work                          | Project                             |
 | PI increment      | Bolt                                  | `bolt:N` label + target date        |
-| Phase gate        | Inception / Construction / Operations | Project Milestone                   |
+| Phase gate        | Inception / Construction / Operations | Project Milestone (3 per project)   |
 | Story/Enabler     | Story                                 | Issue                               |
 | Task              | Mob task                              | Sub-issue                           |
+| WSJF/Role/DoD     | prioritization / mob role / gate      | description + `agent:*` + AC/DoD    |
 
 ## Dependency-Wiring Rules
 

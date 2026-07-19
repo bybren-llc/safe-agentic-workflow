@@ -43,8 +43,8 @@ The result is not "SAFe but faster." It is SAFe with its clock replaced.
 | Portfolio Epic    | The Program                           | Initiative                              |
 | Epic/value stream | Program stream                        | Sub-initiative, or project priority     |
 | Feature           | Unit of Work                          | Project                                 |
-| PI increment      | Bolt (hours to days)                  | `bolt:N` label + target date            |
-| Phase gate        | Inception / Construction / Operations | Project Milestone                       |
+| PI increment      | Bolt                                  | `bolt:N` label + target date            |
+| Phase gate        | Inception / Construction / Operations | Project Milestone (3 per project)       |
 | Story/Enabler     | Story                                 | Issue                                   |
 | Task              | Mob task                              | Sub-issue                               |
 | WSJF/Role/DoD     | prioritization / mob role / gate      | description + `agent:*` labels + AC/DoD |

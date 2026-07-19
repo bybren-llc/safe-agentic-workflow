@@ -19,6 +19,7 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 | Skill | Purpose |
 |-------|---------|
 | safe-workflow | Branch naming, commits, PR workflow |
+| safe-ai-dlc | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
 | release-patterns | PR creation, CI/CD validation |
 | pattern-discovery | Search patterns before implementing |
 | agent-coordination | Agent assignment, blockers |
@@ -35,7 +36,6 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 | stripe-patterns | Payment integration, webhooks |
 | deployment-sop | Deployment workflows |
 | confluence-docs | ADRs, runbooks, docs |
-| safe-ai-dlc | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
 
 ## Claude Code-Specific Skills
 
