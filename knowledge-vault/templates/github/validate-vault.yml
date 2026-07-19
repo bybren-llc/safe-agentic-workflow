@@ -36,10 +36,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # If your repo has no .nvmrc, drop node-version-file and keep node-version.
+      # Pins a version that works everywhere. If your repo has an .nvmrc and you want CI to
+      # follow it, REPLACE node-version with node-version-file — do not set both: when both
+      # are supplied setup-node uses node-version and silently ignores the file.
+      #   node-version-file: ".nvmrc"
       - uses: actions/setup-node@v4
         with:
-          node-version-file: ".nvmrc"
           node-version: "20"
 
       # No install step: the validator uses node: builtins only.

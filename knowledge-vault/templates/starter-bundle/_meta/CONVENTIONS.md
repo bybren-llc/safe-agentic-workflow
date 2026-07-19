@@ -14,13 +14,19 @@ and doubles as an Obsidian vault. **Every rule here exists to keep hundreds of f
 many agents indistinguishable from files written by one mind.** The machine-readable form of this
 document is `vault-config.json`.
 
-**What enforces what.** `validate-vault.mjs` enforces the structural rules: the frontmatter
-contract, section order, link legality, path existence, the stub contract, and manifest agreement.
-Markdown lint enforces the formatting rules (line length, table pipes, fenced-block languages).
-A handful of rules below are **conventions only** — kebab-case filenames, no emoji, one-sentence
-descriptions, `verified_against` actually being a SHA, and newest-first log ordering. Nothing
-checks those; they rely on review. Do not assume a clean validator run means every rule here was
-followed.
+**What enforces what.** Be precise about this, because a rule nobody checks is a wish.
+
+- **`validate-vault.mjs`** enforces the structural rules: the frontmatter contract, section order,
+  link legality, path existence, the stub contract, and manifest agreement.
+- **Markdown lint** enforces the formatting rules — line length, fenced-block languages, and table
+  pipes — via `.markdownlint.json`, which ships **inside this bundle** so it travels with you when
+  you copy it. Those three rules are only real because that config comes along; if you drop it, the
+  claims in *Body style* become aspirational.
+- **Convention only, nothing checks these:** kebab-case filenames, no emoji, one-sentence
+  descriptions, `verified_against` actually being a git SHA, and newest-first ordering in `log.md`.
+  They rely on review.
+
+Do not read a clean validator run as "every rule here was followed."
 
 ## Concept files
 
