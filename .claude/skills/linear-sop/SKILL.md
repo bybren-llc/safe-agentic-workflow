@@ -48,6 +48,49 @@ mcp__{{MCP_LINEAR_SERVER}}__create_issue({
 })
 ```
 
+## Finding-Sourced Tickets (Audits, Reviews, Spec-Conformance Checks)
+
+When a ticket originates from a finding against a spec — a build-fidelity audit, a code review against a blueprint, a spec-conformance check — the ticket body must cite the **spec source directly**, not the tool/report that surfaced the finding.
+
+### Rule: Cite the spec, never the diffing artifact
+
+Audit reports, review docs, and other dated/diff artifacts (e.g. `audit-report-YYYY-MM-DD.md`) are disposable — they capture a point-in-time comparison and may be archived or deleted. The Blueprint and DDD (Design Decision Document) are the durable source of truth. A ticket that cites the artifact instead of the spec breaks the moment that artifact is gone.
+
+**MUST**: `Ref: Blueprint §<section> / DDD <number>`
+**MUST NOT**: `From audit-report-YYYY-MM-DD.md — <section>`
+
+### Rule: Don't restate spec prose — link instead
+
+If the "Problem" or "expected behavior" is already written in the Blueprint/DDD, do not copy it into the ticket body. Restating it duplicates content that will drift out of sync with the spec and bloats every ticket. Point to the section; let the spec be read once, at the source.
+
+### Finding-Sourced Ticket Template (MANDATORY)
+
+```markdown
+Ref: Blueprint §<section> / DDD <number>
+Finding type: REGRESSION | GAP | INVENTED | INTENTIONAL DEVIATION
+Fix: <1-2 lines, no restated spec prose — pointer only>
+Acceptance criteria:
+- [ ] ...
+```
+
+- `Finding type` classifies the deviation (matches build-fidelity-audit taxonomy: REGRESSION = built correctly then reverted, GAP = spec'd but missing, INVENTED = built but not spec'd, INTENTIONAL DEVIATION = spec'd but deliberately built differently).
+- `Fix` is a pointer, not prose — if the fix requires explaining *why*, that explanation belongs in the Blueprint/DDD, not the ticket.
+- Acceptance criteria stay testable per the standard [Acceptance Criteria Parsing](#acceptance-criteria-parsing) rules below.
+
+### DECISION NEEDED tickets
+
+When the finding is a spec-vs-code conflict with no clear resolution (the code and the spec disagree and neither is obviously right), the ticket is a **DECISION NEEDED** ticket. These require an *even more explicit* source-of-truth anchor than a normal finding ticket, since the whole point of the ticket is to resolve which side wins:
+
+```markdown
+Ref: Blueprint §<section> / DDD <number> — READ BEFORE DECIDING
+Finding type: DECISION NEEDED
+Conflict: <1-2 lines — what the spec says vs. what the code does>
+Fix: Pending decision — see Ref above for full context
+Acceptance criteria:
+- [ ] Decision made and documented in DDD (update DDD, don't just resolve in the ticket)
+- [ ] Code updated to match decision (or spec updated, if code wins)
+```
+
 ### Updating Issues
 
 ```text
