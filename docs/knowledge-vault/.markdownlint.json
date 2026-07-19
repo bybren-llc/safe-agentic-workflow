@@ -1,0 +1,31 @@
+{
+  "_comment": [
+    "Markdown lint config for this vault bundle. It ships INSIDE the bundle so it travels",
+    "with you when you copy it — CONVENTIONS.md describes the rules below, and a claim about",
+    "enforcement is only true if the config that backs it comes along.",
+    "",
+    "Self-contained on purpose: no 'extends', so it works wherever you put the bundle.",
+    "",
+    "MD025 front_matter_title: a concept legitimately has BOTH a frontmatter title and an H1.",
+    "MD024 siblings_only: every concept has an '## Overview', which is fine across files.",
+    "MD040 / MD055 / MD056: the formatting rules CONVENTIONS.md claims — enabled so the claim",
+    "is actually enforced rather than aspirational."
+  ],
+
+  "default": true,
+
+  "MD013": {
+    "line_length": 120,
+    "code_blocks": false,
+    "tables": false
+  },
+
+  "MD024": { "siblings_only": true },
+  "MD025": { "front_matter_title": "" },
+  "MD040": true,
+  "MD055": { "style": "leading_and_trailing" },
+  "MD056": true,
+
+  "MD033": false,
+  "MD041": false
+}

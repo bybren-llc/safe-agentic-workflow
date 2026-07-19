@@ -1,0 +1,167 @@
+{
+  "okf_version": "0.1",
+  "bundle_root": "docs/knowledge-vault",
+  "obsidian_vault_root": ".",
+
+  "domains": ["methodology", "providers", "sync", "subsystems", "operations"],
+
+  "statuses": ["active", "deprecated", "experimental", "planned"],
+
+  "max_concept_lines": 60,
+
+  "frontmatter": {
+    "required": ["type", "title", "description", "tags", "timestamp", "status"],
+    "optional": [
+      "resource",
+      "domain",
+      "ticket",
+      "sources",
+      "docs",
+      "verified_against",
+      "okf_version"
+    ],
+    "max_description_length": 160,
+    "path_fields": ["resource", "sources", "docs"]
+  },
+
+  "link_rules": {
+    "style": "relative-markdown",
+    "concept_links_stay_in_bundle": true,
+    "external_repo_links_only_under": "Citations",
+    "forbidden": ["wikilinks", "leading-slash-paths", "github-urls-for-repo-files"]
+  },
+
+  "tags": [
+    "methodology",
+    "providers",
+    "sync",
+    "subsystems",
+    "operations",
+
+    "agents",
+    "skills",
+    "commands",
+    "hooks",
+    "workflow",
+    "gates",
+    "process",
+    "patterns",
+    "testing",
+    "ci",
+    "release",
+    "onboarding",
+    "security",
+    "orchestration",
+    "ssot-stub",
+    "okf"
+  ],
+
+  "types": {
+    "domain": {
+      "sections": ["Overview", "Members", "Key Flows", "Citations"],
+      "resource_required": false
+    },
+    "architecture": {
+      "sections": ["Overview", "Design", "Related Concepts", "Citations"],
+      "resource_required": false
+    },
+    "integration": {
+      "sections": [
+        "Overview",
+        "Touchpoints",
+        "Configuration",
+        "Failure Modes & Health",
+        "Citations"
+      ],
+      "resource_required": false
+    },
+    "environment": {
+      "sections": ["Overview", "Topology", "Access & Deployment", "Citations"],
+      "resource_required": false
+    },
+    "runbook": {
+      "sections": ["Overview", "When To Use", "Procedure Map", "Citations"],
+      "resource_required": false
+    },
+    "process": {
+      "sections": ["Overview", "Flow", "Roles Involved", "Citations"],
+      "resource_required": false
+    },
+    "pattern": {
+      "sections": ["Overview", "Exemplars", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "adr": {
+      "sections": ["Overview", "Decision", "Affected Concepts", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "sop": {
+      "sections": ["Overview", "When It Applies", "Affected Concepts", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "agent-role": {
+      "sections": [
+        "Overview",
+        "Responsibilities",
+        "Skills & SOPs",
+        "Handoffs",
+        "Citations"
+      ],
+      "resource_required": true,
+      "stub": true
+    },
+    "skill": {
+      "sections": ["Overview", "Routes To", "Used By Roles", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "provider": {
+      "sections": [
+        "Overview",
+        "Surface Layout",
+        "Capabilities Exposed",
+        "Sync & Parity",
+        "Citations"
+      ],
+      "resource_required": true
+    },
+    "command": {
+      "sections": [
+        "Overview",
+        "Invocation",
+        "What It Does",
+        "Provider Parity",
+        "Citations"
+      ],
+      "resource_required": true,
+      "stub": true
+    },
+    "script": {
+      "sections": ["Overview", "Inputs & Outputs", "Invoked By", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "test-suite": {
+      "sections": ["Overview", "What It Proves", "Fixtures", "Citations"],
+      "resource_required": true,
+      "stub": true
+    },
+    "guide": {
+      "sections": [],
+      "resource_required": false
+    },
+    "meta": {
+      "sections": [],
+      "resource_required": false,
+      "internal": true
+    },
+    "template": {
+      "sections": [],
+      "resource_required": false,
+      "internal": true
+    }
+  }
+}
