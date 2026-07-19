@@ -1,0 +1,68 @@
+// Compute which vault concepts a set of changed paths makes stale.
+//
+// A concept is stale IFF a changed path matches its `resource` or one of its
+// `sources`. That mapping is the manifest's reverse index — the second of the
+// three jobs the manifest does.
+//
+// Usage:
+//   node knowledge-vault/scripts/check-drift.mjs --vault <dir> [--since <sha>]
+//   node knowledge-vault/scripts/check-drift.mjs --vault <dir> --paths a.md,b.sh
+//
+// --since diffs baseline..HEAD. --paths takes an explicit list, which is what
+// makes the behaviour testable without mutating the working tree.
+import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+
+const argv = process.argv.slice(2);
+const arg = (n, d = null) => {
+  const i = argv.indexOf(n);
+  return i >= 0 && argv[i + 1] ? argv[i + 1] : d;
+};
+
+const vault = arg('--vault', 'docs/knowledge-vault');
+const manifest = JSON.parse(readFileSync(`${vault}/_meta/manifest.json`, 'utf8'));
+const config = JSON.parse(readFileSync(`${vault}/_meta/vault-config.json`, 'utf8'));
+
+const exclusions = config.watch_list_exclusions ?? [];
+const excluded = (p) =>
+  exclusions.some((ex) => {
+    const base = ex.replace(/\/\*\*$/, '');
+    return p === base || p.startsWith(base.endsWith('/') ? base : base + '/');
+  });
+
+let changed;
+const explicit = arg('--paths');
+if (explicit) {
+  changed = explicit.split(',').map((s) => s.trim()).filter(Boolean);
+} else {
+  const since = arg('--since', manifest.baseline_sha);
+  changed = execSync(`git diff --name-only ${since}..HEAD`, { encoding: 'utf8' })
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+const inScope = changed.filter((p) => !excluded(p));
+const skipped = changed.filter(excluded);
+
+// Reverse index: source path -> concepts that cite it
+const stale = new Map();
+for (const c of manifest.concepts) {
+  const cites = [c.resource, ...(c.sources ?? [])].filter(Boolean);
+  for (const p of inScope) {
+    if (cites.includes(p)) {
+      if (!stale.has(c.id)) stale.set(c.id, []);
+      stale.get(c.id).push(p);
+    }
+  }
+}
+
+console.log(`changed paths      : ${changed.length}`);
+console.log(`excluded by config : ${skipped.length}${skipped.length ? ' -> ' + skipped.slice(0, 3).join(', ') + (skipped.length > 3 ? ' ...' : '') : ''}`);
+console.log(`in scope           : ${inScope.length}`);
+console.log(`STALE CONCEPTS     : ${stale.size}`);
+for (const [id, paths] of [...stale].sort()) {
+  console.log(`  ${id}`);
+  for (const p of paths) console.log(`      <- ${p}`);
+}
+process.exit(0);

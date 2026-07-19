@@ -1,0 +1,77 @@
+# CI gate for this repository's OKF knowledge vault.
+#
+# Why this exists: in the project this method came from, the validator was written, passed
+# locally, and was wired into no workflow at all — so vault drift was invisible to CI and an
+# audit had to catch it. A gate that nothing runs is not a gate.
+#
+# Copied from knowledge-vault/templates/github/validate-vault.yml and filled in for SAW-53.
+
+name: Validate Knowledge Vault
+
+on:
+  pull_request:
+    paths:
+      # The vault itself
+      - "docs/knowledge-vault/**"
+      # The validator and the bundle it ships with
+      - "knowledge-vault/scripts/validate-vault.mjs"
+      - "knowledge-vault/templates/starter-bundle/**"
+      # Source paths the concepts claim to describe. A change here can invalidate a concept,
+      # so it must trip this workflow. Mirrors the vault-sync watch list.
+      - ".claude/**"
+      - ".gemini/**"
+      - ".codex/**"
+      - ".cursor/**"
+      - ".agents/**"
+      - "agent_providers/**"
+      - "dark-factory/**"
+      - "patterns_library/**"
+      - "specs_templates/**"
+      - "linting_configs/**"
+      - "project_workflow/**"
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/**"
+      - ".harness-manifest.yml"
+      - ".harness-manifest.schema.json"
+      - "HARNESS_CHANGELOG.yml"
+      - "README.md"
+      - "AGENTS.md"
+      - "CONTRIBUTING.md"
+      - "CLAUDE.md"
+      - "TEMPLATE_SETUP.md"
+      - "docs/**"
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - "docs/knowledge-vault/**"
+      - "knowledge-vault/scripts/validate-vault.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Structural validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned rather than following .nvmrc: setup-node uses node-version and silently
+      # ignores node-version-file when both are supplied, so only one is set here.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # No install step: the validator uses node: builtins only.
+      #
+      # --allow-broken-links is deliberately ABSENT and must stay absent. It exists for
+      # mid-build phases where link targets are not yet written; using it in CI would let a
+      # broken graph merge. --strict-orphans is on because an unreachable concept is a
+      # concept nobody will ever read.
+      - name: Validate vault structure
+        run: node knowledge-vault/scripts/validate-vault.mjs --vault docs/knowledge-vault --strict-orphans
+
+      - name: Lint vault markdown
+        run: npx --yes markdownlint-cli2 "docs/knowledge-vault/**/*.md"

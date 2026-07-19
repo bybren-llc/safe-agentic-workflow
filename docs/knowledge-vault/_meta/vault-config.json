@@ -5,6 +5,52 @@
 
   "domains": ["methodology", "providers", "sync", "subsystems", "operations"],
 
+  "watch_list": [
+    ".claude/agents/*.md",
+    ".claude/skills/*/SKILL.md",
+    ".claude/commands/*.md",
+    ".claude/hooks/*.sh",
+    ".claude/settings.template.json",
+    ".claude/hooks-config.json",
+    ".claude/team-config.json",
+    ".agents/skills/*/SKILL.md",
+    ".gemini/commands/**/*.toml",
+    ".codex/agents/*.toml",
+    ".codex/config.toml",
+    ".cursor/rules/*.mdc",
+    "agent_providers/**/*.md",
+    "agent_providers/**/*.sh",
+    "scripts/*.sh",
+    "scripts/*.py",
+    "tests/test-*.sh",
+    "tests/fixtures/**",
+    ".harness-manifest.yml",
+    ".harness-manifest.schema.json",
+    "HARNESS_CHANGELOG.yml",
+    ".github/workflows/*.yml",
+    "dark-factory/**/*.sh",
+    "dark-factory/**/*.md",
+    "patterns_library/**/*.md",
+    "specs_templates/*.md",
+    "linting_configs/*",
+    "project_workflow/**",
+    "examples/manifests/*.yml",
+    "knowledge-vault/scripts/*.mjs",
+    "knowledge-vault/templates/**",
+    "docs/**/*.md",
+    "README.md",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "CLAUDE.md",
+    "TEMPLATE_SETUP.md"
+  ],
+
+  "watch_list_exclusions": [
+    "docs/archive/**",
+    "docs/agent-outputs/**",
+    "docs/knowledge-vault/**"
+  ],
+
   "statuses": ["active", "deprecated", "experimental", "planned"],
 
   "max_concept_lines": 60,
