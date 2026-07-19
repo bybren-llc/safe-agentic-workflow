@@ -1,0 +1,341 @@
+{
+  "lane": "E4",
+  "concepts": [
+    {
+      "id": "providers/claude-code",
+      "type": "provider",
+      "title": "Claude Code Provider Surface",
+      "path": "providers/claude-code.md",
+      "description": "The .claude/ surface: 11 agent prompts, 24 slash commands, 20 skills, inline hooks-config.json, settings template.",
+      "tags": ["providers", "agents", "skills", "commands", "hooks"],
+      "domain": "providers",
+      "sources": [
+        ".claude/README.md",
+        ".claude/hooks-config.json",
+        ".claude/settings.template.json",
+        ".claude/team-config.json",
+        ".claude/agents",
+        ".claude/commands",
+        ".claude/skills",
+        ".claude/hooks",
+        ".claude/SETUP.md",
+        ".claude/TROUBLESHOOTING.md",
+        ".claude/AGENT_OUTPUT_GUIDE.md",
+        ".harness-manifest.yml"
+      ],
+      "batch": "providers",
+      "notes": "primary provider surface | layout: agents/ (11 role .md + README), commands/ (24 .md + README), skills/ (20 skill dirs + README), hooks/ (3 .sh), hooks-config.json, settings.template.json, team-config.json, SETUP.md, TROUBLESHOOTING.md, AGENT_OUTPUT_GUIDE.md | hooks-config.json wires 5 events: UserPromptSubmit, PreToolUse (matchers Bash.*git\\s+commit, Bash.*git\\s+push, Bash.*gh\\s+pr\\s+create), PostToolUse (Write|Edit), SessionStart, SessionEnd | ALL wired hooks are INLINE shell one-liners; ZERO of the 3 scripts in .claude/hooks/ are referenced by hooks-config.json | push blockers exit 1 on branch==main and on dirty worktree; behind-main check is warn-only via `|| true` | PostToolUse formatter shells npx prettier --write then npx markdownlint-cli, parses file_path with grep -oP (GNU-only lookbehind; fails on BSD/macOS grep) | settings.template.json keys only: env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, teammateMode, permissions (permissions body is a _comment placeholder, no allow/deny lists) | team-config.json top-level keys: project, workflow, mcp_servers, agents, review_stages, quality_gates, gates, paths, agent_teams, documentation | SYNC: listed in .harness-manifest.yml sync_scope (first entry, also the v1.0 default) | PARITY: skills mirrored to .agents/skills/ and .gemini/skills/; agent prompts mirrored to .codex/agents/*.toml and agent_providers/claude_code/prompts/ | CLAUDE-ONLY BY DESIGN: slash commands as .md with YAML frontmatter, discrete subagent .md files, team-coordination skill (absent from .gemini/skills/), skills/*/README.md companion files | DOC DRIFT: .claude/README.md 'Wired Hook Scripts' table claims post-commit-linear-update.sh and post-push-docker-check.sh are 'actively wired via hooks-config.json' — hooks-config.json references neither, and post-push-docker-check.sh does not exist on disk | DOC DRIFT: .claude/README.md cites canonical culture reference `.cursor/rules/06-team-culture.mdc` — no such file in .cursor/rules/ | DOC DRIFT: .claude/README.md command tables enumerate 23 commands; .claude/commands/ holds 24 command .md files — release.md is absent from every README table (SessionStart inline hook text '24 commands' is correct) | DOC DRIFT: .claude/README.md ASCII diagram lists 4 skills as 'Available' while the Skills Index table and disk both show 20 | DOC DRIFT: .claude/README.md line 3 describes the surface as 'hooks, slash commands, and (coming soon) skills' while line 246 of the same file indexes 'Skills Index (20 Skills)' and 20 skill dirs exist on disk — skills shipped, the intro was never updated | DOC DRIFT: .claude/README.md install procedure (steps 1-5) is manual copy-paste of hooks-config.json into the Claude Code settings UI; no settings.json on disk carries the hooks, so the wiring described as active requires an unperformed manual step"
+    },
+    {
+      "id": "providers/gemini-cli",
+      "type": "provider",
+      "title": "Gemini CLI Provider Surface",
+      "path": "providers/gemini-cli.md",
+      "description": "The .gemini/ surface: GEMINI.md instructions, settings.json, 19 skills, 30 TOML commands across 4 namespaces plus root.",
+      "tags": ["providers", "skills", "commands", "sync"],
+      "domain": "providers",
+      "sources": [
+        ".gemini/README.md",
+        ".gemini/GEMINI.md",
+        ".gemini/settings.json",
+        ".gemini/commands",
+        ".gemini/skills",
+        ".harness-manifest.yml"
+      ],
+      "batch": "providers",
+      "notes": "layout: GEMINI.md (system instructions), settings.json, skills/ (19 dirs + README, each SKILL.md + README.md), commands/ (30 .toml + README) | command namespaces counted by listing: workflow/ 9 (check-workflow, end-work, pre-pr, quick-fix, release, retro, start-work, sync-linear, update-docs), media/ 11, remote/ 5, local/ 2, root 3 (audit-deps, search-pattern, test-pr-docker) = 30 | settings.json KEY NAMES only: general.plan.directory, general.plan.modelRouting, general.checkpointing.enabled, general.sessionRetention, context.includePatterns, context.excludePatterns, context.fileFiltering.respectGitIgnore/respectGeminiIgnore, tools.sandbox/useRipgrep/enableHooks, model.name (placeholder token), ui.*, skills.enabled, hooksConfig.enabled, hooks (empty object), security.folderTrust.enabled, security.environmentVariableRedaction, policyPaths (empty), agents.browser.sessionMode/headless, experimental.enableAgents/directWebFetch/plan, mcpServers (empty object) | command prompt syntax: {{args}} interpolation, !{cmd} shell exec, @{file} file injection | SYNC: '.gemini/' present in .harness-manifest.yml sync_scope | PARITY: 19 of the 20 .claude/skills are mirrored by name; team-coordination is Claude-only and absent | skill bodies are NOT byte-identical to .claude — all 19 differ; gemini variants strip Claude-only frontmatter keys (user-invocable, allowed-tools) and emoji, and are shorter (safe-workflow 82 lines vs .claude 229) | GEMINI-ONLY BY DESIGN: media/ multimodal command namespace (11 commands), plan mode, policy engine, browser agent, extensions, checkpointing — README's comparison table marks all of these N/A for Claude Code | hooks are declared in settings.json rather than a separate config file; settings.json ships hooks as an empty object so no hook fires as committed | DOC DRIFT: .gemini/README.md says 'commands/ (29 total)' and 'Included Skills (19)' — disk has 30 .toml commands and the README's own skill table lists only 18 rows (vault-sync present on disk, missing from table) | DOC DRIFT: README workflow namespace list omits release.toml (lists 8, disk has 9) | DOC DRIFT: README's settings.json example shows general.plan.modelRouting as the string 'auto'; the committed settings.json sets boolean true — type mismatch, not just value | DOC DRIFT: README's example sets general.checkpointing.enabled true and documents /restore as available; the committed settings.json sets it false, so checkpointing is off as shipped | DOC DRIFT: README's 'Enabling Hooks' section instructs setting tools.enableHooks AND hooks.enabled; the committed settings.json sets tools.enableHooks plus hooksConfig.enabled — a DIFFERENT key name — and leaves hooks {} empty, so no hook registers even for a user who follows the README | .gemini/GEMINI.md hardcodes the project gloss '(Words to Film By)' beside the {{PROJECT_SHORT}} placeholder, leaking a specific project name into a template file | UNKNOWN: whether settings.json is loaded as-is or expected to be copied/customized — README calls it a 'Configuration template' but no copy step is scripted anywhere in the surface"
+    },
+    {
+      "id": "providers/codex",
+      "type": "provider",
+      "title": "Codex CLI Provider Surface",
+      "path": "providers/codex.md",
+      "description": "The .codex/ surface: config.toml with profiles and MCP servers, 11 agent role TOMLs, skills delegated to .agents/skills.",
+      "tags": ["providers", "agents", "skills", "security"],
+      "domain": "providers",
+      "sources": [
+        ".codex/README.md",
+        ".codex/config.toml",
+        ".codex/agents",
+        "AGENTS.md",
+        ".harness-manifest.yml"
+      ],
+      "batch": "providers",
+      "notes": "layout: README.md, config.toml, agents/ (11 .toml, one per SAFe role; listed: be-developer, bsa, data-engineer, data-provisioning-eng, fe-developer, qas, rte, security-engineer, system-architect, tdm, tech-writer) | no skills dir — Codex reads .agents/skills/ per README discovery order (CWD, parent, git root, $HOME) | system instructions come from repo-root AGENTS.md; config.toml sets project_doc_fallback_filenames = AGENTS.md, CLAUDE.md, CONTRIBUTING.md and project_doc_max_bytes | config.toml KEY NAMES: model, approval_policy, sandbox_mode, web_search, model_reasoning_effort, personality, [features] shell_snapshot/multi_agent/web_search/shell_tool/unified_exec, [agents] max_threads/max_depth/job_max_runtime_seconds, [profiles.architect|developer|reviewer] each with model/model_reasoning_effort/sandbox_mode/approval_policy, [shell_environment_policy] include_only whitelist, [mcp_servers.{{MCP_LINEAR_SERVER}}] and [mcp_servers.{{MCP_CONFLUENCE_SERVER}}] with command/args/env_vars/startup_timeout_sec/tool_timeout_sec | MCP env var NAMES referenced: LINEAR_API_KEY, ATLASSIAN_API_TOKEN, ATLASSIAN_EMAIL, CONFLUENCE_BASE_URL, OPENAI_API_KEY | shell_environment_policy uses include_only (whitelist) strategy; an exclude-based alternative is present but commented out | notify hook is commented out — no notification handler wired | SYNC: '.codex/' in sync_scope; '.agents/' synced as a separate shared domain | CODEX-ONLY BY DESIGN: TOML agent definitions with nickname_candidates and developer_instructions, per-role [profiles.*] sandbox/approval overrides, native MCP, no slash commands (README: 'No slash commands', 'No CODEX.md', 'No settings.json', 'No .codex/skills/') | DOC DRIFT: config.toml top-level model = o4-mini and all three [profiles.*] pin o4-mini, but the .codex/agents/*.toml declare a different model family entirely — counted by listing: 9 files set model = gpt-5.4 and 2 set model = gpt-5.4-mini; README documents only the o4-mini value | DOC DRIFT: README directory-structure block says '.agents/skills/ — 18 shared skills … (18 total)' while README's own 'Available Skills (20)' table lists 20 and disk has 20 | DOC DRIFT: README's [shell_environment_policy] example shows include_only = [PATH, HOME, OPENAI_API_KEY] (3 entries); config.toml's actual include_only has 19 entries | DOC DRIFT: README's [features] example block shows only shell_snapshot/multi_agent/web_search; config.toml also sets shell_tool and unified_exec | UNKNOWN: whether .codex/agents/*.toml are auto-discovered by Codex CLI or must be invoked via --profile — README documents --profile for [profiles.*] only and never states a load path for agents/*.toml"
+    },
+    {
+      "id": "providers/cursor",
+      "type": "provider",
+      "title": "Cursor IDE Provider Surface",
+      "path": "providers/cursor.md",
+      "description": "The .cursor/ surface: 18 .mdc rule files across four numbering families plus a placeholder mcp.json.",
+      "tags": ["providers", "patterns", "workflow"],
+      "domain": "providers",
+      "sources": [
+        ".cursor/rules/README.md",
+        ".cursor/mcp.json",
+        ".cursor/rules",
+        ".harness-manifest.yml"
+      ],
+      "batch": "providers",
+      "notes": "layout: rules/ (18 .mdc + README.md), mcp.json | no skills, no commands, no agents dir — rules serve all three roles | three activation modes driven by .mdc YAML frontmatter: alwaysApply: true (always), globs: \"pattern\" (auto-attach), alwaysApply: false with no globs (manual via @rule-name) | counted by listing: 3 always-apply (00,01,02), 15 with alwaysApply: false; 7 of those also carry globs (10-16) | mcp.json declares two servers keyed by placeholder tokens {{MCP_LINEAR_SERVER}} and {{MCP_CONFLUENCE_SERVER}}, command npx, env KEY NAMES LINEAR_API_KEY / ATLASSIAN_API_TOKEN / ATLASSIAN_EMAIL / CONFLUENCE_BASE_URL — values in file are literal placeholder strings, must be replaced per project | SYNC: '.cursor/' in .harness-manifest.yml sync_scope | PARITY: rules 20-23 restate the SAFe agent roles that .claude/agents/ and .codex/agents/ define as discrete files; rule 03/04 restate the safe-ai-dlc and vault-sync skills | CURSOR-ONLY BY DESIGN: background agents in isolated Ubuntu VMs (rule 30), glob-based auto-attach activation, @rule-name manual invocation | README design principle states each rule stays under 200 lines — largest actual is 117 (15-deployment.mdc, 16-stripe-payments.mdc), so the constraint holds | DOC DRIFT: README 'Relationship to Other Configurations' table lists Augment as a fifth provider at agent_providers/augment/rules/ while the same README's opening line says 'Cursor is one of four supported AI providers' | SECRET-HANDLING DIVERGENCE: .cursor/mcp.json inlines literal dummy secret VALUES in env ('your-linear-api-key', 'your-token', 'your-email', 'your-base-url') whereas .codex/config.toml names env_vars only and never inlines a value — the two surfaces configure the same two MCP servers with incompatible secret conventions, and the Cursor shape requires editing the tracked file to become functional | DOC DRIFT: .cursor/rules/README.md MCP section instructs 'Never commit real API keys. Use environment variables or Cursor's settings UI for secrets' while the committed mcp.json provides no ${ENV} indirection to follow that advice | DOC DRIFT: 31-mcp-integration.mdc's example config declares the Linear server package as '@linear/mcp-server' but the committed .cursor/mcp.json (and .codex/config.toml) use '@anthropic/linear-mcp-server' — rule and config disagree on the package name for the same server | UNKNOWN: whether Cursor reads .cursor/mcp.json with unresolved {{...}} server-name keys or errors — no substitution step is wired inside the .cursor/ surface"
+    },
+    {
+      "id": "providers/agents-portable",
+      "type": "provider",
+      "title": "Portable .agents Skills Surface",
+      "path": "providers/agents-portable.md",
+      "description": "The vendor-neutral .agents/skills surface: 20 skill packages discovered by Codex and any tool honoring the convention.",
+      "tags": ["providers", "skills", "sync"],
+      "domain": "providers",
+      "sources": [
+        ".agents/skills",
+        ".codex/README.md",
+        ".harness-manifest.yml"
+      ],
+      "batch": "providers",
+      "notes": "layout: .agents/skills/ only — no README, no config, no commands, no agents | 20 skill dirs counted by listing: agent-coordination, api-patterns, confluence-docs, deployment-sop, frontend-patterns, git-advanced, linear-sop, migration-patterns, orchestration-patterns, pattern-discovery, release-patterns, rls-patterns, safe-ai-dlc, safe-workflow, security-audit, spec-creation, stripe-patterns, team-coordination, testing-patterns, vault-sync | skill package shape per .codex/README.md: SKILL.md required (YAML frontmatter name + description), optional scripts/, references/, assets/ | VERIFIED BY LISTING: all 20 skills carry all three subdirs (60 dirs total) and EVERY ONE contains only a .gitkeep — `find .agents/skills -mindepth 3 -type f ! -name .gitkeep` returns 0 files, so SKILL.md is the sole content-bearing file in the entire surface; the scripts/references/assets structure is scaffolding, not populated capability | no README.md in any skill dir | consumed by: Codex CLI, which resolves .agents/skills at four scopes (CWD, parent, $REPO_ROOT, $HOME) | SYNC: '.agents/' declared as a shared (non-provider) domain in .harness-manifest.yml sync_scope, alongside dark-factory/ | PARITY: skill NAME set is identical to .claude/skills/ (20 for 20, including team-coordination) but no SKILL.md is byte-identical — all 20 differ | .agents variants use folded YAML (description: >) and drop the Claude-only frontmatter keys user-invocable and allowed-tools; .claude variants carry a README.md companion that .agents omits; .agents carries scripts/references/assets dirs that .claude omits, but those dirs are .gitkeep-only placeholders and add no content (safe-workflow: .agents 106 lines vs .claude 229) | PORTABLE-ONLY BY DESIGN: no provider-specific frontmatter, no tool allowlists, no slash-command bindings — the surface is deliberately capability-free so any provider can read it | UNKNOWN: which component regenerates .agents/skills from .claude/skills — no generator script is referenced from either surface, so the divergence may be hand-maintained"
+    },
+    {
+      "id": "providers/rules/core",
+      "type": "guide",
+      "title": "Cursor Rules: Core Family (00-02)",
+      "path": "providers/rules/core.md",
+      "description": "The three always-apply Cursor rules covering SAFe principles, git workflow, and mandatory pattern discovery.",
+      "tags": ["providers", "methodology", "workflow", "patterns"],
+      "domain": "providers",
+      "sources": [
+        ".cursor/rules/00-core-principles.mdc",
+        ".cursor/rules/01-git-workflow.mdc",
+        ".cursor/rules/02-pattern-discovery.mdc",
+        ".cursor/rules/README.md"
+      ],
+      "batch": "providers",
+      "notes": "3 members counted by listing: 00-core-principles.mdc (84 lines), 01-git-workflow.mdc (92), 02-pattern-discovery.mdc (84) | all three carry alwaysApply: true and no globs — the only always-on rules in the surface, loaded into every Cursor conversation | 00 covers SAFe methodology, Round Table philosophy (equal voice, mutual respect, shared responsibility), search-first-reuse-always, evidence-based delivery, 11 agent roles | 01 covers branch naming, commit format, rebase-first, PR process; 03-safe-ai-dlc.mdc explicitly redirects single-ticket work here | 02 declares pattern discovery MANDATORY before implementing anything: search patterns_library/, then specs/, then codebase | rules reference source docs (CLAUDE.md, AGENTS.md, patterns_library/) rather than duplicating them, per the README DRY design principle | no failure mode — .mdc rules are context injection with no exit codes and no execution"
+    },
+    {
+      "id": "providers/rules/methodology",
+      "type": "guide",
+      "title": "Cursor Rules: Methodology Family (03-04)",
+      "path": "providers/rules/methodology.md",
+      "description": "Manual-activation Cursor rules for SAFe x AI-DLC program cadence and OKF knowledge-vault conventions.",
+      "tags": ["providers", "methodology", "gates", "okf"],
+      "domain": "providers",
+      "sources": [
+        ".cursor/rules/03-safe-ai-dlc.mdc",
+        ".cursor/rules/04-knowledge-vault.mdc",
+        ".cursor/rules/README.md"
+      ],
+      "batch": "providers",
+      "notes": "2 members counted by listing: 03-safe-ai-dlc.mdc (81 lines), 04-knowledge-vault.mdc (70) | both alwaysApply: false with no globs — manual activation only, via @03-safe-ai-dlc / @04-knowledge-vault | 03 scopes itself to work spanning multiple issues needing cadence; Bolt replaces the sprint (hours-to-days swarm), Unit of Work replaces Feature, plus Mob Elaboration and a human-in-the-loop validation gate; explicitly routes single isolated tickets to .cursor/rules/01-git-workflow.mdc instead | 04 covers the OKF frontmatter contract, link rules, verified_against drift discipline, and the vault-sync loop | 04 defines timestamp as the date last VERIFIED against sources, not last edited, and restricts YAML to a subset (scalars, double-quoted strings, inline lists, two-space block lists; no nested maps, no multiline scalars) explicitly to keep the validator dependency-free | 04 link rule 4 forbids linking to any concept ID absent from _meta/manifest.json and requires naming the missing concept in prose as a suggestion instead | CROSS-CHECK: 04's contract matches docs/knowledge-vault/_meta/vault-config.json exactly on the 6 required fields, the 6 optional fields, and max_description_length 160 | DOC DRIFT: 04 prose says a concept is a '~50-line map-card' while vault-config.json sets max_concept_lines to 60 — prose guidance and the machine-enforced limit disagree | 03 mirrors the safe-ai-dlc skill, 04 mirrors the vault-sync skill — both skills exist in .claude/skills/, .gemini/skills/, and .agents/skills/ | family is the newest addition to the numbering scheme: README's own Design Principles line enumerates '00-02 core, 03-04 methodology, 10-16 tech, 20-23 roles, 30-31 advanced'"
+    },
+    {
+      "id": "providers/rules/stack",
+      "type": "guide",
+      "title": "Cursor Rules: Stack Family (10-16)",
+      "path": "providers/rules/stack.md",
+      "description": "Seven glob-auto-attached Cursor rules that load when matching backend, frontend, database, test, spec, deploy, or payment files open.",
+      "tags": ["providers", "patterns", "testing", "operations"],
+      "domain": "providers",
+      "sources": [
+        ".cursor/rules/10-backend-python.mdc",
+        ".cursor/rules/11-frontend-react.mdc",
+        ".cursor/rules/12-database-sql.mdc",
+        ".cursor/rules/13-testing.mdc",
+        ".cursor/rules/14-spec-creation.mdc",
+        ".cursor/rules/15-deployment.mdc",
+        ".cursor/rules/16-stripe-payments.mdc",
+        ".cursor/rules/README.md"
+      ],
+      "batch": "providers",
+      "notes": "7 members counted by listing | the ONLY rules in the surface carrying a globs key; all also set alwaysApply: false, so they auto-attach on matching open/edited files and never load otherwise | actual globs read from frontmatter: 10 core/**/*.py,edgekit/**/*.py | 11 sdk/**/*.tsx,sdk/**/*.ts,sdk/**/*.jsx,sdk/**/*.js | 12 alembic/**,**/models.py,**/schemas.py,**/models/** | 13 tests/**/*.py,tests/** | 14 specs/**/*.md,specs_templates/**/*.md | 15 docker-compose*.yml,Dockerfile*,scripts/deploy*,scripts/dev-docker*,.coolify/** | 16 core/**/billing/**,core/**/payments/**,core/**/stripe/**,**/webhook*stripe* | subjects: FastAPI/SQLAlchemy 2.x/async/Alembic; React 18 + Electron + ShadCN + Tailwind; PostgreSQL 16 + migrations + RLS; pytest + integration + E2E Docker; spec templates + AC/DoD + demo scripts; Coolify/Docker deploy + smoke tests + rollback; Stripe webhooks/checkout/subscriptions/idempotency/test-mode safety | this family names a Python/FastAPI/SQLAlchemy/Alembic stack while root CLAUDE.md templates the stack via {{FRONTEND_FRAMEWORK}}/{{ORM_TOOL}} placeholders and its migration guidance is Prisma-shaped — the .cursor globs are concrete, not tokenized | line counts 74-117; 15 and 16 are the two largest rules in the surface at 117 each | DOC DRIFT: README rule-index table abbreviates the globs for 11, 12, 13, 15 and 16 (e.g. lists 11 as 'sdk/**/*.tsx, sdk/**/*.ts' where the file also matches .jsx and .js; lists 15 without .coolify/**) — frontmatter is authoritative"
+    },
+    {
+      "id": "providers/rules/agent-and-background",
+      "type": "guide",
+      "title": "Cursor Rules: Agent & Background Family (20-31)",
+      "path": "providers/rules/agent-and-background.md",
+      "description": "Six manual Cursor rules: four SAFe agent personas plus background-agent and MCP integration guidance.",
+      "tags": ["providers", "agents", "orchestration", "security"],
+      "domain": "providers",
+      "sources": [
+        ".cursor/rules/20-agent-architect.mdc",
+        ".cursor/rules/21-agent-backend.mdc",
+        ".cursor/rules/22-agent-qas.mdc",
+        ".cursor/rules/23-agent-security.mdc",
+        ".cursor/rules/30-background-agents.mdc",
+        ".cursor/rules/31-mcp-integration.mdc",
+        ".cursor/rules/README.md",
+        ".cursor/mcp.json"
+      ],
+      "batch": "providers",
+      "notes": "6 members counted by listing: 20-agent-architect (72 lines), 21-agent-backend (73), 22-agent-qas (84), 23-agent-security (84), 30-background-agents (74), 31-mcp-integration (75) | all six alwaysApply: false, no globs — manual @rule-name activation | README treats 20-23 as 'Agent-Role Rules' and 30-31 as 'Advanced Features', two labels over one contiguous numbering block | 20 delegates to .claude/agents/system-architect.md for the full agent definition — the Cursor rule is a summary, the Claude file is the source | roles covered are 4 of the 11 SAFe roles (architect, backend, QAS, security); the other 7 (bsa, fe-developer, data-engineer, data-provisioning-eng, rte, tdm, tech-writer) exist in .claude/agents/ and .codex/agents/ but have NO Cursor rule | 30 describes Cursor background agents in isolated Ubuntu VMs with internet access: clone from GitHub, work on a separate branch, open PRs; README adds that they still pass the same SAFe gate chain (Stop-the-Line, QAS, 3-stage review) and still require HITL merge, one ticket per agent | 31 gives MCP configuration guidance pointing at .cursor/mcp.json; README states MCP servers are interchangeable across all four providers | background agents are Cursor-only in the cross-provider comparison table in .codex/README.md, which marks Claude Code as 'Agent Teams (experimental)' and Gemini/Codex as N/A | THIN-POINTER PATTERN VERIFIED for all four role rules: 20 -> .claude/agents/system-architect.md, 21 -> .claude/agents/be-developer.md, 22 -> .claude/agents/qas.md, 23 -> .claude/agents/security-engineer.md; all four target files exist on disk, so Cursor's agent personas are summaries that depend on the Claude surface remaining present | DOC DRIFT: 31-mcp-integration.mdc's inline example uses package '@linear/mcp-server' while the committed .cursor/mcp.json uses '@anthropic/linear-mcp-server' | DOC DRIFT: 31's example inlines a literal 'your-api-key' string in env, matching .cursor/mcp.json but contradicting .cursor/rules/README.md's instruction never to commit keys and to use environment variables"
+    },
+    {
+      "id": "providers/hooks/post-commit-linear-update",
+      "type": "script",
+      "title": "Hook: post-commit-linear-update.sh",
+      "path": "providers/hooks/post-commit-linear-update.md",
+      "description": "Extracts a Linear ticket ID from the latest commit message and prints a suggested Linear comment; never calls Linear.",
+      "tags": ["providers", "hooks", "workflow"],
+      "domain": "providers",
+      "sources": [
+        ".claude/hooks/post-commit-linear-update.sh",
+        "agent_providers/claude_code/hooks/post-commit-linear-update.sh",
+        ".claude/hooks-config.json",
+        ".claude/README.md"
+      ],
+      "batch": "providers",
+      "notes": "reads: git log -1 --format=%H and --format=%s | greps commit subject for {{TICKET_PREFIX}}-[0-9]+ — the pattern is the LITERAL placeholder token, so it matches nothing until token substitution runs | writes: stdout only; no file, no network, no Linear API call | prints a suggested mcp__{{MCP_LINEAR_SERVER}}__create_comment invocation for a TDM agent to execute by hand — the script name says 'update', the body defers all writing to a human/agent | exit codes: 0 only — 0 on no ticket found, 0 on missing commit hash, 0 on success; nothing in the script can fail a commit | byte-identical to agent_providers/claude_code/hooks/post-commit-linear-update.sh (diff clean) | DOC DRIFT: script header comment says 'Auto-updates Linear ticket with commit hash' but the body performs no update and its own trailing comment concedes 'actual Linear update done by TDM agent' | DOC DRIFT: .claude/README.md lists this script under 'Wired Hook Scripts … actively wired via hooks-config.json' — hooks-config.json's Bash.*git\\s+commit matcher runs an inline echo about commit format and never invokes this file; the script is dead code as committed"
+    },
+    {
+      "id": "providers/hooks/pre-bash-rls-validation",
+      "type": "script",
+      "title": "Hook: pre-bash-rls-validation.sh",
+      "path": "providers/hooks/pre-bash-rls-validation.md",
+      "description": "Inspects a bash command for Prisma/psql usage and warns when no RLS context helper is present; blocks nothing.",
+      "tags": ["providers", "hooks", "security"],
+      "domain": "providers",
+      "sources": [
+        ".claude/hooks/pre-bash-rls-validation.sh",
+        "agent_providers/claude_code/hooks/pre-bash-rls-validation.sh",
+        ".claude/hooks-config.json"
+      ],
+      "batch": "providers",
+      "notes": "reads: $1 (the bash command string) — takes the command as a positional arg, not from stdin JSON | match chain: greps for (npx prisma|psql|DATABASE_URL); if matched, greps for (withUserContext|withAdminContext|withSystemContext) and allows; else greps for (prisma migrate|prisma generate|prisma studio) and allows as schema op; else prints a WARNING naming the three context helpers | writes: stdout only | exit codes: 0 on every path — RLS found, schema op, missing context, and non-database command all exit 0 | byte-identical to agent_providers/claude_code/hooks/pre-bash-rls-validation.sh (diff clean) | DOC DRIFT: script header comment declares 'Exit code 2: Block operation' but no `exit 2` exists anywhere in the file; the missing-context branch carries an inline comment 'Allow but warn' — the hook is advisory, not a gate | DOC DRIFT: enforces the RLS helper contract that root CLAUDE.md states as mandatory ('Never … bypass RLS policies') while being incapable of blocking | not referenced by .claude/hooks-config.json — no PreToolUse matcher invokes it, and hooks-config.json defines no Bash-matcher that would pass $1; dead code as committed"
+    },
+    {
+      "id": "providers/hooks/session-start-pattern-check",
+      "type": "script",
+      "title": "Hook: session-start-pattern-check.sh",
+      "path": "providers/hooks/session-start-pattern-check.md",
+      "description": "Prints a pattern-library inventory and agent-system banner at session start; points at docs/patterns, not patterns_library.",
+      "tags": ["providers", "hooks", "patterns", "onboarding"],
+      "domain": "providers",
+      "sources": [
+        ".claude/hooks/session-start-pattern-check.sh",
+        "agent_providers/claude_code/hooks/session-start-pattern-check.sh",
+        ".claude/hooks-config.json",
+        ".claude/agents"
+      ],
+      "batch": "providers",
+      "notes": "reads: PATTERN_DIR hardcoded to docs/patterns; counts via find \"$PATTERN_DIR\" -name '*.md' -type f | wc -l | writes: stdout only — location, pattern count, four subdirectory hints (api/, ui/, database/, testing/), a 'check patterns BEFORE implementation' reminder, and an agent banner | exit codes: 0 only; the else branch prints 'Pattern library not found' and still exits 0 | PATTERN_COUNT is computed before the -d guard, so on a missing directory find writes to stderr and the count silently becomes 0 | byte-identical to agent_providers/claude_code/hooks/session-start-pattern-check.sh (diff clean) | DOC DRIFT: script targets docs/patterns while root CLAUDE.md, .cursor/rules/02-pattern-discovery.mdc, and the pattern-discovery skill all name patterns_library/ as the library — both directories exist on disk, so the hook reports the wrong one without erroring | DOC DRIFT: banner asserts '11 agents available in .claude/agents/' — .claude/agents/ holds 11 role .md files plus README.md; count is correct but the banner also asserts 'Tool restrictions: Configured' and 'Model selection: Opus (planning), Sonnet (execution)' as facts it never verifies, and .claude/settings.template.json ships an empty permissions block | not referenced by .claude/hooks-config.json — the SessionStart matcher runs an inline echo listing slash commands instead; dead code as committed"
+    },
+    {
+      "id": "providers/augment/contributing",
+      "type": "guide",
+      "title": "Augment Rule: CONTRIBUTING",
+      "path": "providers/augment/contributing.md",
+      "description": "Augment rule slot for git workflow and contribution standards; the file on disk is an empty 4-byte stub.",
+      "tags": ["providers", "workflow", "ssot-stub"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/CONTRIBUTING.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md"
+      ],
+      "batch": "providers",
+      "notes": "file is 4 bytes and contains exactly one line: '---' | no frontmatter body, no heading, no content — an empty YAML document separator | AUGMENT_WORKFLOW_GUIDE.md describes it as 'Git workflow and contribution standards' among 'pre-translated rules and guidelines adapted from the Claude prompts' | the content it is supposed to carry lives in repo-root CONTRIBUTING.md and .cursor/rules/01-git-workflow.mdc | not referenced by any code path; agent_providers/ is not in .harness-manifest.yml sync_scope, so nothing syncs or regenerates it | DOC DRIFT: AUGMENT_WORKFLOW_GUIDE.md presents this as an included, pre-translated rule; the file has no content | UNKNOWN: whether the 4-byte stub is an intentional placeholder or a truncation — no ticket, comment, or TODO on disk explains it"
+    },
+    {
+      "id": "providers/augment/coding-standards",
+      "type": "guide",
+      "title": "Augment Rule: Coding Standards",
+      "path": "providers/augment/coding-standards.md",
+      "description": "Augment rule slot for code quality and style guidelines; the file on disk is an empty 4-byte stub.",
+      "tags": ["providers", "patterns", "ssot-stub"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/coding-standards.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md"
+      ],
+      "batch": "providers",
+      "notes": "file is 4 bytes and contains exactly one line: '---' | no frontmatter body, no heading, no content | AUGMENT_WORKFLOW_GUIDE.md describes it as 'Code quality and style guidelines' | one of 4 of the 6 augment rules that are empty stubs (CONTRIBUTING, coding-standards, confluence-standards, linear-api-sop); only project-guidelines.md (229 lines) and review-checklist.md (158 lines) carry content | not referenced by any code path; agent_providers/ is absent from .harness-manifest.yml sync_scope | DOC DRIFT: AUGMENT_WORKFLOW_GUIDE.md lists it as an included pre-translated rule; the file has no content | UNKNOWN: which Claude prompt this was meant to be translated from — the guide says rules are 'adapted from the Claude prompts' but names no source file"
+    },
+    {
+      "id": "providers/augment/confluence-standards",
+      "type": "guide",
+      "title": "Augment Rule: Confluence Standards",
+      "path": "providers/augment/confluence-standards.md",
+      "description": "Augment rule slot for documentation standards; the file on disk is an empty 4-byte stub.",
+      "tags": ["providers", "process", "ssot-stub"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/confluence-standards.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md"
+      ],
+      "batch": "providers",
+      "notes": "file is 4 bytes and contains exactly one line: '---' | no frontmatter body, no heading, no content | AUGMENT_WORKFLOW_GUIDE.md describes it as 'Documentation standards' | the confluence-docs skill (present in .claude/skills/, .gemini/skills/, .agents/skills/) covers this subject with real content; the Augment slot does not | not referenced by any code path; agent_providers/ is absent from .harness-manifest.yml sync_scope | DOC DRIFT: AUGMENT_WORKFLOW_GUIDE.md lists it as an included pre-translated rule; the file has no content"
+    },
+    {
+      "id": "providers/augment/linear-api-sop",
+      "type": "guide",
+      "title": "Augment Rule: Linear API SOP",
+      "path": "providers/augment/linear-api-sop.md",
+      "description": "Augment rule slot for Linear integration guidelines; the file on disk is an empty 4-byte stub.",
+      "tags": ["providers", "process", "ssot-stub"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/linear-api-sop.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md",
+        "agent_providers/augment/instructions.md"
+      ],
+      "batch": "providers",
+      "notes": "file is 4 bytes and contains exactly one line: '---' | no frontmatter body, no heading, no content | AUGMENT_WORKFLOW_GUIDE.md describes it as 'Linear integration guidelines' | the linear-sop skill (present in .claude/skills/, .gemini/skills/, .agents/skills/) carries the real Linear procedure; agent_providers/augment/instructions.md also covers evidence-attachment expectations under its Communication Protocols and Success Criteria sections | not referenced by any code path; agent_providers/ is absent from .harness-manifest.yml sync_scope | DOC DRIFT: AUGMENT_WORKFLOW_GUIDE.md lists it as an included pre-translated rule; the file has no content"
+    },
+    {
+      "id": "providers/augment/project-guidelines",
+      "type": "guide",
+      "title": "Augment Rule: Project Guidelines",
+      "path": "providers/augment/project-guidelines.md",
+      "description": "The larger of the two populated Augment rules: SAFe Essentials project context and development guidelines.",
+      "tags": ["providers", "methodology", "process"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/project-guidelines.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md",
+        "agent_providers/augment/instructions.md"
+      ],
+      "batch": "providers",
+      "notes": "229 lines, 6330 bytes — the largest file under agent_providers/augment/rules/ | no YAML frontmatter; plain markdown starting '# Project Guidelines' | top-level sections counted by listing: Purpose, Project Context | stated purpose: define project-specific guidelines for development using SAFe Essentials methodology and Augment Code integration | one of only 2 populated rules out of 6 in the directory | pairs with agent_providers/augment/instructions.md, which carries the operational half (Core Principles, Agent Roles & Responsibilities, Pattern Discovery Protocol, Spec-Driven Implementation, Quality Validation, Security Requirements, Communication Protocols, Success Criteria, Tools and Commands, Continuous Improvement) | instructions.md pattern-discovery block names patterns_library/ (consistent with root CLAUDE.md, unlike session-start-pattern-check.sh which names docs/patterns) | not referenced by any code path; agent_providers/ is absent from .harness-manifest.yml sync_scope, so this rule is maintained by hand | DECLARES A CONCRETE STACK, NOT PLACEHOLDERS: Next.js 15 + TypeScript + Shadcn UI, Next.js API routes, self-hosted PostgreSQL on Coolify.io with Prisma ORM, self-hosted Redis, Clerk auth with custom theming, Coolify.io PaaS on Hostinger VPS KVM 4, PostHog analytics with PostHog MCP, Redis rate limiting — named vendors and a specific VPS tier, so this file is not project-neutral the way .claude/team-config.json is | STACK CONTRADICTION: this Prisma/Next.js stack agrees with root CLAUDE.md and the rls-patterns skill but directly contradicts .cursor/rules/10-16, which target FastAPI/SQLAlchemy 2.x/Alembic | prescribes label-based agent assignment: 'Auggie' label for architecture, 'Claude Code' label for implementation | PLACEHOLDER CONVENTION MISMATCH: uses the token form __CONFLUENCE_SPACE_KEY__ (double-underscore) at 3 sites while every other surface in the repo uses {{PLACEHOLDER}} braces — a {{}}-based substitution pass will not touch this file's token, leaving it unresolved | DOC DRIFT: prescribes yarn command literals (yarn dev, yarn build, yarn lint, yarn test:unit, yarn ci:validate) where root CLAUDE.md parameterizes the same commands as {{DEV_COMMAND}}, {{BUILD_COMMAND}}, {{LINT_COMMAND}}, {{TEST_UNIT_COMMAND}}, {{CI_VALIDATE_COMMAND}}"
+    },
+    {
+      "id": "providers/augment/review-checklist",
+      "type": "guide",
+      "title": "Augment Rule: Review Checklist",
+      "path": "providers/augment/review-checklist.md",
+      "description": "Populated Augment rule with seven review gates spanning pre-implementation through post-deployment.",
+      "tags": ["providers", "gates", "testing", "process"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/rules/review-checklist.md",
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md"
+      ],
+      "batch": "providers",
+      "notes": "158 lines, 4460 bytes | no YAML frontmatter; plain markdown starting '# Review Checklist' | 7 top-level sections counted by listing: Purpose, Pre-Implementation Review, Code Review Checklist, Testing Review, Deployment Review, Documentation Review, Final Approval Checklist, Post-Deployment Review | stated purpose: reviewing code changes, architectural decisions, and project deliverables | one of only 2 populated rules out of 6 in the directory | overlaps the QAS and 3-stage review gates expressed elsewhere as .cursor/rules/22-agent-qas.mdc, .claude/agents/qas.md, and the review_stages / quality_gates / gates keys in .claude/team-config.json — this is the Augment-path restatement, maintained separately | not referenced by any code path; agent_providers/ is absent from .harness-manifest.yml sync_scope"
+    },
+    {
+      "id": "providers/agent-providers",
+      "type": "architecture",
+      "title": "agent_providers Legacy Mirror",
+      "path": "providers/agent-providers.md",
+      "description": "The pre-dotfile provider directory: an Augment starter kit plus a diverged, unsynced mirror of the Claude Code harness.",
+      "tags": ["providers", "sync", "agents", "ssot-stub"],
+      "domain": "providers",
+      "sources": [
+        "agent_providers/augment/AUGMENT_WORKFLOW_GUIDE.md",
+        "agent_providers/augment/instructions.md",
+        "agent_providers/augment/rules",
+        "agent_providers/claude_code/hooks",
+        "agent_providers/claude_code/permissions/settings.template.json",
+        "agent_providers/claude_code/prompts",
+        ".claude/agents",
+        ".claude/hooks",
+        ".claude/settings.template.json",
+        ".harness-manifest.yml",
+        "CLAUDE.md"
+      ],
+      "batch": "providers",
+      "notes": "two subtrees counted by listing: augment/ (AUGMENT_WORKFLOW_GUIDE.md, instructions.md, rules/ with 6 .md — 4 of them empty 4-byte '---' stubs) and claude_code/ (hooks/ 3 .sh, permissions/settings.template.json, prompts/ 11 .md) | claude_code/ is a MIRROR of .claude/, not an independent surface: prompts/ file names match .claude/agents/ exactly (11 for 11, diff of the listings is empty) and hooks/ is byte-identical to .claude/hooks/ for all 3 scripts | prompt MIRROR HAS DIVERGED: 10 of 11 prompts differ from .claude/agents/; only bsa.md is identical | be-developer.md divergence is substantive, not cosmetic — .claude version sets model: opus and carries a 'Precondition (Stop-the-Line Gate)' section plus an Ownership Model (You Own / You Must / You Must NOT), while agent_providers version sets model: sonnet and omits all 38 lines of it; the mirror silently drops the Stop-the-Line gate | SETTINGS INVERTED: agent_providers/claude_code/permissions/settings.template.json carries a populated permissions.allow list (~90 entries: Bash globs, WebFetch domains, mcp__{{MCP_LINEAR_SERVER}}__* and mcp__{{MCP_CONFLUENCE_SERVER}}__* tool names) and an empty deny, while .claude/settings.template.json has an empty _comment placeholder for permissions but adds env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS and teammateMode — neither is a superset of the other | the allow list embeds DATABASE_URL command strings with {{DB_USER}}/{{DB_PASSWORD}}/{{DB_NAME}} placeholder tokens, and includes prisma db push --force-reset and --reset-database, which root CLAUDE.md forbids ('never db push in production') | NOT SYNCED: .harness-manifest.yml sync_scope lists .claude/, .gemini/, .codex/, .cursor/, .agents/, dark-factory/ — agent_providers/ is absent, and the manifest comment defers docs/, scripts/, patterns_library/ to a future version without mentioning agent_providers at all | AUGMENT_WORKFLOW_GUIDE.md frames augment/ as a manual-setup starter kit contrasted with the Claude Code 'golden path', listing manual steps for pattern discovery and automation hooks | DOC DRIFT: CLAUDE.md repository-structure block lists agent_providers/ as 'Agent configurations' peer to .claude/, implying parity; on disk claude_code/ is a stale unsynced copy | DOC DRIFT: docs/archive/USER-JOURNEY-VALIDATION-REPORT.md already flags 'Duplicate agent files' and the open question 'Which directory to use (.claude/agents/ vs agent_providers/)' — unresolved at BASELINE_SHA fd0fc6a | DOC DRIFT: docs/REORGANIZATION-EXECUTION-SUMMARY.md says agent_providers/claude_code/prompts/ holds '5 files: same agents'; disk has 11 | UNKNOWN: whether agent_providers/ is deprecated — no DEPRECATED marker, README, or ADR exists in the tree"
+    }
+  ]
+}

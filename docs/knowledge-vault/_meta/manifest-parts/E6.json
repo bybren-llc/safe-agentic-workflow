@@ -1,0 +1,877 @@
+{
+  "lane": "E6",
+  "concepts": [
+    {
+      "id": "subsystems/dark-factory",
+      "type": "architecture",
+      "title": "Dark Factory",
+      "path": "subsystems/dark-factory.md",
+      "description": "Self-contained tmux subsystem that runs persistent SAFe agent teams on a headless machine.",
+      "tags": [
+        "subsystems",
+        "orchestration",
+        "operations",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/README.md",
+        "dark-factory/scripts/factory-setup.sh",
+        "dark-factory/scripts/factory-start.sh",
+        "dark-factory/scripts/factory-status.sh",
+        "dark-factory/scripts/factory-stop.sh",
+        "dark-factory/scripts/factory-attach.sh",
+        "dark-factory/templates/team-layouts/story-team.sh",
+        "dark-factory/templates/team-layouts/feature-team.sh",
+        "dark-factory/templates/team-layouts/epic-team.sh",
+        "dark-factory/templates/env.template",
+        "dark-factory/templates/tmux.conf",
+        "dark-factory/templates/codex-factory.sh",
+        "dark-factory/templates/github/merge-queue-ruleset.json",
+        "dark-factory/docs/DARK-FACTORY-GUIDE.md",
+        "dark-factory/docs/MERGE-QUEUE-POLICY.md",
+        "dark-factory/docs/CODEX-DARK-FACTORY-GUIDE.md",
+        "dark-factory/docs/CURSOR-SSH-GUIDE.md",
+        "dark-factory/scripts/README.md",
+        "dark-factory/templates/README.md",
+        "scripts/apply-workflow.sh",
+        ".harness-manifest.yml"
+      ],
+      "batch": "subsystems",
+      "notes": "listed inventory: 5 operator scripts in scripts/, 3 team layouts in templates/team-layouts/, 4 docs in docs/, 4 templates (env.template, tmux.conf, codex-factory.sh, github/merge-queue-ruleset.json) | two runtimes: Claude Code (pane-per-agent, driven by factory-start.sh) and Codex CLI (window-per-agent, driven by the standalone codex-factory.sh template) | all state lives under $HOME/.dark-factory: env, logs/<session>/, logs/archive/, worktrees/<session>/agent-N | entry point factory-setup.sh gates on GitHub merge queue enforcement and exits 1 if absent | sessions named factory-<ticket-id> or factory-<timestamp>; every script filters tmux sessions by the literal '^factory-' prefix | NOT distributed by scripts/apply-workflow.sh (that script copies only patterns_library, specs_templates, linting_configs); dark-factory/ appears in .harness-manifest.yml line 161 as a shared path | no CI workflow in .github/workflows references dark-factory | codex-factory.sh is a fill-in-the-blanks template with {{PROJECT_PATH}}/{{TICKET_PREFIX}}/{{TICKET_ID}}/{{TEAM_SIZE}} tokens and is never invoked by factory-start.sh | DOC DRIFT: dark-factory/README.md directory tree labels the layouts '2-3 agent', '4-5 agent', '6-9 agent'; factory-start.sh and the layout scripts hardcode exactly 3, 5, and 9 panes"
+    },
+    {
+      "id": "subsystems/dark-factory/factory-setup",
+      "type": "runbook",
+      "title": "factory-setup.sh",
+      "path": "subsystems/dark-factory/factory-setup.md",
+      "description": "One-time Dark Factory setup that checks tools, creates ~/.dark-factory, and gates on merge queue.",
+      "tags": [
+        "subsystems",
+        "operations",
+        "gates",
+        "ci"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/scripts/factory-setup.sh",
+        "dark-factory/templates/env.template",
+        "dark-factory/docs/MERGE-QUEUE-POLICY.md",
+        "dark-factory/scripts/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "set -euo pipefail | takes no arguments | sources $HOME/.dark-factory/env if present to pick up FACTORY_MAIN_BRANCH; if unset MAIN_BRANCH stays the literal unsubstituted {{MAIN_BRANCH}} token and every gh api call below is built from it | checks command -v for exactly: tmux, claude, git, gh; dies listing all missing | mkdir -p $HOME/.dark-factory/logs and /worktrees | copies dark-factory/templates/env.template to $HOME/.dark-factory/env only when that file is absent; warns and continues if the template is missing | readiness gate: gh repo view --json nameWithOwner, then GET repos/<owner>/<repo>/rulesets, then GET each ruleset by id, parsing with inline python3 heredocs; a ruleset counts when it has a rule of type merge_queue AND its conditions.ref_name.include contains the branch string or '~DEFAULT_BRANCH' | fallback: GET repos/<owner>/<repo>/branches/<branch>/protection and treat a non-null 'required_merge_queue' key as proof | second gate: grep -rl merge_group over $(git rev-parse --show-toplevel)/.github/workflows/*.yml | if either gate fails, prints READINESS GATE FAILED and exit 1 | warns (does not fail) when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS is unset | exit codes: 0 success, 1 missing tools / unresolvable repo / gate failure | hard runtime dependency on python3 for all JSON parsing, but python3 is NOT in the command -v prerequisite loop and NOT in the prerequisite tables in README.md or DARK-FACTORY-GUIDE.md | contains a dead code block: a python3 heredoc guarded by 'if False' whose result is discarded by 'if ...; then true; fi' | DOC DRIFT: env.template labels FACTORY_MERGE_METHOD and FACTORY_REQUIRE_QUEUE 'do not change -- enforced by factory-setup.sh'; factory-setup.sh never reads either variable | DOC DRIFT: gate greps only *.yml, so a merge_group trigger in a *.yaml workflow is invisible"
+    },
+    {
+      "id": "subsystems/dark-factory/factory-start",
+      "type": "runbook",
+      "title": "factory-start.sh",
+      "path": "subsystems/dark-factory/factory-start.md",
+      "description": "Creates a tmux session, optional per-agent worktrees, applies a team layout, and pipes pane logs.",
+      "tags": [
+        "subsystems",
+        "operations",
+        "orchestration",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/scripts/factory-start.sh",
+        "dark-factory/templates/tmux.conf",
+        "dark-factory/templates/env.template",
+        "dark-factory/templates/team-layouts/story-team.sh",
+        "dark-factory/templates/team-layouts/feature-team.sh",
+        "dark-factory/templates/team-layouts/epic-team.sh",
+        "dark-factory/scripts/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "usage: factory-start.sh <story|feature|epic> [ticket-id]; any other team-size dies | dies if $HOME/.dark-factory/env is missing, telling the operator to run factory-setup.sh | reads keys FACTORY_LOG_DIR, FACTORY_USE_WORKTREES, FACTORY_WORKTREE_DIR, FACTORY_AUTO_ATTACH, FACTORY_PROJECT_DIR from that file, each with an inline fallback | session name is factory-<ticket-id>, or factory-$(date +%Y%m%d-%H%M%S) when no ticket is passed; dies if tmux has-session already matches | worktrees are created BEFORE the layout so agents cd into them: pane_count is hardcoded story=3 feature=5 epic=9, and for i in 1..pane_count it runs git worktree add -b <session>-agent-<i> <FACTORY_WORKTREE_DIR>/<session>/agent-<i> <current-branch>, downgrading any failure to an INFO 'may already exist' | declares associative array FACTORY_PANE_WORKDIRS and calls export on it; bash cannot export associative arrays, so this only works because the layout file is sourced into the same shell, not executed | defines and export -f agent_workdir <pane_index>, which returns the worktree path when worktrees are on and FACTORY_PROJECT_DIR otherwise; all three layout scripts call it | starts the session detached with tmux -f dark-factory/templates/tmux.conf when that file exists, plain tmux new-session -d otherwise | sources dark-factory/templates/team-layouts/<team-size>-team.sh, which creates every pane and sends the claude command lines | logging: for each pane, tmux pipe-pane 'cat >> <FACTORY_LOG_DIR>/<session>/<title>.log' where title is lowercased, spaces to dashes, then tr -cd 'a-z0-9_-' \u2014 so 'TDM (lead)' becomes 'tdm-lead' | ends with exec tmux attach when FACTORY_AUTO_ATTACH is true | targets window index 1 throughout (matches base-index 1 in tmux.conf); with default tmux settings those targets would not resolve"
+    },
+    {
+      "id": "subsystems/dark-factory/factory-stop",
+      "type": "runbook",
+      "title": "factory-stop.sh",
+      "path": "subsystems/dark-factory/factory-stop.md",
+      "description": "Interrupts agent panes, kills the session, removes worktrees, and archives per-agent logs.",
+      "tags": [
+        "subsystems",
+        "operations"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/scripts/factory-stop.sh",
+        "dark-factory/templates/env.template",
+        "dark-factory/scripts/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "usage: factory-stop.sh [session-name]; with no argument it lists sessions matching ^factory- and read -rp prompts, but dies when stdin is not a tty | dies if tmux has-session fails for the named session | sources $HOME/.dark-factory/env if present for FACTORY_LOG_DIR, FACTORY_USE_WORKTREES, FACTORY_WORKTREE_DIR | shutdown: collects pane_id list, tmux send-keys C-c to every pane, then polls once per second for up to 30 seconds using pgrep -P <pane_pid> -f claude to decide whether any agent is still alive | worktree cleanup only when FACTORY_USE_WORKTREES is true: git worktree remove <dir> --force for each agent-* dir, then rmdir the session dir, every failure swallowed with || true | log archive: mv <FACTORY_LOG_DIR>/<session> to <FACTORY_LOG_DIR>/archive/<session>; mv is unguarded, so an existing archive entry for the same session name nests rather than replaces | DOC DRIFT: step 4 is commented 'Kill remaining panes' and the timeout branch prints 'Force-killing remaining panes', but the code only re-sends C-c and sleeps 1; the actual kill is tmux kill-session in step 5 | never SIGKILLs a hung claude process, so an agent ignoring SIGINT is terminated only as a side effect of the session dying"
+    },
+    {
+      "id": "subsystems/dark-factory/factory-status",
+      "type": "runbook",
+      "title": "factory-status.sh",
+      "path": "subsystems/dark-factory/factory-status.md",
+      "description": "Color-coded dashboard classifying every factory pane as active, idle, or dead.",
+      "tags": [
+        "subsystems",
+        "operations"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/scripts/factory-status.sh",
+        "dark-factory/README.md",
+        "dark-factory/scripts/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "takes no arguments; exits 0 with 'No dark factory sessions running.' when tmux list-sessions has no ^factory- match | per session prints creation time via date -d @<epoch>, falling back to date -r <epoch>, then 'unknown' | per pane reads pane_index, pane_title, pane_pid, pane_current_command, pane_last_activity | liveness test is pgrep -P <pane_pid> -f claude \u2014 it only sees claude as a DIRECT child of the pane shell, so a claude wrapped in another process reads as dead | classification: no claude child = dead (red); claude present and now-pane_last_activity > 300 = idle (yellow); otherwise active (green); the 300-second threshold is hardcoded | aggregate line counts claude processes with pgrep -f claude, which matches any command line containing the substring 'claude' including this script's own greps | RSS total comes from 'ps -C claude -o rss=' summed by awk; -C is a procps/Linux flag that BSD/macOS ps does not support, so on macOS the sum is empty and the dashboard reports ~0MB while still claiming processes exist | no exit code other than 0; it is read-only and never touches tmux state | intended to be wrapped in 'watch -n 5' per README.md"
+    },
+    {
+      "id": "subsystems/dark-factory/factory-attach",
+      "type": "runbook",
+      "title": "factory-attach.sh",
+      "path": "subsystems/dark-factory/factory-attach.md",
+      "description": "Lists running factory sessions and panes, or attaches to a session and optional pane.",
+      "tags": [
+        "subsystems",
+        "operations"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/scripts/factory-attach.sh",
+        "dark-factory/docs/CURSOR-SSH-GUIDE.md",
+        "dark-factory/scripts/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "three modes by argument count | 0 args: lists tmux sessions matching ^factory- and, for each, tmux list-panes showing '[index] title (current_command)'; exits 0 even when nothing is running | 1 arg (session): dies if tmux has-session fails, otherwise exec tmux attach -t <session> | 2 args (session, pane-index): tmux select-pane -t <session>:1.<pane-index>, dies if that fails, then exec tmux attach | window index 1 is hardcoded in the select-pane target, which only resolves because dark-factory/templates/tmux.conf sets base-index 1 and pane-base-index 1 | exec replaces the shell, so nothing runs after attach | does not offer read-only attach; CURSOR-SSH-GUIDE.md tells operators to run 'tmux attach -t <session> -r' directly for that"
+    },
+    {
+      "id": "subsystems/dark-factory/story-team-layout",
+      "type": "runbook",
+      "title": "Story Team Layout",
+      "path": "subsystems/dark-factory/story-team-layout.md",
+      "description": "Three-pane tmux layout starting TDM lead, BE Developer, and QAS agents.",
+      "tags": [
+        "subsystems",
+        "orchestration",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/templates/team-layouts/story-team.sh",
+        "dark-factory/scripts/factory-start.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "sourced (not executed) by factory-start.sh; depends on SESSION_NAME and the exported agent_workdir function from that script | pane 1 pre-exists from new-session; two splits produce 3 panes total: 1 TDM (lead), 2 BE Developer, 3 QAS | titles set with tmux select-pane -T; unlike the feature and epic layouts there is no re-title pass after the splits | CLAUDE_FLAGS is '--dangerously-skip-permissions' when FACTORY_AUTO_PERMISSIONS is true, empty string otherwise | resolves DIR_1..DIR_3 via agent_workdir | pane 1 gets 'cd <dir> && claude <flags> -p <TDM prompt>' where the prompt instructs the agent to act as team lead, follow the SAFe workflow in CLAUDE.md, create PRs with gh pr create, enqueue with gh pr merge --auto --squash, and never merge directly | panes 2 and 3 get a bare 'cd <dir> && claude <flags>' with no role prompt, so the BE Developer and QAS roles exist only as pane titles | ends by selecting pane 1 | matches the story pane_count=3 branch in factory-start.sh"
+    },
+    {
+      "id": "subsystems/dark-factory/feature-team-layout",
+      "type": "runbook",
+      "title": "Feature Team Layout",
+      "path": "subsystems/dark-factory/feature-team-layout.md",
+      "description": "Five-pane tmux layout starting TDM lead plus BE, FE, QAS, and RTE agents.",
+      "tags": [
+        "subsystems",
+        "orchestration",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/templates/team-layouts/feature-team.sh",
+        "dark-factory/scripts/factory-start.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "sourced by factory-start.sh; requires SESSION_NAME and agent_workdir | 4 splits on top of the initial pane give 5 panes | the splits assign titles once, then a second re-title pass overwrites them because indices shift during splitting; the final mapping is 1 TDM (lead), 2 BE Developer, 3 QAS, 4 FE Developer, 5 RTE | DOC DRIFT: the ASCII layout comment at the top of the file shows row 2 as BE|FE and row 3 as QAS|RTE, but the final re-title pass puts QAS at index 3 and FE at index 4, so pane titles and the documented grid disagree | CLAUDE_FLAGS is '--dangerously-skip-permissions' only when FACTORY_AUTO_PERMISSIONS is true | only pane 1 receives a -p prompt (TDM lead, PRs via gh pr create, enqueue via gh pr merge --auto --squash, never merge directly); panes 2-5 launch bare claude sessions | ends by selecting pane 1 | matches the feature pane_count=5 branch in factory-start.sh"
+    },
+    {
+      "id": "subsystems/dark-factory/epic-team-layout",
+      "type": "runbook",
+      "title": "Epic Team Layout",
+      "path": "subsystems/dark-factory/epic-team-layout.md",
+      "description": "Nine-pane tmux layout starting the full SAFe agent team led by the TDM.",
+      "tags": [
+        "subsystems",
+        "orchestration",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/templates/team-layouts/epic-team.sh",
+        "dark-factory/scripts/factory-start.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "sourced by factory-start.sh; requires SESSION_NAME and agent_workdir | 8 splits on top of the initial pane give 9 panes | titles are assigned during splitting and then fully overwritten by an explicit re-title block the file itself labels 'best-effort labels' because indices shift; final mapping is 1 TDM (lead), 2 BSA, 3 BE Developer, 4 QAS, 5 RTE, 6 ARCH, 7 FE Developer, 8 Security, 9 Data Engineer | DOC DRIFT: the ASCII grid comment orders the roles TDM / BSA ARCH Security / BE FE Data / QAS RTE, which does not match the final index-to-role mapping | roles map to the SAFe team: TDM, BSA, ARCH, Security, BE, FE, Data, QAS, RTE | CLAUDE_FLAGS gains --dangerously-skip-permissions when FACTORY_AUTO_PERMISSIONS is true | only pane 1 gets a -p prompt, phrased for 'an epic-level effort', with the same PR-and-merge-queue instructions; panes 2-9 launch bare claude | matches the epic pane_count=9 branch in factory-start.sh, which therefore creates 9 worktrees when worktrees are enabled"
+    },
+    {
+      "id": "subsystems/dark-factory/tmux-topology",
+      "type": "environment",
+      "title": "Dark Factory Runtime Topology",
+      "path": "subsystems/dark-factory/tmux-topology.md",
+      "description": "The tmux, filesystem, and environment-key topology a running Dark Factory session occupies.",
+      "tags": [
+        "subsystems",
+        "operations",
+        "orchestration"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/templates/tmux.conf",
+        "dark-factory/templates/env.template",
+        "dark-factory/templates/codex-factory.sh",
+        "dark-factory/scripts/factory-start.sh",
+        "dark-factory/scripts/factory-stop.sh",
+        "dark-factory/docs/CURSOR-SSH-GUIDE.md",
+        "dark-factory/templates/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "filesystem: $HOME/.dark-factory holds env (copied from templates/env.template), logs/<session>/<agent>.log, logs/archive/<session>/ after stop, worktrees/<session>/agent-N | Codex variant adds $HOME/.codex-yolo/audit.log | tmux.conf settings: default-terminal screen-256color, history-limit 50000, mouse on, status-interval 5, pane-border-status top with pane-border-format '#{pane_title}', allow-rename off and automatic-rename off, monitor-activity on, base-index 1 and pane-base-index 1, Alt+arrow pane switching bound with -n (no prefix), and 'prefix + L' opening a display-popup that tails ~/.dark-factory/logs/<session>/*.log | the base-index 1 setting is load-bearing: every script targets <session>:1.<pane> | env.template KEY NAMES only: FACTORY_PROJECT_DIR, FACTORY_MAIN_BRANCH, FACTORY_TICKET_PREFIX, FACTORY_SSH_KEY, FACTORY_REMOTE_HOST, FACTORY_REMOTE_USER, FACTORY_LOG_DIR, FACTORY_WORKTREE_DIR, FACTORY_USE_WORKTREES, FACTORY_AUTO_PERMISSIONS, FACTORY_AUTO_ATTACH, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, FACTORY_MERGE_METHOD, FACTORY_REQUIRE_QUEUE | of those, factory-start.sh reads PROJECT_DIR, LOG_DIR, USE_WORKTREES, WORKTREE_DIR, AUTO_ATTACH; the layouts read AUTO_PERMISSIONS; factory-setup.sh reads MAIN_BRANCH; SSH_KEY, REMOTE_HOST, REMOTE_USER and TICKET_PREFIX are read by no script in dark-factory | Codex topology differs: one tmux WINDOW per agent named after the role plus a 'Control' window tailing the audit log, session named codex-factory-<TICKET_PREFIX>-<TICKET_ID>, requires OPENAI_API_KEY and a .codex/agents/ directory under PROJECT_PATH | remote access is SSH/Cursor Remote-SSH per CURSOR-SSH-GUIDE.md; read-only observation is plain 'tmux attach -r'"
+    },
+    {
+      "id": "subsystems/dark-factory/operations-guide",
+      "type": "guide",
+      "title": "Dark Factory Guide",
+      "path": "subsystems/dark-factory/operations-guide.md",
+      "description": "Comprehensive setup, operation, worktree, logging, and troubleshooting guide for the Claude Code factory.",
+      "tags": [
+        "subsystems",
+        "operations",
+        "onboarding"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/docs/DARK-FACTORY-GUIDE.md",
+        "dark-factory/README.md",
+        "dark-factory/scripts/factory-setup.sh",
+        "dark-factory/scripts/factory-start.sh",
+        "dark-factory/scripts/factory-status.sh",
+        "dark-factory/scripts/factory-stop.sh",
+        "dark-factory/scripts/factory-attach.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "485 lines, 14 numbered sections: Overview, Prerequisites, Installation, Starting a Session, Monitoring, Stopping, Git Worktrees, Log Management, Session Durability and Recovery, Security Considerations, Integrating with SAFe Workflow, Companion Tools, Troubleshooting, FAQ | prerequisite table lists tmux 3.0+, Claude Code 2.1+, gh 2.0+, git 2.30+ and claims factory-setup.sh 'validates all prerequisites automatically' | DOC DRIFT: factory-setup.sh additionally requires python3 for every gh api JSON parse and does not check for it, so the table is incomplete and setup can fail after the prerequisite step passes | describes setup as 5 steps matching factory-setup.sh's actual step order | FAQ states tmux sessions are lost on reboot and recommends tmux-resurrect, which the subsystem does not ship or configure | FAQ states Agent Teams is optional and that panes are independent claude instances \u2014 consistent with the layouts, which start bare claude in every non-lead pane | quotes ~200-500MB RSS per Claude process and 1-2.5GB for a 5-agent feature team | uses {{MAIN_BRANCH}}, {{GITHUB_ORG}}, {{PROJECT_REPO}} substitution tokens"
+    },
+    {
+      "id": "subsystems/dark-factory/merge-queue-policy",
+      "type": "guide",
+      "title": "Merge Queue Policy",
+      "path": "subsystems/dark-factory/merge-queue-policy.md",
+      "description": "The single-path-to-trunk policy: GitHub merge queue with squash, enforced by ruleset not by client flags.",
+      "tags": [
+        "subsystems",
+        "gates",
+        "ci",
+        "process"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/docs/MERGE-QUEUE-POLICY.md",
+        "dark-factory/templates/github/merge-queue-ruleset.json",
+        "dark-factory/scripts/factory-setup.sh",
+        "dark-factory/templates/team-layouts/story-team.sh",
+        "dark-factory/templates/team-layouts/feature-team.sh",
+        "dark-factory/templates/team-layouts/epic-team.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "227 lines | states one allowed merge command: gh pr merge --auto --squash; all three team layouts embed exactly that string in the TDM prompt | explicitly denies that '--merge-queue' is a real gh option and states enforcement lives in GitHub branch rulesets, not client-side flags | prescribed ruleset: merge queue required on the main branch, merge method squash, max entries 5, 30-minute check timeout, ALLGREEN strategy, strict_required_status_checks_policy false, no bypass actors | ships dark-factory/templates/github/merge-queue-ruleset.json for import via Settings > Rules > Rulesets, with manual UI steps as a fallback | requires CI workflows to carry the merge_group event trigger; factory-setup.sh greps .github/workflows/*.yml for 'merge_group' as half its readiness gate | stop-the-line rule: if the queue is unavailable agents stop creating PRs, the TDM reports the blocker, and there is no fallback to direct merge | squash means the PR title becomes the trunk commit message, so PR titles must match 'type(scope): description [<PREFIX>-XXX]' | monitoring commands: gh pr checks, gh pr list --json number,title,mergeStateStatus, gh api repos/{owner}/{repo}/mergequeue | uses {{MAIN_BRANCH}} and {{TICKET_PREFIX}} tokens"
+    },
+    {
+      "id": "subsystems/dark-factory/codex-guide",
+      "type": "guide",
+      "title": "Codex Dark Factory Guide",
+      "path": "subsystems/dark-factory/codex-guide.md",
+      "description": "How to run the window-based Codex CLI factory with the third-party codex-yolo auto-approval daemon.",
+      "tags": [
+        "subsystems",
+        "providers",
+        "operations",
+        "agents"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/docs/CODEX-DARK-FACTORY-GUIDE.md",
+        "dark-factory/templates/codex-factory.sh"
+      ],
+      "batch": "subsystems",
+      "notes": "421 lines, 12 sections | describes codex-yolo as a third-party daemon that watches tmux capture-pane output for Codex approval prompts, auto-approves writes and command execution, and appends to ~/.codex-yolo/audit.log; positions it as the external equivalent of Claude Code's --dangerously-skip-permissions | prerequisites add Codex CLI, codex-yolo, Node.js 22+ and OPENAI_API_KEY on top of tmux/gh/git | one tmux WINDOW per role because Codex CLI sessions are full-screen, unlike the pane-based Claude factory | roles map to .codex/agents/*.toml configs: tdm, bsa, system-architect, security-engineer, be-developer, fe-developer, data-engineer, qas, rte | notes QAS runs sandbox_mode read-only by design | states codex-yolo is not officially supported by OpenAI and should only run on isolated infrastructure | DOC DRIFT: the FAQ says worktrees are enabled by setting FACTORY_USE_WORKTREES=true in ~/.dark-factory/env and by uncommenting the worktree section in the template; codex-factory.sh never sources ~/.dark-factory/env (it reads the variable from the process environment only) and its worktree block is live code, not commented out | DOC DRIFT: the guide describes launching via codex-factory.sh, but that file is a template whose {{PROJECT_PATH}}, {{TICKET_PREFIX}}, {{TICKET_ID}} and {{TEAM_SIZE}} tokens must be hand-replaced before it will run at all"
+    },
+    {
+      "id": "subsystems/dark-factory/cursor-ssh-guide",
+      "type": "guide",
+      "title": "Cursor SSH Guide",
+      "path": "subsystems/dark-factory/cursor-ssh-guide.md",
+      "description": "Setting up Cursor Remote-SSH to observe and intervene in a remote Dark Factory session.",
+      "tags": [
+        "subsystems",
+        "operations",
+        "onboarding"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "dark-factory/docs/CURSOR-SSH-GUIDE.md",
+        "dark-factory/scripts/factory-attach.sh",
+        "dark-factory/scripts/factory-status.sh",
+        "dark-factory/templates/tmux.conf"
+      ],
+      "batch": "subsystems",
+      "notes": "191 lines | covers ssh config (ForwardAgent yes, ServerAliveInterval 60, ServerAliveCountMax 3), installing the Microsoft Remote - SSH extension in Cursor, connecting, and opening the project folder | observation recipes: factory-status.sh, 'tmux attach -t <session> -r' for read-only, factory-attach.sh <session> <pane> to land in one agent, 'watch -n 5 factory-status.sh', and tail -f over ~/.dark-factory/logs/<session>/*.log | navigation keys documented: prefix+q pane numbers, prefix+o cycle, prefix+z zoom, Alt+arrow move \u2014 Alt+arrow is bound with -n in templates/tmux.conf, the others are tmux defaults | recommends git blame to attribute changes to the agent that made them, which works because each worktree commits on its own <session>-agent-N branch | warns about nested tmux keybinding conflicts inside Cursor's terminal and suggests a separate server via 'tmux -L dark-factory' | uses {{REMOTE_USER}}, {{REMOTE_HOST}}, {{SSH_KEY_PATH}}, {{PROJECT_PATH}}, {{TICKET_PREFIX}} tokens whose values live under the FACTORY_SSH_KEY / FACTORY_REMOTE_HOST / FACTORY_REMOTE_USER keys in env.template \u2014 keys no script in dark-factory actually reads"
+    },
+    {
+      "id": "subsystems/pattern-library",
+      "type": "architecture",
+      "title": "Pattern Library",
+      "path": "subsystems/pattern-library.md",
+      "description": "Eighteen reference-implementation patterns in seven categories, distributed to adopters rather than executed here.",
+      "tags": [
+        "subsystems",
+        "patterns",
+        "process"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/README.md",
+        "patterns_library/api/user-context-api.md",
+        "patterns_library/api/admin-context-api.md",
+        "patterns_library/api/webhook-handler.md",
+        "patterns_library/api/zod-validation-api.md",
+        "patterns_library/ui/authenticated-page.md",
+        "patterns_library/ui/form-with-validation.md",
+        "patterns_library/ui/data-table.md",
+        "patterns_library/database/rls-migration.md",
+        "patterns_library/database/prisma-transaction.md",
+        "patterns_library/testing/api-integration-test.md",
+        "patterns_library/testing/e2e-user-flow.md",
+        "patterns_library/security/input-sanitization.md",
+        "patterns_library/security/rate-limiting.md",
+        "patterns_library/security/secrets-management.md",
+        "patterns_library/ci/github-actions-workflow.md",
+        "patterns_library/ci/deployment-pipeline.md",
+        "patterns_library/config/environment-config.md",
+        "patterns_library/config/structured-logging.md",
+        "scripts/apply-workflow.sh",
+        "agent_providers/claude_code/hooks/session-start-pattern-check.sh",
+        "patterns/README.md",
+        "docs/patterns/README.md",
+        ".claude/skills/pattern-discovery/SKILL.md",
+        "CLAUDE.md"
+      ],
+      "batch": "subsystems",
+      "notes": "listed count: 18 markdown files excluding README.md, in 7 category directories \u2014 api 4, ui 3, database 2, testing 2, security 3, ci 2, config 2 | these are DOCUMENTATION artifacts, not code: no file in this repo imports, sources, or executes anything in patterns_library/; the exemplar IS the shipped artifact | distribution is by copy: scripts/apply-workflow.sh lines 89-91 mkdir -p <target>/patterns_library and cp -r the whole directory into an adopter repo, alongside specs_templates and linting_configs | consumption is by reading: CLAUDE.md's Pattern Discovery Protocol makes searching patterns_library/ step 1 before implementing any feature, and the pattern-discovery skill plus the bsa/system-architect/be-developer/fe-developer/qas/security-engineer/data-engineer agent prompts all route to it | two dialects coexist: 8 files are concrete Next.js/Clerk/Prisma/Zod TypeScript, and 6 newer ones (input-sanitization, rate-limiting, secrets-management, environment-config, structured-logging, plus parts of the ci pair) use {{LANGUAGE}}/{{SOURCE_DIR}}/{{EXT}} placeholders to stay stack-agnostic | governance stated in README.md: BSA and System Architect may add patterns, execution agents may only consume and report gaps | DOC DRIFT: the only executable that mentions the library, agent_providers/claude_code/hooks/session-start-pattern-check.sh, sets PATTERN_DIR=docs/patterns and counts *.md there; docs/patterns/ contains exactly one file, a redirect README, so the hook reports 'Available patterns: 1' and advertises docs/patterns/api|ui|database|testing subdirectories that do not exist | DOC DRIFT: patterns/README.md claims '11 production patterns', docs/patterns/README.md claims '18+', patterns_library/README.md footer says 'Pattern Count: 18'; the listed truth is 18"
+    },
+    {
+      "id": "patterns/user-context-api",
+      "type": "pattern",
+      "title": "User Context API Pattern",
+      "path": "patterns/user-context-api.md",
+      "description": "Authenticated API route enforcing RLS via withUserContext so users reach only their own rows.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/api/user-context-api.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "245 lines at patterns_library/api/user-context-api.md | category api/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | Next.js route handler; imports auth from @clerk/nextjs/server, withUserContext from @/lib/rls-context, prisma from @/lib/prisma, optional zod QuerySchema with limit/offset coercion | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/admin-context-api",
+      "type": "pattern",
+      "title": "Admin Context API Pattern",
+      "path": "patterns/admin-context-api.md",
+      "description": "Admin-only API route using verifyAdminAndGetUserId and withAdminContext for elevated RLS access.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/api/admin-context-api.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "366 lines at patterns_library/api/admin-context-api.md | category api/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | imports verifyAdminAndGetUserId from @/lib/auth-admin and withAdminContext from @/lib/rls-context; zod QuerySchema with status enum draft/published/ALL plus limit and offset | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/webhook-handler",
+      "type": "pattern",
+      "title": "Webhook Handler Pattern",
+      "path": "patterns/webhook-handler.md",
+      "description": "Signature-verified webhook endpoint writing under withSystemContext for Stripe, Clerk, and third parties.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/api/webhook-handler.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "318 lines at patterns_library/api/webhook-handler.md | category api/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | reads raw body via req.text() and next/headers headers() before parsing, so the signature is checked against unparsed bytes; writes with withSystemContext | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/zod-validation-api",
+      "type": "pattern",
+      "title": "Zod Validation API Pattern",
+      "path": "patterns/zod-validation-api.md",
+      "description": "Type-safe route handlers driven by Zod schemas for runtime validation and inferred types.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/api/zod-validation-api.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "451 lines at patterns_library/api/zod-validation-api.md | category api/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | largest of the api patterns; combines zod schemas with auth from @clerk/nextjs/server and withUserContext; demonstrates message-bearing constraints such as min(1) and max(255) | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/authenticated-page",
+      "type": "pattern",
+      "title": "Authenticated Page Pattern",
+      "path": "patterns/authenticated-page.md",
+      "description": "Server-rendered protected page with auth redirect, RLS-scoped data fetch, and forced dynamic rendering.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/ui/authenticated-page.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "349 lines at patterns_library/ui/authenticated-page.md | category ui/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | exports const dynamic = 'force-dynamic' so auth context resolves at request time; uses redirect from next/navigation and withUserContext/withAdminContext | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/form-with-validation",
+      "type": "pattern",
+      "title": "Form with Validation Pattern",
+      "path": "patterns/form-with-validation.md",
+      "description": "Client form built from React Hook Form, Zod resolver, and shadcn/ui form primitives.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/ui/form-with-validation.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "570 lines at patterns_library/ui/form-with-validation.md | category ui/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | largest file in the library; 'use client'; imports zodResolver from @hookform/resolvers/zod, useForm, useRouter, and the shadcn Form component family | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/data-table",
+      "type": "pattern",
+      "title": "Data Table Pattern",
+      "path": "patterns/data-table.md",
+      "description": "Server-rendered sortable, filterable table built on shadcn/ui Table with row action menus.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/ui/data-table.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "513 lines at patterns_library/ui/data-table.md | category ui/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | imports the shadcn Table family plus Button, Badge and DropdownMenu; server-side pagination per the library index | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/rls-migration",
+      "type": "pattern",
+      "title": "RLS Migration Pattern",
+      "path": "patterns/rls-migration.md",
+      "description": "Prisma schema plus migration that adds a user-owned table with Row Level Security policies.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/database/rls-migration.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "294 lines at patterns_library/database/rls-migration.md | category database/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | worked example uses a user_preferences model keyed on user_id VarChar(255) with an onDelete: Cascade relation to user; migration SQL adds the RLS policies | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/prisma-transaction",
+      "type": "pattern",
+      "title": "Prisma Transaction Pattern",
+      "path": "patterns/prisma-transaction.md",
+      "description": "Atomic multi-step database work executed inside an RLS-enforced transaction context.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/database/prisma-transaction.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "460 lines at patterns_library/database/prisma-transaction.md | category database/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | imports all three context helpers withUserContext/withAdminContext/withSystemContext; example function createResourceWithRelations writes a main record plus related rows | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/api-integration-test",
+      "type": "pattern",
+      "title": "API Integration Test Pattern",
+      "path": "patterns/api-integration-test.md",
+      "description": "Jest integration test for route handlers with mocked Clerk auth and database, asserting RLS behaviour.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "testing"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/testing/api-integration-test.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "341 lines at patterns_library/testing/api-integration-test.md | category testing/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | uses @jest/globals imports and jest.mock of @clerk/nextjs/server; constructs NextRequest objects directly | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/e2e-user-flow",
+      "type": "pattern",
+      "title": "E2E User Flow Pattern",
+      "path": "patterns/e2e-user-flow.md",
+      "description": "Playwright end-to-end test covering a full authenticated user journey.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "testing"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/testing/e2e-user-flow.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "354 lines at patterns_library/testing/e2e-user-flow.md | category testing/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | test.describe with a beforeEach that signs in through /sign-in; typed Page fixture | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/input-sanitization",
+      "type": "pattern",
+      "title": "Input Sanitization Pattern",
+      "path": "patterns/input-sanitization.md",
+      "description": "Defense-in-depth sanitization against XSS, SQL injection, and path traversal at API boundaries.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "security"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/security/input-sanitization.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "262 lines at patterns_library/security/input-sanitization.md | category security/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | language-agnostic: uses {{LANGUAGE}}, {{SOURCE_DIR}}, {{EXT}} tokens instead of concrete TypeScript; ships an encodeHtml entity-map utility plus parameterized-query and path-normalization guidance | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/rate-limiting",
+      "type": "pattern",
+      "title": "Rate Limiting Pattern",
+      "path": "patterns/rate-limiting.md",
+      "description": "Sliding-window rate limiting with per-user limits, IP fallback, and in-memory or Redis backends.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "security"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/security/rate-limiting.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "398 lines at patterns_library/security/rate-limiting.md | category security/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | language-agnostic ({{LANGUAGE}}/{{SOURCE_DIR}}/{{EXT}}); RateLimitConfig interface carries maxRequests, windowSeconds and keyPrefix; two implementations, in-memory for single instance and Redis for distributed | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/secrets-management",
+      "type": "pattern",
+      "title": "Secrets Management Pattern",
+      "path": "patterns/secrets-management.md",
+      "description": "Startup-validated environment configuration with .env.template as living documentation of required keys.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "security"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/security/secrets-management.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "350 lines at patterns_library/security/secrets-management.md | category security/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | prescribes a .env.template that marks each variable REQUIRED or OPTIONAL and fails fast at startup on missing values; overlaps deliberately with the environment-config pattern | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/github-actions-workflow",
+      "type": "pattern",
+      "title": "GitHub Actions CI Workflow Pattern",
+      "path": "patterns/github-actions-workflow.md",
+      "description": "Standard CI workflow with lint, type-check, test, and build gates plus matrix and caching.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "ci"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/ci/github-actions-workflow.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "344 lines at patterns_library/ci/github-actions-workflow.md | category ci/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | workflow triggers on pull_request and push against [{{MAIN_BRANCH}}] with a concurrency block cancelling in-progress runs; covers matrix runtimes, dependency caching, and artifact upload | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/deployment-pipeline",
+      "type": "pattern",
+      "title": "Deployment Pipeline Pattern",
+      "path": "patterns/deployment-pipeline.md",
+      "description": "Staging-then-production deployment with smoke tests, a manual approval gate, and a rollback path.",
+      "tags": [
+        "patterns",
+        "subsystems",
+        "ci"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/ci/deployment-pipeline.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "451 lines at patterns_library/ci/deployment-pipeline.md | category ci/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | deploy workflow triggers on push to [{{MAIN_BRANCH}}] plus workflow_dispatch with a required environment input; documents zero-downtime rollback | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/environment-config",
+      "type": "pattern",
+      "title": "Environment Configuration Pattern",
+      "path": "patterns/environment-config.md",
+      "description": "Typed, schema-validated environment configuration validated once at application startup.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/config/environment-config.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "421 lines at patterns_library/config/environment-config.md | category config/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | language-agnostic ({{LANGUAGE}}/{{SOURCE_DIR}}/{{EXT}}); names Zod and Pydantic as interchangeable validation libraries; declares the schema file the single source of truth for configuration | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "patterns/structured-logging",
+      "type": "pattern",
+      "title": "Structured Logging Pattern",
+      "path": "patterns/structured-logging.md",
+      "description": "JSON structured logging with correlation IDs, level filtering, and request context propagation.",
+      "tags": [
+        "patterns",
+        "subsystems"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "patterns_library/config/structured-logging.md",
+        "patterns_library/README.md",
+        "scripts/apply-workflow.sh"
+      ],
+      "batch": "patterns",
+      "notes": "459 lines at patterns_library/config/structured-logging.md | category config/ | fixed section order: What It Does, When to Use, Code Pattern, then per-file supporting sections | language-agnostic; LogLevel union debug|info|warn|error with a LOG_LEVEL_PRIORITY map; targets Datadog, ELK, CloudWatch and Loki aggregation | NOT invoked: nothing in this repo imports or runs this file; it is a copy-paste exemplar and the exemplar is the artifact | reaches adopters only via scripts/apply-workflow.sh, which cp -r's the whole patterns_library directory | discovered by agents through CLAUDE.md's Pattern Discovery Protocol and the pattern-discovery skill, both of which point at patterns_library/, and is indexed in patterns_library/README.md | UNKNOWN: whether the code in this pattern was ever compiled or executed anywhere \u2014 no test, fixture, or CI job in this repo references it"
+    },
+    {
+      "id": "subsystems/spec-templates",
+      "type": "guide",
+      "title": "Spec Templates",
+      "path": "subsystems/spec-templates.md",
+      "description": "Five SAFe planning and specification templates that drive the spec-first workflow.",
+      "tags": [
+        "subsystems",
+        "process",
+        "workflow",
+        "methodology"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "specs_templates/README.md",
+        "specs_templates/spec_template.md",
+        "specs_templates/planning_template.md",
+        "specs_templates/program_template.md",
+        "specs_templates/pi_planning_template.md",
+        "specs_templates/pi_planning_template.xlsx",
+        "scripts/apply-workflow.sh",
+        "CLAUDE.md"
+      ],
+      "batch": "subsystems",
+      "notes": "listed contents: 5 markdown files (README, spec_template, planning_template, program_template, pi_planning_template) plus one binary companion pi_planning_template.xlsx | copied wholesale into adopter repos by scripts/apply-workflow.sh lines 93-95 | CLAUDE.md's SAFe workflow makes step 1 'BSA creates spec in specs/<PREFIX>-XXX-feature-spec.md', which is what spec_template.md scaffolds | ownership per README.md: planning_template is BSA-owned for Epic to Feature to Story to Enabler decomposition, pi_planning_template covers a full Program Increment, program_template covers a SAFe x AI-DLC program | none of these files is read by any script; they are copy-and-fill artifacts | DOC DRIFT: two placeholder dialects coexist \u2014 planning_template.md and spec_template.md use __TICKET_PREFIX__ double-underscore tokens while program_template.md and pi_planning_template.md use {{TICKET_PREFIX}} brace tokens, so a single substitution pass over the directory will miss half the files | README.md notes the xlsx is a companion and warns to 'keep one authoritative source', which is a manual discipline with no automated check"
+    },
+    {
+      "id": "subsystems/spec-templates/spec-template",
+      "type": "guide",
+      "title": "Spec Template",
+      "path": "subsystems/spec-templates/spec-template.md",
+      "description": "Per-story specification scaffold with acceptance criteria, pattern references, and testing plan.",
+      "tags": [
+        "subsystems",
+        "process",
+        "workflow",
+        "patterns"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "specs_templates/spec_template.md",
+        "specs_templates/README.md",
+        "CLAUDE.md"
+      ],
+      "batch": "subsystems",
+      "notes": "202 lines | sections in order include Linear Issue Reference, High-Level Objective (user story plus business context), Acceptance Criteria as a checkbox list, Pattern References split into Primary and Secondary, and further implementation/testing sections | Pattern References section is the mechanism that binds a spec back to patterns_library/, asking for the pattern file name and a justification | uses __TICKET_PREFIX__ and __TICKET_URL_PREFIX__ double-underscore tokens, unlike program_template.md and pi_planning_template.md which use {{...}} | referenced by CLAUDE.md step 1 of the SAFe workflow and by the spec-creation skill | consumed by humans and agents only; no script parses or validates it"
+    },
+    {
+      "id": "subsystems/spec-templates/planning-template",
+      "type": "guide",
+      "title": "Planning Template",
+      "path": "subsystems/spec-templates/planning-template.md",
+      "description": "BSA scaffold for decomposing an initiative into a SAFe Epic/Feature/Story/Enabler breakdown.",
+      "tags": [
+        "subsystems",
+        "process",
+        "methodology",
+        "workflow"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "specs_templates/planning_template.md",
+        "specs_templates/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "135 lines | structure: Linear Issue Reference (Epic ticket plus Confluence initiative URL), then a nested SAFe work breakdown of Epic > Feature > User Story > Enabler with As-a/I-want/So-that blocks and a Linear ticket slot per item | README.md assigns it to the Business Systems Analyst agent and calls it the first step in translating business needs into technical requirements | uses __TICKET_PREFIX__ double-underscore tokens | names Confluence as the upstream source of initiatives | no script reads it"
+    },
+    {
+      "id": "subsystems/spec-templates/program-template",
+      "type": "guide",
+      "title": "Program Template",
+      "path": "subsystems/spec-templates/program-template.md",
+      "description": "Scaffold for a SAFe x AI-DLC program decomposed into Units of Work and sequenced Bolts.",
+      "tags": [
+        "subsystems",
+        "methodology",
+        "process",
+        "orchestration"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "specs_templates/program_template.md",
+        "specs_templates/README.md",
+        "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
+      ],
+      "batch": "subsystems",
+      "notes": "152 lines | front matter table: Initiative, Source, Method (SAFe x AI-DLC), Owner (HITL), Date, Status (Proposed/Active/Complete) | sections: Why This Exists (problem statement plus a one-sentence program outcome), Units of Work table mapping Project to Outcome, Issues, Bolt and Lead role, and further sequencing sections | constrains Lead role to an existing agent:* Linear label, which couples the template to the agent-label taxonomy | links out to docs/guides/SAFE-AI-DLC-METHODOLOGY.md as the method reference | uses {{TICKET_PREFIX}} brace tokens plus bracketed prose placeholders | instructs authors to delete guidance blockquotes before committing \u2014 a manual step with no automated check"
+    },
+    {
+      "id": "subsystems/spec-templates/pi-planning-template",
+      "type": "guide",
+      "title": "PI Planning Template",
+      "path": "subsystems/spec-templates/pi-planning-template.md",
+      "description": "Full Program Increment planning scaffold covering program board, dependencies, ROAM risks, and gates.",
+      "tags": [
+        "subsystems",
+        "methodology",
+        "process",
+        "gates"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "specs_templates/pi_planning_template.md",
+        "specs_templates/pi_planning_template.xlsx",
+        "specs_templates/README.md"
+      ],
+      "batch": "subsystems",
+      "notes": "299 lines, the largest template | README.md enumerates 10 sections and the file matches: Program Summary, Program Board (stream x sprint matrix), Sprint Plans, Delivery Teams (human plus agent mapping), Phase Enablers, Dependencies, ROAM Risk Register, Gate Criteria, POPM Decisions, PI Planning Update Log | Program Summary carries PI Duration, Sprint Cadence, Sprint Count and a Decision Readiness percentage; Program Totals table tracks committed, backlog and total points plus issue and stream counts | provenance line in the file claims 'Production-validated at scale with 11 AI agents across 5 services' | ships a companion spreadsheet specs_templates/pi_planning_template.xlsx with no automated sync to the markdown; README.md tells teams to keep one authoritative source | uses {{PROJECT_NAME}}, {{TICKET_PREFIX}}, {{STREAM_n}}, {{SPRINT_LENGTH}} and similar brace tokens | no script reads either file"
+    },
+    {
+      "id": "subsystems/linting",
+      "type": "guide",
+      "title": "Linting Configs",
+      "path": "subsystems/linting.md",
+      "description": "Shipped ESLint and Prettier configs whose no-restricted-syntax rules machine-enforce the RLS discipline.",
+      "tags": [
+        "subsystems",
+        "security",
+        "ci",
+        "patterns"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "linting_configs/eslint.config.mjs",
+        "linting_configs/.prettierrc",
+        "scripts/apply-workflow.sh",
+        "docs/guides/OPTIONAL-FEATURES.md",
+        "CLAUDE.md"
+      ],
+      "batch": "subsystems",
+      "notes": "listed contents: exactly two files, eslint.config.mjs and .prettierrc | ESLint flat config; imports FlatCompat from @eslint/eslintrc and compat.extends('next/core-web-vitals','next/typescript'); none of those packages is installed in this repo, so the config is a shipped artifact that is never executed here | copied into adopter repos by scripts/apply-workflow.sh lines 97-99 | the load-bearing block is no-restricted-syntax at 'error' severity scoped to **/*.{ts,tsx} with ignores prisma/**, scripts/**, __tests__/**, e2e/**; it carries 6 selectors: any prisma.<method> member call except $queryRaw, $executeRaw and $disconnect; calls to requireAuthWithContext; calls to getOptionalAuthWithContext; and member access of setRLSContext, clearRLSContext or withRLSContext | those errors are the machine enforcement of the withUserContext/withAdminContext/withSystemContext rule that CLAUDE.md and the rls-patterns skill state only as prose | four TypeScript rules are deliberately downgraded to 'warn' with 'temporarily disable' comments: @typescript-eslint/no-unused-vars, no-explicit-any, no-require-imports, no-non-null-asserted-optional-chain; react-hooks/exhaustive-deps and rules-of-hooks are also warn; @next/next/no-img-element is off | the global ignores array is broad: .next, node_modules, out, dist, build, coverage, public, all *.config.js|mjs, __tests__, *.test.*, *.spec.*, scripts, utils, hooks, lib/posthog, lib/redis.ts, lib/ratelimiter.ts, lib/r2-client.ts, lib/webhook-security.ts, lib/validation, lib/auth.ts, lib/auth-admin.ts, lib/constants, lib/prisma.ts, components/analytics, components/ui, components/v0, app/api, middleware.ts, next-env.d.ts, tailwind.config.ts | app/api/** in the global ignores means the prisma restriction never reaches API route files as shipped, which is where the RLS helpers matter most | deprecation messages embed the {{TICKET_PREFIX}}-207 substitution token | .prettierrc sets semi, trailingComma, singleQuote, printWidth, tabWidth, useTabs, bracketSpacing, arrowParens, endOfLine and a plugins array containing prettier-plugin-tailwindcss, which is likewise not installed here | docs/guides/OPTIONAL-FEATURES.md line 329 documents removing the RLS enforcement block as an opt-out"
+    },
+    {
+      "id": "subsystems/knowledge-vault",
+      "type": "architecture",
+      "title": "Knowledge Vault Subsystem",
+      "path": "subsystems/knowledge-vault.md",
+      "description": "OKF v0.1 vault tooling: a zero-dependency structural validator, gate tests, starter bundle, and build prompts.",
+      "tags": [
+        "subsystems",
+        "okf",
+        "gates",
+        "ci",
+        "process"
+      ],
+      "domain": "subsystems",
+      "sources": [
+        "knowledge-vault/README.md",
+        "knowledge-vault/scripts/validate-vault.mjs",
+        "knowledge-vault/tests/test-validator-gates.sh",
+        "knowledge-vault/templates/github/validate-vault.yml",
+        "knowledge-vault/templates/starter-bundle/_meta/vault-config.json",
+        "knowledge-vault/templates/starter-bundle/_meta/CONVENTIONS.md",
+        "knowledge-vault/templates/starter-bundle/_meta/manifest.json",
+        "knowledge-vault/templates/starter-bundle/index.md",
+        "knowledge-vault/templates/starter-bundle/log.md",
+        "knowledge-vault/templates/starter-bundle/start-here.md",
+        "knowledge-vault/docs/GUIDE.md",
+        "knowledge-vault/docs/BUILD-PROMPT.md",
+        "knowledge-vault/docs/SAW-VAULT-BUILD.md",
+        "knowledge-vault/docs/ADOPTION-PLAYBOOK.md",
+        "knowledge-vault/docs/OBSIDIAN-GUIDE.md",
+        "docs/knowledge-vault/_meta/vault-config.json",
+        "CLAUDE.md"
+      ],
+      "batch": "subsystems",
+      "notes": "core executable is knowledge-vault/scripts/validate-vault.mjs, 461 lines, node: builtins only, zero npm dependencies | it locates a vault by finding a directory containing _meta/vault-config.json (or --vault <dir>), reads that config, then walks every .md, .canvas and .base file | flags: --vault <dir>, --allow-broken-links (downgrades broken bundle links and missing manifest files to warnings), --strict-orphans (promotes the no-inbound-links warning to an error), --quiet | exits 1 when errors.length is non-zero, 0 otherwise; always prints a one-line summary of concepts, md files, canvases, errors and warnings | enforced gates: frontmatter required-field contract; description length against max_description_length; timestamp matching ^\\d{4}-\\d{2}-\\d{2}$; status against the statuses list; domain against the domains list; every tag against the controlled tags vocabulary; resource presence for any type with resource_required; exact H2 section sequence equality against the type's sections array plus exactly one H1; existence on disk of every value in path_fields (resource, sources, docs); okf_version only in the root index.md and only matching the config's value | link discipline: wikilinks forbidden, leading-slash links are errors, repo-host blob/tree/raw URLs are errors, links escaping the repository are errors, and out-of-bundle links outside the '## Citations' H2 are errors except in index files and type 'guide' | any type marked stub:true must carry at least one out-of-bundle or external citation under Citations or it errors | reserved files: log.md must have no frontmatter, must have an H1, and warns without dated '## YYYY-MM-DD' entries; non-root index.md must have no frontmatter | manifest sync against _meta/manifest.json is bidirectional: a manifest id with no file is an error (warning under --allow-broken-links) but a file absent from the manifest is ALWAYS an error, because the manifest is the id allowlist against invented links | max_concept_lines is advisory only and is skipped for free-form types with zero declared sections, such as guide | canvas nodes of type file are resolved against the obsidian vault dir, the bundle, then the repo root, and error if none exists | knowledge-vault/tests/test-validator-gates.sh proves the gates bite: 2 assert_clean cases (the shipped starter bundle, and the bundle after the documented copy-and-rewrite) and 7 assert_error cases covering wikilink, repo-host URL, missing resource path, stub without citation, dangling canvas node, concept missing from the manifest, and a renamed section | knowledge-vault/templates/github/validate-vault.yml is an OPT-IN CI template with {{VAULT_DIR}} and {{MAIN_BRANCH}} tokens, pinning actions/setup-node@v4 at node-version 20 with no install step, and its own header warns that in the origin project the validator 'was wired into no workflow at all' | DOC DRIFT: that warning applies to this repo right now \u2014 grep over .github/workflows and package.json finds no reference to validate-vault.mjs or knowledge-vault, so the validator is run by nothing in CI here | this repo's own live vault config is docs/knowledge-vault/_meta/vault-config.json declaring bundle_root docs/knowledge-vault, okf_version 0.1, 5 domains, 4 statuses, 21 tags and 20 types | UNKNOWN: whether docs/knowledge-vault currently contains any concept files or a _meta/manifest.json \u2014 only vault-config.json and this build's manifest-parts were observed"
+    }
+  ]
+}

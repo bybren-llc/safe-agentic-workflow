@@ -1,0 +1,519 @@
+{
+  "lane": "E7",
+  "concepts": [
+    {
+      "id": "methodology/three-layer-architecture",
+      "type": "architecture",
+      "title": "Three-Layer Architecture (Hooks, Commands, Skills)",
+      "path": "methodology/three-layer-architecture.md",
+      "description": "Layered harness model: hooks are automatic guardrails, commands are user-invoked workflows, skills are model-invoked expertise.",
+      "tags": ["methodology", "hooks", "commands", "skills", "workflow"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        ".claude/hooks-config.json",
+        ".claude/README.md",
+        "docs/guides/SKILL_AUTHORING_GUIDE.md",
+        "docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md",
+        "docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | LAYER 1 hooks = automatic guardrails, LAYER 2 commands = user-invoked workflows, LAYER 3 skills = model-invoked expertise | stated framing: 'Process as service, not control' | attributed to Anthropic paper 'Effective Harnesses for Long-Running Agents' | on-disk counts by listing: .claude/skills/ = 20 skill dirs + README.md, .claude/commands/ = 24 command .md + README.md, .claude/agents/ = 11 role .md + README.md, .cursor/rules/ = 18 .mdc + README.md, .gemini/commands = 30 .toml, .gemini/skills = 20, .agents/skills = 20 | layer 1 is realized by .claude/hooks-config.json wiring 5 events (UserPromptSubmit, PreToolUse, PostToolUse, SessionStart, SessionEnd) as INLINE shell one-liners; the 3 scripts in .claude/hooks/ are referenced by no matcher | only the PreToolUse git-push hooks exit 1 (block on branch==main, block on dirty worktree); every other hook is an advisory echo | DOC DRIFT: README.md 'Includes' bullet says '18 Model-Invoked Skills' while README's own badge, its Anthropic-research table, its Repository Structure block, and the disk all say 20 | DOC DRIFT: hooks-config.json blocks push to and compares against 'main', while CONTRIBUTING.md workflow branches from and rebases onto 'dev' ({{PRIMARY_DEV_BRANCH}}) | UNKNOWN: hooks-config.json is not settings.json and no file in-repo merges it — which file Claude Code actually reads hooks from in an adopting project is stated nowhere in .claude/"
+    },
+    {
+      "id": "methodology/vnext-workflow-contract",
+      "type": "process",
+      "title": "vNext Workflow Contract",
+      "path": "methodology/vnext-workflow-contract.md",
+      "description": "The v1.4 agent delivery contract: BSA spec, stop-the-line gate, implementers, QAS gate, RTE shepherd, three-stage review, HITL merge.",
+      "tags": ["methodology", "workflow", "process", "gates", "agents"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        "docs/workflow/WORKFLOW_MIGRATION_GUIDE.md",
+        "docs/workflow/WORKFLOW_COMPARISON.md",
+        "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | contract version 1.4, ticket refs {{TICKET_PREFIX}}-497 (contract) and -499 (role collapsing) | flow: USER/POPM creates ticket -> BSA defines AC/DoD + pattern discovery + spec -> STOP-THE-LINE GATE -> BE/FE/DE implement -> QAS (gate owner) -> RTE (PR shepherd) -> 3-stage PR review -> HITL merge | role ownership matrix columns: CODE, COMMITS, PR, MERGE, EVIDENCE, GATE | implementers own code+commits, denied PR and MERGE, evidence 'Partial' | QAS owns EVIDENCE and GATE, denied code/commits/PR/merge | RTE owns PR only, commits limited to 'Metadata' (title, labels, body) | HITL is the only role with MERGE | Linear is the declared system of record; evidence posted via mcp__{{MCP_LINEAR_SERVER}}__create_comment / update_issue / list_comments | AGENT_WORKFLOW_SOP defines 4 invocation methods: direct specialist, TDM orchestration, ARCHitect-in-CLI orchestration, System Architect review for complex code | TDM is explicitly REACTIVE (blockers, Linear, evidence), NOT the orchestrator; ARCHitect-in-CLI is the primary orchestrator | escalation trigger: blocked > 4hrs routes to @tdm | contract is documentation-only — no script, hook, or CI job in the repo enforces any exit state or gate | DOC DRIFT: README's contract Version History table ends at v1.3 while its own header and CONTRIBUTING/AGENTS/SOP all declare v1.4 | DOC DRIFT: README 'Source Document' links the {{TICKET_PREFIX}}-497 KT doc at an external github.com URL in a *-app repo that is not this repository"
+    },
+    {
+      "id": "methodology/exit-states",
+      "type": "process",
+      "title": "Exit States and Handoff Statements",
+      "path": "methodology/exit-states.md",
+      "description": "Each agent role terminates with an explicit named exit state plus a handoff statement, forming the chain of custody between roles.",
+      "tags": ["methodology", "workflow", "process", "agents", "gates"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md",
+        "docs/onboarding/QAS-DAILY-WORKFLOW.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | exit states verbatim: BE-Developer/FE-Developer/Data-Engineer -> 'Ready for QAS'; QAS -> 'Approved for RTE'; RTE -> 'Ready for HITL Review'; System Architect -> 'Stage 1 Approved - Ready for ARCHitect'; ARCHitect-CLI -> 'Stage 2 Approved - Ready for HITL'; HITL -> MERGED | each exit state pairs with a handoff template string, e.g. implementer: '[BE/FE/DE] implementation complete for {{TICKET_PREFIX}}-XXX. All validation passing. AC/DoD confirmed. Ready for QAS review.' | exit states map onto the Linear swimlane Backlog -> Ready -> In Progress -> Testing -> Ready for Review -> Done | states are prose contract only; no validator, hook, or Linear automation checks that a handoff string was emitted | TABLE COUNT: README Appendix A.1 lists 8 rows (includes ARCHitect-CLI); README top-level Exit States table, AGENTS.md, CONTRIBUTING.md, and AGENT_WORKFLOW_SOP.md each list 7 rows | DOC DRIFT: the ARCHitect-CLI row 'Stage 2 Approved - Ready for HITL' appears ONLY in README Appendix A.1 and is absent from the four other copies of the same table, leaving the canonical set ambiguous between 7 and 8 states | DOC DRIFT: the same table is duplicated verbatim across 5 files with no single source of truth marked"
+    },
+    {
+      "id": "methodology/stop-the-line-gate",
+      "type": "process",
+      "title": "Stop-the-Line Gate and Authority",
+      "path": "methodology/stop-the-line-gate.md",
+      "description": "Two distinct mechanisms share the name: the mandatory AC/DoD precondition gate, and every agent's Andon-cord authority to halt work.",
+      "tags": ["methodology", "gates", "process", "workflow", "security"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/guides/ROUND-TABLE-PHILOSOPHY.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        ".claude/commands/start-work.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | TWO SEPARATE MECHANISMS UNDER ONE NAME | (1) STOP-THE-LINE GATE: precondition on implementation agents (BE/FE/DE) — check the Linear ticket has AC/DoD; YES -> proceed, NO -> FULL STOP, route back to BSA/POPM; explicit clause 'You are NOT responsible for inventing AC/DoD'; gate owner listed as 'Implementer', blocking = YES | (2) STOP-THE-LINE AUTHORITY: every member human or AI may halt progress; sourced to Toyota's Andon cord | authority covers exactly 5 categories: architectural integrity, security concerns, maintainability issues, performance implications, scalability concerns | exercising it requires 4 steps: explain the concern with specifics, propose at least one alternative, document via ADR or #PATH_DECISION tag, post a comment on the Linear ticket | gate table lists 5 gates total: Stop-the-Line (Implementer), QAS Gate (QAS), Stage 1 Review (System Architect), Stage 2 Review (ARCHitect-CLI), HITL Merge ({{AUTHOR_NAME}}) — all marked blocking YES | enforcement is prompt-level only: .claude/commands/start-work.md carries the gate text; no hook, script, or CI check verifies AC/DoD exists | routing when AC/DoD is missing: @bsa"
+    },
+    {
+      "id": "methodology/role-collapsing",
+      "type": "process",
+      "title": "Role Collapsing and Independence Gates",
+      "path": "methodology/role-collapsing.md",
+      "description": "Which agent roles may be merged into the implementer for small work, and which are independence gates that never collapse.",
+      "tags": ["methodology", "process", "agents", "gates", "workflow"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | introduced by {{TICKET_PREFIX}}-499 | COLLAPSIBLE: RTE only — PR creation and CI shepherding may be absorbed by BE-Developer, FE-Developer, or Data-Engineer; use when PRs are simple, work is single-agent, or fast iteration is needed | NOT COLLAPSIBLE (independence gates): QAS — always spawn a subagent, never self-review, rationale 'self-review bias, quality enforcement'; Security Engineer — never self-audit, rationale 'security blindness, conflict of interest' | collapsed flow: Implementer -> QAS -> [Implementer handles PR] -> HITL | stated invariant: 'Quality gates are immutable. QAS and SecEng cannot be collapsed.' | policy is prose in 4 files; nothing in .claude/agents/ or any script detects or refuses a self-review | UNKNOWN: no source states whether System Architect Stage 1 may collapse into ARCHitect-CLI Stage 2 when one actor holds both — the collapsible/non-collapsible lists cover only RTE, QAS, and SecEng"
+    },
+    {
+      "id": "methodology/three-stage-pr-review",
+      "type": "process",
+      "title": "Three-Stage PR Review",
+      "path": "methodology/three-stage-pr-review.md",
+      "description": "PRs pass System Architect pattern review, then ARCHitect-in-CLI architecture review, then human HITL review which alone may merge.",
+      "tags": ["methodology", "process", "gates", "workflow", "ci"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md",
+        "docs/workflow/ARCHITECT_IN_CLI_ROLE.md",
+        ".github/pull_request_template.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | Stage 1 System Architect: pattern compliance, RLS enforcement, technical validation; exit 'Stage 1 Approved - Ready for ARCHitect'; explicit MUST NOT 'skip to Stage 3' | Stage 2 ARCHitect-in-CLI: comprehensive review, architecture validation, security verification, cross-cutting concerns | Stage 3 HITL ({{AUTHOR_NAME}}): final human review, sole merge authority, action MERGE | Stage 1 validation checklist has 6 items: RLS context enforced (no direct Prisma calls), withUserContext/withAdminContext/withSystemContext used, authentication checks present, pattern library followed, TypeScript types valid, error handling comprehensive | entry precondition: RTE has posted 'Ready for HITL Review' after QAS 'Approved for RTE' | merge strategy fixed to 'Rebase and merge'; squash and merge-commit both forbidden | docs/sop/PRE_PR_VALIDATION_CHECKLIST.md is a separate pre-PR gate owned by ARCHitect-in-CLI with sections Documentation Completeness, Code Review Requirements, Security Validation, Test Coverage, Linear Ticket Completeness, Workflow Compliance, Code Quality, Documentation Quality, Sign-Off | the Stage 1 checklist is written against a Prisma/RLS/TypeScript stack and does not generalize to the template's other declared stacks | DOC DRIFT: CONTRIBUTING.md's review requirements state 'at least 1 required reviewer approval' auto-assigned via CODEOWNERS — a GitHub mechanism unrelated to the three named stages; the two review models are never reconciled in any source"
+    },
+    {
+      "id": "methodology/round-table-philosophy",
+      "type": "guide",
+      "title": "Round Table Philosophy",
+      "path": "methodology/round-table-philosophy.md",
+      "description": "Collaboration model treating human and AI contributors as peers with equal voice, defined roles, and authority in their domains.",
+      "tags": ["methodology", "process", "agents", "workflow"],
+      "domain": "methodology",
+      "sources": [
+        "docs/guides/ROUND-TABLE-PHILOSOPHY.md",
+        "README.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/guides/AGENT_TEAM_GUIDE.md"
+      ],
+      "batch": "methodology",
+      "notes": "primary carrier docs/guides/ROUND-TABLE-PHILOSOPHY.md (324 lines); restated in README, AGENTS.md, CLAUDE.md | founding quote: 'We work as a round table team that has 4 pillars of SAFe inscribed on that round table. It means something.' | 7 principles, each with an 'In practice' clause: equal voice, mutual respect, shared responsibility, transparent decision-making, expertise recognition, constructive disagreement, collaborative problem-solving | 4 SAFe pillars named: alignment, built-in quality, transparency, program execution | contrasted against the 'order-taker model' where AI has no agency, ephemeral context, and no defined role | 4 worked examples: agent disagrees with a spec, human overrides an agent recommendation, multi-agent collaboration on a payment feature, FE-Developer vs System-Architect conflict resolution | decisions recorded with the #PATH_DECISION metacognitive tag; the full tag set per CLAUDE.md is #PATH_DECISION, #PLAN_UNCERTAINTY, #EXPORT_CRITICAL | the same doc also carries the canonical stop-the-line authority definition and the evidence-requirements table, so it is the source for three separate methodology concepts | philosophy is normative prose with no mechanical enforcement anywhere in the repo"
+    },
+    {
+      "id": "methodology/evidence-based-delivery",
+      "type": "guide",
+      "title": "Evidence-Based Delivery",
+      "path": "methodology/evidence-based-delivery.md",
+      "description": "Nothing advances on assertion: every deliverable carries verifiable evidence attached to the tracker before human review.",
+      "tags": ["methodology", "process", "workflow", "testing", "gates"],
+      "domain": "methodology",
+      "sources": [
+        "docs/guides/ROUND-TABLE-PHILOSOPHY.md",
+        "README.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "docs/guides/AGENT_TEAM_GUIDE.md",
+        "docs/onboarding/QAS-DAILY-WORKFLOW.md",
+        "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge; canonical evidence table lives in docs/guides/ROUND-TABLE-PHILOSOPHY.md | slogan: 'All work requires verifiable evidence. No trust me, it works.' | 8 evidence types by listing: test results (Always), coverage report (Always), validation output of {{CI_VALIDATE_COMMAND}} (Always), session ID (Always), screenshots (UI work), RLS audit results (DB work), performance data (Tagged), security scan for #EXPORT_CRITICAL (Tagged) | evidence attaches to the Linear ticket via mcp__{{MCP_LINEAR_SERVER}}__create_comment | gate: no ticket reaches 'Ready for Review' without evidence; enforced by QAS and team culture, not by tooling | POPM approval sequence: RTE creates PR with evidence linked -> CI passes -> POPM reviews PR + Linear evidence + spec AC -> approve or request changes -> rebase-and-merge | swimlane Backlog -> Ready -> In Progress -> Testing -> Ready for Review -> Done, terminal state Done | docs/onboarding/QAS-DAILY-WORKFLOW.md carries the QAS Validation Report template that is the concrete form of the evidence block | the 'session ID' evidence type depends on Claude Code session identifiers and has no stated equivalent for the Gemini, Codex, or Cursor providers"
+    },
+    {
+      "id": "methodology/pattern-discovery-protocol",
+      "type": "process",
+      "title": "Pattern Discovery Protocol",
+      "path": "methodology/pattern-discovery-protocol.md",
+      "description": "Mandatory search of the patterns library, specs, codebase, and session history before writing any new implementation.",
+      "tags": ["methodology", "patterns", "process", "workflow", "skills"],
+      "domain": "methodology",
+      "sources": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "README.md",
+        "patterns_library/README.md",
+        ".claude/skills/pattern-discovery/SKILL.md",
+        ".claude/commands/search-pattern.md",
+        "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md",
+        "docs/guides/AGENT_TEAM_GUIDE.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file | slogan: 'Search First, Reuse Always, Create Only When Necessary' | AGENTS.md ordering is 5 steps starting at 0: (0) search specs/ FIRST, (1) search codebase, (2) search session history under ~/.claude/todos/, (3) consult documentation, (4) architectural validation — propose to System Architect and get approval before implementing | CLAUDE.md gives a DIFFERENT 5-step ordering: patterns_library/, then specs/, then codebase, then docs, then propose to System Architect | patterns_library/ on disk by listing: 7 category dirs (api, ci, config, database, security, testing, ui) + README.md, 18 pattern .md files — matches CLAUDE.md's '18+ patterns, 7 categories' claim | reachable by two harness surfaces: the model-invoked pattern-discovery skill and the user-invoked /search-pattern command | the session-history step greps ~/.claude/todos/*.json, a Claude-Code-only path with no Gemini/Codex/Cursor equivalent | DOC DRIFT: AGENTS.md puts specs/ first and never names patterns_library/ in its numbered protocol, while CLAUDE.md puts patterns_library/ first — both are labelled MANDATORY | DOC DRIFT: AGENTS.md step 3 cites docs/security/SECURITY_FIRST_ARCHITECTURE.md (exists) while CONTRIBUTING.md cites the same document as docs/guides/SECURITY_FIRST_ARCHITECTURE.md (does not exist on disk)"
+    },
+    {
+      "id": "methodology/safe-ai-dlc",
+      "type": "process",
+      "title": "SAFe x AI-DLC Program Cadence",
+      "path": "methodology/safe-ai-dlc.md",
+      "description": "SAFe keeps hierarchy and gates while AWS AI-DLC replaces the sprint with the Bolt: an hours-to-days swarm exiting on evidence.",
+      "tags": ["methodology", "process", "workflow", "orchestration", "gates"],
+      "domain": "methodology",
+      "sources": [
+        "docs/guides/SAFE-AI-DLC-METHODOLOGY.md",
+        "README.md",
+        ".claude/skills/safe-ai-dlc/SKILL.md",
+        ".cursor/rules/03-safe-ai-dlc.mdc",
+        "specs_templates/program_template.md",
+        ".claude/skills/linear-sop/SKILL.md"
+      ],
+      "batch": "methodology",
+      "notes": "added by GH#53; primary source docs/guides/SAFE-AI-DLC-METHODOLOGY.md (142 lines) | thesis: 'SAFe with its clock replaced' — SAFe supplies hierarchy, WSJF, role boundaries, DoD; AWS AI-DLC supplies cadence and the human checkpoint | vocabulary: Bolt (replaces the sprint, labelled bolt:0/bolt:1, exits on evidence not a date), Unit of Work (AI-DLC Feature = tracker Project), Mob Elaboration (replaces sprint planning; decompose, list unknowns, ask questions BEFORE code), Mob Construction, the loop (AI plans -> AI asks -> human validates business context -> AI executes) | 3 AI-DLC phases modelled as 3 milestones per project: Inception, Construction, Operations | fusion mapping rows: Portfolio Epic->Initiative, Epic/value stream->sub-initiative or project priority, Feature->Project, PI increment->bolt:N label + target date, Phase gate->Project Milestone, Story/Enabler->Issue, Task->Sub-issue, WSJF/Role/DoD->description + agent:* labels + AC/DoD | Bolts are LABELS not tracker cycles, because cycles floor at a week and are team-wide | Bolt exit requires all three: issues merged, gates real and green, evidence posted | 6 decisions that always route to the human: secret rotation and blast radius, security policy (CSP/auth/headers), which CI checks become required and branch-protection changes, dependency severity and fix-vs-suppress budget, any SOP exception, signing the DoD | 4 dependency-wiring rules: fix the gate before the fix it verifies, rotate before scrub, capture before alert, upgrades before re-baseline; chains usually root at CI hardening | anti-pattern: forcing an ambiguous epic into one Bolt relocates the ambiguity into the code — run a spike instead | worked example is a gate-integrity Bolt (lint ignores, CI `|| echo` masking, weakened type-check config) | DOC DRIFT: README says the method ships as a skill for 'all four providers' but .cursor/ carries it as rule file 03-safe-ai-dlc.mdc with manual activation, not as a skill"
+    },
+    {
+      "id": "methodology/domain-adaptation",
+      "type": "guide",
+      "title": "Domain Adaptation Beyond Software",
+      "path": "methodology/domain-adaptation.md",
+      "description": "Mapping harness roles, gates, and artifacts onto non-engineering teams such as marketing, research, legal, and operations.",
+      "tags": ["methodology", "process", "onboarding", "workflow"],
+      "domain": "methodology",
+      "sources": [
+        "README.md",
+        "docs/guides/OPTIONAL-FEATURES.md",
+        "TEMPLATE_SETUP.md",
+        "docs/team/PLANNING-AGENT-META-PROMPT.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge; thinnest of the 12 — the only substantive carrier is a ~20-line README section titled 'Domain Adaptation Guide' | claim: patterns work for Software, Marketing, Research, Legal, Operations | Marketing mapping given, 4 rows: BSA/specs->Campaign Brief Writer, Code Review->Asset Review, /pre-pr->/pre-launch, Pattern Library->Brand Guidelines | Research mapping given, 4 rows: User Stories->Research Questions, Test Cases->Validation Criteria, CI/CD->Peer Review Pipeline, Documentation->Literature Notes | Legal and Operations are named as supported domains but receive NO mapping table anywhere in the repo | README states twice, under 'Known Limitations' and 'Important Caveats', that non-SWE adaptations are 'documented but not yet validated in production' | the mechanical half of adaptation is docs/guides/OPTIONAL-FEATURES.md, which supplies removal checklists for the SWE-specific integrations (Stripe, Confluence, RLS/PostgreSQL, Clerk) a non-SWE team would strip | the renamed command in the mapping (/pre-launch) does not exist in .claude/commands/ — the mapping is aspirational, not shipped | UNKNOWN: no source defines how the 11 SAFe agent roles in .claude/agents/ are renamed or re-scoped for a non-SWE domain; only 4 concept-level analogies are given | UNKNOWN: no source states whether the QAS and Security Engineer independence gates have non-SWE equivalents"
+    },
+    {
+      "id": "methodology/harness-sync-and-fork-workflow",
+      "type": "process",
+      "title": "Harness Sync and Fork Workflow",
+      "path": "methodology/harness-sync-and-fork-workflow.md",
+      "description": "How an adopting fork pulls upstream harness releases without losing customizations, via a required manifest and a rollback path.",
+      "tags": ["methodology", "sync", "process", "release", "operations"],
+      "domain": "sync",
+      "sources": [
+        "README.md",
+        "TEMPLATE_SETUP.md",
+        "docs/guides/WORKSPACE-ADOPTION-GUIDE.md",
+        "docs/HARNESS_SYNC_GUIDE.md",
+        "docs/HARNESS_MANIFEST_SCHEMA.md",
+        "scripts/sync-claude-harness.sh",
+        ".harness-manifest.yml",
+        ".harness-manifest.schema.json",
+        "docs/releases/v2.10.0-UPGRADE.md"
+      ],
+      "batch": "methodology",
+      "notes": "institutional knowledge, no single source file; implementation is scripts/sync-claude-harness.sh (3200+ lines) | TWO update paths by design: (1) automated multi-domain sync via the script, manifest REQUIRED since v2.10.0; (2) manual git remote + checkout for everything outside sync_scope (docs, scripts, patterns_library) | bootstrap order: sync-claude-harness.sh init, then manifest init --yes, then sync | subcommands present in the script by listing: init, status, version, diff, sync, releases, conflicts, rollback, manifest init | sync flags parsed by the script: --dry-run, --version <tag>, --latest, --scope <comma-list>, --generate-patches, --no-placeholders, --skip-preflight | --scope overrides the manifest sync_scope for one invocation and explicitly does NOT rewrite the manifest | manifest sections: identity (required), substitutions, renames, protected, replaced, sync | named features: rename-aware diffing, placeholder substitution, protected files, preflight safety check, provenance tracking, patch generation mode | recovery: sync-claude-harness.sh rollback restores a pre-sync backup | without a manifest, sync fails and only --dry-run is permitted | documented 6-step migration from the legacy .sync-exclude file to the manifest protected section | re-running scripts/setup-template.sh after a manual checkout re-applies placeholders | DOC DRIFT: README's manual path and badge are pinned at v2.10.0 while SECURITY.md's Supported Versions table still lists '2.0.x — Current release' and marks 1.x deprecated"
+    },
+
+    {
+      "id": "knowledge/guides/agent-team-guide",
+      "type": "guide",
+      "title": "SAFe ART Agent Team Guide",
+      "path": "knowledge/guides/agent-team-guide.md",
+      "description": "SSoT stub: authoritative reference for the 11-agent ART structure, per-role workflows, escalation paths, and session archaeology.",
+      "tags": ["ssot-stub", "agents", "workflow", "methodology"],
+      "domain": "methodology",
+      "sources": ["docs/guides/AGENT_TEAM_GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 578 lines | authoritative for: the 11-role responsibility/key-output table, per-role workflow narratives, escalation paths, and the SAFe + Simon Willison agent-loop integration | 16 H2 sections by listing: Overview, Quick Start, Agent Team Structure, SAFe + Simon Willison Integration, Agent Philosophy, Workflows by Role, Common Workflows, Escalation Paths, Evidence-Based Delivery, Agent Evidence - {{TICKET_PREFIX}}-123, Agent Coordination via Session Archaeology, Key Principles, Documentation Reference, Confluence Documentation, Getting Started, Success Metrics | read it when: assigning work across roles, defining a new role's workflow, or resolving who escalates to whom | overlaps AGENTS.md — this guide is the long form, AGENTS.md is the card | NOT the source for exit states or gates; those resolve to AGENTS.md and docs/sop/AGENT_WORKFLOW_SOP.md"
+    },
+    {
+      "id": "knowledge/guides/gemini-cli-authoring-guide",
+      "type": "guide",
+      "title": "Gemini CLI Authoring Guide",
+      "path": "knowledge/guides/gemini-cli-authoring-guide.md",
+      "description": "SSoT stub: authoritative reference for authoring Gemini CLI skills, TOML commands, hooks, and multimodal features in this harness.",
+      "tags": ["ssot-stub", "providers", "skills", "commands", "hooks"],
+      "domain": "providers",
+      "sources": ["docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 512 lines | authoritative for: .gemini/ skill and command authoring conventions, the TOML command format, namespaced command naming (/workflow:*, /local:*, /remote:*, /media:*), hooks configuration in settings.json, and multimodal audio/video features | 8 numbered sections: Introduction, Official Google Resources, Skill Authoring, Command Authoring, Hooks Configuration, Multimodal Features, Our Harness Standards, Examples from This Harness | read it when: adding or changing anything under .gemini/, or checking Gemini-vs-Claude parity for a new command or skill | the Gemini-vs-Claude capability comparison is duplicated in README's Gemini CLI Integration section | paired with docs/guides/SKILL_AUTHORING_GUIDE.md, which covers the Claude Code side of the same task"
+    },
+    {
+      "id": "knowledge/guides/getting-started",
+      "type": "guide",
+      "title": "Getting Started",
+      "path": "knowledge/guides/getting-started.md",
+      "description": "SSoT stub: authoritative end-to-end path from first clone through first agent session, first PR, and optional advanced features.",
+      "tags": ["ssot-stub", "onboarding", "workflow"],
+      "domain": "methodology",
+      "sources": ["docs/guides/GETTING-STARTED.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 326 lines | authoritative for: the ordered adoption walkthrough — choosing an adoption path (new repo from template vs existing repo), configuring the harness, verifying setup, first agent session, first PR, then optional Agent Teams and Dark Factory | 8 numbered sections | read it when: onboarding a brand-new adopter who has not yet run scripts/setup-template.sh, or when you need the canonical ordering of setup steps | TEMPLATE_SETUP.md hands off to this guide once placeholders are replaced; docs/onboarding/DAY-1-CHECKLIST.md is the checklist form of the same ground | NOT authoritative for existing-repo adoption specifics — that is docs/guides/WORKSPACE-ADOPTION-GUIDE.md"
+    },
+    {
+      "id": "knowledge/guides/optional-features",
+      "type": "guide",
+      "title": "Optional Features Removal Guide",
+      "path": "knowledge/guides/optional-features.md",
+      "description": "SSoT stub: authoritative removal checklists for shipped integrations a project does not need, with post-removal verification.",
+      "tags": ["ssot-stub", "onboarding", "operations", "patterns"],
+      "domain": "operations",
+      "sources": ["docs/guides/OPTIONAL-FEATURES.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 704 lines, the longest guide in docs/guides/ | authoritative for: which files to delete when an integration does not apply | 6 removal checklists by listing: Stripe/Payment Patterns, Confluence Integration, RLS/PostgreSQL Patterns, Clerk/Auth Patterns, Agent Teams (experimental), Dark Factory (tmux Agent Teams); plus Verification After Removal and Summary | checklists name concrete paths including BOTH the .claude/hooks/ and agent_providers/claude_code/hooks/ copies of the same script, so removal must touch the mirrored provider tree too | read it when: trimming the template after setup, or when a non-SWE domain needs the SWE-specific integrations stripped | stated timing: review after scripts/setup-template.sh and before the first real commit | referenced from the TEMPLATE_SETUP.md post-setup checklist"
+    },
+    {
+      "id": "knowledge/guides/round-table-philosophy",
+      "type": "guide",
+      "title": "Round Table Philosophy (Doc)",
+      "path": "knowledge/guides/round-table-philosophy.md",
+      "description": "SSoT stub: the authoritative document for the collaboration model, stop-the-line authority, and the evidence requirements table.",
+      "tags": ["ssot-stub", "methodology", "process", "agents"],
+      "domain": "methodology",
+      "sources": ["docs/guides/ROUND-TABLE-PHILOSOPHY.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 324 lines | authoritative for THREE distinct things, which is why several methodology concepts cite it: (1) the 7 Round Table principles, (2) the stop-the-line authority definition — 5 categories and 4 exercise steps, (3) the evidence-requirements table of 8 evidence types with Always/UI/DB/Tagged applicability | also carries the swimlane definition and the POPM approval sequence | read it when: someone questions whether an agent may push back, when deciding what evidence a ticket needs, or when onboarding a human who has only used order-taker AI | the concept pages methodology/round-table-philosophy, methodology/stop-the-line-gate, and methodology/evidence-based-delivery all resolve here for their canonical text"
+    },
+    {
+      "id": "knowledge/guides/safe-ai-dlc-methodology",
+      "type": "guide",
+      "title": "SAFe x AI-DLC Methodology",
+      "path": "knowledge/guides/safe-ai-dlc-methodology.md",
+      "description": "SSoT stub: the authoritative definition of Bolts, Units of Work, mob elaboration, the human gate, and dependency-wiring rules.",
+      "tags": ["ssot-stub", "methodology", "process", "orchestration"],
+      "domain": "methodology",
+      "sources": ["docs/guides/SAFE-AI-DLC-METHODOLOGY.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 142 lines; added by GH#53 | authoritative for: the SAFe/AI-DLC/Linear fusion mapping table, the Bolt vocabulary, the 6-step 'How to Run a Bolt' procedure, the human-gate decision list, the 4 dependency-wiring rules, and the when-NOT-to-use-a-Bolt boundary | stated audience: 'anyone contributing to a project using this harness -- human or agent … read this if you have only ever worked the sprint model' | read it FIRST before running a multi-issue program; for a single ticket the standard safe-workflow path applies instead | machine-readable counterpart is the safe-ai-dlc skill; scaffolding counterpart is specs_templates/program_template.md | external anchor: the AWS AI-Driven Development Life Cycle blog post"
+    },
+    {
+      "id": "knowledge/guides/skill-authoring-guide",
+      "type": "guide",
+      "title": "Skill Authoring Guide",
+      "path": "knowledge/guides/skill-authoring-guide.md",
+      "description": "SSoT stub: authoritative reference for creating and maintaining Claude Code skills, including Skills 2.0 frontmatter fields.",
+      "tags": ["ssot-stub", "skills", "providers", "patterns"],
+      "domain": "providers",
+      "sources": ["docs/guides/SKILL_AUTHORING_GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 541 lines | authoritative for: skill folder structure, this harness's skill standards, the step-by-step creation procedure, and maintenance expectations | 7 numbered sections: Introduction, Official Anthropic Resources, Community Resources, Skill Structure, Our Harness Standards, Step-by-Step Create a New Skill, Examples from This Harness | CONTRIBUTING.md routes here for the Skills 2.0 frontmatter fields disable-model-invocation, user-invocable, context: fork, allowed-tools, argument-hint | read it when: adding a skill to .claude/skills/, or auditing an existing skill's frontmatter and trigger wording | Gemini counterpart is docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md; a skill added here usually needs mirroring into .gemini/skills/ and .agents/skills/"
+    },
+    {
+      "id": "knowledge/guides/workspace-adoption-guide",
+      "type": "guide",
+      "title": "Workspace Adoption Guide",
+      "path": "knowledge/guides/workspace-adoption-guide.md",
+      "description": "SSoT stub: authoritative reference for adopting the harness into existing single or multi-repo workspaces and keeping it updated.",
+      "tags": ["ssot-stub", "onboarding", "sync", "operations"],
+      "domain": "sync",
+      "sources": ["docs/guides/WORKSPACE-ADOPTION-GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 467 lines | authoritative for: bringing the harness into a repo that already has code, multi-repo strategy, remote Dark Factory configuration, and the practical update procedure | 6 H2 sections: Overview, Single Repo Adoption, Multi-Repo Strategy, Dark Factory on Remote Server, Keeping the Harness Updated, Customization After Adoption | its 'Keeping the Harness Updated' section is the user-facing narrative of the two update mechanisms; docs/HARNESS_SYNC_GUIDE.md is the full command and manifest reference | its Overview enumerates the 5 harness directories an adopter installs: .claude/, .gemini/, .codex/, .cursor/, .agents/ | read it when: the adopter did NOT use the GitHub template, or when planning harness rollout across several repos | README links here from both 'Adopting into an existing repo' and 'Upgrading from a previous version'"
+    },
+
+    {
+      "id": "knowledge/sop/agent-configuration-sop",
+      "type": "sop",
+      "title": "Agent Configuration SOP",
+      "path": "knowledge/sop/agent-configuration-sop.md",
+      "description": "SSoT stub: authoritative procedure for agent YAML frontmatter, per-role tool restrictions, and model selection.",
+      "tags": ["ssot-stub", "agents", "process", "security"],
+      "domain": "methodology",
+      "sources": ["docs/sop/AGENT_CONFIGURATION_SOP.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 381 lines; header declares Version 1.0, Last Updated 2025-10-03 | authoritative for: the mandatory YAML frontmatter contract on every file in .claude/agents/, the tool-restriction matrix per role, model-selection criteria, and the procedures for adding or modifying an agent | 12 H2 sections including Tool Restrictions by Agent Role, Model Selection Criteria, Tool Access Guidelines, Adding a New Agent, Modifying Existing Agents, Validation Checklist, Troubleshooting | read it BEFORE editing any agent .md file, and when deciding which tools a new role may hold | this is the security-relevant SOP: tool restriction is the mechanism SECURITY.md names for agent boundaries | changes here must be mirrored into the other provider trees (.codex/agents/*.toml, .cursor/rules/2x-agent-*.mdc); the SOP itself is written Claude-Code-shaped and names no other provider"
+    },
+    {
+      "id": "knowledge/sop/agent-workflow-sop",
+      "type": "sop",
+      "title": "Agent Workflow SOP v1.4",
+      "path": "knowledge/sop/agent-workflow-sop.md",
+      "description": "SSoT stub: authoritative procedure for the four agent invocation methods plus the vNext contract, gates, and role collapsing.",
+      "tags": ["ssot-stub", "workflow", "process", "gates", "orchestration"],
+      "domain": "methodology",
+      "sources": ["docs/sop/AGENT_WORKFLOW_SOP.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 576 lines; Version 1.4, Last Updated 2025-12-23, ticket refs {{TICKET_PREFIX}}-497/499 | the document README, AGENTS.md, and CONTRIBUTING.md all defer to for 'complete details' | authoritative for: the 4 invocation methods (direct specialist, TDM orchestration, ARCHitect-in-CLI orchestration, System Architect review for complex code), the workflow selection guide, quality gates by method, escalation paths, and success metrics | also restates the vNext contract: exit states, stop-the-line gate, QAS gate owner role, RTE PR shepherd role, 3-stage PR review, role-collapsing guidelines | read it when: choosing how to invoke agents for a given task size, or when the shorter tables in AGENTS.md/CONTRIBUTING.md conflict | carries its own Version History section, making it the version anchor for the whole contract"
+    },
+    {
+      "id": "knowledge/sop/pre-pr-validation-checklist",
+      "type": "sop",
+      "title": "Pre-PR Validation Checklist",
+      "path": "knowledge/sop/pre-pr-validation-checklist.md",
+      "description": "SSoT stub: authoritative blocking checklist an orchestrator completes before opening any PR, with sign-off attached to the ticket.",
+      "tags": ["ssot-stub", "gates", "process", "ci", "testing"],
+      "domain": "methodology",
+      "sources": ["docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 276 lines; Version 1.0, Last Updated 2025-10-06 | required by ARCHitect-in-CLI before creating a PR for any investigation or implementation | usage rules: complete ALL sections; if ANY item fails, do NOT create the PR; a System Architect review trigger BLOCKS the PR until approval; attach the completed checklist to the Linear ticket | 12 H2 sections by listing: How to Use This Checklist, Documentation Completeness, Code Review Requirements, Security Validation, Test Coverage, Linear Ticket Completeness, Workflow Compliance, Code Quality, Documentation Quality, Sign-Off, Example {{TICKET_PREFIX}}-321 Failure Analysis, Related Documentation | includes a worked post-mortem of a real failure | read it when: about to open a PR, or when diagnosing why a PR should not have been opened | distinct from the /pre-pr command, which runs the mechanical validation; this checklist covers the judgment items"
+    },
+
+    {
+      "id": "knowledge/onboarding/agent-setup-guide",
+      "type": "guide",
+      "title": "Agent Setup Guide",
+      "path": "knowledge/onboarding/agent-setup-guide.md",
+      "description": "SSoT stub: authoritative install-and-verify walkthrough for the 11-agent system and first agent invocation.",
+      "tags": ["ssot-stub", "onboarding", "agents"],
+      "domain": "methodology",
+      "sources": ["docs/onboarding/AGENT-SETUP-GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 474 lines; stated time to complete 30-45 minutes; prerequisite Claude Code or Augment Code installed | authoritative for: installing the 11 agents, the first invocation, direct-mention vs Task-tool invocation, the agent capability reference, and setup validation/troubleshooting | 9 numbered Parts plus Resources and Success sections | it is the prerequisite doc that AGENT-TEAMS-GUIDE.md, ENGINEER-DAILY-WORKFLOW.md, and QAS-DAILY-WORKFLOW.md each cite as 'repository cloned with agent system verified' | read it when: an adopter's agents are not being found or invoked correctly, or before any of the daily-workflow guides | names Augment Code alongside Claude Code as a supported provider, which the 4-provider list in README does not include"
+    },
+    {
+      "id": "knowledge/onboarding/agent-teams-guide",
+      "type": "guide",
+      "title": "Agent Teams Guide",
+      "path": "knowledge/onboarding/agent-teams-guide.md",
+      "description": "SSoT stub: authoritative reference for the experimental Agent Teams feature, team sizing, gate hooks, and token cost.",
+      "tags": ["ssot-stub", "onboarding", "orchestration", "agents", "gates"],
+      "domain": "subsystems",
+      "sources": ["docs/onboarding/AGENT-TEAMS-GUIDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 613 lines | prerequisites: Claude Code 2.1.0+, Agent Teams experimental feature enabled | authoritative for: what Agent Teams are, enabling them, the first-team quick start, mapping the SAFe workflow onto a team, team sizing, quality gate hooks, token cost, known limitations, troubleshooting, and running teams remotely via Dark Factory | 11 H2 sections | distinguishes Agent Teams from the two other multi-agent approaches: subagents via the Task tool, and background agents (headless sessions) | team lead is TDM or ARCHitect-in-CLI; teammates are specialist roles; coordination is a shared TaskList plus inter-agent messages, with SAFe gates encoded as task dependencies | enablement key name: CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS in .claude/settings.json | read it when: considering parallel multi-agent execution, or budgeting tokens for it | flagged experimental in every source that mentions it; team-coordination is the only skill absent from .gemini/skills/"
+    },
+    {
+      "id": "knowledge/onboarding/day-1-checklist",
+      "type": "guide",
+      "title": "Day 1 Checklist",
+      "path": "knowledge/onboarding/day-1-checklist.md",
+      "description": "SSoT stub: authoritative first-day checklist taking a new adopter from clone through a validated first agent workflow.",
+      "tags": ["ssot-stub", "onboarding", "workflow"],
+      "domain": "methodology",
+      "sources": ["docs/onboarding/DAY-1-CHECKLIST.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 622 lines; stated time estimate 2-3 hours | authoritative for: the ordered, time-boxed first-day sequence with pass/fail validation at each step | 7 phases by listing: Repository Setup (30 min), Agent Provider Setup (30 min), Tool Integration (30 min), First Agent Workflow (45 min), Validation & Retrospective (15 min), Agent Teams Setup (optional 20 min), Dark Factory Setup (optional 30 min); plus Troubleshooting and Success | prerequisites listed: Claude Code or Augment Code, Linear/Jira account with API access, GitHub account with repository access | read it when: onboarding a person rather than configuring a repo — it is the human-facing counterpart to docs/guides/GETTING-STARTED.md, the same ground organised by clock rather than by task | docs/onboarding/META-PROMPTS-FOR-USERS.md section 6 supplies the copy-paste prompt that drives this checklist"
+    },
+    {
+      "id": "knowledge/onboarding/engineer-daily-workflow",
+      "type": "guide",
+      "title": "Engineer Daily Workflow",
+      "path": "knowledge/onboarding/engineer-daily-workflow.md",
+      "description": "SSoT stub: authoritative day-to-day loop for FE and BE developers from morning sync through pre-PR validation and end of day.",
+      "tags": ["ssot-stub", "onboarding", "workflow", "patterns"],
+      "domain": "methodology",
+      "sources": ["docs/onboarding/ENGINEER-DAILY-WORKFLOW.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 495 lines | scoped to the FE Developer and BE Developer roles | key skills named in its header: safe-workflow, pattern-discovery, api-patterns (BE), frontend-patterns (FE) | authoritative for: the daily sequence — start-of-day sync and review, the /start-work walkthrough, the mandatory pattern discovery protocol as an implementer runs it, the implementation workflow, the /pre-pr validation pass, and the end-of-day wrap-up | 10 H2 sections including Exit States, Troubleshooting, Success Validation | read it when: an implementer needs the concrete command-by-command loop rather than the role contract | its Exit States section restates 'Ready for QAS' from the vNext contract | the gate-role counterpart is docs/onboarding/QAS-DAILY-WORKFLOW.md; no equivalent daily guide exists for the other 9 roles"
+    },
+    {
+      "id": "knowledge/onboarding/meta-prompts-for-users",
+      "type": "guide",
+      "title": "Meta-Prompts for Users",
+      "path": "knowledge/onboarding/meta-prompts-for-users.md",
+      "description": "SSoT stub: authoritative set of copy-paste prompts that bootstrap setup, role selection, first ticket, and troubleshooting.",
+      "tags": ["ssot-stub", "onboarding", "process"],
+      "domain": "methodology",
+      "sources": ["docs/onboarding/META-PROMPTS-FOR-USERS.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 389 lines | authoritative for: the canned prompts a human pastes into an agent to drive onboarding tasks | 7 meta-prompts by listing: Initial Setup, Agent Role Selection, First Linear Ticket, Template Customization, Workflow Integration, Day 1 Checklist, Troubleshooting; plus Usage Tips and Additional Resources | read it when: a new adopter does not yet know what to ask the agent — this is the entry point that hands off to DAY-1-CHECKLIST.md and the other onboarding docs | the only onboarding doc whose payload is prompt text rather than procedure, so its staleness mode is prompts referencing commands or roles that later changed | UNKNOWN: no source states whether these prompts were adapted for Gemini CLI, Codex CLI, or Cursor, or whether they assume Claude Code slash-command syntax"
+    },
+    {
+      "id": "knowledge/onboarding/qas-daily-workflow",
+      "type": "guide",
+      "title": "QAS Daily Workflow",
+      "path": "knowledge/onboarding/qas-daily-workflow.md",
+      "description": "SSoT stub: authoritative day-to-day loop for the QAS gate owner, from the Testing swimlane through evidence posting and approval.",
+      "tags": ["ssot-stub", "onboarding", "testing", "gates", "workflow"],
+      "domain": "methodology",
+      "sources": ["docs/onboarding/QAS-DAILY-WORKFLOW.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 417 lines | scoped to the Quality Assurance Specialist role | key skills named in its header: testing-patterns, security-audit, linear-sop | prerequisite: Linear workspace access with mcp__{{MCP_LINEAR_SERVER}}__* tools available | authoritative for: the QAS morning routine over the Testing swimlane, the test execution workflow, the AC validation checklist, evidence gathering, the QAS Validation Report template, Linear MCP tool usage, the /end-work checklist, and QAS gate authority | 12 H2 sections | opening premise: 'QAS is a gate owner in the vNext workflow contract. Nothing moves to RTE without your approval.' | read it when: acting as QAS, or when defining what 'Approved for RTE' must be backed by | this is where the abstract evidence-requirements table becomes a concrete report format"
+    },
+
+    {
+      "id": "knowledge/root-docs/readme",
+      "type": "guide",
+      "title": "README",
+      "path": "knowledge/root-docs/readme.md",
+      "description": "SSoT stub: the repository front door, and the only place several methodology contracts are written out in full.",
+      "tags": ["ssot-stub", "methodology", "workflow", "onboarding"],
+      "domain": "methodology",
+      "sources": ["README.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 1463 lines, by far the largest doc in the repo and NOT merely an index | sole full carrier of: the vNext Workflow Contract v1.4 ASCII flow diagrams, the role ownership matrix, the per-role contract cards (implementation agents, QAS, RTE, System Architect Stage 1), the contract changelog, the Appendix A quick-reference cards, and the Domain Adaptation mappings | also carries the three-layer architecture diagram, quick starts for all 4 providers, both harness-update paths, the SAFe x AI-DLC summary, the Knowledge Vault section, the 11-agent table, the Anthropic-papers mapping, and the repository structure block | read it when: you need the canonical diagram for a workflow contract, or an inventory claim for any harness surface | staleness risk is unusually high because it duplicates tables that also live in AGENTS.md, CONTRIBUTING.md, and docs/sop/AGENT_WORKFLOW_SOP.md | DOC DRIFT: its 'Includes' bullet says 18 skills where its own badge, tables, and the disk say 20 | DOC DRIFT: its Appendix A exit-state table has 8 rows where its own top-level table has 7"
+    },
+    {
+      "id": "knowledge/root-docs/agents",
+      "type": "guide",
+      "title": "AGENTS.md",
+      "path": "knowledge/root-docs/agents.md",
+      "description": "SSoT stub: the agent-team quick reference, and the file Codex CLI reads natively as its instruction surface.",
+      "tags": ["ssot-stub", "agents", "workflow", "providers"],
+      "domain": "methodology",
+      "sources": ["AGENTS.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 449 lines | dual purpose: human quick reference AND the file .codex/ consumes natively (README describes Codex CLI as 'reads AGENTS.md') | authoritative for: the when-to-use-which-agent table with success criteria and primary tools per role, the auto-loaded skills trigger table, success validation commands per discipline, the pattern discovery protocol as agents run it, agent invocation examples in both direct-mention and Task-tool form, and the agent file index | also restates exit states, the gate table, and role collapsing | read it when: deciding which role to invoke and how, or checking which skill fires on which trigger | SECURITY.md lists 'Agent definitions in AGENTS.md' as in-scope for security reporting | DOC DRIFT: its auto-loaded skills table lists 11 skills while .claude/skills/ holds 20 | DOC DRIFT: its pattern discovery protocol starts at specs/ and never names patterns_library/, contradicting CLAUDE.md's ordering for the same MANDATORY protocol"
+    },
+    {
+      "id": "knowledge/root-docs/contributing",
+      "type": "guide",
+      "title": "CONTRIBUTING.md",
+      "path": "knowledge/root-docs/contributing.md",
+      "description": "SSoT stub: authoritative git workflow, branch and commit format, PR process, and CI expectations for humans and agents alike.",
+      "tags": ["ssot-stub", "workflow", "ci", "process", "release"],
+      "domain": "methodology",
+      "sources": ["CONTRIBUTING.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 639 lines; footer declares Version 2.1, Last Updated 2025-12-23 | marked MANDATORY READ by both CLAUDE.md and AGENTS.md | authoritative for: branch naming {{TICKET_PREFIX}}-{number}-{description}, SAFe commit format type(scope): description [{{TICKET_PREFIX}}-XXX], the 8 allowed commit types, the rebase-first workflow, the 7-step workflow process, PR template requirements, the 6 CI pipeline stages, and 'Rebase and merge' as the only permitted merge strategy | also restates exit states, the gate table, and role collapsing; and carries RLS development guidance and troubleshooting recipes | read it BEFORE any commit, branch, or PR | DOC DRIFT: cites docs/guides/SECURITY_FIRST_ARCHITECTURE.md, which does not exist — the file is at docs/security/SECURITY_FIRST_ARCHITECTURE.md | DOC DRIFT: 7 further cited paths do not exist on disk: docs/technical-improvements/ (cited 3 times as the ready-to-implement ticket roadmap), docs/contracts/REDIS_IMPLEMENTATION_CONTRACT.md, docs/CI-CD-Pipeline-Guide.md, docs/ci-cd-implementation-checklist.md, docs/guides/RLS_TROUBLESHOOTING.md, scripts/setup-ci-cd.sh (given as a required first-time setup step), docs/{{PROJECT_NAME}}-Multi-Team-Git-Workflow-Guide.md | DOC DRIFT: its workflow branches from and rebases onto 'dev' while .claude/hooks-config.json blocks pushes to and compares against 'main'"
+    },
+    {
+      "id": "knowledge/root-docs/claude-md",
+      "type": "guide",
+      "title": "CLAUDE.md",
+      "path": "knowledge/root-docs/claude-md.md",
+      "description": "SSoT stub: the project context file Claude Code loads automatically, holding commands, stack, and the pattern discovery mandate.",
+      "tags": ["ssot-stub", "providers", "workflow", "patterns"],
+      "domain": "providers",
+      "sources": ["CLAUDE.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 204 lines; the shortest of the six root docs | auto-loaded by Claude Code as project context, so its claims reach every session whether or not anyone reads the file | authoritative for: the development command table (all placeholder tokens), the technology stack declaration, the repository structure summary, the metacognitive tags (#PATH_DECISION, #PLAN_UNCERTAINTY, #EXPORT_CRITICAL), the pattern discovery protocol ordering, and project-specific implementation notes for auth, payments, analytics, and database | it is the file class the README's Knowledge Vault section warns about: an independent audit told developers to trust the vault OVER the project's canonical context file because the latter had silently drifted | read it when: checking what an agent already believes about this project before you tell it anything | nearly every value in it is an unreplaced {{PLACEHOLDER}} token in this template repo, so no command in it is runnable as shipped | DOC DRIFT: its pattern discovery ordering (patterns_library first) contradicts AGENTS.md (specs first)"
+    },
+    {
+      "id": "knowledge/root-docs/template-setup",
+      "type": "guide",
+      "title": "TEMPLATE_SETUP.md",
+      "path": "knowledge/root-docs/template-setup.md",
+      "description": "SSoT stub: authoritative placeholder inventory and post-setup checklist for customizing the template into a real project.",
+      "tags": ["ssot-stub", "onboarding", "operations"],
+      "domain": "operations",
+      "sources": ["TEMPLATE_SETUP.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 126 lines | authoritative for: the full placeholder token inventory — 29 core placeholders in the first table plus 10 technology-stack placeholders in the second — and the post-setup checklist | key names only; no values recorded | entry point is scripts/setup-template.sh, which prompts and substitutes; manual replacement is the documented alternative | the post-setup checklist ends with 'Delete this file (TEMPLATE_SETUP.md) after setup', so its absence in an adopting repo is expected rather than a defect | hands off to docs/guides/GETTING-STARTED.md once setup completes, and to docs/guides/OPTIONAL-FEATURES.md for trimming | read it when: a {{PLACEHOLDER}} token shows up in output, or when auditing whether substitution completed | also documents the optional Agent Teams and Dark Factory enablement paths and the sync-script upgrade commands"
+    },
+    {
+      "id": "knowledge/root-docs/security",
+      "type": "guide",
+      "title": "SECURITY.md",
+      "path": "knowledge/root-docs/security.md",
+      "description": "SSoT stub: the security policy, reframing risk for a prompt-and-config harness rather than an executable application.",
+      "tags": ["ssot-stub", "security", "process", "hooks"],
+      "domain": "operations",
+      "sources": ["SECURITY.md"],
+      "batch": "docs-a",
+      "notes": "MAP-CARD, cites source | 144 lines; footer Last updated December 2025, Version 2.0 | authoritative for: the harness threat model, the vulnerability reporting channel and timelines, and the in-scope/out-of-scope boundary | threat reframing table maps traditional risks to harness risks: code vulnerabilities -> prompt injection, dependency exploits -> skill/command misuse, auth bypasses -> agent boundary violations, data breaches -> sensitive data in prompts | 5 reportable classes: prompt injection vectors, agent boundary bypasses, sensitive data exposure in templates, hook command injection, documentation encouraging insecure practice | 4 adopter concerns: placeholder customization, agent boundaries via .claude/agents/ tool restrictions, skill content review, hook scripts in .claude/hooks-config.json | response timeline: acknowledgment within 48 hours, severity assessment within 1 week | in scope: all of .claude/, agent definitions in AGENTS.md, workflow templates, dangerous documentation; out of scope: Claude Code itself, adopter application code, third-party integrations, example content | read it when: reporting or triaging a harness security issue | DOC DRIFT: its Supported Versions table lists 2.0.x as 'Current release' and 1.x as deprecated while the repo ships v2.10.0 | DOC DRIFT: the 'Before Adoption' subsection's three shell commands are unfenced prose and the third runs together with the following '### During Use' heading, so the heading renders inside the command"
+    }
+  ]
+}

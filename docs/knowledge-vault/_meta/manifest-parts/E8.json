@@ -1,0 +1,400 @@
+{
+  "lane": "E8",
+  "concepts": [
+    {
+      "id": "operations/workflows/ci",
+      "type": "integration",
+      "title": "CI Workflow (ci.yml)",
+      "path": "operations/workflows/ci.md",
+      "description": "Template CI workflow running lint, type-check and test on push/PR to main and dev.",
+      "tags": ["operations", "ci", "gates", "workflow"],
+      "domain": "operations",
+      "sources": [".github/workflows/ci.yml", "CLAUDE.md"],
+      "batch": "operations",
+      "notes": "name CI | triggers push[main,dev] + pull_request[main,dev] | concurrency group github.workflow-github.ref cancel-in-progress true | single job validate on ubuntu-latest | steps actions/checkout@v4, actions/setup-node@v4 (node-version and cache from placeholder keys NODE_VERSION / PACKAGE_MANAGER), install --frozen-lockfile, LINT_COMMAND, TYPE_CHECK_COMMAND, TEST_COMMAND | build job present but fully commented out | GATES: NO — file is not valid YAML as shipped: python yaml.safe_load fails with 'expected <block end>, but found <scalar>' at line 39 col 34 because unquoted {{PACKAGE_MANAGER}} in `run:` parses as a YAML flow mapping; GitHub Actions rejects the workflow so it never runs and cannot block a PR | placeholders must be substituted by scripts/setup-template.sh before the workflow is loadable | config KEY NAMES only: NODE_VERSION, PACKAGE_MANAGER, LINT_COMMAND, TYPE_CHECK_COMMAND, TEST_COMMAND | DOC DRIFT: docs/ci-cd/CI-CD-Pipeline-Guide.md lists the repo's core workflows as .github/workflows/multi-team-collaboration.yml and .github/workflows/branch-protection.yml; neither file exists — the four real files are ci.yml, docker-build.yml, pr-validation.yml, test-fork-sync.yml"
+    },
+    {
+      "id": "operations/workflows/docker-build",
+      "type": "integration",
+      "title": "Docker Build Workflow (docker-build.yml)",
+      "path": "operations/workflows/docker-build.md",
+      "description": "Builds and pushes a container image on push to main/dev or on a labeled PR.",
+      "tags": ["operations", "ci", "workflow"],
+      "domain": "operations",
+      "sources": [".github/workflows/docker-build.yml", "scripts/setup-template.sh"],
+      "batch": "operations",
+      "notes": "name Docker Build | triggers push[main,dev] + pull_request types[labeled] | job build guarded by if: event_name == push OR (pull_request AND labels contains 'build-docker-image') | permissions contents:read packages:write | steps checkout@v4, docker/setup-buildx-action@v3, docker/login-action@v3 (username github.actor, password secrets.GITHUB_TOKEN), docker/metadata-action@v5, docker/build-push-action@v5 with push:true, cache-from/cache-to type=gha mode=max, then an echo-only 'Image digest' step | tag rules: type=ref event=pr prefix=pr-, type=ref event=branch, type=raw latest enabled only when github.ref == refs/heads/main, type=sha prefix=sha- | GATES: technically yes (a build failure fails the check) but it is opt-in for PRs — an unlabeled PR never runs it, so it gates nothing by default | valid YAML | config KEY NAMES only: env REGISTRY, env IMAGE_NAME (both unsubstituted template placeholders), secrets.GITHUB_TOKEN | failure modes: unsubstituted REGISTRY/IMAGE_NAME make login and push fail; no Dockerfile in repo root at BASELINE_SHA | DOC DRIFT: final step prints a pull command using ${{ github.sha }} as the tag, but metadata-action emits sha tags with prefix sha-, so the printed command references a tag that was never pushed"
+    },
+    {
+      "id": "operations/workflows/pr-validation",
+      "type": "integration",
+      "title": "PR Validation Workflow (pr-validation.yml)",
+      "path": "operations/workflows/pr-validation.md",
+      "description": "Checks PR rebase status, commit message format, PR title and Linear ticket reference.",
+      "tags": ["operations", "ci", "gates", "workflow", "process"],
+      "domain": "operations",
+      "sources": [".github/workflows/pr-validation.yml", "CONTRIBUTING.md"],
+      "batch": "operations",
+      "notes": "name PR Validation | trigger pull_request types [opened, synchronize, reopened, edited] | single job validate-pr on ubuntu-latest | checkout@v4 with fetch-depth 0 | four run steps | step 1 rebase check: git fetch origin base_ref, compares rev-parse origin/<base> to merge-base HEAD origin/<base>, emits ::error:: and exit 1 on mismatch — THIS IS THE ONLY HARD GATE in the file | step 2 commit message check: git log --format=%s base..HEAD piped into a while-read subshell, grep -qE for conventional-commit + [{{TICKET_PREFIX}}-N], allowlists ^Merge and ^🤖 Generated, emits ::warning:: only — never exits nonzero; also the loop runs in a pipeline subshell so no status could escape it anyway | step 3 PR title check: ::warning:: only | step 4 Linear ticket reference in PR body via env PR_BODY: ::warning:: only | GATES: rebase only; commit format, PR title and ticket reference are advisory and cannot fail the run | config KEY NAME only: TICKET_PREFIX (unsubstituted placeholder — until substituted the regexes match the literal string {{TICKET_PREFIX}}, so every real commit warns) | DOC DRIFT: docs/ci-cd/CI-CD-Pipeline-Guide.md Stage 1 says branch-name and PR-title violations 'block PR progression'; the implementation only warns, and there is no branch-name check at all in this workflow"
+    },
+    {
+      "id": "operations/workflows/test-fork-sync",
+      "type": "integration",
+      "title": "Fork Sync Compatibility Workflow (test-fork-sync.yml)",
+      "path": "operations/workflows/test-fork-sync.md",
+      "description": "Path-filtered workflow running the fork-sync and sync unit test suites against fixture manifests.",
+      "tags": ["operations", "ci", "gates", "testing", "sync"],
+      "domain": "operations",
+      "sources": [
+        ".github/workflows/test-fork-sync.yml",
+        "tests/test-fork-sync.sh",
+        "tests/test-manifest-loader.sh",
+        "tests/test-rename-diff.sh",
+        "tests/test-substitutions.sh",
+        "tests/test-protected-files.sh",
+        "tests/test-preflight.sh"
+      ],
+      "batch": "operations",
+      "notes": "name Fork Sync Compatibility | triggers push[main] and pull_request[main], both path-filtered to scripts/sync-claude-harness.sh, .harness-manifest.schema.json, tests/fixtures/sync/**, tests/test-fork-sync.sh, and the workflow file itself | job fork-sync-compat, ubuntu-latest, timeout-minutes 10 | steps checkout@v4, setup-node@v4 node 20, setup-python@v5 python 3.11, pip install pyyaml, bash tests/test-fork-sync.sh, then a combined step running test-manifest-loader.sh, test-rename-diff.sh, test-substitutions.sh, test-protected-files.sh, test-preflight.sh each with '|| exit 1' | GATES: YES — the only workflow in the repo that runs real assertions and fails the check, but only for PRs that touch a path in the filter; a PR that changes only .claude/ or docs/ triggers no gating workflow at all | exercises sync --dry-run against fork manifest fixtures (rendertrust, keryk-ai per header comment) | failure modes: path filter miss (silent pass), 10-minute timeout, missing pyyaml | UNKNOWN: whether any of these checks are configured as required status checks in GitHub branch protection — branch protection is not declared in-repo, only described as a manual gh api call in docs/ci-cd/CI-CD-Pipeline-Guide.md | 3 of 9 scripts in tests/ are never invoked by this workflow: test-manifest-init.sh, test-multi-domain-sync.sh, test-patch-generation.sh"
+    },
+    {
+      "id": "operations/release/release-process",
+      "type": "process",
+      "title": "Harness Release Changelog Process",
+      "path": "operations/release/release-process.md",
+      "description": "How harness releases are described: generate-changelog.sh diffs two refs into the HARNESS_CHANGELOG.yml schema.",
+      "tags": ["operations", "release", "process"],
+      "domain": "operations",
+      "sources": [
+        "scripts/generate-changelog.sh",
+        "HARNESS_CHANGELOG.yml",
+        "docs/templates/RELEASE_CHANGELOG_TEMPLATE.md",
+        "docs/releases/v2.6.0-STRUCTURED-CHANGELOG.md",
+        "docs/releases/v2.9.0-STRUCTURED-CHANGELOG.md"
+      ],
+      "batch": "operations",
+      "notes": "scripts/generate-changelog.sh, bash, set -euo pipefail, 18695 bytes | CLI: --from <ref> --to <ref> required, --format yaml|markdown (default yaml), --version, --summary, --help | functions usage, die, info, warn, validate_ref, classify_file, status_to_change_type, is_breaking, generate_description, yaml_quote, parse_args, collect_changes, emit_yaml, emit_markdown, main | data source is a single command: git -C PROJECT_ROOT diff --name-status -M FROM_REF TO_REF -- .claude/ — scope is .claude/ ONLY, nothing else in the repo is ever categorized | PROJECT_ROOT derived from BASH_SOURCE dirname/.. | categories NEW_FILE, UPDATED_FILE, METHODOLOGY, BREAKING, CONFIG; renames and deletions override to BREAKING | writes to STDOUT only — it never opens or edits HARNESS_CHANGELOG.yml; info/warn/die go to stderr | color codes disabled when stdout is not a tty | HARNESS_CHANGELOG.yml is schema documentation plus one large commented-out example: schema_version 1.0.0, generated_at set, and releases: [] — the file contains ZERO real release entries at BASELINE_SHA | DOC DRIFT: HARNESS_CHANGELOG.yml header says it is 'Consumed by sync-claude-harness.sh for automated categorization'; grep across scripts/ and .claude/ finds no reference to HARNESS_CHANGELOG in sync-claude-harness.sh or anywhere but generate-changelog.sh's own comments and emitted headers — no consumer exists | DOC DRIFT: docs/release/PRE-RELEASE-CHECKLIST.md requires 'HARNESS_CHANGELOG.yml updated for this release', but shipped releases v2.6.0 and v2.9.0 instead have standalone docs/releases/*-STRUCTURED-CHANGELOG.md files and the yml stayed empty | v2.6.0 changelog states it was retroactively generated by this script then manually enriched"
+    },
+    {
+      "id": "operations/release/pre-release-checklist",
+      "type": "sop",
+      "title": "Pre-Release Checklist",
+      "path": "operations/release/pre-release-checklist.md",
+      "description": "Mandatory manual gate completed before any release tag is created.",
+      "tags": ["operations", "release", "gates", "process"],
+      "domain": "operations",
+      "resource": "docs/release/PRE-RELEASE-CHECKLIST.md",
+      "sources": ["docs/release/PRE-RELEASE-CHECKLIST.md"],
+      "batch": "operations",
+      "notes": "map-card for docs/release/PRE-RELEASE-CHECKLIST.md | header declares MANDATORY, release blocked until every item resolves | release info block: version, release branch main, previous version, Linear epic/stories, release owner, date | 8 numbered sections (grep -c '^## ' returns 11 headings: 8 numbered plus Release Information, Sign-Off, Notes / Errata): 1 Code Quality Gates, 2 Documentation Completeness, 3 Third-Party Integration Verification, 4 SAFe Workflow Gates, 5 Template Compatibility, 6 Backward Compatibility, 7 Release Artifacts, 8 Post-Release Verification | section 7 covers git tag -a, git push origin main --tags, GitHub Release creation | section 8 verifies via gh release view and requires git branch --list 'SAW-*' to return empty | section 1 names bash -n on scripts/sync-claude-harness.sh, all 8 test suites by filename with pass counts, a grep for conflict markers, shellcheck scripts/*.sh | section 3 requires vendor-doc verification for Claude Code, Codex CLI, Cursor, Gemini and forbids fabricated config formats | section 4 lists non-collapsible QAS and Security Engineer gates plus System Architect Stage 1 | enforcement is human checkbox only — no hook, script or workflow in the repo reads this file | DOC DRIFT: section 1 enumerates 8 test suites but the CI workflow test-fork-sync.yml runs only 6 of them (omits test-patch-generation.sh and test-manifest-init.sh), so the checklist's suites are not CI-verified | section 2 requires HARNESS_CHANGELOG.yml be updated for the release or generated via generate-changelog.sh, but the file's releases: key is [] at BASELINE_SHA, so this item has never actually been satisfied"
+    },
+    {
+      "id": "operations/release/version-upgrade-notes",
+      "type": "guide",
+      "title": "Version Upgrade Notes",
+      "path": "operations/release/version-upgrade-notes.md",
+      "description": "Index of the per-version upgrade guides, release notes and structured changelogs under docs/releases/.",
+      "tags": ["operations", "release", "ssot-stub"],
+      "domain": "operations",
+      "sources": [
+        "docs/releases/v2.5.0-UPGRADE.md",
+        "docs/releases/v2.6.0-STRUCTURED-CHANGELOG.md",
+        "docs/releases/v2.9.0-UPGRADE.md",
+        "docs/releases/v2.9.0-RELEASE-NOTES.md",
+        "docs/releases/v2.9.0-STRUCTURED-CHANGELOG.md",
+        "docs/releases/v2.10.0-UPGRADE.md"
+      ],
+      "batch": "operations",
+      "notes": "map-card, not a summary | docs/releases/ holds exactly 6 files, listed: v2.5.0-UPGRADE (Skills 2.0 frontmatter on 18 skills, Agent Teams orchestration experimental, GitHub-Linear auto-sync), v2.6.0-STRUCTURED-CHANGELOG (retroactively generated by scripts/generate-changelog.sh then manually enriched), v2.9.0-UPGRADE (Codex agents, shared skills, Cursor MCP, default branch moved to main from template with dev as integration), v2.9.0-RELEASE-NOTES (user-facing notes for the same release), v2.9.0-STRUCTURED-CHANGELOG (refs v2.8.1..v2.9.0, schema 1.0.0, 16 commits, dated 2026-03-18), v2.10.0-UPGRADE (multi-domain sync, manifest-driven engine beyond .claude/) | three document kinds coexist with no naming contract: -UPGRADE, -RELEASE-NOTES, -STRUCTURED-CHANGELOG | only v2.9.0 has all three; v2.10.0 has an UPGRADE and no structured changelog | HARNESS_CHANGELOG.yml's upgrade_doc field points at docs/releases/<ver>-UPGRADE.md but only inside a commented example, and releases: [] means no live entry links to any of these files | UNKNOWN: which version is current at BASELINE_SHA — no VERSION file or package.json version was found in scope"
+    },
+    {
+      "id": "knowledge/ci-cd/ci-cd-pipeline-guide",
+      "type": "guide",
+      "title": "CI/CD Pipeline Guide (SSoT stub)",
+      "path": "knowledge/ci-cd/ci-cd-pipeline-guide.md",
+      "description": "Pointer to the multi-team CI/CD pipeline guide covering branch protection and the rebase-first flow.",
+      "tags": ["operations", "ci", "ssot-stub", "workflow"],
+      "domain": "operations",
+      "sources": ["docs/ci-cd/CI-CD-Pipeline-Guide.md"],
+      "batch": "operations",
+      "notes": "map-card | title '{{PROJECT_NAME}}-app CI/CD Pipeline Guide', template placeholders unsubstituted ({{PROJECT_NAME}}, {{PRIMARY_DEV_BRANCH}}, {{TICKET_PREFIX}}) | sections: Overview, Pipeline Architecture, Workflow Stages (Stage 1 Structure Validation, Stage 2 Rebase Status Check, further stages), branch protection setup via gh api --field required_status_checks (line ~203) and a relaxation example at line ~396 | names supporting files CODEOWNERS, PR template, package scripts | DOC DRIFT: 'Core Workflows' names .github/workflows/multi-team-collaboration.yml and .github/workflows/branch-protection.yml; neither exists in .github/workflows/ — the real four are ci.yml, docker-build.yml, pr-validation.yml, test-fork-sync.yml, and the multi-team pipeline actually lives at project_workflow/.github/workflows/main.yml as an uninstalled template | DOC DRIFT: guide says Stage 1 branch-name and PR-title failures block PR progression; pr-validation.yml only emits ::warning:: for title/commit checks and has no branch-name check"
+    },
+    {
+      "id": "knowledge/ci-cd/ci-cd-readme",
+      "type": "guide",
+      "title": "CI/CD Documentation Index (SSoT stub)",
+      "path": "knowledge/ci-cd/ci-cd-readme.md",
+      "description": "Pointer to the docs/ci-cd index listing the pipeline guide, related docs and CI/CD agent owners.",
+      "tags": ["operations", "ci", "ssot-stub", "onboarding"],
+      "domain": "operations",
+      "sources": ["docs/ci-cd/README.md"],
+      "batch": "operations",
+      "notes": "map-card | 35-line index for docs/ci-cd/ (wc -l) | indexes exactly one document: CI-CD-Pipeline-Guide.md | cross-links ../../CONTRIBUTING.md and ../security/SECURITY_FIRST_ARCHITECTURE.md | names CI/CD agent owners RTE (PR creation and CI validation) and TDM (coordination, blocker resolution) | Important Notes: rebase before PR (git rebase origin/dev), run ci:validate locally, push --force-with-lease, follow .github/pull_request_template.md | DOC DRIFT: hardcodes 'yarn ci:validate' and 'git rebase origin/dev' while CLAUDE.md and the sibling guide use {{CI_VALIDATE_COMMAND}} and {{PRIMARY_DEV_BRANCH}} placeholders; no package.json defining a ci:validate script exists in repo root at BASELINE_SHA"
+    },
+    {
+      "id": "operations/project-workflow",
+      "type": "guide",
+      "title": "project_workflow Scaffold",
+      "path": "operations/project-workflow.md",
+      "description": "Drop-in CI/CD scaffold: CONTRIBUTING, CODEOWNERS, PR template, multi-team pipeline and a setup script.",
+      "tags": ["operations", "ci", "workflow", "process"],
+      "domain": "operations",
+      "sources": [
+        "project_workflow/CONTRIBUTING.md",
+        "project_workflow/scripts/setup-ci-cd.sh",
+        "project_workflow/.github/CODEOWNERS",
+        "project_workflow/.github/pull_request_template.md",
+        "project_workflow/.github/workflows/main.yml"
+      ],
+      "batch": "operations",
+      "notes": "project_workflow/ contains exactly 5 files, listed: CONTRIBUTING.md, scripts/setup-ci-cd.sh, .github/CODEOWNERS, .github/pull_request_template.md, .github/workflows/main.yml | nothing under project_workflow/ is active in this repo — GitHub only reads workflows from the repo-root .github/workflows/, so main.yml here never runs | setup-ci-cd.sh does NOT copy these files anywhere: it checks gh is installed and authenticated (exit 1 otherwise), reads owner/name via gh repo view --json, manages secrets via check_secret/gh secret list, PUTs branch-protection rules through gh api (tolerating failure with a warning when admin access is missing), then merely VERIFIES that .github/workflows/main.yml, .github/CODEOWNERS and .github/pull_request_template.md exist in the CURRENT working directory and prints missing ones, and finally runs `yarn ci:validate` only when a package.json is present | main.yml name 'Multi-Team Collaboration Pipeline', triggers pull_request[__PRIMARY_DEV_BRANCH__] types [opened, synchronize, reopened, ready_for_review], push[__PRIMARY_DEV_BRANCH__], workflow_dispatch | env KEY NAMES only: NODE_VERSION, YARN_CACHE_FOLDER | job validate-structure outputs branch-valid and linear-ticket; steps validate branch naming against ^__TICKET_PREFIX__-[0-9]+-[a-z0-9-]+$ and extract the Linear ticket, exiting nonzero on mismatch — this scaffold DOES gate on branch name, unlike the installed .github/workflows/pr-validation.yml | placeholder dialect differs from the rest of the repo: project_workflow uses __TICKET_PREFIX__ / __PRIMARY_DEV_BRANCH__ double-underscore tokens while everything else uses {{TICKET_PREFIX}} mustache tokens, so scripts/setup-template.sh substitution does not reach it | project_workflow/CONTRIBUTING.md mixes both dialects: 'Contributing to **PROJECT_NAME**' bare, {{PROJECT_SHORT}} mustache, and __TICKET_PREFIX__ underscore, in the same file | main.yml line 20 uses `if: github.event_name == \"pull_request\"` with double quotes; GitHub Actions expressions require single-quoted strings, so this condition is a syntax error and the job would not evaluate as written | setup-ci-cd.sh performs NO placeholder substitution at all, so the __TICKET_PREFIX__ / __PRIMARY_DEV_BRANCH__ tokens in main.yml survive its run untouched | UNKNOWN: which script or documented step actually copies project_workflow/ into a fork and substitutes its double-underscore tokens — no in-repo caller references the directory"
+    },
+
+    {
+      "id": "knowledge/workflow/architect-in-cli-role",
+      "type": "process",
+      "title": "ARCHitect-in-CLI Role (SSoT stub)",
+      "path": "knowledge/workflow/architect-in-cli-role.md",
+      "description": "Pointer to the role definition for the ARCHitect-in-CLI, the technical authority in the workflow.",
+      "tags": ["methodology", "workflow", "process", "ssot-stub", "agents"],
+      "sources": ["docs/workflow/ARCHITECT_IN_CLI_ROLE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 514 lines | H1 'ARCHitect-in-CLI Role Documentation', opens with Role Definition | SSoT for the architect role's authority, responsibilities and stop-the-line scope | cite, do not restate"
+    },
+    {
+      "id": "knowledge/workflow/tdm-agent-assignment-matrix",
+      "type": "process",
+      "title": "TDM Agent Assignment Matrix (SSoT stub)",
+      "path": "knowledge/workflow/tdm-agent-assignment-matrix.md",
+      "description": "Pointer to the TDM matrix mapping work types to agent roles and specializations.",
+      "tags": ["methodology", "workflow", "process", "ssot-stub", "agents", "orchestration"],
+      "sources": ["docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 405 lines | H1 'TDM Agent Assignment Matrix', opens with Agent Roster & Specializations | SSoT for which agent takes which work item | also surfaced through the agent-coordination skill | cite, do not restate"
+    },
+    {
+      "id": "knowledge/workflow/workflow-changes-v1-3",
+      "type": "process",
+      "title": "Workflow Changes v1.3 (SSoT stub)",
+      "path": "knowledge/workflow/workflow-changes-v1-3.md",
+      "description": "Pointer to the v1.3 workflow change record and its version history.",
+      "tags": ["methodology", "workflow", "process", "ssot-stub"],
+      "sources": ["docs/workflow/WORKFLOW_CHANGES_v1.3.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 397 lines | H1 'Workflow Changes v1.3', opens with Version History | version-scoped change record for the SAFe workflow, distinct from the harness release notes under docs/releases/ | filename carries a lowercase v and dots (WORKFLOW_CHANGES_v1.3.md) unlike its siblings | cite, do not restate"
+    },
+    {
+      "id": "knowledge/workflow/workflow-comparison",
+      "type": "process",
+      "title": "Workflow Comparison v1.0-v1.2 (SSoT stub)",
+      "path": "knowledge/workflow/workflow-comparison.md",
+      "description": "Pointer to the side-by-side comparison of workflow versions v1.0, v1.1 and v1.2.",
+      "tags": ["methodology", "workflow", "process", "ssot-stub"],
+      "sources": ["docs/workflow/WORKFLOW_COMPARISON.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 370 lines | H1 'Workflow Comparison: v1.0 vs v1.1 vs v1.2', second heading is a 'Version Status' warning block | compares only up to v1.2 while a sibling document describes v1.3, so the comparison trails the current workflow version by one | cite, do not restate"
+    },
+    {
+      "id": "knowledge/workflow/workflow-migration-guide",
+      "type": "process",
+      "title": "Workflow Migration Guide v1.0 to v1.1 (SSoT stub)",
+      "path": "knowledge/workflow/workflow-migration-guide.md",
+      "description": "Pointer to the migration guide for moving a team from workflow v1.0 to v1.1.",
+      "tags": ["methodology", "workflow", "process", "ssot-stub", "onboarding"],
+      "sources": ["docs/workflow/WORKFLOW_MIGRATION_GUIDE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 398 lines | H1 'Workflow Migration Guide: v1.0 → v1.1', opens with a TL;DR quick summary | covers a single version hop only; no v1.1→v1.2 or v1.2→v1.3 migration document exists in docs/workflow/ | cite, do not restate"
+    },
+    {
+      "id": "knowledge/workflow/workflow-quality-checklist",
+      "type": "process",
+      "title": "Workflow Quality Checklist (SSoT stub)",
+      "path": "knowledge/workflow/workflow-quality-checklist.md",
+      "description": "Pointer to the per-story quality checklist used to validate workflow execution.",
+      "tags": ["methodology", "workflow", "process", "gates", "ssot-stub"],
+      "sources": ["docs/workflow/WORKFLOW_QUALITY_CHECKLIST.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 391 lines | H1 'Workflow Quality Checklist', opens with How to Use This Checklist | manual checkbox gate for workflow execution quality; separate from docs/release/PRE-RELEASE-CHECKLIST.md which gates tags | no script or hook consumes it | cite, do not restate"
+    },
+
+    {
+      "id": "knowledge/whitepapers/anthropic-research-alignment",
+      "type": "guide",
+      "title": "Anthropic Research Alignment (SSoT stub)",
+      "path": "knowledge/whitepapers/anthropic-research-alignment.md",
+      "description": "Pointer to the whitepaper mapping published Anthropic engineering insights onto harness design.",
+      "tags": ["methodology", "ssot-stub", "orchestration"],
+      "sources": ["docs/whitepapers/ANTHROPIC-RESEARCH-ALIGNMENT.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 441 lines | H1 'Anthropic Research Alignment: How Published Engineering Insights Map to Harness Design', opens with an Abstract | academic-style whitepaper, not operational guidance | cite, do not restate"
+    },
+    {
+      "id": "knowledge/whitepapers/harness-agent-perspective",
+      "type": "guide",
+      "title": "Harness Agent Perspective (SSoT stub)",
+      "path": "knowledge/whitepapers/harness-agent-perspective.md",
+      "description": "Pointer to the addendum whitepaper arguing why the harness works from the agent's point of view.",
+      "tags": ["methodology", "ssot-stub", "agents"],
+      "sources": ["docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 293 lines | H1 'Agent Perspective: Why This Harness Works', subtitled 'An Addendum to the Claude Code Harness Modernization Whitepaper' | references a Modernization Whitepaper that is not present in docs/whitepapers/ — the six files there are ANTHROPIC-RESEARCH-ALIGNMENT, CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE, CLAUDE-CODE-HARNESS-KT-META-PROMPT, HARNESS-v2.5.0-KT, ITERATION-PATTERNS-COMPARATIVE-ANALYSIS, README | cite, do not restate"
+    },
+    {
+      "id": "knowledge/whitepapers/harness-kt-meta-prompt",
+      "type": "guide",
+      "title": "Harness Modernization KT Meta-Prompt (SSoT stub)",
+      "path": "knowledge/whitepapers/harness-kt-meta-prompt.md",
+      "description": "Pointer to the knowledge-transfer meta-prompt for handing harness modernization to another ARCHitect.",
+      "tags": ["methodology", "ssot-stub", "onboarding", "orchestration"],
+      "sources": ["docs/whitepapers/CLAUDE-CODE-HARNESS-KT-META-PROMPT.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 501 lines | H1 'Knowledge Transfer Meta-Prompt: Harness Modernization {{TICKET_PREFIX}}-444', addressed to 'the ARCHitect of {{PROJECT_REPO}}' | contains unsubstituted {{TICKET_PREFIX}} and {{PROJECT_REPO}} placeholders including inside a ticket id, so the referenced ticket is not resolvable as written | cite, do not restate"
+    },
+    {
+      "id": "knowledge/whitepapers/harness-v2-5-0-kt",
+      "type": "guide",
+      "title": "Harness v2.5.0 Knowledge Transfer (SSoT stub)",
+      "path": "knowledge/whitepapers/harness-v2-5-0-kt.md",
+      "description": "Pointer to the v2.5.0 knowledge-transfer note on Skills 2.0 and Agent Teams.",
+      "tags": ["methodology", "ssot-stub", "skills", "release"],
+      "sources": ["docs/whitepapers/HARNESS-v2.5.0-KT.md", "docs/releases/v2.5.0-UPGRADE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 155 lines, shortest whitepaper | H1 'KT: Harness v2.5.0 --- Skills 2.0 + Agent Teams', opens with Summary | version-pinned to v2.5.0 and overlaps docs/releases/v2.5.0-UPGRADE.md, which covers the same Skills 2.0 + Agent Teams scope from the upgrade angle | goes stale on any release past v2.5.0 | cite, do not restate"
+    },
+    {
+      "id": "knowledge/whitepapers/iteration-patterns-comparative-analysis",
+      "type": "guide",
+      "title": "Iteration Patterns Comparative Analysis (SSoT stub)",
+      "path": "knowledge/whitepapers/iteration-patterns-comparative-analysis.md",
+      "description": "Pointer to the analysis contrasting self-referential agent loops with SAFe multi-agent orchestration.",
+      "tags": ["methodology", "ssot-stub", "orchestration", "patterns"],
+      "sources": ["docs/whitepapers/ITERATION-PATTERNS-COMPARATIVE-ANALYSIS.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 632 lines, longest file in docs/whitepapers/ | H1 'Comparative Analysis: Self-Referential Loops vs SAFe Multi-Agent Orchestration', opens with an Abstract | cite, do not restate"
+    },
+    {
+      "id": "knowledge/whitepapers/whitepapers-readme",
+      "type": "guide",
+      "title": "Whitepapers Index (SSoT stub)",
+      "path": "knowledge/whitepapers/whitepapers-readme.md",
+      "description": "Pointer to the index of the five Claude Code harness whitepapers.",
+      "tags": ["methodology", "ssot-stub", "onboarding"],
+      "sources": ["docs/whitepapers/README.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 93 lines | H1 'Claude Code Harness Whitepapers', single Documents section | Documents section carries 5 numbered entries: 1 Claude Code Harness Modernization (Main Whitepaper), 2 Agent Perspective: Why This Harness Works, 3 Knowledge Transfer Meta-Prompt, 4 Iteration Patterns Comparative Analysis, 5 Anthropic Research Alignment | further sections Quick Start, Related Documentation, Origin | DOC DRIFT: the index and the directory do not agree — entry 1 'Claude Code Harness Modernization (Main Whitepaper)' has NO corresponding file in docs/whitepapers/ (this is the same missing parent that CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md declares itself an addendum to), while HARNESS-v2.5.0-KT.md exists on disk but appears in no index entry | cite, do not restate"
+    },
+
+    {
+      "id": "knowledge/database/data-dictionary",
+      "type": "guide",
+      "title": "Database Data Dictionary (SSoT stub)",
+      "path": "knowledge/database/data-dictionary.md",
+      "description": "Pointer to the data dictionary, declared single source of truth for schema context.",
+      "tags": ["ssot-stub", "subsystems", "security"],
+      "sources": ["docs/database/DATA_DICTIONARY.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 312 lines | H1 '{{PROJECT_NAME}} Database Data Dictionary', blockquote declares 'Single Source of Truth for AI Agents and Development Context' | CLAUDE.md points here as the schema SSoT | template file with unsubstituted {{PROJECT_NAME}}; describes a schema this template repo does not itself contain | cite, do not restate"
+    },
+    {
+      "id": "knowledge/database/database-readme",
+      "type": "guide",
+      "title": "Database Documentation Index (SSoT stub)",
+      "path": "knowledge/database/database-readme.md",
+      "description": "Pointer to the docs/database index over the dictionary, RLS guide, catalog and migration SOP.",
+      "tags": ["ssot-stub", "subsystems", "onboarding"],
+      "sources": ["docs/database/README.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 62 lines | H1 'Database Documentation', Documentation Files section | indexes the 4 sibling files in docs/database/: DATA_DICTIONARY.md, RLS_DATABASE_MIGRATION_SOP.md, RLS_IMPLEMENTATION_GUIDE.md, RLS_POLICY_CATALOG.md | cite, do not restate"
+    },
+    {
+      "id": "knowledge/database/rls-database-migration-sop",
+      "type": "guide",
+      "title": "RLS Database Migration SOP (SSoT stub)",
+      "path": "knowledge/database/rls-database-migration-sop.md",
+      "description": "Pointer to the standard operating procedure for RLS-safe database migrations.",
+      "tags": ["ssot-stub", "subsystems", "security", "process", "gates"],
+      "sources": ["docs/database/RLS_DATABASE_MIGRATION_SOP.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 589 lines, largest file in docs/database/ | H1 'RLS Database Migration Standard Operating Procedures (SOP)', opens with Purpose | typed as guide per lane plan even though the document is an SOP; the vault 'sop' type requires a resource and is reserved for operations/release/pre-release-checklist in this lane | paired with the rls-patterns skill and CLAUDE.md's migration workflow section | cite, do not restate"
+    },
+    {
+      "id": "knowledge/database/rls-implementation-guide",
+      "type": "guide",
+      "title": "RLS Implementation Guide (SSoT stub)",
+      "path": "knowledge/database/rls-implementation-guide.md",
+      "description": "Pointer to the guide for implementing Row Level Security in database access code.",
+      "tags": ["ssot-stub", "subsystems", "security", "patterns"],
+      "sources": ["docs/database/RLS_IMPLEMENTATION_GUIDE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 313 lines | H1 'Row Level Security (RLS) Implementation Guide', opens with Overview | backs CLAUDE.md's rule that all DB access goes through withUserContext / withAdminContext / withSystemContext helpers rather than direct client calls | cite, do not restate"
+    },
+    {
+      "id": "knowledge/database/rls-policy-catalog",
+      "type": "guide",
+      "title": "RLS Policy Catalog (SSoT stub)",
+      "path": "knowledge/database/rls-policy-catalog.md",
+      "description": "Pointer to the catalog enumerating Row Level Security policies per table.",
+      "tags": ["ssot-stub", "subsystems", "security"],
+      "sources": ["docs/database/RLS_POLICY_CATALOG.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 356 lines | H1 'Row Level Security (RLS) Policy Catalog', opens with Overview | enumerative reference; goes stale on any policy or schema change | cite, do not restate"
+    },
+
+    {
+      "id": "knowledge/security/security-readme",
+      "type": "guide",
+      "title": "Security Documentation Index (SSoT stub)",
+      "path": "knowledge/security/security-readme.md",
+      "description": "Pointer to the docs/security index.",
+      "tags": ["ssot-stub", "security", "onboarding"],
+      "sources": ["docs/security/README.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 35 lines, smallest index in scope | H1 'Security Documentation', Documentation Files section | docs/security/ holds exactly 2 files: README.md and SECURITY_FIRST_ARCHITECTURE.md | cite, do not restate"
+    },
+    {
+      "id": "knowledge/security/security-first-architecture",
+      "type": "guide",
+      "title": "Security-First Architecture (SSoT stub)",
+      "path": "knowledge/security/security-first-architecture.md",
+      "description": "Pointer to the security-first architecture assessment and development standards.",
+      "tags": ["ssot-stub", "security", "gates"],
+      "sources": ["docs/security/SECURITY_FIRST_ARCHITECTURE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 182 lines | H1 'Security-First Architecture Assessment: {{PROJECT_NAME}} Development Standards' | second line is a Confluence blockquote pointing at an external Atlassian wiki URL built from {{ARCHITECT_GITHUB_HANDLE}} and {{PROJECT_NAME}} placeholders — the canonical text may live off-repo | referenced from CLAUDE.md auth section and docs/ci-cd/README.md | cite, do not restate"
+    },
+
+    {
+      "id": "knowledge/misc/planning-agent-meta-prompt",
+      "type": "guide",
+      "title": "Planning Agent Meta-Prompt (SSoT stub)",
+      "path": "knowledge/misc/planning-agent-meta-prompt.md",
+      "description": "Pointer to the meta-prompt that drives the planning agent.",
+      "tags": ["ssot-stub", "agents", "methodology", "orchestration"],
+      "sources": ["docs/team/PLANNING-AGENT-META-PROMPT.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 676 lines, sole file in docs/team/ | H1 'Planning Agent Meta Prompt', opens with Overview | a prompt payload stored as documentation; docs/team/ contains nothing else | UNKNOWN: whether any agent definition under .claude/agents/ or agent_providers/ actually loads this file, or whether it is copy-paste only | cite, do not restate"
+    },
+    {
+      "id": "knowledge/misc/release-changelog-template",
+      "type": "guide",
+      "title": "Release Changelog Template (SSoT stub)",
+      "path": "knowledge/misc/release-changelog-template.md",
+      "description": "Pointer to the template governing when and how the release changelog is written.",
+      "tags": ["ssot-stub", "release", "process"],
+      "sources": ["docs/templates/RELEASE_CHANGELOG_TEMPLATE.md", "HARNESS_CHANGELOG.yml"],
+      "batch": "docs-b",
+      "notes": "map-card | 229 lines, sole file in docs/templates/ | H1 'Release Changelog Template', opens with 'When to Update the Changelog' | third changelog authority in the repo alongside HARNESS_CHANGELOG.yml's embedded schema comments and scripts/generate-changelog.sh's emitted format | UNKNOWN: whether this template's structure matches the generate-changelog.sh yaml/markdown output or is an independent human-authored format | cite, do not restate"
+    },
+    {
+      "id": "knowledge/misc/patterns-redirect",
+      "type": "guide",
+      "title": "docs/patterns Redirect (SSoT stub)",
+      "path": "knowledge/misc/patterns-redirect.md",
+      "description": "Pointer to the stub that redirects docs/patterns to the active patterns_library directory.",
+      "tags": ["ssot-stub", "patterns"],
+      "sources": ["docs/patterns/README.md", "CLAUDE.md"],
+      "batch": "docs-b",
+      "notes": "map-card | 14 lines, sole file in docs/patterns/ | H1 'Pattern Library Redirect', blockquote states the active pattern library moved to patterns_library/ via relative link ../../patterns_library/ | docs/patterns/ holds no patterns — it is a tombstone | consistent with CLAUDE.md, which points pattern discovery at patterns_library/ | cite, do not restate"
+    }
+  ]
+}

@@ -1,0 +1,369 @@
+{
+  "lane": "E2",
+  "concepts": [
+    {
+      "id": "skills/agent-coordination",
+      "type": "skill",
+      "title": "Skill: agent-coordination",
+      "path": "skills/agent-coordination.md",
+      "description": "Agent assignment matrix, blocker escalation, pre-implementation gate and TDM role boundaries.",
+      "tags": ["skills", "methodology", "agents", "process", "gates"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/agent-coordination/SKILL.md",
+        ".agents/skills/agent-coordination/SKILL.md",
+        ".claude/skills/agent-coordination/README.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md",
+        "docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md"
+      ],
+      "batch": "skills-a",
+      "notes": "model-invocable (no disable-model-invocation) | .claude frontmatter: name, description, allowed-tools: Read/Grep/Glob | no user-invocable key | 9 H2 sections: Purpose, When This Skill Applies, Stop-the-Line Conditions, Agent Assignment Matrix (MANDATORY), Blocker Escalation Protocol, Pre-Implementation Gate, Evidence Attachment, TDM Boundaries, Authoritative References | routes to docs/sop/AGENT_WORKFLOW_SOP.md and docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md (both exist) | referenced by no file under .claude/agents/ | placeholders .claude: {{TICKET_PREFIX}} | DIVERGENCE: .agents copy (168 lines vs .claude 179) drops allowed-tools entirely, uses folded YAML description with added 'Do NOT use for direct implementation work', adds a '> **TEMPLATE**' banner and {{PLACEHOLDER}}/{{CI_VALIDATE_COMMAND}} tokens, renames 'Updating Linear with evidence' to 'Updating ticket system with evidence' | .claude surface has README.md (license/IP/quick-start), .agents surface has empty assets/ references/ scripts/ dirs containing only .gitkeep | failure mode: none executable - skill is instruction text only, no scripts"
+    },
+    {
+      "id": "skills/api-patterns",
+      "type": "skill",
+      "title": "Skill: api-patterns",
+      "path": "skills/api-patterns.md",
+      "description": "API route patterns with RLS context wrappers, Zod validation, standard response shapes and error handling.",
+      "tags": ["skills", "methodology", "patterns", "security"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/api-patterns/SKILL.md",
+        ".agents/skills/api-patterns/SKILL.md",
+        ".claude/skills/api-patterns/README.md",
+        "patterns_library/api/webhook-handler.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | model-invocable | 10 H2s incl. Authoritative References (MUST READ), Stop-the-Line Conditions, API Route Checklist, Standard Response Patterns, API Route Template, Related Skills | routes to 5 patterns_library/api entries: admin-context-api.md, bonus-content-delivery.md, user-context-api.md, webhook-handler.md, zod-validation-api.md | related skills section cross-links rls-patterns | not referenced by any .claude/agents/*.md | DIVERGENCE: .agents copy (215 vs 225 lines) drops user-invocable and allowed-tools, folded description mentions 'validation' not 'Zod', adds tokens {{AUTH_IMPORT}} {{AUTH_PROVIDER}} {{DB_IMPORT}} {{RLS_IMPORT}} {{PLACEHOLDER}} where .claude hardcodes concrete imports (.claude copy has zero {{}} tokens) | UNKNOWN: which of the 5 referenced patterns_library/api files exist - only webhook-handler.md verified present | .agents subdirs assets/references/scripts contain only .gitkeep"
+    },
+    {
+      "id": "skills/confluence-docs",
+      "type": "skill",
+      "title": "Skill: confluence-docs",
+      "path": "skills/confluence-docs.md",
+      "description": "Templates for ADRs, runbooks, architecture docs and knowledge-transfer docs, plus output locations.",
+      "tags": ["skills", "methodology", "process"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/confluence-docs/SKILL.md",
+        ".agents/skills/confluence-docs/SKILL.md",
+        ".claude/skills/confluence-docs/README.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: allowed-tools: Read, Write, Edit, Grep, Glob (only skill in lane with Write+Edit besides spec-creation) | model-invocable, no user-invocable key | 4 embedded templates: ADR, Runbook, Architecture Document, Knowledge Transfer | output locations docs/adr/, docs/runbooks/, docs/architecture/, docs/agent-outputs/technical-docs/ | not referenced by any .claude/agents/*.md | DIVERGENCE: largest structural gap in lane - .claude (277 lines) carries an 'Existing ADRs (Reference)' section naming six project-specific ADRs (ADR-002-constants-unification, ADR-003-dependency-upgrade-typescript-fixes, ADR-004-server-component-data-access-pattern, ADR-005-ci-infrastructure-services, ADR-006-bonus-pdf-private-bucket-security, ADR-007-rendertrust-marketing-pages); .agents copy (220 lines) deletes that whole section | .agents adds TEMPLATE banner + {{PLACEHOLDER}} | UNKNOWN: whether docs/adr/ADR-002..007 files exist on disk - not verified"
+    },
+    {
+      "id": "skills/deployment-sop",
+      "type": "skill",
+      "title": "Skill: deployment-sop",
+      "path": "skills/deployment-sop.md",
+      "description": "Deploy workflow: pre-deploy validation, smoke test, evidence template, rollback, branch-to-environment map.",
+      "tags": ["skills", "operations", "release", "process"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/deployment-sop/SKILL.md",
+        ".agents/skills/deployment-sop/SKILL.md",
+        ".claude/skills/deployment-sop/README.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: disable-model-invocation: true, argument-hint: \"[environment]\", allowed-tools: Read, Bash, Grep, Glob | user-invocable-only - consistent with its absence from the runtime available-skills listing | 10 H2s: Purpose, When This Skill Applies, Authoritative References (MUST READ), Pre-Deployment Checklist, Post-Deployment Smoke Test, Deployment Evidence Template, Rollback Procedure, Stop-the-Line Conditions, Branch to Environment Mapping | DOC DRIFT: every one of its four 'Authoritative References (MUST READ)' targets is missing from disk - docs/ci-cd/Semantic-Release-Deployment-SOP.md, docs/sop/STAGING-UAT-RELEASE-SOP.md, docs/deployment/LINUX-DEV-MACHINE-ACCESS-SOP.md, docs/deployment/PRODUCTION-SERVER-ACCESS-SOP.md (docs/deployment/ does not exist at all; docs/ci-cd/ holds only CI-CD-Pipeline-Guide.md and README.md; docs/sop/ holds only AGENT_CONFIGURATION_SOP.md, AGENT_WORKFLOW_SOP.md, PRE_PR_VALIDATION_CHECKLIST.md) - drift present on BOTH surfaces, so no sources entry can be anchored to them | DOC DRIFT: .claude copy additionally references scripts/dev-docker.sh which does NOT exist; .agents copy omits that reference | DIVERGENCE: .agents (124 vs 129 lines) drops disable-model-invocation/argument-hint/allowed-tools, adds {{BUILD_COMMAND}} {{CI_VALIDATE_COMMAND}} {{DOMAIN}} {{MAIN_BRANCH}} {{PROD_DEPLOY_MODE}} {{STAGING_DEPLOY_MODE}} tokens, renames heading 'Branch → Environment Mapping' to ASCII 'Branch to Environment Mapping' | not referenced by any .claude/agents/*.md"
+    },
+    {
+      "id": "skills/frontend-patterns",
+      "type": "skill",
+      "title": "Skill: frontend-patterns",
+      "path": "skills/frontend-patterns.md",
+      "description": "UI patterns for App Router server/client components, auth flows, component library and analytics events.",
+      "tags": ["skills", "methodology", "patterns"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/frontend-patterns/SKILL.md",
+        ".agents/skills/frontend-patterns/SKILL.md",
+        ".claude/skills/frontend-patterns/README.md",
+        ".claude/agents/fe-developer.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | used by role FE-Developer - .claude/agents/fe-developer.md line 48 names `frontend-patterns` | routes to patterns_library/ui/ | DIVERGENCE: widest textual gap in lane - .claude 491 lines vs .agents 315, diff 442 lines | .claude headings are vendor-named: 'Next.js App Router Patterns', 'Clerk Authentication Patterns', 'shadcn/ui Component Patterns', 'PostHog Analytics Patterns'; .agents renames these to 'Server vs Client Components' + 'Protected Pages' + 'Route Organization', 'Authentication Patterns', 'Component Library Patterns', 'Analytics Patterns' | .claude copy contains zero {{}} tokens (fully concrete); .agents introduces {{ADMIN_ORG_ENV_VAR}} {{ANALYTICS_CONFIG_PATH}} {{ANALYTICS_IMPORT}} {{AUTH_CLIENT_IMPORT}} {{AUTH_SERVER_IMPORT}} {{FEATURE_FLAGS_CONFIG}} {{UI_COMPONENTS_PATH}} {{PLACEHOLDER}} (env-var KEY names only, no values) | both retain Accessibility Checklist, Responsive Design Patterns, Common Mistakes to Avoid, Authoritative References"
+    },
+    {
+      "id": "skills/git-advanced",
+      "type": "skill",
+      "title": "Skill: git-advanced",
+      "path": "skills/git-advanced.md",
+      "description": "Rebase, bisect, cherry-pick, conflict resolution and recovery commands with force-push safety rules.",
+      "tags": ["skills", "workflow", "operations"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/git-advanced/SKILL.md",
+        ".agents/skills/git-advanced/SKILL.md",
+        ".claude/skills/git-advanced/README.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: allowed-tools: Read, Bash, Grep (no Glob) | model-invocable, no user-invocable key | 10 H2s: Purpose, When This Skill Applies, Stop-the-Line Conditions, Rebase Workflow (Standard), Git Bisect, Cherry-Pick, Conflict Resolution, Recovery Commands, Safety Guidelines, Related Resources | routes to no repo file - zero patterns_library/docs/scripts paths in either copy; guidance is self-contained git command text | not referenced by any .claude/agents/*.md | DIVERGENCE: .agents (285 vs 290 lines) drops allowed-tools, renames final heading 'Related Resources' to 'Related Skills', tokenizes {{CI_VALIDATE_COMMAND}} {{MAIN_BRANCH}} {{TEST_UNIT_COMMAND}} where .claude hardcodes commands, adds TEMPLATE banner | both use {{TICKET_PREFIX}}"
+    },
+    {
+      "id": "skills/linear-sop",
+      "type": "skill",
+      "title": "Skill: linear-sop",
+      "path": "skills/linear-sop.md",
+      "description": "Ticket SOP: MCP tool usage, program structure, evidence templates for dev/staging/done, status workflow.",
+      "tags": ["skills", "process", "workflow", "operations"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/linear-sop/SKILL.md",
+        ".agents/skills/linear-sop/SKILL.md",
+        ".claude/skills/linear-sop/README.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: allowed-tools: Read, Grep (narrowest tool set in lane) | model-invocable | 12 H2s incl. Evidence Policy (MUST), Evidence Templates, Acceptance Criteria Parsing, Status Workflow, UUID Handling, Common Operations | routes to docs/sop/AGENT_WORKFLOW_SOP.md (exists) | config KEY names referenced as tokens: {{MCP_LINEAR_SERVER}} {{ORG_NAME}} {{PROJECT_TEAM_NAME}} {{REPO_NAME}} {{TICKET_PREFIX}} | not referenced by any .claude/agents/*.md | DIVERGENCE: .agents (270 vs 286 lines) renames H2 'Linear MCP Tools' to provider-neutral 'Ticket System Operations' and drops the {{MCP_LINEAR_SERVER}} token entirely (no MCP server naming), adds {{CI_VALIDATE_COMMAND}} {{STAGING_ENV_NAME}} {{STAGING_URL}} {{PLACEHOLDER}}, drops allowed-tools | note: user memory records workspace must be cheddarfox SAW - not asserted anywhere in either SKILL.md"
+    },
+    {
+      "id": "skills/migration-patterns",
+      "type": "skill",
+      "title": "Skill: migration-patterns",
+      "path": "skills/migration-patterns.md",
+      "description": "Database migration workflow with mandatory RLS policies, GRANTs and ARCHitect approval before production.",
+      "tags": ["skills", "security", "gates", "process"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/migration-patterns/SKILL.md",
+        ".agents/skills/migration-patterns/SKILL.md",
+        ".claude/skills/migration-patterns/README.md",
+        ".claude/agents/data-engineer.md",
+        "docs/database/RLS_DATABASE_MIGRATION_SOP.md",
+        "docs/database/DATA_DICTIONARY.md",
+        "docs/database/RLS_POLICY_CATALOG.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: disable-model-invocation: true, allowed-tools: Read, Bash, Grep, Glob | no argument-hint | user-invocable-only, absent from runtime available-skills listing | used by role Data Engineer - .claude/agents/data-engineer.md line 15 names `migration-patterns` | 8 H2s: Purpose, When This Skill Applies, Stop-the-Line Conditions, Migration Workflow (MANDATORY), RLS Policy Templates, Migration Checklist, Production Migration Requirements, Authoritative References | routes to docs/database/{DATA_DICTIONARY,RLS_DATABASE_MIGRATION_SOP,RLS_IMPLEMENTATION_GUIDE,RLS_POLICY_CATALOG}.md | DOC DRIFT: both copies cite docs/guides/SECURITY_FIRST_ARCHITECTURE.md which does not exist; the file on disk is docs/security/SECURITY_FIRST_ARCHITECTURE.md, which is the path CLAUDE.md uses | DIVERGENCE: .agents is LONGER (196 vs 191 lines - one of only three skills where the neutral copy grew), renames 'PROD Migration Requirements' to 'Production Migration Requirements', drops {{AUTHOR_HANDLE}}, adds {{MIGRATIONS_DIR}} {{MIGRATION_RUN_COMMAND}} {{PLACEHOLDER}}"
+    },
+    {
+      "id": "skills/orchestration-patterns",
+      "type": "skill",
+      "title": "Skill: orchestration-patterns",
+      "path": "skills/orchestration-patterns.md",
+      "description": "Agent-loop orchestration for long-running work: evidence-based delivery, QAS pre-merge gate, escalation.",
+      "tags": ["skills", "orchestration", "gates", "agents"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/orchestration-patterns/SKILL.md",
+        ".agents/skills/orchestration-patterns/SKILL.md",
+        ".claude/skills/orchestration-patterns/README.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: allowed-tools: Read, Bash, Grep, Glob, Task - only skill in batch skills-a granted Task (subagent spawn) | model-invocable, no user-invocable key | implements 'Simon Willison's agent loop' | 9 H2s incl. Evidence-Based Delivery, QAS Pre-Merge Gate, Escalation Patterns, Long-Running Task Checkpoints, Orchestration Workflow Example, Anti-Patterns to Avoid | writes QA evidence to docs/agent-outputs/qa-validations/ | not referenced by any .claude/agents/*.md | DIVERGENCE: .agents (219 vs 232 lines) reorders sections - Anti-Patterns to Avoid moves BEFORE Authoritative References (reverse of .claude), ADDS a route to docs/sop/AGENT_WORKFLOW_SOP.md that .claude lacks, drops {{PROJECT_REPO}} token, adds {{CI_VALIDATE_COMMAND}} {{PLACEHOLDER}}, drops allowed-tools | cross-references team-coordination for multi-agent teams"
+    },
+    {
+      "id": "skills/pattern-discovery",
+      "type": "skill",
+      "title": "Skill: pattern-discovery",
+      "path": "skills/pattern-discovery.md",
+      "description": "Mandatory pre-implementation search of patterns_library before writing any new feature code.",
+      "tags": ["skills", "patterns", "gates", "methodology"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/pattern-discovery/SKILL.md",
+        ".agents/skills/pattern-discovery/SKILL.md",
+        ".claude/skills/pattern-discovery/README.md",
+        ".claude/agents/be-developer.md",
+        ".claude/agents/fe-developer.md",
+        ".claude/agents/data-engineer.md",
+        ".claude/agents/qas.md",
+        ".claude/agents/system-architect.md",
+        "patterns_library/README.md"
+      ],
+      "batch": "skills-a",
+      "notes": "frontmatter .claude: context: fork, agent: Explore, allowed-tools: Read/Grep/Glob - one of only two skills in the 20 declaring a forked subagent context (other is security-audit) | model-invocable | used by 5 roles: be-developer, fe-developer, data-engineer, qas, system-architect (grep of .claude/agents/*.md) - tied for widest role adoption with safe-workflow (6) | routes to patterns_library/README.md and the api/, database/, testing/, ui/ subtrees | DIVERGENCE: largest proportional shrink in the lane - .claude 155 lines vs .agents 62 (60% smaller), 149 diff lines | .agents drops context/agent/allowed-tools frontmatter AND deletes three whole sections present in .claude: 'Pattern Library Structure', 'Security Requirements', 'Validation Commands'; renames 'Authoritative Reference' to 'Reference' | neither copy carries {{}} tokens - the only skill pair with zero placeholders on both surfaces | .agents description omits the trailing 'before writing new code' clause"
+    },
+    {
+      "id": "skills/release-patterns",
+      "type": "skill",
+      "title": "Skill: release-patterns",
+      "path": "skills/release-patterns.md",
+      "description": "PR creation, pre-PR validation, CI status checks, merge strategy and the QAS pre-merge gate.",
+      "tags": ["skills", "release", "ci", "gates"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/release-patterns/SKILL.md",
+        ".agents/skills/release-patterns/SKILL.md",
+        ".claude/skills/release-patterns/README.md",
+        ".claude/agents/rte.md",
+        "docs/ci-cd/CI-CD-Pipeline-Guide.md",
+        "docs/sop/AGENT_WORKFLOW_SOP.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: disable-model-invocation: true, argument-hint: \"[ticket-id]\", allowed-tools: Read, Bash, Grep, Glob | user-invocable-only, absent from runtime available-skills listing | used by role RTE - .claude/agents/rte.md line 57 names `release-patterns` | DOC DRIFT: .claude copy links docs/CI-CD-Pipeline-Guide.md which does NOT exist; .agents copy links docs/ci-cd/CI-CD-Pipeline-Guide.md which DOES exist and matches CLAUDE.md - the two surfaces disagree and .claude is the broken one | DIVERGENCE: .agents is LONGER (180 vs 139 lines) and adds a whole 'Release Workflow' section with Changes / Breaking Changes / Migration Steps subsections plus a {{VERSION}} token that .claude has no equivalent for; also adds {{CI_VALIDATE_COMMAND}} {{MAIN_BRANCH}} {{PLACEHOLDER}}, drops frontmatter keys | shared H2s: Stop-the-Line Conditions, Pre-PR Checklist (MANDATORY), CI/CD Validation Command, PR Creation Template, Merge Strategy, QAS Gate (MANDATORY) | both carry {{LINEAR_WORKSPACE}} - .agents keeps the Linear-specific token despite being the provider-neutral surface"
+    },
+    {
+      "id": "skills/rls-patterns",
+      "type": "skill",
+      "title": "Skill: rls-patterns",
+      "path": "skills/rls-patterns.md",
+      "description": "Enforces withUserContext / withAdminContext / withSystemContext wrappers; forbids direct ORM calls.",
+      "tags": ["skills", "security", "patterns", "gates"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/rls-patterns/SKILL.md",
+        ".agents/skills/rls-patterns/SKILL.md",
+        ".claude/skills/rls-patterns/README.md",
+        ".claude/agents/be-developer.md",
+        ".claude/agents/data-engineer.md",
+        ".claude/agents/system-architect.md",
+        "docs/database/RLS_IMPLEMENTATION_GUIDE.md",
+        "docs/database/RLS_POLICY_CATALOG.md",
+        "docs/database/RLS_DATABASE_MIGRATION_SOP.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | model-invocable only | used by 3 roles: be-developer (line 48), data-engineer (line 14), system-architect (line 14) | names three context helpers actually enforced: withUserContext, withAdminContext, withSystemContext | 9 H2s incl. Critical Rules, Context Helper Reference, Admin Pages: Force Dynamic Rendering, Protected Tables, Testing Requirements, Common Patterns | DOC DRIFT: .claude copy points at scripts/rls-phase4-final-validation.sql and scripts/test-rls-phase3-simple.js - NEITHER exists on disk; .agents copy drops both and substitutes {{RLS_TEST_COMMAND}} / {{RLS_VALIDATION_COMMAND}} tokens | DIVERGENCE: .agents (212 vs 219 lines) drops user-invocable/allowed-tools, replaces concrete Prisma imports with {{AUTH_IMPORT}} {{DB_IMPORT}} {{RLS_IMPORT}} {{RLS_CONTEXT_FILE}}, drops {{PROJECT_NAME}}/{{PROJECT}}, description says 'direct ORM/DB calls' where .claude says 'direct prisma calls'"
+    },
+    {
+      "id": "skills/safe-ai-dlc",
+      "type": "skill",
+      "title": "Skill: safe-ai-dlc",
+      "path": "skills/safe-ai-dlc.md",
+      "description": "SAFe x AI-DLC program planning: Units of Work, Bolts, dependency DAG and a human-in-the-loop gate.",
+      "tags": ["skills", "methodology", "orchestration", "gates", "process"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/safe-ai-dlc/SKILL.md",
+        ".agents/skills/safe-ai-dlc/SKILL.md",
+        ".claude/skills/safe-ai-dlc/README.md",
+        "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | model-invocable only | both copies are exactly 146 lines - the closest-matched pair in the lane after vault-sync | 11 H2s incl. The Fusion Model, Issue Template, Dependency-Wiring Rules, Running a Bolt, Human-Gate Checklist, Anti-Patterns (Do NOT use), and an explicit 'Routes To' section (only safe-ai-dlc and vault-sync declare 'Routes To' as a literal heading) | routes to docs/guides/SAFE-AI-DLC-METHODOLOGY.md | not referenced by any .claude/agents/*.md | DIVERGENCE: .agents renames H2 'How to Structure Linear' -> 'How to Structure the Program' and 'Authoritative References' -> 'Reference'; description swaps 'Linear structure' for 'tracker structure' and drops the trailing 'not just a single ticket' clause; drops user-invocable/allowed-tools; adds {{PLACEHOLDER}} | both carry {{MAIN_BRANCH}} {{TICKET_PREFIX}} | UNKNOWN: whether docs/guides/SAFE-AI-DLC-METHODOLOGY.md exists - not verified on disk"
+    },
+    {
+      "id": "skills/safe-workflow",
+      "type": "skill",
+      "title": "Skill: safe-workflow",
+      "path": "skills/safe-workflow.md",
+      "description": "Branch naming, SAFe commit format, rebase-first workflow and the pre-PR validation checklist.",
+      "tags": ["skills", "workflow", "process", "ci"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/safe-workflow/SKILL.md",
+        ".agents/skills/safe-workflow/SKILL.md",
+        ".claude/skills/safe-workflow/README.md",
+        ".claude/agents/be-developer.md",
+        ".claude/agents/fe-developer.md",
+        ".claude/agents/data-engineer.md",
+        ".claude/agents/qas.md",
+        ".claude/agents/rte.md",
+        ".claude/agents/system-architect.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | model-invocable only | widest role adoption in the 20: 6 roles reference it (be-developer, fe-developer, data-engineer, qas, rte, system-architect) | routes to no repo file path - zero patterns_library/docs paths in either copy, contradicting its 'Authoritative Reference' heading which points at CONTRIBUTING.md by name only | DIVERGENCE: second-largest shrink in lane - .claude 229 lines vs .agents 106 (54% smaller), 283 diff lines | .claude carries three sections the .agents copy deletes outright: 'Available Slash Commands' (a table naming /start-work, /check-workflow, /pre-pr, /end-work, /quick-fix), 'Multi-Team Coordination', and 'Customization Guide'; .agents instead adds an 'Evidence Template' section .claude lacks | .claude renames 'SAFe Commit Message Format' -> .agents 'Commit Message Format', 'Pre-PR Validation Checklist' -> 'Pre-PR Checklist', 'Authoritative Reference' -> 'Reference' | .claude tokens {{CI_VALIDATE_COMMAND}} {{INSTALL_COMMAND}} {{LINT_MD_COMMAND}} {{MAIN_BRANCH}} {{TICKET_PREFIX}}; .agents drops {{INSTALL_COMMAND}} and {{LINT_MD_COMMAND}} | .agents has no {{PLACEHOLDER}} TEMPLATE banner here, unlike most peers"
+    },
+    {
+      "id": "skills/security-audit",
+      "type": "skill",
+      "title": "Skill: security-audit",
+      "path": "skills/security-audit.md",
+      "description": "RLS validation, OWASP Top 10 checklist, credential scanning and pre-deployment security review.",
+      "tags": ["skills", "security", "gates", "operations"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/security-audit/SKILL.md",
+        ".agents/skills/security-audit/SKILL.md",
+        ".claude/skills/security-audit/README.md",
+        ".claude/agents/security-engineer.md",
+        "docs/database/RLS_IMPLEMENTATION_GUIDE.md",
+        "docs/database/RLS_POLICY_CATALOG.md",
+        "docs/security/SECURITY_FIRST_ARCHITECTURE.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: context: fork, agent: Explore, allowed-tools: Read, Bash, Grep, Glob - one of only two forked-context skills (other is pattern-discovery); the only one combining fork with Bash | model-invocable, no user-invocable key | used by role Security Engineer (.claude/agents/security-engineer.md) | 10 H2s incl. Stop-the-Line Conditions, Security Audit Checklist, OWASP Top 10 Checklist, Security Validation Commands, Pre-Deployment Security Review, Security Audit Report Template | DOC DRIFT: both copies cite docs/guides/SECURITY_FIRST_ARCHITECTURE.md which does not exist on disk; actual path is docs/security/SECURITY_FIRST_ARCHITECTURE.md as used by CLAUDE.md - drift is present on BOTH surfaces, not a fold divergence | DIVERGENCE: .agents (202 vs 207 lines) drops context/agent/allowed-tools, tokenizes the audit command as {{SECURITY_AUDIT_COMMAND}} where .claude hardcodes it, adds {{PLACEHOLDER}}"
+    },
+    {
+      "id": "skills/spec-creation",
+      "type": "skill",
+      "title": "Skill: spec-creation",
+      "path": "skills/spec-creation.md",
+      "description": "Builds specs with pattern references, acceptance criteria, success validation commands and demo scripts.",
+      "tags": ["skills", "process", "patterns", "methodology"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/spec-creation/SKILL.md",
+        ".agents/skills/spec-creation/SKILL.md",
+        ".claude/skills/spec-creation/README.md",
+        "docs/team/PLANNING-AGENT-META-PROMPT.md",
+        "docs/database/RLS_IMPLEMENTATION_GUIDE.md",
+        "patterns_library/README.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: context: fork WITHOUT an agent: key (pattern-discovery and security-audit both pair fork with agent: Explore - spec-creation forks with no named agent), argument-hint: \"[ticket-id]\", allowed-tools: Read, Write, Grep, Glob (Write but no Edit) | no user-invocable or disable-model-invocation key, yet it appears in the runtime available-skills listing | writes specs to specs/ as specs/SPEC-*, requirements to docs/agent-outputs/requirements/ | routes to patterns_library/README.md and api/, database/, ui/ subtrees | DOC DRIFT: both copies cite four paths that do not exist on disk - docs/archive/specs/spec_template.md, patterns_library/api/crud-endpoint.md, patterns_library/ui/modal-form.md, patterns_library/security/rls-user-data.md; docs/team/PLANNING-AGENT-META-PROMPT.md does exist | DIVERGENCE: .agents (187 vs 224 lines) drops context/argument-hint/allowed-tools, renames 'Evidence for Linear' -> 'Evidence for Ticket System', adds {{CI_VALIDATE_COMMAND}} {{PLACEHOLDER}}; route path list is byte-identical across both surfaces including the four broken paths | not referenced by any .claude/agents/*.md despite being a BSA-facing skill"
+    },
+    {
+      "id": "skills/stripe-patterns",
+      "type": "skill",
+      "title": "Skill: stripe-patterns",
+      "path": "skills/stripe-patterns.md",
+      "description": "Stripe checkout, webhook and subscription patterns with test-mode safety rules and evidence templates.",
+      "tags": ["skills", "patterns", "security"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/stripe-patterns/SKILL.md",
+        ".agents/skills/stripe-patterns/SKILL.md",
+        ".claude/skills/stripe-patterns/README.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: user-invocable: false, allowed-tools: Read/Grep/Glob | model-invocable only | routes to no docs/ or patterns_library/ path in either copy - the only skill in the lane whose 'Canonical Code References' section points exclusively at application source files rather than the pattern library | .claude names concrete app paths: lib/stripe-config.ts (createStripeClient factory), app/api/payments/create-checkout-session/route.ts, app/api/payments/webhook/route.ts, utils/data/payments/, utils/data/subscriptions/, utils/data/invoices/ - these are template-project paths, none verified in this repo | 7 H2s: Purpose, When This Skill Applies, Canonical Code References, Critical Rules (incl. Test Mode Safety Checklist), Common Patterns, Evidence Template, Authoritative References | DIVERGENCE: .agents is LONGER (176 vs 164 lines) and ADDS a 'Local Testing' section absent from .claude; renames 'Evidence Template for Linear' -> 'Evidence Template for Ticket System'; replaces every concrete app path with tokens {{CHECKOUT_ROUTE_PATH}} {{WEBHOOK_ROUTE_PATH}} {{STRIPE_CONFIG_PATH}} {{PAYMENT_HELPERS_PATH}} {{SUBSCRIPTION_HELPERS_PATH}} {{INVOICE_HELPERS_PATH}} {{PAYMENT_TESTS_PATH}} {{RLS_IMPORT}} {{APP_URL_ENV}} {{DEV_PORT}} (env KEY names only) and drops .claude's {{CHECKOUT_SESSION_ID}} | not referenced by any .claude/agents/*.md"
+    },
+    {
+      "id": "skills/team-coordination",
+      "type": "skill",
+      "title": "Skill: team-coordination",
+      "path": "skills/team-coordination.md",
+      "description": "Agent Teams orchestration: team creation, messaging, shared task lists and gate enforcement via deps.",
+      "tags": ["skills", "orchestration", "agents", "gates"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/team-coordination/SKILL.md",
+        ".agents/skills/team-coordination/SKILL.md",
+        ".claude/skills/team-coordination/README.md",
+        ".claude/agents/tdm.md"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: disable-model-invocation: true, argument-hint: \"[task-description]\", allowed-tools: Read, Bash, Grep, Glob, Task - the only skill in the 20 that is both user-invocable-only AND granted Task | absent from runtime available-skills listing, consistent with disable-model-invocation | used by role TDM (.claude/agents/tdm.md) | .claude description names concrete primitives TeamCreate, SendMessage, shared TaskList; .agents description genericizes to 'team creation, messaging, shared task lists' | 10 H2s incl. Prerequisites, Agent Teams vs Subagents vs Background Agents, SAFe Team Patterns, Communication Patterns, Quality Gate Hooks, Team Sizing Guidelines, Known Limitations | DOC DRIFT / DIVERGENCE: .claude links three EXTERNAL vendor doc paths - docs/en/agent-teams, docs/en/hooks, docs/en/sub-agents - which are Claude Code documentation routes, not repo files, and do not exist on disk; .agents replaces all three with the repo-local docs/sop/AGENT_WORKFLOW_SOP.md which does exist | .agents (205 vs 232 lines) also drops disable-model-invocation/argument-hint/allowed-tools and adds {{PLACEHOLDER}} | both route to patterns_library/api/, patterns_library/ui/, specs/ and carry {{AUTH_PROVIDER}} {{TICKET_PREFIX}}"
+    },
+    {
+      "id": "skills/testing-patterns",
+      "type": "skill",
+      "title": "Skill: testing-patterns",
+      "path": "skills/testing-patterns.md",
+      "description": "Unit, integration and E2E test conventions, fixtures, RLS-aware testing and evidence templates.",
+      "tags": ["skills", "testing", "patterns"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/testing-patterns/SKILL.md",
+        ".agents/skills/testing-patterns/SKILL.md",
+        ".claude/skills/testing-patterns/README.md",
+        "patterns_library/testing"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: allowed-tools: Read, Bash, Grep, Glob | model-invocable, no user-invocable key | DOC DRIFT: skill description claims it 'routes to existing test conventions', but the .claude copy contains ZERO patterns_library/ paths - only the .agents copy actually links patterns_library/testing/ (which exists on disk); the routing claim is unbacked on the Claude surface | .claude hardcodes a concrete Yarn/Jest/Playwright command block (yarn test:unit, yarn test:integration, yarn jest, yarn test:unit --coverage, yarn test:e2e) and carries zero {{}} tokens; .agents replaces these with {{TEST_UNIT_COMMAND}} {{TEST_INTEGRATION_COMMAND}} {{CI_VALIDATE_COMMAND}} | DIVERGENCE: third-largest shrink in lane - .claude 273 lines vs .agents 94 (66% smaller), 283 diff lines | .agents deletes four whole sections: 'Configuration Files', 'RLS-Aware Testing', 'Common Patterns', 'Pre-Push Validation'; renames 'Evidence Template for Linear' -> 'Evidence Template' and 'Authoritative References' -> 'Reference' | not referenced by any .claude/agents/*.md, including qas.md"
+    },
+    {
+      "id": "skills/vault-sync",
+      "type": "skill",
+      "title": "Skill: vault-sync",
+      "path": "skills/vault-sync.md",
+      "description": "Detects and repairs drift between an OKF knowledge vault and the code it describes, gated by a validator.",
+      "tags": ["skills", "sync", "okf", "operations"],
+      "domain": "methodology",
+      "sources": [
+        ".claude/skills/vault-sync/SKILL.md",
+        ".agents/skills/vault-sync/SKILL.md",
+        ".claude/skills/vault-sync/README.md",
+        "knowledge-vault/scripts/validate-vault.mjs",
+        "docs/knowledge-vault/_meta/vault-config.json",
+        "docs/knowledge-vault/_meta/CONVENTIONS.md",
+        "docs/knowledge-vault/_meta/manifest.json"
+      ],
+      "batch": "skills-b",
+      "notes": "frontmatter .claude: user-invocable: true (the ONLY skill of the 20 with an explicit user-invocable: true), allowed-tools: Read, Grep, Glob, Bash | also model-invocable - appears in runtime available-skills listing | tightest-matched pair in the lane: 131 vs 132 lines, only 15 diff lines | 8 H2s: Purpose, When This Skill Applies, Key Files, Procedure, Invariants (do not relax), Anti-Patterns (Do NOT use), Authoritative References, Routes To | Key Files table names <vault>/_meta/vault-config.json (types/tags/frontmatter contract), <vault>/_meta/CONVENTIONS.md, <vault>/_meta/manifest.json (ID registry, reverse index, baseline_sha drift watermark), <vault>/_meta/templates/, <vault>/log.md, and knowledge-vault/scripts/validate-vault.mjs labeled 'The gate' | validator path resolves: knowledge-vault/scripts/validate-vault.mjs EXISTS; note it is NOT under docs/knowledge-vault/ where this vault's _meta lives - the gate script and the bundle sit in different trees | procedure step 1 diffs baseline_sha to HEAD over a per-project watch-list of source paths | routes to docs/GUIDE.md, docs/BUILD-PROMPT.md, docs/ADOPTION-PLAYBOOK.md (vault-relative, i.e. knowledge-vault/docs/) | DIVERGENCE: .agents drops user-invocable/allowed-tools, adds {{PLACEHOLDER}}, description says 'schema, interfaces, workflows' where .claude says 'schema, routes, workflows' and drops 'or Obsidian vault' from the trigger list | not referenced by any .claude/agents/*.md"
+    }
+  ]
+}

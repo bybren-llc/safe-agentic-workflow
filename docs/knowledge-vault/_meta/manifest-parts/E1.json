@@ -1,0 +1,248 @@
+{
+  "lane": "E1",
+  "concepts": [
+    {
+      "id": "roles/bsa",
+      "type": "agent-role",
+      "title": "BSA - Business Systems Analyst",
+      "path": "roles/bsa.md",
+      "description": "Decomposes requirements into SAFe stories with testable acceptance criteria and pattern references for execution agents.",
+      "tags": [
+        "methodology",
+        "agents",
+        "process",
+        "workflow",
+        "patterns"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/bsa.md",
+        ".codex/agents/bsa.toml",
+        "agent_providers/claude_code/prompts/bsa.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: requirements decomposition Epic->Feature->Story->Enabler, acceptance-criteria definition, testing strategy, spec creation | claude tools: Read,Write,Edit,Bash,Grep,Glob,mcp__{{MCP_LINEAR_SERVER}}__* (full Linear MCP wildcard) | codex: sandbox_mode=workspace-write, model_reasoning_effort=high | two operating modes per codex toml: Planning Mode (reads docs/team/PLANNING-AGENT-META-PROMPT.md, copies specs/planning_template.md) and Spec Creation Mode (copies specs/spec_template.md) | pattern discovery MANDATORY: patterns_library/ first, then codebase search, then propose new pattern to System Architect; must not proceed until pattern identified | handoff in: POPM business need / Linear ticket | handoff out: spec consumed by BE/FE/DE/DPE/TW execution agents | must get System Architect approval before ticket creation | validation command: yarn lint:md | escalation: unclear business requirements -> POPM (codex toml) vs -> TDM (.claude/agents/bsa.md line 533); architectural implications -> System Architect; conflicting requirements -> TDM | no stop-the-line gate declared; BSA is the upstream author of AC/DoD that all execution agents refuse to invent | DOC DRIFT: bsa is the ONLY role where .claude/agents/bsa.md and agent_providers/claude_code/prompts/bsa.md are byte-identical (all other 10 differ) | DOC DRIFT: codex toml routes unclear-requirements escalation to POPM, .claude md routes it to TDM | UNKNOWN: does yarn lint:md exist in this template repo (commands are {{PLACEHOLDER}} driven in CLAUDE.md)?"
+    },
+    {
+      "id": "roles/system-architect",
+      "type": "agent-role",
+      "title": "System Architect - Pattern and Architecture Gate",
+      "path": "roles/system-architect.md",
+      "description": "Owns pattern library, Stage 1 PR review, ADRs, and schema-change approval; can block work until violations are fixed.",
+      "tags": [
+        "methodology",
+        "agents",
+        "gates",
+        "patterns",
+        "security",
+        "process"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/system-architect.md",
+        ".codex/agents/system-architect.toml",
+        "agent_providers/claude_code/prompts/system-architect.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: pattern validation, architectural decisions, conflict prevention | largest role file at 1042 lines | claude tools: Read,Write,Edit,Bash,Grep,Glob (no Linear MCP) | codex: workspace-write, reasoning=high | owns: pattern library maintenance, Stage 1 PR reviews, ADR creation, schema change approval (with ARCHitect) | STOP-THE-LINE: gate authority to request changes before work proceeds to Stage 2; must request changes for violations and block until fixed | must NOT: merge PRs (HITL authority), skip pattern validation even for simple changes, approve work with RLS violations | exit state: 'Stage 1 Approved - Ready for ARCHitect' | two-stage PR review: Stage 1 System Architect -> Stage 2 ARCHitect-in-CLI | gate checklist: RLS context enforced (no direct Prisma calls), auth checks present, TypeScript types valid, error handling, no conflicting patterns, SOLID, performance | handoff in: BSA spec review request, RTE PR review request, TDM escalation | handoff out: Stage 2 ARCHitect review | SAW-314 additions: integration architecture (SYSTEM_INTEGRATION_MAP.md), data governance policy, data ownership matrix, disaster recovery playbook, MANDATORY approval of PROD migration plans | auto-loaded skills declared: rls-patterns, pattern-discovery, safe-workflow | DOC DRIFT: agent_providers/claude_code/prompts/system-architect.md is a stale duplicate of .claude/agents/system-architect.md; provider copy omits the Available Skills block and the entire Ownership Model/Stage 1 Review Role sections, and retains an older '**NEW ({{TICKET_PREFIX}}-314): Architecture & Governance Owner**' heading where .claude has '## Stage 1 Review Role' | NOTE: system-architect is one of only two roles whose provider copy does NOT downgrade model (no model line change); the other 9 differ on model"
+    },
+    {
+      "id": "roles/tdm",
+      "type": "agent-role",
+      "title": "TDM - Technical Delivery Manager",
+      "path": "roles/tdm.md",
+      "description": "Orchestrates the agent team, manages blockers, maintains the Linear board, and routes escalations to ARCHitect or POPM.",
+      "tags": [
+        "methodology",
+        "agents",
+        "orchestration",
+        "process",
+        "workflow"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/tdm.md",
+        ".codex/agents/tdm.toml",
+        "agent_providers/claude_code/prompts/tdm.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: coordinate agent work, resolve blockers, maintain Linear board, ensure evidence-based delivery to POPM | claude tools: Read,Bash,mcp__{{MCP_LINEAR_SERVER}}__*,mcp__{{MCP_CONFLUENCE_SERVER}}__* | NO Write/Edit/Grep/Glob -- TDM cannot author files, only read and shell | codex: workspace-write, reasoning=high -- BROADER than the claude tool grant (claude denies file writes, codex sandbox permits them) | escalation routing: ARCHitect for db schema changes (MANDATORY), core architecture mods, security model changes, CI/CD pipeline issues, CODEOWNERS conflicts; POPM for unclear requirements, conflicting priorities, scope creep, final approval; Team for cross-agent coordination | coordination patterns declared: Parallel Development, Sequential Dependencies, Blocker Resolution | Agent Teams orchestration (experimental, .claude only, lines 306-347): TDM is team lead, gated on env key CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS; responsibilities create team via TeamCreate, spawn teammates, create tasks with SAFe gate deps via addBlockedBy/addBlocks, monitor/steer, synthesize, shut down, TeamDelete | handoff in: POPM priorities | handoff out: assigns to all execution roles, reports to POPM | no stop-the-line authority of its own; TDM escalates rather than blocks | DOC DRIFT: agent_providers/claude_code/prompts/tdm.md is a stale duplicate of .claude/agents/tdm.md -- provider copy declares model: sonnet, .claude declares model: opus; provider copy omits the entire Agent Teams Orchestration section (15 lines)"
+    },
+    {
+      "id": "roles/be-developer",
+      "type": "agent-role",
+      "title": "BE Developer - Backend Implementation",
+      "path": "roles/be-developer.md",
+      "description": "Implements API routes and server logic by copying patterns_library patterns; stops if the ticket has no AC/DoD.",
+      "tags": [
+        "methodology",
+        "agents",
+        "patterns",
+        "workflow",
+        "gates"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/be-developer.md",
+        ".codex/agents/be-developer.toml",
+        "agent_providers/claude_code/prompts/be-developer.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: API implementation from spec using patterns, RLS enforcement | claude tools: Read,Write,Edit,Bash,Grep,Glob (no Linear MCP -- cannot post its own evidence) | codex: workspace-write, reasoning=high | STOP-THE-LINE precondition gate: MUST verify ticket has Acceptance Criteria or Definition of Done; if missing/unclear STOP, do not implement, route back to BSA/POPM; explicitly 'You are NOT responsible for inventing AC/DoD' | owns: code changes (API routes, server-side logic) + atomic commits in format feat(api): description [{{TICKET_PREFIX}}-XXX]; commits its own work | must NOT: create PRs (RTE), merge to dev/master (Scott/HITL final authority), invent AC/DoD (BSA) | 5-step workflow: read spec -> load pattern -> copy pattern code -> customize per spec -> validate | 'Execute, don't discover' | validation loop until all pass: yarn test:integration, yarn type-check, yarn lint, hooks auto-fixes applied | exit state: 'Ready for QAS' -- explicitly forbidden to say 'done' | handoff in: BSA spec | handoff out: QAS | escalation: spec/pattern gaps -> BSA; blockers -> TDM | DOC DRIFT: agent_providers/claude_code/prompts/be-developer.md is a stale duplicate of .claude/agents/be-developer.md -- provider copy declares model: sonnet, .claude declares model: opus; provider copy omits the Precondition (Stop-the-Line Gate) and Ownership Model sections entirely (~38 lines), so the provider variant has NO stop-the-line gate"
+    },
+    {
+      "id": "roles/fe-developer",
+      "type": "agent-role",
+      "title": "FE Developer - Frontend Implementation",
+      "path": "roles/fe-developer.md",
+      "description": "Implements UI components and pages from patterns; stops if the ticket has no AC/DoD and hands off to QAS.",
+      "tags": [
+        "methodology",
+        "agents",
+        "patterns",
+        "workflow",
+        "gates"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/fe-developer.md",
+        ".codex/agents/fe-developer.toml",
+        "agent_providers/claude_code/prompts/fe-developer.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: UI implementation using patterns from patterns_library/ui/ | claude tools: Read,Write,Edit,Bash,Grep,Glob | codex: workspace-write, reasoning=high | STOP-THE-LINE precondition gate: identical to be-developer -- verify AC/DoD present, else STOP and route back to BSA/POPM; not responsible for inventing AC/DoD | owns: UI components, pages, client logic + atomic commits feat(ui): description [{{TICKET_PREFIX}}-XXX] | must NOT: create PRs (RTE), merge to dev/master, invent AC/DoD | validation loop: yarn lint, yarn type-check, yarn build (note: build, not test:integration as in be-developer) | extra exit requirement vs be-developer: visual evidence -- screenshots or Playwright evidence, light/dark mode render check | exit state: 'Ready for QAS'; forbidden to say 'done' | handoff in: BSA spec | handoff out: QAS | escalation: BSA for spec gaps, TDM for blockers | DOC DRIFT: agent_providers/claude_code/prompts/fe-developer.md is a stale duplicate of .claude/agents/fe-developer.md -- provider copy declares model: sonnet, .claude declares model: opus; provider copy omits Precondition (Stop-the-Line Gate) and Ownership Model (~38 lines)"
+    },
+    {
+      "id": "roles/data-engineer",
+      "type": "agent-role",
+      "title": "Data Engineer - Schema and Migrations",
+      "path": "roles/data-engineer.md",
+      "description": "Owns database schema changes and migrations; cannot apply a migration without explicit ARCHitect approval.",
+      "tags": [
+        "methodology",
+        "agents",
+        "gates",
+        "patterns",
+        "process"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/data-engineer.md",
+        ".codex/agents/data-engineer.toml",
+        "agent_providers/claude_code/prompts/data-engineer.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: database schema changes and migrations using patterns_library/database/ | claude tools: Read,Write,Edit,Bash,Grep,Glob | codex: workspace-write, reasoning=high | HARD GATE: all schema changes require ARCHitect approval; 'Apply migrations without ARCHitect approval' is an explicit must-NOT | owns: schema changes, migrations, atomic commits feat(db): description [{{TICKET_PREFIX}}-XXX] | must NOT: create PRs (RTE), merge to dev/master, invent AC/DoD (BSA), apply migrations without ARCHitect approval | exit state: 'Ready for QAS' (after ARCHitect approval) | exit checklist: migration created+tested locally, RLS policies verified (rowsecurity = t), yarn type-check PASS, yarn lint PASS, migration files attached to Linear, ARCHitect approval documented in ticket, DATA_DICTIONARY.md updated if schema changed | SAW-314 additions: PROD migration plan using Tech Writer's PROD_MIGRATION_CHECKLIST_TEMPLATE.md, schema impact analysis, data retention policies, RLS policy updates, PROD migration execution requires @{{AUTHOR_HANDLE}} present (MANDATORY), post-migration data integrity validation, schema change history | auto-loaded skills declared: rls-patterns, migration-patterns, pattern-discovery, safe-workflow | handoff in: BSA spec | handoff out: ARCHitect approval -> QAS | DOC DRIFT: agent_providers/claude_code/prompts/data-engineer.md is a stale duplicate of .claude/agents/data-engineer.md -- provider copy declares model: sonnet, .claude declares model: opus; provider copy omits the Available Skills block (9 lines) | DOC DRIFT: .claude/agents/data-engineer.md declares skill 'migration-patterns' as auto-loaded, but migration-patterns is not present in the session skill listing (rls-patterns, pattern-discovery, safe-workflow are)"
+    },
+    {
+      "id": "roles/data-provisioning-eng",
+      "type": "agent-role",
+      "title": "DPE - Data Provisioning Engineer",
+      "path": "roles/data-provisioning-eng.md",
+      "description": "Builds ETL pipelines and data-quality validation from BSA specs; the smallest and least-gated of the eleven roles.",
+      "tags": [
+        "methodology",
+        "agents",
+        "patterns",
+        "workflow"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/data-provisioning-eng.md",
+        ".codex/agents/data-provisioning-eng.toml",
+        "agent_providers/claude_code/prompts/data-provisioning-eng.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: data pipelines and ETL processes, execution only | smallest role file at 147 lines | claude tools: Read,Write,Edit,Bash,Grep,Glob | codex: sandbox_mode=workspace-write, model=gpt-5.4-mini, model_reasoning_effort=medium -- one of only two roles on the mini model (other is tech-writer) | SAW-314 Data Quality Owner: define data quality rules (DATA_QUALITY_RULES.md), implement completeness/accuracy/consistency validation, monitor data lineage, data transformation documentation | 4-step workflow: read spec -> find pattern -> copy & customize -> validate | 'BSA defined the data strategy. You just execute.' | must NOT: create new patterns (explicitly 'that's BSA/ARCHitect's job') | RLS rule: use withSystemContext for ETL operations; wrap operations in transactions | validation command: yarn test:integration && yarn type-check | escalation to BSA: data source unclear, transformation logic ambiguous, validation rules missing | NO stop-the-line gate, NO Ownership Model section, NO declared exit state -- unlike be/fe/de which all declare 'Ready for QAS' | DOC DRIFT: agent_providers/claude_code/prompts/data-provisioning-eng.md is a stale duplicate of .claude/agents/data-provisioning-eng.md -- provider copy declares model: sonnet, .claude declares model: opus (model line is the ONLY difference; provider copy is otherwise byte-identical)"
+    },
+    {
+      "id": "roles/qas",
+      "type": "agent-role",
+      "title": "QAS - Quality Assurance Specialist",
+      "path": "roles/qas.md",
+      "description": "Independent quality gate with iteration authority; verifies AC/DoD, posts Linear evidence, and cannot modify product code.",
+      "tags": [
+        "methodology",
+        "agents",
+        "gates",
+        "testing",
+        "process"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/qas.md",
+        ".codex/agents/qas.toml",
+        "agent_providers/claude_code/prompts/qas.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: independent verification of ALL implementation work; declared 'You are a GATE, not just a report producer. Work does not proceed without your approval.' | claude tools: Read,Bash,Grep + three scoped Linear MCP tools ONLY (mcp__{{MCP_LINEAR_SERVER}}__create_comment, __update_issue, __list_comments) -- NOT the __* wildcard used by BSA/TDM; no Write/Edit by design | codex: sandbox_mode=read-only, reasoning=high -- one of only two read-only codex sandboxes (other is security-engineer) | must NOT: modify product code (read-only access to implementation), skip AC/DoD verification, approve work that doesn't meet standards | STOP-THE-LINE / ITERATION AUTHORITY: can bounce work back repeatedly until all criteria satisfied; failures return to implementer with specific issues, doc gaps route to @tech-writer | owns: QA artifacts in docs/agent-outputs/qa-validations/, final evidence posted to Linear (system of record) | exit state: 'Approved for RTE' | gate checklist: yarn test:unit, yarn test:integration, yarn type-check, yarn lint all PASS + all AC/DoD verified + Linear evidence posted | routing authority table routes pattern violations -> System Architect | escalation: BSA for spec issues, TDM for blockers | handoff in: BE/FE/DE/DPE at 'Ready for QAS' | handoff out: RTE | per AGENTS.md line 261 QAS is NOT collapsible (independence gate -- must spawn subagent for verification) while other roles may be collapsed | DOC DRIFT: agent_providers/claude_code/prompts/qas.md is a stale duplicate of .claude/agents/qas.md -- provider copy declares model: sonnet, .claude declares model: opus | DOC DRIFT: provider copy declares tools: [Read, Bash, Grep] with NO Linear MCP tools, so the provider QAS cannot post the Linear evidence its own Exit Protocol mandates; provider copy also omits the 'Role: Gate Owner' and Available Skills sections"
+    },
+    {
+      "id": "roles/rte",
+      "type": "agent-role",
+      "title": "RTE - Release Train Engineer",
+      "path": "roles/rte.md",
+      "description": "Shepherds PRs from QAS approval through CI to HITL merge; never merges, never writes product code.",
+      "tags": [
+        "methodology",
+        "agents",
+        "release",
+        "ci",
+        "gates",
+        "workflow"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/rte.md",
+        ".codex/agents/rte.toml",
+        "agent_providers/claude_code/prompts/rte.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: PR creation, CI/CD validation, release coordination; 642 lines | claude tools: Read,Bash,Grep ONLY -- no Write/Edit/Glob and no Linear MCP; PR creation happens via gh in Bash | codex: sandbox_mode=workspace-write, model_reasoning_effort=medium | STOP-THE-LINE prerequisite (QAS gate): work MUST have QAS approval status 'Approved for RTE' and evidence MUST be in Linear; if QAS has not approved -> STOP and wait | owns: PR creation from spec/template, CI/CD monitoring, evidence assembly across agents, PR metadata edits (title/labels/body) | must NOT: merge PRs (Scott/{{AUTHOR_NAME}} is final merge authority), implement product code ('you are a PR shepherd, not developer'), approve own work (QAS's job), never fix product code itself | CI failure routing: structural/pattern issues -> System Architect; implementation bugs -> back to BE/FE/DE | exit state: 'Ready for HITL Review' | HITL checklist: all CI pass, System Architect stage 1 + ARCHitect stage 2 approvals, no merge conflicts, branch up-to-date with dev, Linear history maintained, evidence attached | MUST FOLLOW rebase-first workflow, NEVER merge commits | post-merge cleanup: git checkout dev, git pull origin dev | handoff in: QAS 'Approved for RTE' | handoff out: HITL human merge | escalation: ARCHitect, TDM, or block merge | DOC DRIFT: agent_providers/claude_code/prompts/rte.md is a stale duplicate of .claude/agents/rte.md -- provider copy declares model: sonnet, .claude declares model: opus; provider copy omits the Prerequisite (QAS Gate) and Ownership Model sections (~41 lines), so the provider RTE has no QAS gate check | DOC DRIFT: claude grants RTE no write tools while codex grants sandbox_mode=workspace-write, a broader grant than the claude surface for the same role"
+    },
+    {
+      "id": "roles/security-engineer",
+      "type": "agent-role",
+      "title": "Security Engineer - RLS and Compliance",
+      "path": "roles/security-engineer.md",
+      "description": "Read-only auditor for RLS enforcement, vulnerabilities, and compliance, with authority to block deployment.",
+      "tags": [
+        "methodology",
+        "agents",
+        "security",
+        "gates",
+        "testing"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/security-engineer.md",
+        ".codex/agents/security-engineer.toml",
+        "agent_providers/claude_code/prompts/security-engineer.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: RLS validation, security audits, vulnerability scanning against patterns_library/security/ | claude tools: Read,Bash,Grep (read-only by construction, no Write/Edit) | codex: sandbox_mode=read-only, reasoning=high | STOP-THE-LINE / BLOCK DEPLOYMENT authority when: critical/high vulnerability detected, RLS not enforced, authentication missing on protected routes, secrets exposed in code | escalate to ARCHitect as CRITICAL: security vulnerability found, RLS policy modification needed, security model change, zero-day in dependency | must NOT: create new security patterns ('that's BSA/ARCHitect's job') | SAW-314 RLS & Compliance Owner: validate RLS policies for new tables (docs/database/RLS_POLICY_CATALOG.md), audit data access patterns for user isolation, validate GDPR/compliance procedures (retention/deletion/export), review DATA_GOVERNANCE_POLICY.md, MANDATORY security review of PROD migration plans before execution | validation command pipes scripts/rls-phase4-final-validation.sql into psql in a docker exec, then npm audit --audit-level=high and yarn lint | principles: Security First, Defense in Depth, Zero Trust | no declared exit state or Ownership Model section | DOC DRIFT: agent_providers/claude_code/prompts/security-engineer.md is a stale duplicate of .claude/agents/security-engineer.md | DOC DRIFT: the two copies use DIFFERENT placeholder variable names in the same validation command -- .claude uses {{PROJECT_NAME}}-postgres-1 / {{PROJECT}}_app_user / {{PROJECT}}_dev, provider copy uses {{LINEAR_WORKSPACE}}-team-postgres-1 / {{LINEAR_WORKSPACE}}_app_user / {{DB_NAME}}; template substitution will produce different container and database identifiers depending on which file is rendered | UNKNOWN: does scripts/rls-phase4-final-validation.sql exist in this template repo, or is it inherited from the origin project?"
+    },
+    {
+      "id": "roles/tech-writer",
+      "type": "agent-role",
+      "title": "Tech Writer - Documentation and Data Governance Docs",
+      "path": "roles/tech-writer.md",
+      "description": "Writes documentation from patterns and owns the data dictionary, RLS catalog, ERDs, and migration checklist template.",
+      "tags": [
+        "methodology",
+        "agents",
+        "patterns",
+        "workflow",
+        "onboarding"
+      ],
+      "domain": "methodology",
+      "sources": [
+        ".claude/agents/tech-writer.md",
+        ".codex/agents/tech-writer.toml",
+        "agent_providers/claude_code/prompts/tech-writer.md"
+      ],
+      "batch": "roles",
+      "notes": "mandate: documentation creation using patterns_library/documentation/, markdown quality validation | claude tools: Read,Write,Edit,Grep,Glob,Bash -- note ordering differs from developer roles and Bash is last; functionally same set as be/fe-developer | codex: sandbox_mode=workspace-write, model=gpt-5.4-mini, model_reasoning_effort=medium -- one of only two roles on the mini model (other is data-provisioning-eng) | SAW-314 Data Governance Documentation Owner: maintain data dictionary (Confluence + docs/database/DATA_DICTIONARY.md), integration architecture maps as Mermaid diagrams, RLS Policy Catalog, ERD diagrams generated from Prisma schema, schema change history, data lineage flows, PROD_MIGRATION_CHECKLIST_TEMPLATE.md (consumed by data-engineer), data governance policies | 4-step workflow: read spec -> find pattern -> copy template -> validate | validation command: yarn lint:md && yarn type-check | must NOT: create new documentation patterns ('that's BSA/ARCHitect's job') | escalation to BSA: doc pattern unclear in spec, pattern missing for needed doc type, spec unclear on content, code examples need technical verification | QAS routes documentation gaps to @tech-writer per qas.md routing authority | no stop-the-line gate, no Ownership Model, no declared exit state | DOC DRIFT: agent_providers/claude_code/prompts/tech-writer.md is a stale duplicate of .claude/agents/tech-writer.md -- provider copy declares model: sonnet, .claude declares model: opus (model line is the ONLY difference; provider copy is otherwise byte-identical)"
+    }
+  ]
+}
