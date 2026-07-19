@@ -888,7 +888,7 @@ ls .claude/agents/*.md | wc -l                           # 12 files = 11 roles +
 ls .claude/commands/*.md | wc -l                         # 25 files = 24 commands + README
 ls .claude/hooks/*.sh | wc -l                            # 3 hooks
 find .agents -name SKILL.md | wc -l                      # 20 portable skill mirrors
-find .gemini -name '*.toml' | wc -l                      # 30 (20 mirrors + 10 media-only)
+find .gemini -name '*.toml' | wc -l                      # 30 (19 mirrors + 11 media-only)
 ls .cursor/rules/*.mdc | wc -l                           # 18 rules
 ls .codex/agents/*.toml | wc -l                          # 11 role mirrors
 ls agent_providers/claude_code/prompts/*.md | wc -l      # 11 role prompts
