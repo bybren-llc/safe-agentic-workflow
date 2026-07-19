@@ -159,6 +159,7 @@ sync:
     - ".cursor/"
     - ".agents/"
     - "dark-factory/"
+    - "knowledge-vault/"
 
   # Automatically apply substitutions from the identity/substitutions
   # sections to incoming upstream files during sync.

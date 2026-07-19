@@ -9,7 +9,7 @@
 
 - **`sync_scope`**: Array of directories to sync from upstream (default: `[".claude/"]`)
 - **Root-relative paths**: All paths in `renames`, `protected`, `replaced` are now repo-root-relative in the schema
-- **Domain tiers**: Provider (`.claude/`, `.gemini/`, `.codex/`, `.cursor/`), Shared (`.agents/`, `dark-factory/`), Release (`docs/`, `scripts/` — deferred)
+- **Domain tiers**: Provider (`.claude/`, `.gemini/`, `.codex/`, `.cursor/`), Shared (`.agents/`, `dark-factory/`, `knowledge-vault/`), Release (`docs/`, `scripts/` — deferred)
 - **Backward compat**: v1.0 manifests work unchanged — paths without scope prefix are normalized by prepending `.claude/` during load
 
 ## Overview
@@ -302,6 +302,7 @@ sync:
     - ".cursor/"
     - ".agents/"
     - "dark-factory/"
+    - "knowledge-vault/"
   auto_substitute: true
   backup: true
   conflict_strategy: "prompt"
@@ -330,7 +331,7 @@ are synced; all others are skipped.
 | Tier | Domains | Description |
 |------|---------|-------------|
 | Provider | `.claude/`, `.gemini/`, `.codex/`, `.cursor/` | IDE-specific harness configs |
-| Shared | `.agents/`, `dark-factory/` | Cross-provider shared resources |
+| Shared | `.agents/`, `dark-factory/`, `knowledge-vault/` | Cross-provider shared resources |
 
 Release domains (`docs/`, `scripts/`, `patterns_library/`) are not yet supported and will
 be rejected if listed. These will be added in a future version with separate gating.

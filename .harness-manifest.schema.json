@@ -214,10 +214,10 @@
       "properties": {
         "sync_scope": {
           "type": "array",
-          "description": "Repo-root-relative directories to sync from upstream. Added in v1.1. Defaults to [\".claude/\"] for v1.0 backward compatibility. Allowed domains: provider (.claude/, .gemini/, .codex/, .cursor/), shared (.agents/, dark-factory/). Release domains (docs/, scripts/, patterns_library/) are not yet supported and will be rejected.",
+          "description": "Repo-root-relative directories to sync from upstream. Added in v1.1. Defaults to [\".claude/\"] for v1.0 backward compatibility. Allowed domains: provider (.claude/, .gemini/, .codex/, .cursor/), shared (.agents/, dark-factory/, knowledge-vault/). Release domains (docs/, scripts/, patterns_library/) are not yet supported and will be rejected.",
           "items": {
             "type": "string",
-            "enum": [".claude/", ".gemini/", ".codex/", ".cursor/", ".agents/", "dark-factory/"],
+            "enum": [".claude/", ".gemini/", ".codex/", ".cursor/", ".agents/", "dark-factory/", "knowledge-vault/"],
             "description": "Sync domain directory (must be from the allowed domain list)."
           },
           "uniqueItems": true,

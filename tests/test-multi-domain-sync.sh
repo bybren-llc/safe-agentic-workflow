@@ -91,7 +91,7 @@ result=$(
     PROJECT_ROOT="$REAL_PROJECT_ROOT"
     CLAUDE_DIR="$REAL_PROJECT_ROOT/.claude"
     MANIFEST_FILE="$REAL_PROJECT_ROOT/.harness-manifest.yml"
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     SYNC_SCOPE=()
     HAS_MANIFEST=true
     get_sync_scope
@@ -104,9 +104,10 @@ assert_contains "$result" ".codex" "sync_scope includes .codex"
 assert_contains "$result" ".cursor" "sync_scope includes .cursor"
 assert_contains "$result" ".agents" "sync_scope includes .agents"
 assert_contains "$result" "dark-factory" "sync_scope includes dark-factory"
+assert_contains "$result" "knowledge-vault" "sync_scope includes knowledge-vault"
 
-count=$(echo "$result" | tr ' ' '\n' | grep -c '.')
-assert_equals "$count" "6" "sync_scope has exactly 6 domains"
+count=$(echo "$result" | tr ' ' '\n' | grep -c '.' | tr -d ' ')
+assert_equals "$count" "7" "sync_scope has exactly 7 domains"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 2: get_sync_scope defaults to .claude for v1.0 ===${NC}\n"
@@ -129,7 +130,7 @@ result=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$TMPDIR_T2"
     MANIFEST_FILE="$TMPDIR_T2/manifest.yml"
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     SYNC_SCOPE=()
     HAS_MANIFEST=true
     get_sync_scope
@@ -163,7 +164,7 @@ result=$(
     source "$SOURCEABLE"
     PROJECT_ROOT="$TMPDIR_T3"
     MANIFEST_FILE="$TMPDIR_T3/manifest.yml"
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     SYNC_SCOPE=()
     HAS_MANIFEST=true
     get_sync_scope 2>&1
@@ -187,7 +188,7 @@ result=$(
     MANIFEST_FILE="$TMPDIR_T4/.harness-manifest.yml"
     HAS_MANIFEST=false
     SYNC_SCOPE=(".claude")
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     # Simulate do_sync's manifest check
     if [ "$HAS_MANIFEST" != "true" ]; then
         echo "BLOCKED:manifest required"
@@ -292,7 +293,7 @@ result=$(
     MANIFEST_FILE="$TMPDIR_T8/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     load_manifest
     # Test: is .gemini/settings.json protected?
     if is_excluded ".gemini/settings.json" 2>/dev/null; then
@@ -452,7 +453,7 @@ result=$(
     MANIFEST_FILE="$TMPDIR_T12/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     SYNC_SCOPE=()
     TMP_DIR=$(mktemp -d)
     load_manifest
@@ -538,7 +539,7 @@ result=$(
     MANIFEST_FILE="$TMPDIR_T14/.harness-manifest.yml"
     MANIFEST_JSON=""
     HAS_MANIFEST=false
-    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+    ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
     SYNC_SCOPE=()
     PATCHES_DIR="$TMPDIR_T14/.harness-patches"
     BACKUP_DIR="$TMPDIR_T14/.harness-backup"

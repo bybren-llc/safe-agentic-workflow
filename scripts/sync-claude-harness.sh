@@ -53,7 +53,7 @@ UPSTREAM_PATH=".claude"  # Legacy default; overridden by SYNC_SCOPE when manifes
 
 # Multi-domain sync scope (v1.1+)
 # Allowed domains — hardcoded allowlist for v2.10.0
-ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory")
+ALLOWED_DOMAINS=(".claude" ".gemini" ".codex" ".cursor" ".agents" "dark-factory" "knowledge-vault")
 SYNC_SCOPE=()  # Populated by get_sync_scope() after manifest load
 
 # Colors
