@@ -65,11 +65,12 @@ Skills provide contextual knowledge that auto-loads when relevant. View availabl
 gemini /skills
 ```
 
-### Included Skills (17)
+### Included Skills (18)
 
 | Skill | Description |
 |-------|-------------|
 | `safe-workflow` | SAFe development workflow, branch naming, commits |
+| `safe-ai-dlc` | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
 | `pattern-discovery` | Pattern library discovery |
 | `rls-patterns` | Row Level Security patterns |
 | `api-patterns` | API route implementation |

@@ -35,10 +35,10 @@ Provides the Linear mapping, the issue template, four dependency-wiring heuristi
 
 ## Provider Compatibility
 
-| Provider    | Status                                          |
-| ----------- | ----------------------------------------------- |
-| Gemini CLI  | ✅ Native (program build-out is a manual process) |
-| Claude Code | ✅ Equivalent skill in `.claude/skills/`          |
+| Provider | Status |
+| --- | --- |
+| Gemini CLI | ✅ Native (program build-out is a manual process) |
+| Claude Code | ✅ Equivalent skill in `.claude/skills/` |
 
 ## Related Skills
 

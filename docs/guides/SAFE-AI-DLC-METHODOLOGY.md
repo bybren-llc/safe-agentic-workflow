@@ -41,7 +41,7 @@ The result is not "SAFe but faster." It is SAFe with its clock replaced.
 | SAFe              | AI-DLC                                | Linear                                  |
 | ----------------- | ------------------------------------- | --------------------------------------- |
 | Portfolio Epic    | The Program                           | Initiative                              |
-| Epic/value stream | Program stream                        | Sub-initiative, or project priority      |
+| Epic/value stream | Program stream                        | Sub-initiative, or project priority     |
 | Feature           | Unit of Work                          | Project                                 |
 | PI increment      | Bolt (hours to days)                  | `bolt:N` label + target date            |
 | Phase gate        | Inception / Construction / Operations | Project Milestone                       |

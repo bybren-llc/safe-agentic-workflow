@@ -18,13 +18,13 @@
     <img src="https://img.shields.io/badge/agents-11%20SAFe%20roles-red?style=flat-square" alt="Agents">
   </a>
   <a href=".claude/skills/">
-    <img src="https://img.shields.io/badge/skills-18%20model--invoked-purple?style=flat-square" alt="Skills">
+    <img src="https://img.shields.io/badge/skills-19%20model--invoked-purple?style=flat-square" alt="Skills">
   </a>
   <a href=".claude/commands/">
     <img src="https://img.shields.io/badge/commands-24%20workflows-orange?style=flat-square" alt="Commands">
   </a>
   <a href=".cursor/rules/">
-    <img src="https://img.shields.io/badge/cursor%20rules-16-00D084?style=flat-square" alt="Cursor Rules">
+    <img src="https://img.shields.io/badge/cursor%20rules-17-00D084?style=flat-square" alt="Cursor Rules">
   </a>
 </p>
 
@@ -203,6 +203,7 @@ bash scripts/setup-template.sh                # Re-apply your placeholders
 **Adopting into an existing repo?** See the [Workspace Adoption Guide](docs/guides/WORKSPACE-ADOPTION-GUIDE.md).
 **Upgrading from a previous version?** See [Keeping the Harness Updated](docs/guides/WORKSPACE-ADOPTION-GUIDE.md#keeping-the-harness-updated).
 **Syncing your fork with upstream?** See the [Harness Sync Guide](docs/HARNESS_SYNC_GUIDE.md).
+**Planning a multi-issue program?** See the [SAFe x AI-DLC Methodology](docs/guides/SAFE-AI-DLC-METHODOLOGY.md).
 
 ### Key Commands
 
@@ -354,7 +355,7 @@ This harness directly implements patterns from Anthropic's engineering papers:
 | ----------------------------------------------------------------------------------------------------------- | -------------------------- |
 | [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)                | 11-agent team structure    |
 | [Effective Harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)    | Three-layer architecture   |
-| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 18 model-invoked skills    |
+| [Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) | 19 model-invoked skills    |
 | [Skills Announcement](https://www.anthropic.com/news/skills)                                                | Skills 2.0 frontmatter, trigger patterns |
 | [Code Execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp)                    | Tool restrictions per role |
 
@@ -380,12 +381,49 @@ This harness maps SAFe roles to AI agents:
 ### SAFe Concepts Implemented
 
 - **Epic → Feature → Story → Enabler** hierarchy in specs
-- **Sprint cycles** with velocity tracking
+- **Sprint cycles** with velocity tracking (or **Bolts** — see below)
 - **Evidence-based delivery** with Linear integration
 - **Specs-driven workflow** - BSA plans, developers execute
 
 
 </details>
+
+---
+
+## Program Cadence: SAFe x AI-DLC
+
+SAFe gives this harness its structure. But SAFe's _cadence_ assumes human squads on week-long
+sprints, and agent teams do not move at that speed — a team of specialized agents can elaborate,
+build, and verify a unit of work in hours.
+
+So the harness also ships the **SAFe x AI-DLC fusion**: SAFe keeps the hierarchy, WSJF, role
+boundaries, and Definition of Done; [AWS's AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/)
+supplies the cadence and the human checkpoint. **The sprint is replaced by the Bolt.**
+
+| Concept | What it replaces | Definition |
+| --- | --- | --- |
+| **Bolt** | The sprint | An hours-to-days swarm with an entry gate and a hard exit. Exits on evidence, not a date. |
+| **Unit of Work** | The Feature | One coherent outcome. A project in the tracker. |
+| **Mob Elaboration** | Sprint planning | Decompose, list unknowns, ask questions — **before** writing any code. |
+| **The loop** | The stand-up | AI plans → AI asks → **human validates business context** → AI executes. |
+
+The human validation step is not optional. Agents own the build; humans own the judgment — secrets,
+security policy, branch protection, risk thresholds, and signing the Definition of Done always route
+to a human with options and a recommendation.
+
+### Using It
+
+| Resource | Purpose |
+| --- | --- |
+| [Methodology guide](docs/guides/SAFE-AI-DLC-METHODOLOGY.md) | Read this first — vocabulary, worked example, when **not** to use a Bolt |
+| `safe-ai-dlc` skill | The method encoded for agents (all four providers) |
+| [Program template](specs_templates/program_template.md) | Scaffolding for a new program document |
+| `linear-sop` skill | Program structure: initiative → project → milestone → issue |
+
+Use it when work spans **many issues and needs cadence** — turning an audit, epic, or initiative into
+an executable program. For a single ticket, the standard `safe-workflow` path is correct. And if the
+problem space is still unclear, run a **spike** instead: forcing an ambiguous epic into one Bolt just
+relocates the ambiguity into the code.
 
 ---
 
@@ -1265,14 +1303,14 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 ```text
 .claude/                 # Claude Code harness (primary provider)
 ├── commands/            # 24 slash commands for workflow automation
-├── skills/              # 18 model-invoked skills for domain expertise
+├── skills/              # 19 model-invoked skills for domain expertise
 ├── agents/              # 11 SAFe agent profiles
 ├── team-config.json     # Agent Teams settings (optional, experimental)
 └── SETUP.md             # Installation and customization guide
 
 .gemini/                 # Gemini CLI harness (secondary provider)
 ├── commands/            # 30 TOML commands (namespaced: /workflow:*, /local:*, /remote:*, /media:*)
-├── skills/              # 17 model-invoked skills (team-coordination is Claude-only)
+├── skills/              # 18 model-invoked skills (team-coordination is Claude-only)
 ├── settings.json        # Configuration (model, hooks, policy, security)
 ├── GEMINI.md            # System instructions
 └── README.md            # Gemini-specific setup guide
@@ -1284,12 +1322,13 @@ See [Agent Workflow SOP v1.4](docs/sop/AGENT_WORKFLOW_SOP.md) for complete detai
 .cursor/                 # Cursor IDE harness (glob-based .mdc rules, background agents)
 └── rules/               # .mdc rule files with YAML frontmatter activation
     ├── 00-02            # Always-apply core rules (SAFe, git, patterns)
+    ├── 03               # SAFe x AI-DLC program cadence (manual activation)
     ├── 10-13            # Auto-attached tech rules (Python, React, SQL, tests)
     ├── 20-23            # Agent-role rules (Architect, Backend, QAS, Security)
     └── 30-31            # Background agents and MCP integration
 
 .agents/                 # Shared agent skills (discovered by Codex and other agents)
-└── skills/              # 18 cross-provider skills (api-patterns, safe-workflow, etc.)
+└── skills/              # 19 cross-provider skills (api-patterns, safe-workflow, etc.)
 
 dark-factory/            # tmux Agent Teams infrastructure (optional)
 ├── scripts/             # factory-setup, start, stop, status, attach
@@ -1297,8 +1336,11 @@ dark-factory/            # tmux Agent Teams infrastructure (optional)
 └── docs/                # Dark Factory guide, Cursor SSH, merge queue policy
 
 docs/                    # Additional documentation
+├── guides/              # Methodology and adoption guides (incl. SAFe x AI-DLC)
 ├── whitepapers/         # Harness architecture and philosophy
 └── onboarding/          # Getting started guides
+
+specs_templates/         # Spec, planning, PI planning, and program templates
 ```
 
 ---

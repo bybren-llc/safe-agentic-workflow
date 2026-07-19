@@ -88,11 +88,12 @@ Each skill follows this structure:
 
 Skills are **shared across all agents** (not Codex-specific). The same `.agents/skills/` directory is used by any tool that supports the convention.
 
-#### Available Skills (18)
+#### Available Skills (19)
 
 | Skill | Description |
 |-------|-------------|
 | `safe-workflow` | Branch naming, commits, PR workflow |
+| `safe-ai-dlc` | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
 | `pattern-discovery` | Pattern library discovery |
 | `testing-patterns` | Unit, integration, E2E patterns |
 | `api-patterns` | REST API implementation patterns |

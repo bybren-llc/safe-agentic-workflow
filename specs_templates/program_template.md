@@ -7,7 +7,7 @@
 | Field            | Value                                    |
 | ---------------- | ---------------------------------------- |
 | Initiative       | [{{TICKET_PREFIX}}-XXX / initiative URL] |
-| Source           | [audit, epic, or incident that triggered this] |
+| Source           | [audit or epic that triggered this]      |
 | Method           | SAFe x AI-DLC                            |
 | Owner (HITL)     | [role or name]                           |
 | Date             | [YYYY-MM-DD]                             |

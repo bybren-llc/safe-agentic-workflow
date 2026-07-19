@@ -22,6 +22,12 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 | `01-git-workflow.mdc`       | Branch naming, commit format, rebase-first, PR process |
 | `02-pattern-discovery.mdc`  | MANDATORY pattern discovery before implementing anything |
 
+### Methodology Rules (manual, use `@rule-name` to activate)
+
+| File | Purpose |
+| --- | --- |
+| `03-safe-ai-dlc.mdc` | SAFe x AI-DLC program cadence: Bolts, Units of Work, Mob Elaboration, human-gate checklist |
+
 ### Auto-Attached Tech Rules (active when matching files are open)
 
 | File                     | Globs                                      | Purpose                                |

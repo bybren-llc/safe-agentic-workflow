@@ -34,6 +34,20 @@ defines phase gate criteria. Includes 10 sections covering:
 A companion spreadsheet template (`pi_planning_template.xlsx`) is also provided
 for teams that prefer tabular formats. Keep one authoritative source.
 
+### `program_template.md`
+
+Used to define a **SAFe x AI-DLC program** — an initiative decomposed into Units of Work and
+sequenced into Bolts (hours-to-days swarms that replace sprints). Provides scaffolding for:
+
+- Units of Work table (project, outcome, issues, bolt, lead role)
+- Bolt timeline with mandatory entry and exit criteria
+- Mermaid dependency DAG and critical path
+- AI-DLC phase index (Inception / Construction / Operations)
+- RACI, the four-clause Definition of Done, and the human-gates checklist
+
+Use this when the work spans many issues and needs cadence. For a single unit of work, use
+`spec_template.md`. Method reference: [SAFe x AI-DLC Methodology](../docs/guides/SAFE-AI-DLC-METHODOLOGY.md).
+
 ### `spec_template.md`
 
 The master template for a single unit of work (typically a Linear User Story). The BSA agent copies this template to create a new `{{TICKET_PREFIX}}-XXX-feature-name-spec.md` file for each task.

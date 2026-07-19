@@ -243,11 +243,12 @@ Scripts in `.claude/hooks/` that are actively wired via `hooks-config.json`:
 
 Skills are model-invoked expertise packs that Claude loads automatically when relevant context is detected.
 
-### Skills Index (18 Skills)
+### Skills Index (19 Skills)
 
 | Skill | Purpose | Related Skills |
 |-------|---------|----------------|
 | [safe-workflow](skills/safe-workflow/) | Branch naming, commit format, PR workflow | release-patterns, git-advanced |
+| [safe-ai-dlc](skills/safe-ai-dlc/) | Program cadence: Units of Work, Bolts, human-in-the-loop gate | linear-sop, safe-workflow, orchestration-patterns |
 | [release-patterns](skills/release-patterns/) | PR creation, CI/CD validation | safe-workflow, deployment-sop |
 | [pattern-discovery](skills/pattern-discovery/) | Search patterns before implementing | api-patterns, frontend-patterns |
 | [agent-coordination](skills/agent-coordination/) | Agent assignment, blocker escalation | orchestration-patterns, linear-sop |

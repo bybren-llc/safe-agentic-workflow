@@ -14,7 +14,7 @@ The skill system architecture and {{PROJECT_SHORT}} harness methodology are the 
 
 SAFe® is a registered trademark of Scaled Agile, Inc.
 
-## Skills Included (17)
+## Skills Included (18)
 
 | Skill | Purpose |
 |-------|---------|
@@ -35,6 +35,7 @@ SAFe® is a registered trademark of Scaled Agile, Inc.
 | stripe-patterns | Payment integration, webhooks |
 | deployment-sop | Deployment workflows |
 | confluence-docs | ADRs, runbooks, docs |
+| safe-ai-dlc | Program cadence: Units of Work, Bolts, human-in-the-loop gate |
 
 ## Claude Code-Specific Skills
 
