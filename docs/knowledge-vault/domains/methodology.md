@@ -3,10 +3,10 @@ type: domain
 title: "Methodology Domain"
 description: "The SAFe plus AI-DLC method: eleven roles, five blocking gates, and evidence as the currency of progress."
 tags: [methodology, workflow, gates, process, agents]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Methodology Domain
@@ -31,8 +31,8 @@ prompt reaches Claude versus Codex belongs to [Providers](providers.md); what CI
   [Evidence-Based Delivery](../methodology/evidence-based-delivery.md) — the chain and its evidence.
 - [Role Collapsing](../methodology/role-collapsing.md) — RTE may collapse; QAS and SecEng never do.
 
-Framing: [SAFe x AI-DLC](../methodology/safe-ai-dlc.md) (the Bolt replaces the sprint as the unit of
-cadence; gates unchanged), [Round Table Philosophy](../methodology/round-table-philosophy.md),
+Framing: [SAFe x AI-DLC](../methodology/safe-ai-dlc.md) (a per-program opt-in; where adopted the
+Bolt supplants the sprint, gates unchanged), [Round Table](../methodology/round-table-philosophy.md),
 [Three-Layer Architecture](../methodology/three-layer-architecture.md), and
 [Pattern Discovery Protocol](../methodology/pattern-discovery-protocol.md), whose two orderings
 disagree on what to search first. Every `roles/` and `skills/` card is a member too; the gate
@@ -48,8 +48,9 @@ carriers are [BSA](../roles/bsa.md), [QAS](../roles/qas.md) and [RTE](../roles/r
 **A halt.** An agent hitting one of the five authority categories states the concern, proposes an
 alternative, tags `#PATH_DECISION`, comments on the ticket. No tooling participates.
 
-**Bolt cadence.** [SAFe x AI-DLC](../methodology/safe-ai-dlc.md) swaps the sprint for a Bolt that
-exits on evidence, not a date; construction then runs the flow above unchanged, gates unmoved.
+**Bolt cadence.** Inside a program that adopts the [SAFe x AI-DLC](../methodology/safe-ai-dlc.md)
+fusion, the sprint gives way to a Bolt that exits on evidence, not a date. Adopting it is a
+per-program choice — the standard sprint path stays valid — and gates are unmoved either way.
 
 ## Citations
 

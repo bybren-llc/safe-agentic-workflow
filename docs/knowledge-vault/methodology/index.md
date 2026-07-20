@@ -39,7 +39,7 @@ Where work stops, and who is allowed to stop it. This is the cluster people most
 
 - [SAFe x AI-DLC Program Cadence](safe-ai-dlc.md) — SAFe keeps the hierarchy and the gates, while
   AWS AI-DLC contributes the **Bolt**: an hours-to-days swarm that exits on evidence. Note carefully
-  that the Bolt **replaces** the sprint as the unit of cadence — this is SAFe with its clock
+  that in adopting programs the Bolt **stands in for** the sprint as the unit of cadence — SAFe with its clock
   replaced, not SAFe with an extra option bolted on. The hierarchy and the gates are unchanged.
 - [Role Collapsing and Independence Gates](role-collapsing.md) — which roles may merge into the
   implementer for small work, and which are independence gates that never collapse no matter how

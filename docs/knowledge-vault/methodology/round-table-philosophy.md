@@ -3,14 +3,14 @@ type: guide
 title: "Round Table Philosophy"
 description: "Collaboration model treating human and AI contributors as peers with equal voice, defined roles, and authority in their domains."
 tags: [methodology, process, agents, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
   - "docs/guides/ROUND-TABLE-PHILOSOPHY.md"
   - "AGENTS.md"
   - "docs/guides/AGENT_TEAM_GUIDE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Round Table Philosophy

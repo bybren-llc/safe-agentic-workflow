@@ -3,7 +3,7 @@ type: process
 title: "Harness Sync and Fork Workflow"
 description: "How an adopting fork pulls upstream harness releases without losing customizations, via a required manifest and a rollback path."
 tags: [methodology, sync, process, release, operations]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: sync
 sources:
@@ -16,7 +16,7 @@ sources:
   - ".harness-manifest.yml"
   - ".harness-manifest.schema.json"
   - "docs/releases/v2.10.0-UPGRADE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Harness Sync and Fork Workflow
@@ -44,8 +44,9 @@ is updated by git remote and checkout, then `scripts/setup-template.sh` re-appli
 - **Recover.** `rollback` restores the pre-sync backup — no partial revert. Legacy forks first run
   a six-step migration moving the old `.sync-exclude` file into the manifest's `protected` section.
 
-One discrepancy: README's manual path and badge are pinned at v2.10.0, while `SECURITY.md` still
-lists 2.0.x as current. README reflects the shipped version.
+Version drift to watch: README's badge and automated `sync --version` examples read v2.11.0, but
+its manual path still diffs `v2.9.0..v2.10.0` and links the v2.10.0 upgrade guide, and `SECURITY.md`
+still lists 2.0.x as current. The badge reflects the shipped version.
 
 ## Roles Involved
 

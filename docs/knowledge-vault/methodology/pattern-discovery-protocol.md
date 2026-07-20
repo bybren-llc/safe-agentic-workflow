@@ -3,7 +3,7 @@ type: process
 title: "Pattern Discovery Protocol"
 description: "Mandatory search of the patterns library, specs, codebase, and session history before writing any new implementation."
 tags: [methodology, patterns, process, workflow, skills]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -15,7 +15,7 @@ sources:
   - ".claude/commands/search-pattern.md"
   - "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md"
   - "docs/guides/AGENT_TEAM_GUIDE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Pattern Discovery Protocol

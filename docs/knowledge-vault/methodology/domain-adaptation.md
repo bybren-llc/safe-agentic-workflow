@@ -3,7 +3,7 @@ type: guide
 title: "Domain Adaptation Beyond Software"
 description: "Mapping harness roles, gates, and artifacts onto non-engineering teams such as marketing, research, legal, and operations."
 tags: [methodology, process, onboarding, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -11,7 +11,7 @@ sources:
   - "docs/guides/OPTIONAL-FEATURES.md"
   - "TEMPLATE_SETUP.md"
   - "docs/team/PLANNING-AGENT-META-PROMPT.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Domain Adaptation Beyond Software

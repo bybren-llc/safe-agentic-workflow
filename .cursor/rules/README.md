@@ -27,7 +27,7 @@ Cursor uses `.cursor/rules/*.mdc` files with YAML frontmatter to provide context
 | File | Purpose |
 | --- | --- |
 | `03-safe-ai-dlc.mdc` | SAFe x AI-DLC program cadence: Bolts, Units of Work, Mob Elaboration, human-gate checklist |
-| `04-knowledge-vault.mdc` | OKF knowledge-vault conventions: frontmatter contract, link rules, drift discipline |
+| `04-knowledge-vault.mdc` | Knowledge-vault authoring conventions for OKF bundles: this project's frontmatter contract, link rules, drift discipline |
 
 ### Auto-Attached Tech Rules (active when matching files are open)
 

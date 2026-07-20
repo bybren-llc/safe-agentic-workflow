@@ -3,7 +3,7 @@ type: process
 title: "vNext Workflow Contract"
 description: "The v1.4 agent delivery contract: BSA spec, stop-the-line gate, implementers, QAS gate, RTE shepherd, three-stage review, HITL merge."
 tags: [methodology, workflow, process, gates, agents]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -14,7 +14,7 @@ sources:
   - "docs/workflow/WORKFLOW_MIGRATION_GUIDE.md"
   - "docs/workflow/WORKFLOW_COMPARISON.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # vNext Workflow Contract

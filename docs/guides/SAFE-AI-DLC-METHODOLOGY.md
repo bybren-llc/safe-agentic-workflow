@@ -24,7 +24,7 @@ The result is not "SAFe but faster." It is SAFe with its clock swapped out, for 
 
 ## The Vocabulary
 
-**Bolt** -- the unit of cadence, replacing the sprint. A short swarm (hours to a few days) with an entry gate, a handful of issues, and a hard exit. Named and numbered (`bolt:0`, `bolt:1`, and so on). A Bolt exits on **evidence**, not on a date.
+**Bolt** -- the unit of cadence, standing in for the sprint wherever the fusion is adopted. A short swarm (hours to a few days) with an entry gate, a handful of issues, and a hard exit. Named and numbered (`bolt:0`, `bolt:1`, and so on). A Bolt exits on **evidence**, not on a date.
 
 **Unit of Work** -- an AI-DLC Feature. In the tracker it is a Project. It is one coherent outcome, not a grab-bag of related tickets.
 

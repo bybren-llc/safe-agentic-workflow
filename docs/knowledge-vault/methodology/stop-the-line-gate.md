@@ -3,7 +3,7 @@ type: process
 title: "Stop-the-Line Gate and Authority"
 description: "Two distinct mechanisms share the name: the mandatory AC/DoD precondition gate, and every agent's Andon-cord authority to halt work."
 tags: [methodology, gates, process, workflow, security]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -13,7 +13,7 @@ sources:
   - "docs/guides/ROUND-TABLE-PHILOSOPHY.md"
   - "docs/sop/AGENT_WORKFLOW_SOP.md"
   - ".claude/commands/start-work.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Stop-the-Line Gate and Authority
@@ -55,4 +55,5 @@ Enforcement is prompt-level only: the gate text ships inside the
 ## Citations
 
 - [ROUND-TABLE-PHILOSOPHY.md](../../guides/ROUND-TABLE-PHILOSOPHY.md) — the authority definition.
-- [AGENT_WORKFLOW_SOP.md](../../sop/AGENT_WORKFLOW_SOP.md) — the five-gate table.
+- [AGENT_WORKFLOW_SOP.md](../../sop/AGENT_WORKFLOW_SOP.md) — the mandatory gate steps and QAS gate
+  owner role. The five-gate table itself lives in README's Gate Quick Reference, not the SOP.

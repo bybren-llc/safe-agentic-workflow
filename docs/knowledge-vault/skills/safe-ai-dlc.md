@@ -4,13 +4,13 @@ title: "Skill: safe-ai-dlc"
 description: "SAFe x AI-DLC program planning: Units of Work, Bolts, dependency DAG and a human-in-the-loop gate."
 resource: ".claude/skills/safe-ai-dlc/SKILL.md"
 tags: [skills, methodology, orchestration, gates, process]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
   - ".agents/skills/safe-ai-dlc/SKILL.md"
   - "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Skill: safe-ai-dlc
@@ -23,12 +23,14 @@ ordered by a dependency graph, and paused at a human gate.
 Model-invoked only — `user-invocable: false`, `allowed-tools` limited to `Read`, `Grep`, `Glob`. It
 fires when work spans multiple issues and needs cadence rather than a single ticket: turning an
 initiative into projects, milestones, issues and sub-issues, wiring the dependency DAG, or running
-a Bolt swarm.
+a Bolt swarm. Its Purpose scopes the claim: in a program that adopts the fusion sprints give way to
+Bolts; adopting it is a per-program choice and the standard sprint path stays valid.
 
 Eleven H2s carry it, including The Fusion Model, Issue Template, Dependency-Wiring Rules, Running a
 Bolt, Human-Gate Checklist, and Anti-Patterns (Do NOT use) — the last matters as much as the
-procedure, being explicit about when the machinery is overkill. Both copies are exactly 146 lines, the
-only exact line-count match across the twenty; vault-sync is tighter by diff size, 11 lines against 56.
+procedure, being explicit about when the machinery is overkill. Both copies are exactly 148 lines,
+the only exact line-count match across the twenty; vault-sync's two copies diverge less, 15 `diff`
+lines against 83 here.
 
 ## Routes To
 
@@ -50,8 +52,7 @@ model invocation from context — not wired into any role's standing instruction
 roles such as [BSA](../roles/bsa.md) and [TDM](../roles/tdm.md) are its natural callers, but that is
 an inference from subject matter rather than a declared binding.
 
-Extraction recorded the methodology guide's existence as unverified; it does exist at
-`docs/guides/SAFE-AI-DLC-METHODOLOGY.md`, confirmed at the baseline SHA.
+Extraction flagged the methodology guide as unverified; it does exist, at the path cited below.
 
 ## Citations
 

@@ -29,7 +29,7 @@ This skill activates automatically when you:
 
 ## What This Skill Does
 
-Encodes the fusion of SAFe structure with the AI-DLC delivery cadence. SAFe supplies the hierarchy, WSJF, role boundaries, and Definition of Done; AI-DLC supplies **Bolts** (hours-to-days swarms that replace sprints), **Units of Work**, **Mob Elaboration**, and the plan → clarify → validate → execute loop with a human checkpoint in the middle.
+Encodes the fusion of SAFe structure with the AI-DLC delivery cadence. SAFe supplies the hierarchy, WSJF, role boundaries, and Definition of Done; AI-DLC supplies **Bolts** (hours-to-days swarms that take the place of sprints in adopting programs), **Units of Work**, **Mob Elaboration**, and the plan → clarify → validate → execute loop with a human checkpoint in the middle.
 
 Provides the Linear mapping (initiative → project → milestone → issue → sub-issue), the issue template, four dependency-wiring heuristics, the six steps of running a Bolt, and the human-gate checklist that keeps agents from guessing business, security, or policy decisions.
 

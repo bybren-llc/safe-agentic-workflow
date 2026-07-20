@@ -3,7 +3,7 @@ type: process
 title: "Role Collapsing and Independence Gates"
 description: "Which agent roles may be merged into the implementer for small work, and which are independence gates that never collapse."
 tags: [methodology, process, agents, gates, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -12,7 +12,7 @@ sources:
   - "CONTRIBUTING.md"
   - "docs/sop/AGENT_WORKFLOW_SOP.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Role Collapsing and Independence Gates

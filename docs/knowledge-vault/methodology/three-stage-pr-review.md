@@ -3,7 +3,7 @@ type: process
 title: "Three-Stage PR Review"
 description: "PRs pass System Architect pattern review, then ARCHitect-in-CLI architecture review, then human HITL review which alone may merge."
 tags: [methodology, process, gates, workflow, ci]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -14,7 +14,7 @@ sources:
   - "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
   - ".github/pull_request_template.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Three-Stage PR Review

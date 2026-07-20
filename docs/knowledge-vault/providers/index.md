@@ -36,7 +36,7 @@ the only thing that matters when you are debugging why a rule did or did not fir
 - [Stack family (10-16)](rules/stack.md) — glob auto-attached: seven rules that wake up when a
   backend, frontend, database, test, spec, deploy, or payment file is open
 - [Methodology family (03-04)](rules/methodology.md) — manual only: SAFe x AI-DLC program cadence
-  and the OKF knowledge-vault conventions
+  and this project's knowledge-vault authoring conventions
 - [Agent and background family (20-31)](rules/agent-and-background.md) — manual only: four SAFe
   agent personas plus background-agent and MCP integration guidance
 

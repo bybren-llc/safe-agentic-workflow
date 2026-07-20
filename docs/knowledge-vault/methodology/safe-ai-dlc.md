@@ -1,9 +1,9 @@
 ---
 type: process
 title: "SAFe x AI-DLC Program Cadence"
-description: "SAFe keeps hierarchy and gates while AWS AI-DLC replaces the sprint with the Bolt: an hours-to-days swarm exiting on evidence."
+description: "SAFe keeps hierarchy and gates; inside a program that adopts the AWS AI-DLC fusion the sprint gives way to the Bolt, an hours-to-days swarm exiting on evidence."
 tags: [methodology, process, workflow, orchestration, gates]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -13,22 +13,24 @@ sources:
   - ".cursor/rules/03-safe-ai-dlc.mdc"
   - "specs_templates/program_template.md"
   - ".claude/skills/linear-sop/SKILL.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # SAFe x AI-DLC Program Cadence
 
-The thesis is one line: *SAFe with its clock replaced.* SAFe supplies hierarchy, WSJF, role
-boundaries, and DoD; AWS AI-DLC supplies cadence and the human checkpoint. The sprint disappears
-and the Bolt takes its place — hours to days, exiting on evidence, not a date.
+The thesis is one line: *SAFe with its clock swapped out, for the programs where you choose to swap
+it.* SAFe supplies hierarchy, WSJF, roles, and DoD; AWS AI-DLC supplies cadence and the human
+checkpoint. In a program that adopts the fusion, the sprint gives way to the Bolt.
 
 ## Overview
 
-The method applies when work spans many issues and needs cadence, not when one ticket needs doing.
-A **Bolt** is a labelled swarm (`bolt:0`, `bolt:1`) rather than a tracker cycle, since cycles floor
-at a week and are team-wide. A **Unit of Work** is an AI-DLC Feature mapping to a tracker Project;
-**Mob Elaboration** replaces sprint planning (decompose, list unknowns, ask questions *before*
-code) and **Mob Construction** follows. The loop: AI plans, AI asks, human validates, AI executes.
+The cadence is opt-in — a per-program choice, not a repo-wide switch — and the standard sprint path
+stays valid; AWS frames AI-DLC as replacing existing practice, this harness as a cadence you select.
+It applies when work spans many issues, not one ticket. A **Bolt** is a labelled swarm (`bolt:0`,
+`bolt:1`) rather than a tracker cycle, since cycles floor at a week and are team-wide. A **Unit of
+Work** is an AI-DLC Feature mapping to a tracker Project; **Mob Elaboration** replaces sprint
+planning (decompose, list unknowns, ask *before* code), then **Mob Construction**. The loop: AI
+plans, AI asks, human validates, AI executes.
 
 ## Flow
 
@@ -42,10 +44,9 @@ code) and **Mob Construction** follows. The loop: AI plans, AI asks, human valid
   green, and evidence is posted per [Evidence-Based Delivery](evidence-based-delivery.md).
 
 Six decisions always route to the human: secret rotation and blast radius, security policy (CSP,
-auth, headers), which CI checks become required and any branch-protection change, dependency
-severity and the fix-versus-suppress budget, any SOP exception, signing the DoD. One discrepancy:
-README says it ships as a skill for all four providers, but Cursor carries it as the manually
-activated rule file `03-safe-ai-dlc.mdc`.
+auth, headers), required CI checks and branch protection, dependency severity and the
+fix-vs-suppress budget, any SOP exception, signing the DoD. One discrepancy: README calls it a skill
+on all four providers; Cursor carries it as the manual rule `03-safe-ai-dlc.mdc`.
 
 ## Roles Involved
 
@@ -55,4 +56,4 @@ activated rule file `03-safe-ai-dlc.mdc`.
 
 ## Citations
 
-- [SAFE-AI-DLC-METHODOLOGY.md](../../guides/SAFE-AI-DLC-METHODOLOGY.md) — the full 142-line method.
+- [SAFE-AI-DLC-METHODOLOGY.md](../../guides/SAFE-AI-DLC-METHODOLOGY.md) — the full 144-line method.

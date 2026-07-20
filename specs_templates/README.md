@@ -37,7 +37,8 @@ for teams that prefer tabular formats. Keep one authoritative source.
 ### `program_template.md`
 
 Used to define a **SAFe x AI-DLC program** — an initiative decomposed into Units of Work and
-sequenced into Bolts (hours-to-days swarms that replace sprints). Provides scaffolding for:
+sequenced into Bolts (hours-to-days swarms that take the place of sprints in programs which adopt
+the SAFe x AI-DLC cadence; adoption is a per-program choice). Provides scaffolding for:
 
 - Units of Work table (project, outcome, issues, bolt, lead role)
 - Bolt timeline with mandatory entry and exit criteria

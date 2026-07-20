@@ -3,7 +3,7 @@ type: process
 title: "Exit States and Handoff Statements"
 description: "Each agent role terminates with an explicit named exit state plus a handoff statement, forming the chain of custody between roles."
 tags: [methodology, workflow, process, agents, gates]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -14,7 +14,7 @@ sources:
   - "docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md"
   - "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md"
   - "docs/onboarding/QAS-DAILY-WORKFLOW.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Exit States and Handoff Statements

@@ -3,17 +3,17 @@ type: guide
 title: "README"
 description: "SSoT stub: the repository front door, and the only place several methodology contracts are written out in full."
 tags: [ssot-stub, methodology, workflow, onboarding]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
   - "README.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # README
 
-At 1463 lines this is the largest document in the repository, and emphatically not an index.
+At 1474 lines this is the largest document in the repository, and emphatically not an index.
 Several contracts exist in full text here and nowhere else, so it is a source of truth.
 
 ## What Only Lives Here
@@ -43,7 +43,7 @@ workflow, [Agent Workflow SOP v1.4](../sop/agent-workflow-sop.md) for invocation
 
 Unusually high, and structurally so: it duplicates tables that also live in `AGENTS.md`,
 `CONTRIBUTING.md`, and `docs/sop/AGENT_WORKFLOW_SOP.md`, each mirrored by hand. Two divergences are
-already visible inside this single file at `fd0fc6a`:
+already visible inside this single file at `a79c2bd`:
 
 - Its "Includes" bullet says 18 skills, where its own badge, its own tables, and the contents of
   `.claude/skills/` on disk all say 20. The disk count is correct.

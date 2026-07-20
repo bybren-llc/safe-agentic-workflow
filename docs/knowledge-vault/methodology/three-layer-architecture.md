@@ -3,7 +3,7 @@ type: architecture
 title: "Three-Layer Architecture (Hooks, Commands, Skills)"
 description: "Layered harness model: hooks are automatic guardrails, commands are user-invoked workflows, skills are model-invoked expertise."
 tags: [methodology, hooks, commands, skills, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -15,7 +15,7 @@ sources:
   - "docs/guides/SKILL_AUTHORING_GUIDE.md"
   - "docs/guides/GEMINI_CLI_AUTHORING_GUIDE.md"
   - "docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Three-Layer Architecture (Hooks, Commands, Skills)

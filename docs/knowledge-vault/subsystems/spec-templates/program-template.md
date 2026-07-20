@@ -3,14 +3,14 @@ type: guide
 title: "Program Template"
 description: "Scaffold for a SAFe x AI-DLC program decomposed into Units of Work and sequenced Bolts."
 tags: [subsystems, methodology, process, orchestration]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: subsystems
 sources:
   - "specs_templates/program_template.md"
   - "specs_templates/README.md"
   - "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Program Template
@@ -43,7 +43,11 @@ template into a workspace whose labels differ.
 - Authors are instructed to delete the guidance blockquotes before committing. Nothing checks that
   they did, so shipped programs sometimes still carry them.
 - The method itself lives in `docs/guides/SAFE-AI-DLC-METHODOLOGY.md`, which the template links as
-  its reference.
+  its reference. That guide now states the Bolt cadence is **opt-in per program**, not a repo-wide
+  switch: the ordinary sprint path stays valid, single-issue work should run `safe-workflow`, and
+  AWS's framing of AI-DLC as a replacement is deliberately softened to a selectable cadence.
+- `specs_templates/README.md` carries the same opt-in scoping, so template and methodology agree
+  on when the Bolt cadence applies.
 
 ## Next Steps
 

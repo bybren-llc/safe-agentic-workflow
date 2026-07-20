@@ -3,17 +3,17 @@ type: guide
 title: "SAFe x AI-DLC Methodology"
 description: "SSoT stub: the authoritative definition of Bolts, Units of Work, mob elaboration, the human gate, and dependency-wiring rules."
 tags: [ssot-stub, methodology, process, orchestration]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
   - "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # SAFe x AI-DLC Methodology
 
-A pointer card. `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` is 142 lines, added by GH#53, and defines
+A pointer card. `docs/guides/SAFE-AI-DLC-METHODOLOGY.md` is 144 lines, added by GH#53, and defines
 the vocabulary the rest of the orchestration material assumes. Its stated audience is "anyone
 contributing to a project using this harness -- human or agent", with the instruction to read it
 if you have only ever worked the sprint model.
@@ -26,12 +26,16 @@ if you have only ever worked the sprint model.
 - The human-gate decision list — what a human must decide before a Bolt proceeds.
 - The four dependency-wiring rules for building the DAG.
 - The boundary: when *not* to reach for a Bolt.
+- That the cadence is **opt-in**: inside a program that adopts the fusion the sprint gives way to
+  the Bolt, but adopting it is a per-program choice, not a repo-wide switch.
 
 ## When To Read It
 
 Read it first, before running any multi-issue program. For a single ticket the standard
 [SAFe Workflow](../../skills/safe-workflow.md) path applies instead and a Bolt is overhead — the
-guide says so itself, which is unusual and worth trusting.
+guide says so itself, which is unusual and worth trusting. It is equally candid that AWS frames
+AI-DLC as a replacement for existing practice while this harness offers it as a cadence you select,
+and marks that softer framing as its own.
 
 ## Its Two Counterparts
 

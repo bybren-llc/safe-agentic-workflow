@@ -3,7 +3,7 @@ type: guide
 title: "Evidence-Based Delivery"
 description: "Nothing advances on assertion: every deliverable carries verifiable evidence attached to the tracker before human review."
 tags: [methodology, process, workflow, testing, gates]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
@@ -14,7 +14,7 @@ sources:
   - "docs/guides/AGENT_TEAM_GUIDE.md"
   - "docs/onboarding/QAS-DAILY-WORKFLOW.md"
   - "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"
-verified_against: "fd0fc6a"
+verified_against: "a79c2bd"
 ---
 
 # Evidence-Based Delivery

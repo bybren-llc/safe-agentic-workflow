@@ -1,5 +1,5 @@
 ---
-description: "SAFe x AI-DLC fusion for running programs: Bolts replace sprints, Units of Work replace Features, Mob Elaboration, and the human-in-the-loop validation gate. Activate when planning or running multi-issue programs."
+description: "SAFe x AI-DLC fusion for running programs: in programs that adopt it, Bolts take the place of sprints and Units of Work of Features, plus Mob Elaboration and the human-in-the-loop validation gate. Opt-in per program. Activate when planning or running multi-issue programs."
 alwaysApply: false
 ---
 
