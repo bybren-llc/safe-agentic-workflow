@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '🚀 Session Started\\n📖 Remember: @CONTRIBUTING.md workflow\\n📝 Key commands: /start-work, /check-workflow, /pre-pr, /end-work | Remote: /remote-status, /remote-deploy\\n📚 Full list (25 commands): see .claude/README.md\\n💡 Run /check-workflow for current status'",
+            "command": "echo '🚀 Session Started\\n📖 Remember: @CONTRIBUTING.md workflow\\n📝 Key commands: /start-work, /check-workflow, /pre-pr, /end-work | Remote: /remote-status, /remote-deploy\\n📚 Full list (24 commands): see .claude/README.md\\n💡 Run /check-workflow for current status'",
             "description": "Session start reminder with available commands"
           }
         ]
