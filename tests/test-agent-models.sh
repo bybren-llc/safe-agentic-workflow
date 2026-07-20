@@ -23,6 +23,10 @@
 # =============================================================================
 
 set -euo pipefail
+# An unmatched glob must expand to nothing, not to the literal pattern. Without this the
+# empty-directory guard below is unreachable: awk fails on the literal "*.md", and set -e
+# kills the script before the guard can report anything useful.
+shopt -s nullglob
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -40,12 +44,39 @@ pass() { echo -e "  ${GREEN}PASS${NC} $1"; PASS=$((PASS + 1)); }
 fail() { echo -e "  ${RED}FAIL${NC} $1"; FAIL=$((FAIL + 1)); }
 
 # Returns 0 if the value is a documented-valid subagent model.
+# claude-?* not claude-*: the bare prefix "claude-" names no model.
 is_valid_model() {
     case "$1" in
         sonnet|opus|haiku|fable|inherit) return 0 ;;
-        claude-*) return 0 ;;
+        claude-?*) return 0 ;;
         *) return 1 ;;
     esac
+}
+
+# Extract the frontmatter `model:` value from an agent definition.
+#
+# Three things this has to survive, each of which silently broke an earlier version:
+#   - CRLF line endings. /^---$/ does not match "---\r", so the frontmatter fence is never
+#     recognised, no value is extracted, and a bogus model reads as "omitted" and PASSES.
+#     A validator that degrades to accept-everything is worse than none, and a forked repo
+#     with core.autocrlf=true produces exactly this.
+#   - A body line starting with "model:". The n==1 guard confines matching to frontmatter.
+#   - Quoted or trailing-padded values. `model: "opus"` is what a YAML-aware formatter writes,
+#     and a trailing space is invisible; both are valid and must not be reported as failures.
+# Note: CR is stripped inside awk rather than by piping through `tr`. With a pipe, awk's
+# early `exit` closes it while tr is still writing a large agent file; tr takes SIGPIPE,
+# and under `set -o pipefail` that fails the whole script. Single process, no pipe, no race.
+extract_model() {
+    awk '
+        { sub(/\r$/, "") }
+        /^---$/ { n++; next }
+        n == 1 && /^model:/ {
+            sub(/^model:[[:space:]]*/, "")
+            sub(/[[:space:]]+$/, "")
+            gsub(/^["'"'"']|["'"'"']$/, "")
+            print
+            exit
+        }' "$1"
 }
 
 echo -e "\n${CYAN}=== Test 1: every agent declares a valid model ===${NC}\n"
@@ -57,7 +88,7 @@ for f in "$AGENTS_DIR"/*.md; do
     agent_count=$((agent_count + 1))
 
     # Read model: from the frontmatter block only (first --- ... --- section).
-    model=$(awk '/^---$/{n++; next} n==1 && /^model:/{sub(/^model:[[:space:]]*/,""); print; exit}' "$f")
+    model=$(extract_model "$f")
 
     if [ -z "$model" ]; then
         # Omitted is legal and means inherit.
@@ -104,13 +135,46 @@ inherited=0
 for f in "$AGENTS_DIR"/*.md; do
     name=$(basename "$f" .md)
     [ "$name" = "README" ] && continue
-    model=$(awk '/^---$/{n++; next} n==1 && /^model:/{sub(/^model:[[:space:]]*/,""); print; exit}' "$f")
+    model=$(extract_model "$f")
     if [ -z "$model" ] || [ "$model" = "inherit" ]; then
         echo "    note: $name inherits the session model"
         inherited=$((inherited + 1))
     fi
 done
 pass "$inherited of $agent_count agents inherit the session model (informational)"
+
+echo -e "\n${CYAN}=== Test 4: frontmatter parsing survives real-world formatting ===${NC}\n"
+# Each case below silently broke an earlier revision of this script. They are pinned here
+# because every one of them fails in the dangerous direction — reporting a bad config as fine.
+
+T=$(mktemp -d)
+trap 'rm -rf "$T"' EXIT
+
+# Valid YAML that a formatter or editor will produce. Must be ACCEPTED.
+printf -- '---\nname: q\nmodel: "opus"\ndescription: x\n---\nbody\n'   > "$T/quoted.md"
+printf -- '---\nname: t\nmodel: opus   \ndescription: x\n---\nbody\n'  > "$T/trailing.md"
+printf -- "---\nname: s\nmodel: 'fable'\ndescription: x\n---\nbody\n" > "$T/single.md"
+for f in quoted trailing single; do
+    got=$(extract_model "$T/$f.md")
+    if is_valid_model "$got"; then pass "$f: parsed '$got' and accepted"
+    else fail "$f: parsed '$got' and REJECTED it — valid YAML must not fail"; fi
+done
+
+# CRLF. Must still extract, so a bad value is still caught rather than read as "omitted".
+printf -- '---\r\nname: c\r\nmodel: gpt-5-bogus\r\ndescription: x\r\n---\r\nbody\r\n' > "$T/crlf.md"
+got=$(extract_model "$T/crlf.md")
+if [ "$got" = "gpt-5-bogus" ]; then pass "crlf: extracted '$got' (bad value still visible)"
+else fail "crlf: extracted '$got' — CRLF hides the value and a bad model would PASS"; fi
+
+# A body line starting with model: must not be mistaken for frontmatter.
+printf -- '---\nname: b\nmodel: opus\ndescription: x\n---\nmodel: bogus-in-body\n' > "$T/body.md"
+got=$(extract_model "$T/body.md")
+if [ "$got" = "opus" ]; then pass "body: read frontmatter '$got', ignored body line"
+else fail "body: read '$got' — body content leaked into the frontmatter parse"; fi
+
+# The bare prefix names no model.
+if is_valid_model "claude-"; then fail "'claude-' wrongly accepted — it names no model"
+else pass "rejects bare 'claude-'"; fi
 
 echo -e "\n${CYAN}=== Test Results ===${NC}\n"
 echo -e "  Total:  $((PASS + FAIL))"

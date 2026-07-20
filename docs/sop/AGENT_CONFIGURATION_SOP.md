@@ -108,7 +108,6 @@ model: opus
 ```
 
 - **Why**: Needs Linear access for ticket analysis and spec creation
-- **Why Opus**: Complex planning and requirements decomposition
 
 ### System Architect
 
@@ -118,7 +117,6 @@ model: opus
 ```
 
 - **Why**: Pattern validation and architectural decisions
-- **Why Opus**: High-level architectural thinking required
 
 ### Execution Agents
 
@@ -130,7 +128,6 @@ model: opus
 ```
 
 - **Why**: Implementation only, no Linear/git access (RTE handles)
-- **Why Sonnet**: Fast, efficient implementation
 
 ### FE Developer
 
@@ -140,7 +137,6 @@ model: opus
 ```
 
 - **Why**: UI implementation only
-- **Why Sonnet**: Fast, efficient implementation
 
 ### Data Engineer
 
@@ -150,7 +146,6 @@ model: opus
 ```
 
 - **Why**: Schema changes and migrations
-- **Why Sonnet**: Structured implementation work
 
 ### Data Provisioning Engineer
 
@@ -160,7 +155,6 @@ model: opus
 ```
 
 - **Why**: ETL and data pipeline implementation
-- **Why Sonnet**: Structured implementation work
 
 ### Quality Agents
 
@@ -181,7 +175,6 @@ model: opus
 
 - **Why Read/Bash/Grep**: Test execution and validation (no code modification)
 - **Why Linear MCP**: Posts final evidence + verdict to Linear (system of record)
-- **Why Sonnet**: Efficient test validation
 - **Role (v1.4)**: Gate Owner with iteration authority - work does not proceed without QAS approval
 
 ### Security Engineer
@@ -192,7 +185,6 @@ model: opus
 ```
 
 - **Why**: Security audits and validation only
-- **Why Sonnet**: Focused security checks
 
 ### Documentation Agent
 
@@ -205,7 +197,6 @@ model: opus
 
 - **Why**: Documentation creation and editing, batch doc updates
 - **Why Grep/Glob**: Find files needing updates across large doc sets
-- **Why Sonnet**: Efficient documentation writing
 
 ### Coordination Agents
 
@@ -217,7 +208,6 @@ model: opus
 ```
 
 - **Why**: Orchestration, Linear/Confluence updates, no code modification
-- **Why Sonnet**: Efficient coordination and management
 
 ### RTE (Release Train Engineer) - PR Shepherd (v1.4)
 
@@ -227,7 +217,6 @@ model: opus
 ```
 
 - **Why Read/Bash/Grep**: Git/PR management via Bash (git commands, gh CLI)
-- **Why Sonnet**: Efficient release coordination
 - **Role (v1.4)**: PR Shepherd - creates PRs, monitors CI, but does NOT write product code or merge
 - **Boundaries**: {{AUTHOR_NAME}} (HITL) remains final merge authority. RTE shepherds PRs to "Ready for HITL Review"
 
@@ -235,22 +224,13 @@ model: opus
 
 ## Model Selection Criteria
 
-### When to Use Opus
+See [Model Selection](#model-selection) above for the valid values, the resolution order, and how to
+evaluate a candidate model across the whole team.
 
-- **Complex Planning**: BSA requirements decomposition
-- **Architectural Decisions**: System Architect pattern validation
-- **Strategic Thinking**: High-level design and tradeoff analysis
-
-**Cost**: Higher per token, but critical for planning accuracy
-
-### When to Use Sonnet
-
-- **Implementation**: All execution agents (BE, FE, DE, etc.)
-- **Testing**: QAS and Security Engineer
-- **Documentation**: Tech Writer
-- **Coordination**: TDM and RTE
-
-**Cost**: Lower per token, optimized for structured tasks
+This section previously prescribed an "Opus for planning, Sonnet for execution" split by role. That
+split was never implemented — every agent declares `model: opus` — so the guidance has been removed
+rather than restated. Choosing a per-role taxonomy is an open question to settle with evidence, not
+a rule this document can assert.
 
 ---
 
@@ -326,18 +306,13 @@ model: opus            # opus | sonnet | haiku | fable | inherit | claude-*
 
 ### Step 4: Select Model
 
-**Opus if**:
+Set `model:` to one of the values in [Model Selection](#model-selection). Every existing agent
+declares `model: opus`; match that unless you have evidence for something else, and record the
+evidence on the ticket.
 
-- Complex planning or architecture
-- Strategic decision-making
-- Pattern creation/validation
-
-**Sonnet if**:
-
-- Implementation work
-- Testing and validation
-- Documentation
-- Coordination
+Do not infer a role-to-model mapping from this document — there isn't one, deliberately. If you
+want to try a different model, run the team on it with `CLAUDE_CODE_SUBAGENT_MODEL` and compare
+before committing a per-role change.
 
 ### Step 5: Test Configuration
 
@@ -411,9 +386,9 @@ Before committing agent configuration changes:
 
 **Solution**:
 
-1. Verify `model` field in frontmatter
-2. Confirm Opus for planning, Sonnet for execution
-3. Test with corrected model
+1. Verify the `model` field in frontmatter
+2. Run `bash tests/test-agent-models.sh` — it names the agent and the offending value
+3. Correct the value to one listed in [Model Selection](#model-selection)
 
 ### Frontmatter Parse Error
 
