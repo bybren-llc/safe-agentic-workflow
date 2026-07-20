@@ -152,7 +152,7 @@ covered the harness-shaped artifacts the shipped twelve could not.
 
 The vault was the deliverable. The findings were worth more.
 
-**86 concepts carry a documented drift clause. 52 carry an open question.** All evidence-backed.
+**86 concepts carry a documented drift clause. 54 carry an open question.** All evidence-backed.
 The serious ones were not typos:
 
 **A governance hole.** One provider surface (`agent_providers/`) defines a Release Train Engineer

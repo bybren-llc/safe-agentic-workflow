@@ -7,8 +7,8 @@ authors:
     email: "scott@cheddarfox.com"
   - name: "ByBren, LLC"
 title: "SAW — SAFe Agentic Workflow"
-version: 2.10.0
-date-released: 2026-03-19
+version: 2.11.0
+date-released: 2026-07-20
 url: "https://github.com/bybren-llc/safe-agentic-workflow"
 keywords:
   - multi-agent

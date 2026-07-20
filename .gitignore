@@ -130,3 +130,7 @@ tmp/
 # ============================================================================
 # Add any project-specific files to ignore here
 
+
+# Guard: leftover artifacts from shell-injection testing (SAW-59 PoC created a "2..HEAD" file)
+2..HEAD
+*..HEAD

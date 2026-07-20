@@ -61,7 +61,7 @@ Works for any team with repeatable processes: Software, Marketing, Research, Leg
 
 Includes:
 
-- **18 Model-Invoked Skills** - Domain expertise that loads automatically (Skills 2.0 frontmatter)
+- **20 Model-Invoked Skills** - Domain expertise that loads automatically (Skills 2.0 frontmatter)
 - **24 Slash Commands** - Workflow automation for common tasks
 - **11 SAFe Agent Profiles** - Specialized roles with clear boundaries
 - **Three-Layer Architecture** - Hooks → Commands → Skills
@@ -82,8 +82,9 @@ Includes:
 # Copy harness to your project
 cp -r .claude/ /your-project/.claude/
 
-# Customize placeholders
-edit .claude/SETUP.md  # Replace {{TICKET_PREFIX}}, {{PROJECT_NAME}}
+# Customize placeholders across all provider files ({{TICKET_PREFIX}}, {{PROJECT_NAME}},
+# and the rest) in one pass:
+bash scripts/setup-template.sh
 
 # Start working
 /start-work TICKET-123
@@ -161,9 +162,9 @@ Already using the harness and a new version is out? You have two paths:
 ```bash
 git remote add harness https://github.com/bybren-llc/safe-agentic-workflow.git
 git fetch harness main --tags
-git diff v2.9.0..v2.10.0 --stat              # See what changed
+git diff v2.10.0..v2.11.0 --stat             # See what changed
 git checkout harness/main -- .codex/agents/   # Cherry-pick what you need
-bash scripts/setup-template.sh                # Re-apply your placeholders
+bash scripts/sync-claude-harness.sh --dry-run # Preview, then drop --dry-run to apply
 ```
 
 > The sync script protects your customizations via a manifest (required since v2.10.0).
@@ -421,7 +422,7 @@ to a human with options and a recommendation.
 | Resource | Purpose |
 | --- | --- |
 | [Methodology guide](docs/guides/SAFE-AI-DLC-METHODOLOGY.md) | Read this first — vocabulary, worked example, when **not** to use a Bolt |
-| `safe-ai-dlc` skill | The method encoded for agents (all four providers) |
+| `safe-ai-dlc` skill | The method encoded for agents (Claude, Gemini, portable; Cursor as a rule) |
 | [Program template](specs_templates/program_template.md) | Scaffolding for a new program document |
 | `linear-sop` skill | Program structure: initiative → project → milestone → issue |
 
@@ -467,7 +468,7 @@ node knowledge-vault/scripts/validate-vault.mjs --vault knowledge-vault/template
 | [Guide](knowledge-vault/docs/GUIDE.md) | The method, and why each rule exists |
 | [Adoption Playbook](knowledge-vault/docs/ADOPTION-PLAYBOOK.md) | Steps, taxonomy choice, CI gating, ticket breakdown |
 | [Obsidian Guide](knowledge-vault/docs/OBSIDIAN-GUIDE.md) | Graph, canvases, Bases, and the config treaty |
-| `vault-sync` skill | Drift detection and repair, all four providers |
+| `vault-sync` skill | Drift detection and repair (Claude, Gemini, portable; Cursor as a rule) |
 
 ### The reading layer
 
@@ -1471,6 +1472,6 @@ See [NOTICE](NOTICE) for details.
 </p>
 
 <p align="center">
-  <strong>Version</strong>: {{HARNESS_VERSION}} (March 2026)<br>
+  <strong>Version</strong>: v2.11.0<br>
   <strong>Status</strong>: Production-validated, multi-provider (Claude Code + Gemini CLI + Codex CLI + Cursor IDE)
 </p>

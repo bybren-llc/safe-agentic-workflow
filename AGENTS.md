@@ -24,7 +24,7 @@
 
 **Project Standards:**
 
-- [Harness Whitepaper](./docs/whitepapers/CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md) - Complete harness architecture
+- [Harness Whitepapers](./docs/whitepapers/) - Architecture, research alignment, and evidence
 - [Agent Perspective](./docs/whitepapers/CLAUDE-CODE-HARNESS-AGENT-PERSPECTIVE.md) - Why the harness works
 - [SAFe Methodology](https://github.com/{{GITHUB_ORG}}/{{PROJECT_REPO}}) - This repository
 

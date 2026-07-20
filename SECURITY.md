@@ -15,8 +15,9 @@ This repository contains a **Claude Code harness** (configuration, prompts, work
 
 | Version | Supported          | Notes                           |
 | ------- | ------------------ | ------------------------------- |
-| 2.0.x   | :white_check_mark: | Current release                 |
-| 1.x.x   | :x:                | Deprecated, upgrade recommended |
+| 2.11.x  | :white_check_mark: | Current release                 |
+| 2.x.x   | :warning:          | Prior 2.x, upgrade recommended  |
+| 1.x.x   | :x:                | Deprecated, upgrade required    |
 
 ## Security Considerations for Adopters
 
@@ -141,4 +142,4 @@ We appreciate responsible disclosure and will acknowledge security researchers w
 
 _This security policy follows the [GitHub Security Policy Guidelines](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository)._
 
-_Last updated: December 2025 | Version 2.0_
+_Last updated: July 2026 | Version 2.11_

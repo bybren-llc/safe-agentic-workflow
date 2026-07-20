@@ -106,7 +106,8 @@ until an audit caught it. That gap is documented here so you do not inherit it.
 
 ## Maintenance
 
-The `vault-sync` skill ships with this harness (all four providers). It detects drift from
+The `vault-sync` skill ships with this harness as a skill for Claude, Gemini and the portable
+agent surface, and as a manual rule for Cursor. It detects drift from
 `baseline_sha`, regenerates only what changed, validates, and records the sync.
 
 ## Obsidian: the reading layer

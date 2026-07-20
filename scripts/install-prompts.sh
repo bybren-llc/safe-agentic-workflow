@@ -103,7 +103,8 @@ verify_agent_files() {
         return 1
     fi
     
-    local agent_count=$(find "$source_dir" -maxdepth 1 -name "*.md" -type f | wc -l)
+    # Exclude README.md: it documents the directory, it is not an agent definition.
+    local agent_count=$(find "$source_dir" -maxdepth 1 -name "*.md" -type f ! -name "README.md" | wc -l)
     
     if [ "$agent_count" -ne "$expected_count" ]; then
         print_warning "Expected $expected_count agent files, found $agent_count"

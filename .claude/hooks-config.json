@@ -65,7 +65,7 @@
           },
           {
             "type": "command",
-            "command": "FILE_PATH=$(echo \"$TOOL_INPUT\" | grep -oP '(?<=\"file_path\":\")[^\"]+' | head -1); if [ -n \"$FILE_PATH\" ] && echo \"$FILE_PATH\" | grep -qE '\\.md$'; then npx prettier --write \"$FILE_PATH\" 2>/dev/null && echo '✨ Prettier: Formatted'; npx markdownlint-cli \"$FILE_PATH\" 2>/dev/null && echo '✅ Markdownlint: OK' || echo '⚠️ Run: npx markdownlint-cli --fix \"'$FILE_PATH'\"'; fi",
+            "command": "FILE_PATH=$(echo \"$TOOL_INPUT\" | sed -n 's/.*\"file_path\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p' | head -1); if [ -n \"$FILE_PATH\" ] && echo \"$FILE_PATH\" | grep -qE '\\.md$'; then npx prettier --write \"$FILE_PATH\" 2>/dev/null && echo '✨ Prettier: Formatted'; npx markdownlint-cli \"$FILE_PATH\" 2>/dev/null && echo '✅ Markdownlint: OK' || echo '⚠️ Run: npx markdownlint-cli --fix \"'$FILE_PATH'\"'; fi",
             "description": "Format and lint markdown files after edit"
           }
         ]
@@ -77,7 +77,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '🚀 Session Started\\n📖 Remember: @CONTRIBUTING.md workflow\\n📝 Key commands: /start-work, /check-workflow, /pre-pr, /end-work | Remote: /remote-status, /remote-deploy\\n📚 Full list (24 commands): see .claude/README.md\\n💡 Run /check-workflow for current status'",
+            "command": "echo '🚀 Session Started\\n📖 Remember: @CONTRIBUTING.md workflow\\n📝 Key commands: /start-work, /check-workflow, /pre-pr, /end-work | Remote: /remote-status, /remote-deploy\\n📚 Full list (25 commands): see .claude/README.md\\n💡 Run /check-workflow for current status'",
             "description": "Session start reminder with available commands"
           }
         ]
