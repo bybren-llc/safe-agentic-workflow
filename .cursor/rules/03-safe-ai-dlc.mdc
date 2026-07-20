@@ -9,8 +9,9 @@ Use this rule when work spans **multiple issues and needs cadence** — turning 
 initiative into an executable program. For a single isolated ticket, use `.cursor/rules/01-git-workflow.mdc` instead.
 
 SAFe supplies the hierarchy and guardrails. AI-DLC supplies the cadence and the human checkpoint.
-The **sprint is replaced by the Bolt** — an hours-to-days swarm — because agent teams elaborate,
-build, and verify far faster than a week-long sprint assumes.
+Inside a program that adopts this fusion, the **sprint gives way to the Bolt** — an hours-to-days
+swarm — because agent teams elaborate, build, and verify far faster than a week-long sprint assumes.
+Adopting the fusion is a per-program choice; the standard sprint path stays valid.
 
 ## Vocabulary
 

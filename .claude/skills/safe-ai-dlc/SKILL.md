@@ -13,8 +13,10 @@ allowed-tools: Read, Grep, Glob
 ## Purpose
 
 Encode the SAFe x AI-DLC fusion so agents structure multi-issue programs consistently: SAFe supplies
-the hierarchy and guardrails, AI-DLC supplies the cadence and the human checkpoint. Sprints are
-replaced by **Bolts** because agent teams elaborate, build, and verify in hours, not weeks.
+the hierarchy and guardrails, AI-DLC supplies the cadence and the human checkpoint. Inside a program
+that adopts this fusion, sprints give way to **Bolts**, because agent teams elaborate, build, and
+verify in hours rather than weeks. Adopting the fusion is a per-program choice; the standard sprint
+path stays valid, and single isolated tickets route to `safe-workflow` instead.
 
 ## When This Skill Applies
 

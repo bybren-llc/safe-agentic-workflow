@@ -4,7 +4,9 @@
 
 **Audience**: Anyone contributing to a project using this harness -- human or agent. Read this if you have only ever worked the sprint model.
 
-**Core Belief**: SAFe keeps the structure and the guardrails. AI-DLC supplies the speed and the human checkpoint. The sprint is replaced by the **Bolt**.
+**Core Belief**: SAFe keeps the structure and the guardrails. AI-DLC supplies the speed and the human checkpoint. Inside a program that adopts this fusion, the sprint gives way to the **Bolt**.
+
+**This cadence is opt-in.** Adopting the fusion is a per-program choice, not a repo-wide switch. The standard sprint path stays valid, and single-issue work should run the ordinary `safe-workflow` rather than being dressed up as a program. Note that AWS frames AI-DLC as a replacement for existing practice; this harness offers it as a cadence you select. That softer framing is ours, not theirs.
 
 ---
 
@@ -16,7 +18,7 @@ But SAFe's *cadence* assumes human squads on week-long sprints. Agent teams do n
 
 AWS's [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/) (AI-DLC) is built for exactly this: a tight plan, clarify, validate, execute loop with a human in the middle. So we fuse the two. SAFe supplies structure and guardrails; AI-DLC supplies cadence and the human checkpoint.
 
-The result is not "SAFe but faster." It is SAFe with its clock replaced.
+The result is not "SAFe but faster." It is SAFe with its clock swapped out, for the programs where you choose to swap it.
 
 ---
 

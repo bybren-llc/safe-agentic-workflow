@@ -400,7 +400,9 @@ build, and verify a unit of work in hours.
 
 So the harness also ships the **SAFe x AI-DLC fusion**: SAFe keeps the hierarchy, WSJF, role
 boundaries, and Definition of Done; [AWS's AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/)
-supplies the cadence and the human checkpoint. **The sprint is replaced by the Bolt.**
+supplies the cadence and the human checkpoint. **Inside a program that adopts the fusion, the sprint
+gives way to the Bolt.** Adopting it is a per-program choice: the standard sprint path stays valid,
+and single-issue work should run the ordinary workflow instead.
 
 | Concept | What it replaces | Definition |
 | --- | --- | --- |
@@ -466,8 +468,17 @@ node knowledge-vault/scripts/validate-vault.mjs --vault knowledge-vault/template
 | [Obsidian Guide](knowledge-vault/docs/OBSIDIAN-GUIDE.md) | Graph, canvases, Bases, and the config treaty |
 | `vault-sync` skill | Drift detection and repair, all four providers |
 
-Obsidian is optional — no community plugins required, and the vault degrades to plain markdown in
-any editor.
+### The reading layer
+
+Because an OKF bundle is a directory of plain markdown, **Obsidian opens it with no conversion
+step**, and that is where the vault stops feeling like a docs folder: a **graph view** of the
+concept graph (colour-grouped by directory, with orphans deliberately visible because an orphan is
+a defect), **canvases** for relationships a linear document cannot show, and **Bases** saved
+queries including a drift dashboard listing every concept whose `verified_against` has fallen
+behind. The harness ships the config for all three in `knowledge-vault/templates/obsidian/`.
+
+Obsidian is not required: no community plugins are needed, and the vault degrades to plain markdown
+in any editor. But the graph, canvases and dashboard are a large part of what you get.
 
 ---
 
