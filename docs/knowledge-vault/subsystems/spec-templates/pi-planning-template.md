@@ -3,14 +3,14 @@ type: guide
 title: "PI Planning Template"
 description: "Full Program Increment planning scaffold covering program board, dependencies, ROAM risks, and gates."
 tags: [subsystems, methodology, process, gates]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: subsystems
 sources:
   - "specs_templates/pi_planning_template.md"
   - "specs_templates/pi_planning_template.xlsx"
   - "specs_templates/README.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # PI Planning Template

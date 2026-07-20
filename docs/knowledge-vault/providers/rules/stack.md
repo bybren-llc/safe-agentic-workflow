@@ -3,7 +3,7 @@ type: guide
 title: "Cursor Rules: Stack Family (10-16)"
 description: "Seven glob-auto-attached Cursor rules that load when matching backend, frontend, database, test, spec, deploy, or payment files open."
 tags: [providers, patterns, testing, operations]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 sources:
@@ -15,7 +15,7 @@ sources:
   - ".cursor/rules/15-deployment.mdc"
   - ".cursor/rules/16-stripe-payments.mdc"
   - ".cursor/rules/README.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Cursor Rules: Stack Family (10-16)

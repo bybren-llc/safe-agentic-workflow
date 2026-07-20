@@ -3,7 +3,7 @@ type: provider
 title: "Cursor IDE Provider Surface"
 description: "The .cursor/ surface: 18 .mdc rule files across four numbering families plus a placeholder mcp.json."
 tags: [providers, patterns, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 resource: ".cursor"
@@ -12,7 +12,7 @@ sources:
   - ".cursor/mcp.json"
   - ".cursor/rules"
   - ".harness-manifest.yml"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Cursor IDE Provider Surface

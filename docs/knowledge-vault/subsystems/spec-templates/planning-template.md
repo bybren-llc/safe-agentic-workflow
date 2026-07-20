@@ -3,13 +3,13 @@ type: guide
 title: "Planning Template"
 description: "BSA scaffold for decomposing an initiative into a SAFe Epic/Feature/Story/Enabler breakdown."
 tags: [subsystems, process, methodology, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: subsystems
 sources:
   - "specs_templates/planning_template.md"
   - "specs_templates/README.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Planning Template

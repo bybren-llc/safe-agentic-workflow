@@ -10,7 +10,7 @@ domain: methodology
 sources:
   - ".agents/skills/safe-ai-dlc/SKILL.md"
   - "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
-verified_against: "a79c2bd"
+verified_against: "c4f9d6d"
 ---
 
 # Skill: safe-ai-dlc

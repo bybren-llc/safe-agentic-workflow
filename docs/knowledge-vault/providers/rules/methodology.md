@@ -10,7 +10,7 @@ sources:
   - ".cursor/rules/03-safe-ai-dlc.mdc"
   - ".cursor/rules/04-knowledge-vault.mdc"
   - ".cursor/rules/README.md"
-verified_against: "a79c2bd"
+verified_against: "c4f9d6d"
 ---
 
 # Cursor Rules: Methodology Family (03-04)

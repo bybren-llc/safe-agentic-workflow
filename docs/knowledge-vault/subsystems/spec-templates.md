@@ -3,7 +3,7 @@ type: guide
 title: "Spec Templates"
 description: "Five SAFe planning and specification templates that drive the spec-first workflow."
 tags: [subsystems, process, workflow, methodology]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: subsystems
 sources:
@@ -14,7 +14,7 @@ sources:
   - "specs_templates/pi_planning_template.md"
   - "scripts/apply-workflow.sh"
   - "CLAUDE.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Spec Templates

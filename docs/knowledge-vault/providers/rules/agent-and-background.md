@@ -3,7 +3,7 @@ type: guide
 title: "Cursor Rules: Agent & Background Family (20-31)"
 description: "Six manual Cursor rules: four SAFe agent personas plus background-agent and MCP integration guidance."
 tags: [providers, agents, orchestration, security]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 sources:
@@ -15,7 +15,7 @@ sources:
   - ".cursor/rules/31-mcp-integration.mdc"
   - ".cursor/rules/README.md"
   - ".cursor/mcp.json"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Cursor Rules: Agent & Background Family (20-31)

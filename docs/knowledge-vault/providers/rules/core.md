@@ -3,7 +3,7 @@ type: guide
 title: "Cursor Rules: Core Family (00-02)"
 description: "The three always-apply Cursor rules covering SAFe principles, git workflow, and mandatory pattern discovery."
 tags: [providers, methodology, workflow, patterns]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 sources:
@@ -11,7 +11,7 @@ sources:
   - ".cursor/rules/01-git-workflow.mdc"
   - ".cursor/rules/02-pattern-discovery.mdc"
   - ".cursor/rules/README.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Cursor Rules: Core Family (00-02)

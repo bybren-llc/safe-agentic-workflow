@@ -1,7 +1,7 @@
 {
   "okf_version": "0.1",
   "generated": "2026-07-19",
-  "baseline_sha": "fd0fc6a",
+  "baseline_sha": "c4f9d6d",
   "concept_count": 221,
   "_readme": [
     "The manifest has three jobs:",
@@ -12,7 +12,7 @@
     "  3. DRIFT BASELINE — \"baseline_sha\" is the commit the whole vault was last verified against.",
     "",
     "Built by the Phase 1 extraction pass (SAW-55) from 8 disjoint lane fragments in",
-    "_meta/manifest-parts/, merged deterministically. baseline_sha fd0fc6a."
+    "_meta/manifest-parts/, merged deterministically. baseline_sha c4f9d6d."
   ],
   "concepts": [
     {

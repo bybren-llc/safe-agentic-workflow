@@ -3,14 +3,14 @@ type: guide
 title: "Spec Template"
 description: "Per-story specification scaffold with acceptance criteria, pattern references, and testing plan."
 tags: [subsystems, process, workflow, patterns]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: subsystems
 sources:
   - "specs_templates/spec_template.md"
   - "specs_templates/README.md"
   - "CLAUDE.md"
-verified_against: "fd0fc6a"
+verified_against: "c4f9d6d"
 ---
 
 # Spec Template

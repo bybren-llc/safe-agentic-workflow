@@ -10,7 +10,7 @@ sources:
   - "specs_templates/program_template.md"
   - "specs_templates/README.md"
   - "docs/guides/SAFE-AI-DLC-METHODOLOGY.md"
-verified_against: "a79c2bd"
+verified_against: "c4f9d6d"
 ---
 
 # Program Template

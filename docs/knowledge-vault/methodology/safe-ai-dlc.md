@@ -13,7 +13,7 @@ sources:
   - ".cursor/rules/03-safe-ai-dlc.mdc"
   - "specs_templates/program_template.md"
   - ".claude/skills/linear-sop/SKILL.md"
-verified_against: "a79c2bd"
+verified_against: "c4f9d6d"
 ---
 
 # SAFe x AI-DLC Program Cadence
