@@ -109,11 +109,23 @@ until an audit caught it. That gap is documented here so you do not inherit it.
 The `vault-sync` skill ships with this harness (all four providers). It detects drift from
 `baseline_sha`, regenerates only what changed, validates, and records the sync.
 
-## Obsidian
+## Obsidian: the reading layer
 
-Optional but recommended — see the [Obsidian Guide](docs/OBSIDIAN-GUIDE.md). No community plugins
-required; the vault degrades gracefully to plain markdown in any editor. Bases views need Obsidian
-1.9+.
+A bundle is a directory of markdown, so **Obsidian opens it with no conversion step**. That is not
+incidental; it follows from OKF choosing plain files over a database or an API. Opening the vault
+in Obsidian is what turns a folder of concepts into something you can navigate:
+
+| Feature | What it gives you |
+| --- | --- |
+| **Graph view** | The concept graph, colour-grouped by directory. The shipped `graph.json` sets `showOrphans: true` deliberately: an orphan is a concept nothing links to, which is a defect you want visible rather than hidden. |
+| **Canvases** | Spatial maps for relationships a linear document cannot show, such as a request lifecycle or how a domain's pieces connect. |
+| **Bases** | Saved queries over frontmatter. The one that earns its keep is the **drift dashboard**: every concept whose `verified_against` has fallen behind the baseline, in one view. |
+
+See the [Obsidian Guide](docs/OBSIDIAN-GUIDE.md) for the full setup, and
+`templates/obsidian/` for the `app.json`, `graph.json` and `core-plugins.json` this harness ships.
+
+Obsidian is not a dependency: no community plugins are required, and the vault degrades gracefully
+to plain markdown in any editor. Bases views need Obsidian 1.9+.
 
 Three settings are non-negotiable if you use it:
 

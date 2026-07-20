@@ -93,6 +93,25 @@ The build runs in four phases: **Extract** (turn source into fact digests), **Ge
 digests into concepts), **Navigate** (build a reference door and a learning door), and **Verify** —
 which is adversarial, and is where the value concentrates.
 
+### The reading layer
+
+One consequence of OKF choosing plain files over a database or an API is easy to overlook and hard
+to overvalue: **the output opens in [Obsidian](https://obsidian.md) with no conversion step.** The
+same directory a validator checks in CI is the directory a person browses.
+
+That turns a folder of concepts into something navigable in three ways. The **graph view** renders
+the concept graph itself, colour-grouped by directory; the config we ship sets `showOrphans: true`
+deliberately, because an orphan is a concept nothing links to and that is a defect you want visible
+rather than hidden. **Canvases** hold spatial maps for relationships a linear document cannot show,
+such as a request lifecycle or how a domain's pieces connect. And **Bases** provides saved queries
+over frontmatter, the most useful being a drift dashboard: every concept whose `verified_against`
+has fallen behind the baseline, in one view.
+
+The vault degrades gracefully to plain markdown in any editor, and no community plugins are
+required, so none of this is a dependency. But a knowledge base you can see the shape of is a
+different object from one you can only grep, and that difference is most of why the format choice
+matters.
+
 ---
 
 ## Part 3 — What happened when we ran it on ourselves
