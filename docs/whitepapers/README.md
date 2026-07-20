@@ -4,6 +4,24 @@ This directory contains the complete documentation for the Claude Code harness a
 
 ## Documents
 
+### 0. Evidence Over Assertion
+
+**File**: `EVIDENCE-OVER-ASSERTION.md`
+
+A field report on two methods for running AI agents at scale — the SAFe x AI-DLC cadence fusion and
+the OKF knowledge vault — and what happened when both were run against this repository:
+
+- Why agent-authored documentation looks like knowledge and is often an echo
+- Bolts, Units of Work, and the human-in-the-loop gate
+- Making staleness computable via `verified_against` + `baseline_sha`
+- The anti-hallucination link allowlist: 0 invented links across 23 parallel agents
+- Measured results: 221 concepts, 366 source files mapped, 0 validator errors
+- What the build found in the harness itself, including a governance hole and five silent
+  portability defects
+- **The five claims the author got wrong, and the mechanism that caught each one**
+
+Written for a general audience and for the AI Captains community.
+
 ### 1. Claude Code Harness Modernization (Main Whitepaper)
 
 **File**: `CLAUDE-CODE-HARNESS-MODERNIZATION-{{TICKET_PREFIX}}-444.md`
