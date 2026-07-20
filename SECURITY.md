@@ -94,17 +94,18 @@ Please report:
 
 ### Before Adoption
 
+```bash
 # 1. Review all agent prompts
-
-cat .claude/agents/\*.md
+cat .claude/agents/*.md
 
 # 2. Review all hook commands
-
 cat .claude/hooks-config.json
 
 # 3. Review all skills for sensitive patterns
+grep -r "password\|secret\|key\|token" .claude/skills/
+```
 
-grep -r "password\|secret\|key\|token" .claude/skills/### During Use
+### During Use
 
 - **Don't paste secrets** into Claude conversations
 - **Review agent outputs** before executing suggested commands
