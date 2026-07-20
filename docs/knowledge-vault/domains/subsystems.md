@@ -32,7 +32,7 @@ belongs to [Methodology](methodology.md), the CI that would run a config to
   [topology](../subsystems/dark-factory/tmux-topology.md),
   [merge queue policy](../subsystems/dark-factory/merge-queue-policy.md),
   [setup](../subsystems/dark-factory/factory-setup.md), [start](../subsystems/dark-factory/factory-start.md).
-- [Knowledge Vault](../subsystems/knowledge-vault.md) — the OKF validator gating this bundle, and
+- [Knowledge Vault](../subsystems/knowledge-vault.md) — the vault validator gating this bundle, and
   [apply-workflow](../operations/scripts/apply-workflow.md), which distributes three of the five.
 
 ## Key Flows

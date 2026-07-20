@@ -17,3 +17,44 @@ For licensing inquiries: scott@wordstofilmby.com
 Website: https://wordstofilmby.com
 Creator: https://jscottgraham.us
 GitHub: https://github.com/cheddarfox | https://github.com/bybren-llc
+
+--------------------------------------------------------------------------------
+
+THIRD-PARTY NOTICES
+
+Open Knowledge Format (OKF) v0.1
+Published by Google Cloud, in GoogleCloudPlatform/knowledge-catalog
+Licensed under the Apache License, Version 2.0
+    https://github.com/GoogleCloudPlatform/knowledge-catalog
+    https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+    https://www.apache.org/licenses/LICENSE-2.0
+
+The knowledge-vault subsystem produces bundles in the Open Knowledge Format, an
+open specification published by Google Cloud. OKF defines the portable format:
+a directory of Markdown files with YAML frontmatter, `type` as the only required
+field, the reserved filenames `index.md` and `log.md`, and cross-links that form
+a graph.
+
+OKF does NOT define, and is not the source of, the verification layer this
+harness adds on top of it: the `verified_against` commit stamp, the manifest
+used as an ID registry and reverse index, the link allowlist, the fixed ordered
+body sections, the concept size budget, or a validator that rejects. Those are
+this project's work, MIT-licensed, and must not be attributed to Google or to
+the OKF specification.
+
+OKF's conformance rules are deliberately permissive and bind consumers, which is
+why this project's producer-side strictness is complementary to the spec rather
+than a deviation from it. A bundle produced under these stricter rules remains a
+conformant OKF bundle.
+
+AI-Driven Development Life Cycle (AI-DLC)
+Published by Amazon Web Services
+    https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/
+
+The SAFe x AI-DLC cadence layer adopts AI-DLC's vocabulary and loop: the Bolt,
+the Unit of Work, Mob Elaboration and Mob Construction, and the Inception /
+Construction / Operations phases. AI-DLC is AWS's methodology. The fusion with
+SAFe's hierarchy, gates and tracker mapping is this project's work.
+
+SAFe® is a registered trademark of Scaled Agile, Inc. This project is not
+affiliated with, endorsed by, or certified by Scaled Agile, Inc.

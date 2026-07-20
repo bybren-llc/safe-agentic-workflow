@@ -1,5 +1,5 @@
 ---
-description: "OKF knowledge-vault conventions: the frontmatter contract, link rules, verified_against drift discipline, and the vault-sync loop. Activate when authoring or maintaining knowledge-vault concepts."
+description: "Knowledge-vault authoring conventions for OKF bundles: this project's frontmatter contract, link rules, verified_against drift discipline, and the vault-sync loop. Activate when authoring or maintaining knowledge-vault concepts."
 alwaysApply: false
 ---
 

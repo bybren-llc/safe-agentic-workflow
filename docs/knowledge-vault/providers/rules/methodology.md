@@ -31,7 +31,7 @@ Its most useful line is the exclusion: single isolated tickets are routed to
 `01-git-workflow.mdc` instead, in the [Core Family](core.md). Invoking program cadence for one
 ticket is the failure mode this rule was written to prevent.
 
-## 04-knowledge-vault.mdc — OKF conventions
+## 04-knowledge-vault.mdc — vault authoring conventions
 
 70 lines covering the frontmatter contract, link rules, `verified_against` drift discipline, and
 the vault-sync loop described in [Knowledge Vault](../../subsystems/knowledge-vault.md).
