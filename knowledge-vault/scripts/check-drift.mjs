@@ -11,12 +11,25 @@
 // --since diffs baseline..HEAD. --paths takes an explicit list, which is what
 // makes the behaviour testable without mutating the working tree.
 import { readFileSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const argv = process.argv.slice(2);
+
+// Returns the flag's value, or `d` when the flag is absent.
+// Deliberately strict about two cases that used to fail silently:
+//   - `--paths ""` and a trailing bare `--paths` previously fell through to the
+//     default, turning "check these zero paths" into "diff the entire baseline".
+//   - A flag immediately followed by another flag used to swallow it as a value.
+// Both now exit with a message rather than quietly doing something else.
 const arg = (n, d = null) => {
   const i = argv.indexOf(n);
-  return i >= 0 && argv[i + 1] ? argv[i + 1] : d;
+  if (i < 0) return d;
+  const v = argv[i + 1];
+  if (v === undefined || v.startsWith('--')) {
+    console.error(`error: ${n} requires a value`);
+    process.exit(2);
+  }
+  return v;
 };
 
 const vault = arg('--vault', 'docs/knowledge-vault');
@@ -31,12 +44,19 @@ const excluded = (p) =>
   });
 
 let changed;
-const explicit = arg('--paths');
-if (explicit) {
-  changed = explicit.split(',').map((s) => s.trim()).filter(Boolean);
+// `--paths` present at all means explicit mode, even if it resolves to an empty list.
+// Testing truthiness here is what let an empty value fall through to a full diff.
+const explicitMode = argv.includes('--paths');
+if (explicitMode) {
+  changed = arg('--paths').split(',').map((s) => s.trim()).filter(Boolean);
 } else {
   const since = arg('--since', manifest.baseline_sha);
-  changed = execSync(`git diff --name-only ${since}..HEAD`, { encoding: 'utf8' })
+  // execFileSync with an argument array, never a shell string. `since` can come from
+  // the manifest JSON, so interpolating it into a shell command was arbitrary code
+  // execution: `--since 'x ; touch /tmp/PWNED ; echo y'` ran.
+  changed = execFileSync('git', ['diff', '--name-only', `${since}..HEAD`], {
+    encoding: 'utf8',
+  })
     .split('\n')
     .map((s) => s.trim())
     .filter(Boolean);

@@ -16,8 +16,18 @@ on:
       # The validator and the bundle it ships with
       - "knowledge-vault/scripts/validate-vault.mjs"
       - "knowledge-vault/templates/starter-bundle/**"
-      # Source paths the concepts claim to describe. A change here can invalidate a concept,
-      # so it must trip this workflow. Mirrors the vault-sync watch list.
+      # Source paths the concepts claim to describe. This list is BROADER than a normal path
+      # filter on purpose, and narrower than the vault-sync watch list in vault-config.json —
+      # it is not a mirror of it.
+      #
+      # What this gate can catch: the validator re-checks that every `resource`/`sources` path
+      # in the manifest still exists on disk, so a deleted or renamed cited source fails here.
+      # What it cannot catch: CONTENT drift — a source that changed meaning while keeping its
+      # path. That needs `knowledge-vault/scripts/check-drift.mjs`, which is a manual tool and
+      # is not wired into CI (it would need `fetch-depth: 0` on checkout to diff against the
+      # baseline SHA).
+      #
+      # Cost is acceptable: the job runs in about a minute with no install step.
       - ".claude/**"
       - ".gemini/**"
       - ".codex/**"
@@ -73,5 +83,7 @@ jobs:
       - name: Validate vault structure
         run: node knowledge-vault/scripts/validate-vault.mjs --vault docs/knowledge-vault --strict-orphans
 
+      # Version-pinned deliberately: an unpinned major with new default rules would break this
+      # gate on an unrelated PR, with no lockfile to explain why.
       - name: Lint vault markdown
-        run: npx --yes markdownlint-cli2 "docs/knowledge-vault/**/*.md"
+        run: npx --yes markdownlint-cli2@0.22.1 "docs/knowledge-vault/**/*.md"

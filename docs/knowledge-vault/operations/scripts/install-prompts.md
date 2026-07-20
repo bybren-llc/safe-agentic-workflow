@@ -38,9 +38,11 @@ unresolved `{{PROJECT_SHORT}}` placeholders, which makes it a substitution targe
   the destination agents directory.
 - **Out** hooks — `.claude/hooks/*.sh` copied into a user hooks directory, suppressed with
   `2>/dev/null || true` so a missing hooks directory is silent and non-fatal.
-- **Note** the header and the success message both claim 11 agents, but the copy is an unchecked
-  `*.md` glob. `.claude/agents/` holds 12 `.md` files: 11 agent prompts plus a `README.md`, which
-  the glob installs alongside them. The count is a comment, not an assertion.
+- **The count is an enforced assertion, and it currently fails on this repository.**
+  `verify_agent_files` sets `expected_count=11` and counts with an unfiltered
+  `find -maxdepth 1 -name "*.md" -type f`. `.claude/agents/` holds **12** such files — 11 agent
+  prompts plus `README.md`, which the count does not exclude. The mismatch returns 1, and the
+  caller turns that into `exit 1`, so the script aborts before copying anything.
 - **Caveat** no dry-run, no uninstall, and no idempotency check beyond `cp` overwrite. `cp -v` makes
   the transcript the only record of what was installed.
 

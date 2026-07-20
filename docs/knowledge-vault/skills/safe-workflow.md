@@ -30,7 +30,8 @@ contributing guide wins.
 
 ## Routes To
 
-The skill carries no repository file paths in either surface copy. Its "Authoritative Reference"
+The skill carries almost no repository file paths — one, `.claude/README.md`, in the Claude copy's
+reference list. Its "Authoritative Reference"
 heading names `CONTRIBUTING.md` in prose only, so the routing is by convention rather than by link
 — a reader must know where to look. This is worth knowing before relying on it to navigate.
 
