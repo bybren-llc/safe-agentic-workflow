@@ -24,7 +24,7 @@ happened when we ran them against the repository that ships them.
 
 ---
 
-## Part 1 — SAFe x AI-DLC: replacing the clock, not the structure
+## Part 1 — SAFe x AI-DLC: changing the clock, not the structure
 
 SAFe gives a delivery process its hierarchy: initiatives, features, stories, defined roles, a
 Definition of Done, disciplined dependencies. That machinery works and is worth keeping.
@@ -34,7 +34,7 @@ or two. A team of specialised agents can elaborate, build, and verify a coherent
 hours. Planning that into two-week increments wastes most of the capability and hides progress
 behind ceremony.
 
-So the fusion keeps SAFe's structure and replaces its clock with AWS's
+So the fusion keeps SAFe's structure and, in programs that adopt it, takes its clock from AWS's
 [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/).
 
 Inside a program that adopts the fusion, each concept stands in for its SAFe counterpart:

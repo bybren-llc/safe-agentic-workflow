@@ -11,7 +11,7 @@ Corrected in the vault's own claims: `providers/rules/methodology.md` described
 `max_concept_lines` as "machine-enforced" when `validate-vault.mjs:320-323` only warns and exits 0;
 `subsystems/knowledge-vault.md` said the validator ran in no CI workflow, contradicted by
 `.github/workflows/validate-vault.yml` since `dc016c3`. Three stale line counts in manifest `notes`
-fixed (81→82, 146→148, 1463→1474).
+fixed (81→82, 146→148, 1463→1476).
 
 **`baseline_sha` deliberately NOT moved.** It stays at `fd0fc6a`. Measured from that baseline the
 vault has 49 stale concepts; this pass re-derived 27, leaving **23 untouched** — mostly `sync/*`,

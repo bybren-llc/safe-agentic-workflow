@@ -1,7 +1,7 @@
 ---
 type: meta
 title: "SAW Knowledge Vault"
-description: "Root index for the SAFe Agentic Workflow knowledge bundle: both doors into 220 evidence-verified concepts."
+description: "Root index for the SAFe Agentic Workflow knowledge bundle: both doors into 221 evidence-verified concepts."
 tags: [okf]
 timestamp: 2026-07-19
 status: active

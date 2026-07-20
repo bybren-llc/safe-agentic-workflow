@@ -55,7 +55,7 @@ types or keys, broken links, or absent index files. This project's extra rules
 bind producers and sit above the §9 floor, so they add strictness without
 breaching it: a bundle produced under them still satisfies all three conditions
 and remains conformant. Note that the bundle-root `index.md` carries frontmatter
-in order to declare `okf_version`, which §6 permits as the sole exception to
+in order to declare `okf_version`, which §11 permits as the sole exception to
 index files having none.
 
 AI-Driven Development Life Cycle (AI-DLC)
