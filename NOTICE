@@ -37,15 +37,26 @@ a graph.
 
 OKF does NOT define, and is not the source of, the verification layer this
 harness adds on top of it: the `verified_against` commit stamp, the manifest
-used as an ID registry and reverse index, the link allowlist, the fixed ordered
-body sections, the concept size budget, or a validator that rejects. Those are
-this project's work, MIT-licensed, and must not be attributed to Google or to
-the OKF specification.
+used as an ID registry and reverse index, the link allowlist, the concept size
+budget, or a validator that rejects. Those are this project's work,
+MIT-licensed, and must not be attributed to Google or to the OKF specification.
 
-OKF's conformance rules are deliberately permissive and bind consumers, which is
-why this project's producer-side strictness is complementary to the spec rather
-than a deviation from it. A bundle produced under these stricter rules remains a
-conformant OKF bundle.
+Body sections are a shared case rather than a clean split. OKF §4.2 defines
+`Schema`, `Examples` and `Citations` as conventional headings that SHOULD be
+used when applicable, and states there are no required body sections. Turning
+those into a fixed, ordered, per-type sequence that a validator enforces is this
+project's addition; the vocabulary itself is OKF's.
+
+On conformance: OKF §9 makes conformance a property of a bundle, with three
+producer-side conditions (parseable frontmatter on every non-reserved file, a
+non-empty `type` in each, and reserved filenames following §6 and §7). Separately
+it directs consumers not to reject a bundle over missing optional fields, unknown
+types or keys, broken links, or absent index files. This project's extra rules
+bind producers and sit above the §9 floor, so they add strictness without
+breaching it: a bundle produced under them still satisfies all three conditions
+and remains conformant. Note that the bundle-root `index.md` carries frontmatter
+in order to declare `okf_version`, which §6 permits as the sole exception to
+index files having none.
 
 AI-Driven Development Life Cycle (AI-DLC)
 Published by Amazon Web Services

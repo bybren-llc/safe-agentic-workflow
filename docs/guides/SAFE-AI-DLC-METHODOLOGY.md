@@ -26,7 +26,7 @@ The result is not "SAFe but faster." It is SAFe with its clock swapped out, for 
 
 **Bolt** -- the unit of cadence, standing in for the sprint wherever the fusion is adopted. A short swarm (hours to a few days) with an entry gate, a handful of issues, and a hard exit. Named and numbered (`bolt:0`, `bolt:1`, and so on). A Bolt exits on **evidence**, not on a date.
 
-**Unit of Work** -- an AI-DLC Feature. In the tracker it is a Project. It is one coherent outcome, not a grab-bag of related tickets.
+**Unit of Work** -- one coherent outcome, not a grab-bag of related tickets. In the tracker it is a Project. Note the granularity is ours: AWS frames the Unit of Work as replacing the *Epic*, while this fusion keeps SAFe's Epic at the initiative level and maps the Unit of Work to the Feature.
 
 **Mob Elaboration** -- the Inception activity. The AI reads the issue, breaks it into sub-issues (mob tasks), lists unknowns, and asks clarifying questions **before writing any code**.
 

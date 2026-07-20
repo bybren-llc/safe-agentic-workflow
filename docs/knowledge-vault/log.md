@@ -1,5 +1,26 @@
 # Log
 
+## 2026-07-20
+
+**Docs-accuracy pass (SAW-63, SAW-64, SAW-65).** 27 concepts re-derived from source and re-stamped
+to `a79c2bd` / `c4f9d6d`: everything citing the files reworded for OKF attribution, opt-in Bolt
+cadence, and the Obsidian reading layer. Several came back verified-unchanged and were stamped
+without edits.
+
+Corrected in the vault's own claims: `providers/rules/methodology.md` described
+`max_concept_lines` as "machine-enforced" when `validate-vault.mjs:320-323` only warns and exits 0;
+`subsystems/knowledge-vault.md` said the validator ran in no CI workflow, contradicted by
+`.github/workflows/validate-vault.yml` since `dc016c3`. Three stale line counts in manifest `notes`
+fixed (81→82, 146→148, 1463→1474).
+
+**`baseline_sha` deliberately NOT moved.** It stays at `fd0fc6a`. Measured from that baseline the
+vault has 49 stale concepts; this pass re-derived 27, leaving **23 untouched** — mostly `sync/*`,
+`providers/*` and `operations/scripts/*` concepts that drifted during the v2.11.0 release work.
+Advancing the watermark would have dropped the default `check-drift` report from 49 to 0 and made
+that debt invisible, since `check-drift.mjs:53` defaults `--since` to `baseline_sha` and never reads
+`verified_against`. The remaining 23 are tracked separately; the baseline moves when they are
+reconciled, not before.
+
 ## 2026-07-19
 
 **Initial build of the SAW knowledge vault.** Baseline `fd0fc6a` on `dev`, after GH#53 (SAFe x

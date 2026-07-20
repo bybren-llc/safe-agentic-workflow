@@ -72,7 +72,7 @@ Obsidian canvases. Open these when a list is the wrong shape for the question.
 
 ## Views
 
-Obsidian Bases. Saved queries over the same 220 concepts.
+Obsidian Bases. Saved queries over the same 221 concepts.
 
 - [Drift dashboard](bases/stale-concepts.base) — the maintenance queue: every concept whose
   `verified_against` is not `fd0fc6a`. This is the one to open first after a merge.

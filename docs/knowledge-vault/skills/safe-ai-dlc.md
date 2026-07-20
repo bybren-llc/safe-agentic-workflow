@@ -28,9 +28,9 @@ Bolts; adopting it is a per-program choice and the standard sprint path stays va
 
 Eleven H2s carry it, including The Fusion Model, Issue Template, Dependency-Wiring Rules, Running a
 Bolt, Human-Gate Checklist, and Anti-Patterns (Do NOT use) — the last matters as much as the
-procedure, being explicit about when the machinery is overkill. Both copies are exactly 148 lines,
-the only exact line-count match across the twenty; vault-sync's two copies diverge less, 15 `diff`
-lines against 83 here.
+procedure, being explicit about when the machinery is overkill. The `.claude` and `.agents` copies
+are both exactly 148 lines, the only exact match across the twenty; the Gemini copy runs 151, having
+gained a manual-process section. vault-sync's copies diverge less: 15 `diff` lines against 83 here.
 
 ## Routes To
 

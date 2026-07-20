@@ -17,7 +17,7 @@ Adopting the fusion is a per-program choice; the standard sprint path stays vali
 
 - **Bolt** — the unit of cadence. A short swarm (hours to a few days) with an entry gate, a handful
   of issues, and a hard exit. Numbered `bolt:0`, `bolt:1`, and so on.
-- **Unit of Work** — an AI-DLC Feature. One coherent outcome. A project in the tracker.
+- **Unit of Work** — one coherent outcome; a project in the tracker. Mapped to the SAFe Feature here, though AWS frames it as replacing the Epic.
 - **Mob Elaboration** — the Inception activity: read the issue, break it into sub-issues, list
   unknowns, and ask clarifying questions **before writing any code**.
 - **Mob Construction** — the Construction activity: implement against the elaborated plan.

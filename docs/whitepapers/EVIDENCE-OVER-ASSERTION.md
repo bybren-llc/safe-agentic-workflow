@@ -37,7 +37,9 @@ behind ceremony.
 So the fusion keeps SAFe's structure and replaces its clock with AWS's
 [AI-Driven Development Life Cycle](https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle/).
 
-| Concept | Replaces | Definition |
+Inside a program that adopts the fusion, each concept stands in for its SAFe counterpart:
+
+| Concept | Stands in for | Definition |
 | --- | --- | --- |
 | **Bolt** | The sprint | An hours-to-days swarm with an entry gate and a hard exit. Exits on **evidence**, not a date. |
 | **Unit of Work** | The Feature | One coherent outcome. A project in the tracker. |
@@ -108,7 +110,7 @@ over frontmatter, the most useful being a drift dashboard: every concept whose `
 has fallen behind the baseline, in one view.
 
 The vault degrades gracefully to plain markdown in any editor, and no community plugins are
-required, so none of this is a dependency. But a knowledge base you can see the shape of is a
+required, though Bases views need Obsidian 1.9+. But a knowledge base you can see the shape of is a
 different object from one you can only grep, and that difference is most of why the format choice
 matters.
 
