@@ -3,7 +3,7 @@ type: provider
 title: "Codex CLI Provider Surface"
 description: "The .codex/ surface: config.toml with profiles and MCP servers, 11 role TOMLs, skills delegated to .agents/skills."
 tags: [providers, agents, skills, security]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 resource: ".codex"
@@ -13,7 +13,7 @@ sources:
   - ".codex/agents"
   - "AGENTS.md"
   - ".harness-manifest.yml"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # Codex CLI Provider Surface

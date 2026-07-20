@@ -3,7 +3,7 @@ type: script
 title: "Hook: post-commit-linear-update.sh"
 description: "Extracts a Linear ticket ID from the latest commit message and prints a suggested Linear comment; never calls Linear."
 tags: [providers, hooks, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 resource: ".claude/hooks/post-commit-linear-update.sh"
@@ -12,7 +12,7 @@ sources:
   - "agent_providers/claude_code/hooks/post-commit-linear-update.sh"
   - ".claude/hooks-config.json"
   - ".claude/README.md"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # Hook: post-commit-linear-update.sh

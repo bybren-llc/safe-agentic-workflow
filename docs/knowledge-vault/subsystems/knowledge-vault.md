@@ -11,7 +11,7 @@ sources:
   - "knowledge-vault/scripts/validate-vault.mjs"
   - "knowledge-vault/tests/test-validator-gates.sh"
   - "knowledge-vault/templates/github/validate-vault.yml"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Knowledge Vault Subsystem

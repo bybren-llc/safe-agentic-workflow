@@ -3,13 +3,13 @@ type: script
 title: "apply-workflow.sh"
 description: "Integrates the SAFe agentic workflow template into an existing project, prompting for the AI agent provider."
 tags: [operations, onboarding, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 resource: "scripts/apply-workflow.sh"
 sources:
   - "scripts/apply-workflow.sh"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # apply-workflow.sh

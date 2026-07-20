@@ -8,12 +8,12 @@ status: active
 domain: methodology
 sources:
   - "README.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # README
 
-At 1476 lines this is the largest document in the repository, and emphatically not an index.
+At 1477 lines this is the largest document in the repository, and emphatically not an index.
 Several contracts exist in full text here and nowhere else, so it is a source of truth.
 
 ## What Only Lives Here
@@ -42,16 +42,15 @@ workflow, [Agent Workflow SOP v1.4](../sop/agent-workflow-sop.md) for invocation
 ## Staleness Risk
 
 Unusually high, and structurally so: it duplicates tables that also live in `AGENTS.md`,
-`CONTRIBUTING.md`, and `docs/sop/AGENT_WORKFLOW_SOP.md`, each mirrored by hand. Two divergences are
-already visible inside this single file at `a79c2bd`:
+`CONTRIBUTING.md`, and `docs/sop/AGENT_WORKFLOW_SOP.md`, each mirrored by hand. An "Includes" bullet
+that said 18 skills — against its own badge, its own tables, and the 20 in `.claude/skills/` on disk
+— was carried here until `0c26121` corrected it to 20. One divergence still stands at `0c26121`:
 
-- Its "Includes" bullet says 18 skills, where its own badge, its own tables, and the contents of
-  `.claude/skills/` on disk all say 20. The disk count is correct.
 - Its Appendix A exit-state table has eight rows where its own top-level table has seven. Neither
   is marked authoritative; [Exit States](../../methodology/exit-states.md) records the real set.
 
-Both are self-inconsistencies within one document — the clearest possible signal that the
-duplication is not being maintained. Prefer the owning document whenever the two disagree.
+That lone self-inconsistency within one document is a signal that the hand-mirrored duplication is
+not reliably maintained. Prefer the owning document whenever two copies disagree.
 
 ## Citations
 

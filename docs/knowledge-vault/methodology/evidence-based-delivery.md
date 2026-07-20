@@ -14,7 +14,7 @@ sources:
   - "docs/guides/AGENT_TEAM_GUIDE.md"
   - "docs/onboarding/QAS-DAILY-WORKFLOW.md"
   - "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Evidence-Based Delivery

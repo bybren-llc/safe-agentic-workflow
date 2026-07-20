@@ -13,7 +13,7 @@ sources:
   - ".cursor/rules/03-safe-ai-dlc.mdc"
   - "specs_templates/program_template.md"
   - ".claude/skills/linear-sop/SKILL.md"
-verified_against: "c4f9d6d"
+verified_against: "0c26121"
 ---
 
 # SAFe x AI-DLC Program Cadence
@@ -45,8 +45,8 @@ cadence you select.
 
 Six decisions always route to the human, enumerated in the guide: secrets, security policy, required
 CI checks and branch protection, severity and fix-vs-suppress budget, SOP exceptions, signing the
-DoD. One discrepancy: README calls this a skill on all four providers; Cursor carries it as manual
-rule `03-safe-ai-dlc.mdc`.
+DoD. The method ships as a skill for Claude, Gemini and the portable surface; Cursor carries it as a
+manual rule, `03-safe-ai-dlc.mdc`.
 
 ## Roles Involved
 

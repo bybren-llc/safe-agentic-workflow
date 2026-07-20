@@ -3,7 +3,7 @@ type: script
 title: "Hook: pre-bash-rls-validation.sh"
 description: "Inspects a bash command for Prisma/psql usage and warns when no RLS context helper is present; blocks nothing."
 tags: [providers, hooks, security]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: providers
 resource: ".claude/hooks/pre-bash-rls-validation.sh"
@@ -11,7 +11,7 @@ sources:
   - ".claude/hooks/pre-bash-rls-validation.sh"
   - "agent_providers/claude_code/hooks/pre-bash-rls-validation.sh"
   - ".claude/hooks-config.json"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # Hook: pre-bash-rls-validation.sh

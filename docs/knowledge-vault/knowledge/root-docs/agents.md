@@ -3,12 +3,12 @@ type: guide
 title: "AGENTS.md"
 description: "SSoT stub: the agent-team quick reference, and the file Codex CLI reads natively as its instruction surface."
 tags: [ssot-stub, agents, workflow, providers]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: methodology
 sources:
   - "AGENTS.md"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # AGENTS.md

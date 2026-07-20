@@ -10,7 +10,7 @@ sources:
   - "docs/guides/ROUND-TABLE-PHILOSOPHY.md"
   - "AGENTS.md"
   - "docs/guides/AGENT_TEAM_GUIDE.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Round Table Philosophy

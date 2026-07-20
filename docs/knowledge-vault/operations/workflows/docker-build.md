@@ -4,13 +4,13 @@ title: "Docker Build Workflow (docker-build.yml)"
 description: "Builds and pushes a container image on push to main/dev or on a labeled PR."
 resource: ".github/workflows/docker-build.yml"
 tags: [operations, ci, workflow]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 sources:
   - ".github/workflows/docker-build.yml"
   - "scripts/setup-template.sh"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # Docker Build Workflow (docker-build.yml)

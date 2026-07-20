@@ -13,7 +13,7 @@ sources:
   - "docs/guides/ROUND-TABLE-PHILOSOPHY.md"
   - "docs/sop/AGENT_WORKFLOW_SOP.md"
   - ".claude/commands/start-work.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Stop-the-Line Gate and Authority

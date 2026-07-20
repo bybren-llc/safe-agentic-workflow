@@ -12,7 +12,7 @@ sources:
   - "CONTRIBUTING.md"
   - "docs/sop/AGENT_WORKFLOW_SOP.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Role Collapsing and Independence Gates

@@ -16,7 +16,7 @@ sources:
   - ".harness-manifest.yml"
   - ".harness-manifest.schema.json"
   - "docs/releases/v2.10.0-UPGRADE.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Harness Sync and Fork Workflow
@@ -30,7 +30,7 @@ protected. It prevents the upgrade that silently reverts a fork's own decisions.
 Two update paths exist by design. The automated path runs `scripts/sync-claude-harness.sh` over the
 domains in the manifest's `sync` scope; since v2.10.0 the manifest is required, and without one only
 `--dry-run` is permitted. Everything outside that scope — `docs/`, `scripts/`, `patterns_library/` —
-is updated by git remote and checkout, then `scripts/setup-template.sh` re-applies placeholders.
+is updated by git remote and checkout, then `sync-claude-harness.sh --dry-run` previews and applies.
 
 ## Flow
 
@@ -44,9 +44,9 @@ is updated by git remote and checkout, then `scripts/setup-template.sh` re-appli
 - **Recover.** `rollback` restores the pre-sync backup — no partial revert. Legacy forks first run
   a six-step migration moving the old `.sync-exclude` file into the manifest's `protected` section.
 
-Version drift to watch: README's badge and automated `sync --version` examples read v2.11.0, but
-its manual path still diffs `v2.9.0..v2.10.0` and links the v2.10.0 upgrade guide, and `SECURITY.md`
-still lists 2.0.x as current. The badge reflects the shipped version.
+Version consistency: README's badge, automated `sync --version` examples, and the manual
+`git diff v2.10.0..v2.11.0` now all read v2.11.0, and `SECURITY.md` lists 2.11.x as current. One
+residual pointer: the manual path still links the v2.10.0 upgrade guide for rollback options.
 
 ## Roles Involved
 

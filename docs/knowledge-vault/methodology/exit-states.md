@@ -14,7 +14,7 @@ sources:
   - "docs/workflow/TDM_AGENT_ASSIGNMENT_MATRIX.md"
   - "docs/onboarding/ENGINEER-DAILY-WORKFLOW.md"
   - "docs/onboarding/QAS-DAILY-WORKFLOW.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Exit States and Handoff Statements

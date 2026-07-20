@@ -3,14 +3,14 @@ type: script
 title: "setup-template.sh"
 description: "Interactive wizard that replaces template placeholders repo-wide when a new project is created from the template."
 tags: [operations, onboarding, sync]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 resource: "scripts/setup-template.sh"
 sources:
   - "scripts/setup-template.sh"
   - ".harness-manifest.yml"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # setup-template.sh
@@ -27,7 +27,7 @@ the sync engine rebuilds its map from them — rename a token and fork sync sile
 `REPLACEMENTS` is a `declare -a` of 30 `OLD|NEW` pairs applied longest and most specific first, so
 `{{GITHUB_REPO_URL}}` is consumed before `{{GITHUB_ORG}}` and `{{AUTHOR_FIRST_NAME}}` before
 `{{AUTHOR_NAME}}`; a pair is skipped when `OLD` equals `NEW`, and substitution is unanchored
-`s|OLD|NEW|g`. 28 `read -rp` prompts feed them. Four values are derived, never prompted —
+`s|OLD|NEW|g`. 26 `read -rp` prompts feed them. Four values are derived, never prompted —
 `GITHUB_REPO_URL`, `TICKET_PREFIX_LOWER`, `AUTHOR_INITIALS`, `HARNESS_VERSION` — exactly the four
 absent from the manifest's 26 identity keys, which the schema confirms are computed automatically.
 `_sed_inplace` picks GNU `sed -i` versus BSD `sed -i ''` via `sed --version | grep GNU`, the only script
@@ -35,7 +35,7 @@ here detecting the flavour explicitly; two others use the portable [`sed -i.tmp`
 
 ## Inputs & Outputs
 
-- **In** 28 interactive prompts for identity values (**names only** recorded here), then
+- **In** 26 interactive prompts for identity values (**names only** recorded here), then
   `Proceed? (y/N)` — the sole confirmation gate; anything but `y`/`Y` prints `Aborted.`, **Exit** `1`.
 - **Out** rewritten files, found by `find` over 17 name patterns (`*.md *.json *.yml *.yaml *.sh
   *.py *.txt *.toml *.bib *.cff *.mjs *.ts NOTICE LICENSE CODEOWNERS .env.template .gitignore`),

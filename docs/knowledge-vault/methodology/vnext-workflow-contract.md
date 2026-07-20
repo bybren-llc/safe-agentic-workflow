@@ -14,7 +14,7 @@ sources:
   - "docs/workflow/WORKFLOW_MIGRATION_GUIDE.md"
   - "docs/workflow/WORKFLOW_COMPARISON.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # vNext Workflow Contract

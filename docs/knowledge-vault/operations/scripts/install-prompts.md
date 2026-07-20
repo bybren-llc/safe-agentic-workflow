@@ -3,19 +3,19 @@ type: script
 title: "install-prompts.sh"
 description: "Installs the agent prompt files for Claude Code or Augment Code, either per-user or in-project for team sharing."
 tags: [operations, agents, onboarding]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 resource: "scripts/install-prompts.sh"
 sources:
   - "scripts/install-prompts.sh"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # install-prompts.sh
 
 Copies agent prompt files out of the repo's `.claude/` tree into a destination agents directory,
-**overwriting existing files with no diff and no backup step**. 285 lines of bash under `set -e`.
+**overwriting existing files with no diff and no backup step**. 286 lines of bash under `set -e`.
 
 ## Overview
 
@@ -38,11 +38,11 @@ unresolved `{{PROJECT_SHORT}}` placeholders, which makes it a substitution targe
   the destination agents directory.
 - **Out** hooks — `.claude/hooks/*.sh` copied into a user hooks directory, suppressed with
   `2>/dev/null || true` so a missing hooks directory is silent and non-fatal.
-- **The count is an enforced assertion, and it currently fails on this repository.**
-  `verify_agent_files` sets `expected_count=11` and counts with an unfiltered
-  `find -maxdepth 1 -name "*.md" -type f`. `.claude/agents/` holds **12** such files — 11 agent
-  prompts plus `README.md`, which the count does not exclude. The mismatch returns 1, and the
-  caller turns that into `exit 1`, so the script aborts before copying anything.
+- **The count is an enforced assertion that now passes.** `verify_agent_files` sets
+  `expected_count=11` and counts with `find -maxdepth 1 -name "*.md" -type f ! -name "README.md"`,
+  which excludes the directory's own `README.md`. `.claude/agents/` holds 11 agent prompts, so the
+  count matches and the install proceeds; a mismatch still returns 1 and the caller turns it into
+  `exit 1` before copying anything.
 - **Caveat** no dry-run, no uninstall, and no idempotency check beyond `cp` overwrite. `cp -v` makes
   the transcript the only record of what was installed.
 

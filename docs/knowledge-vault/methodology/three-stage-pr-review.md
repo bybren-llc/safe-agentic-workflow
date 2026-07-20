@@ -14,7 +14,7 @@ sources:
   - "docs/sop/PRE_PR_VALIDATION_CHECKLIST.md"
   - "docs/workflow/ARCHITECT_IN_CLI_ROLE.md"
   - ".github/pull_request_template.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Three-Stage PR Review

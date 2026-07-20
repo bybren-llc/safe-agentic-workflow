@@ -11,7 +11,7 @@ sources:
   - "docs/guides/OPTIONAL-FEATURES.md"
   - "TEMPLATE_SETUP.md"
   - "docs/team/PLANNING-AGENT-META-PROMPT.md"
-verified_against: "a79c2bd"
+verified_against: "0c26121"
 ---
 
 # Domain Adaptation Beyond Software

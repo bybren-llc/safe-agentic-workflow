@@ -3,13 +3,13 @@ type: script
 title: "generalize-onboarding-docs.sh"
 description: "Replaces hardcoded project references in onboarding docs with template placeholders, backing up each file first."
 tags: [operations, onboarding, process]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 resource: "scripts/generalize-onboarding-docs.sh"
 sources:
   - "scripts/generalize-onboarding-docs.sh"
-verified_against: "fd0fc6a"
+verified_against: "0c26121"
 ---
 
 # generalize-onboarding-docs.sh

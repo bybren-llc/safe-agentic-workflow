@@ -3,17 +3,17 @@ type: guide
 title: "SECURITY.md"
 description: "SSoT stub: the security policy, reframing risk for a prompt-and-config harness rather than an executable application."
 tags: [ssot-stub, security, process, hooks]
-timestamp: 2026-07-19
+timestamp: 2026-07-20
 status: active
 domain: operations
 sources:
   - "SECURITY.md"
-verified_against: "fd0fc6a"
+verified_against: "d314c46"
 ---
 
 # SECURITY.md
 
-144 lines of security policy for an artifact that ships no application code. Its central move is to
+146 lines of security policy for an artifact that ships no application code. Its central move is to
 refuse the standard vulnerability taxonomy and rewrite it for a harness of prompts and config.
 
 ## The Reframing
@@ -43,16 +43,13 @@ not aspirational — tool restriction is defined in
 [Agent Configuration SOP](../sop/agent-configuration-sop.md); placeholder completion is auditable
 via [TEMPLATE_SETUP.md](template-setup.md).
 
-## Known Drift
+## Notes
 
-- Its Supported Versions table lists 2.0.x as the current release and 1.x as deprecated, while the
-  repository ships v2.10.0. The table has not been maintained; the shipped version is the truth.
-- In the "Before Adoption" subsection the three shell commands are unfenced prose, and the third
-  runs together with the following `### During Use` heading — so the heading renders inside the
-  command. Do not copy that block verbatim.
+The "Before Adoption" review commands are a fenced `bash` block; the version table and footer track
+the shipped release. Both were corrected during the v2.11.1 accuracy pass.
 
 ## Citations
 
-- [SECURITY.md](../../../../SECURITY.md) — the full policy; footer Version 2.0, last updated
-  December 2025.
+- [SECURITY.md](../../../../SECURITY.md) — the full policy; footer Version 2.11, last updated
+  July 2026.
 - [Security-First Architecture](../security/security-first-architecture.md) — design-side companion.
