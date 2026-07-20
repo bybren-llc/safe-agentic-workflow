@@ -252,12 +252,20 @@ result=$(
     echo "${ALLOWED_DOMAINS[*]}"
 )
 
+# This is the ONLY test that reads ALLOWED_DOMAINS out of the shipped script rather than a
+# hardcoded stub, so it is the only regression guard on the production allowlist. Every domain
+# must be asserted here, and the count checked, or a domain could be dropped from the engine
+# while the rest of this suite still passes against its own local copies.
 assert_contains "$result" ".claude" "allowed: .claude"
 assert_contains "$result" ".gemini" "allowed: .gemini"
 assert_contains "$result" ".codex" "allowed: .codex"
 assert_contains "$result" ".cursor" "allowed: .cursor"
 assert_contains "$result" ".agents" "allowed: .agents"
 assert_contains "$result" "dark-factory" "allowed: dark-factory"
+assert_contains "$result" "knowledge-vault" "allowed: knowledge-vault"
+
+allowed_count=$(echo "$result" | tr ' ' '\n' | grep -c '.' | tr -d ' ')
+assert_equals "$allowed_count" "7" "engine declares exactly 7 allowed domains"
 
 # =============================================================================
 echo -e "\n${CYAN}=== Test 8: v1.1 protected-path enforcement outside .claude ===${NC}\n"

@@ -149,7 +149,7 @@ sync:
   # Only include domains your project actually uses.
   # Allowed domains:
   #   Provider: .claude/, .gemini/, .codex/, .cursor/
-  #   Shared:   .agents/, dark-factory/
+  #   Shared:   .agents/, dark-factory/, knowledge-vault/
   # Release domains (docs/, scripts/, patterns_library/) deferred to future version.
   # Default: [".claude/"]
   sync_scope:
